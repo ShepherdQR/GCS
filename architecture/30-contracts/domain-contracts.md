@@ -1,0 +1,64 @@
+# Domain Contracts
+
+## Stable Identity
+
+Every durable object has a stable ID:
+
+- entity ID;
+- constraint ID;
+- rigid set or group ID;
+- solve command ID;
+- state version ID;
+- report ID.
+
+Coordinates may change. IDs do not change unless the user performs an explicit
+topology edit.
+
+## Core Types
+
+The target kernel should model:
+
+- geometric entities;
+- constraints;
+- groups and rigid sets;
+- parameter blocks;
+- units and dimensions;
+- tolerance policy;
+- solve intent;
+- state versions;
+- references between objects.
+
+## Model Immutability Boundary
+
+The durable model should be treated as immutable inside a solve. Solvers receive
+snapshots and return proposed deltas or proposed states. Runtime transactions
+commit or reject those proposals.
+
+## Constraint Semantics
+
+A constraint definition should declare:
+
+- supported entity signatures;
+- parameter schema;
+- residual dimension;
+- generic DOF effect when known;
+- residual evaluator;
+- Jacobian provider or differentiation strategy;
+- degeneracy warnings;
+- display and serialization names.
+
+This belongs in `constraint_catalog`, not inside arbitrary solver branches.
+
+## Serialization Contract
+
+Scenes and fixtures should be versioned. A serialized model should identify:
+
+- schema version;
+- units;
+- tolerance policy when non-default;
+- entities and parameter values;
+- constraints and parameters;
+- groups or rigid sets;
+- behavior intent only when needed for replay.
+
+Serialization must round-trip stable IDs and produce deterministic output.
