@@ -1,0 +1,79 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+
+# Local IDE state
+.vs/
+.vscode/
+.idea/
+.trae/
+*.suo
+*.user
+*.rsuser
+*.VC.db
+*.VC.VC.opendb
+Browse.VC.db
+Solution.VC.db
+
+# Visual Studio / MSBuild outputs
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+x64/
+x86/
+Win32/
+build/
+out/
+ipch/
+*.obj
+*.iobj
+*.pdb
+*.ipdb
+*.ilk
+*.idb
+*.pch
+*.ipch
+*.tlog
+*.lastbuildstate
+*.recipe
+*.log
+*.exe
+*.dll
+*.lib
+*.exp
+
+# CMake outputs, in case the project grows beyond the VS solution.
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
+cmake_install.cmake
+
+# Python caches / local environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.venv/
+venv/
+env/
+.env
+
+# Local tool stores and generated runtime state
+.store/
+**/.store/
+GCS/gcs_viz/.events/
+GCS/scene/_tui_temp/
+
+# Generated visualizer / solver scratch outputs
+GCS/display.html
+GCS/*_graph.txt
+GCS/display/web/*_graph.txt
