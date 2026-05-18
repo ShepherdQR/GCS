@@ -19,15 +19,18 @@ The C++ modules use a flat per-module layout. Include paths are resolved from th
 namespace gcs {
 enum class GeometryType;
 enum class ConstraintType;
+enum class SolveMode;
 
 struct RigidSet;
 struct Geometry;
 struct Constraint;
+struct BehaviorModel;
 struct HistoryAction;
 struct Manager;
 
 std::string typeNameGeometry(GeometryType t);
 std::string typeNameConstraint(ConstraintType t);
+std::string typeNameSolveMode(SolveMode t);
 int dofGeometry(GeometryType t);
 int dofRemovedConstraint(ConstraintType t);
 }
@@ -103,17 +106,12 @@ public:
 }
 ```
 
+`SolverConfig` includes the numeric limits and the current `SolveMode`. The behavior model in `Manager` remains the durable model-level intent; config is per solver run.
+
 ## App
 
 ```cpp
 namespace gcs::app {
-struct IGeometry;
-struct IConstraint;
-struct IRigidSet;
-struct IProblem;
-
-void translateProblem(const IProblem& problem, Manager& m);
-
 class App {
 public:
     static App& instance();

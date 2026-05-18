@@ -9,6 +9,8 @@ GCS is a geometric constraint solving project. The solver core is written in C++
 - Visual Studio solution: `GCS.sln`
 - Visual Studio project: `GCS/GCS.vcxproj`
 - Model files: `GCS/scene/`
+- Architecture: `architecture/architecture.md`
+- Commercial GCS references: `architecture/reference/`
 
 ## Run
 

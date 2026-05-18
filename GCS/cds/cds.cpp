@@ -194,12 +194,15 @@ SolverReport ConstraintDrivenSolver::solveSubProblem(
         return report;
     }
 
-    std::cerr << "[CDS] nFreeVars=" << nFreeVars
-              << " nConstraints=" << nConstraints
-              << " initialResidual=" << report.initialResidual << "\n";
+    if (config_.verbose) {
+        std::cerr << "[CDS] mode=" << typeNameSolveMode(config_.mode)
+                  << " nFreeVars=" << nFreeVars
+                  << " nConstraints=" << nConstraints
+                  << " initialResidual=" << report.initialResidual << "\n";
+    }
 
     int fixedVars = nPointCoords - nFreeVars;
-    double lmDamping = 1e-6;
+    double lmDamping = std::max(1e-12, config_.dampingFactor * 1e-6);
 
     auto saveCoords = [&](std::vector<std::array<double, 6>>& saved) {
         saved.clear();
@@ -338,11 +341,13 @@ SolverReport ConstraintDrivenSolver::solveSubProblem(
             lmDamping = std::min(lmDamping * 10.0, 1e6);
         }
 
-        std::cerr << "[CDS] iter=" << (iter+1)
-                  << " alpha=" << bestAlpha
-                  << " residual=" << currentResidual
-                  << " -> " << computeTotalResidual()
-                  << " lm=" << lmDamping << "\n";
+        if (config_.verbose) {
+            std::cerr << "[CDS] iter=" << (iter+1)
+                      << " alpha=" << bestAlpha
+                      << " residual=" << currentResidual
+                      << " -> " << computeTotalResidual()
+                      << " lm=" << lmDamping << "\n";
+        }
 
         double newResidual = computeTotalResidual();
         if (newResidual < config_.tolerance) {

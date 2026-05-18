@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/core.h"
-#include "lgs/lgs.h"
 #include "dcm/dcm.h"
 #include <vector>
 #include <string>
@@ -13,6 +12,7 @@ struct SolverConfig {
     int maxIterations = 100;
     double tolerance = 1e-8;
     double dampingFactor = 1.0;
+    SolveMode mode = SolveMode::Update;
     bool verbose = false;
 };
 

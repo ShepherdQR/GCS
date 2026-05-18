@@ -308,6 +308,23 @@ private:
     }
 };
 
+static std::vector<int> readIntArray(const JsonValue* arr) {
+    std::vector<int> values;
+    if (!arr || arr->type != JsonValue::Array) return values;
+    for (size_t i = 0; i < arr->size(); i++) {
+        values.push_back((*arr)[i].asInt());
+    }
+    return values;
+}
+
+static void writeIntArray(JsonWriter& w, const std::vector<int>& values) {
+    w.writeStartArray();
+    for (int v : values) {
+        w.writeArrayValue(v);
+    }
+    w.writeEndArray();
+}
+
 }
 
 static void writeJsonValue(std::ostream& out, const JsonValue& v);
@@ -330,7 +347,11 @@ void readGraph(Manager& m, const std::string& path) {
         m.rigidSets.push_back(rs);
     }
 
-    int numGeom; in >> numGeom;
+    int numGeom;
+    if (!(in >> numGeom)) {
+        std::cerr << "Failed to read number of geometries\n";
+        return;
+    }
     for (int i = 0; i < numGeom; ++i) {
         Geometry g;
         int typeInt;
@@ -342,7 +363,11 @@ void readGraph(Manager& m, const std::string& path) {
         if (rs) rs->geometryIds.push_back(g.id);
     }
 
-    int numConst; in >> numConst;
+    int numConst;
+    if (!(in >> numConst)) {
+        std::cerr << "Failed to read number of constraints\n";
+        return;
+    }
     for (int i = 0; i < numConst; ++i) {
         Constraint c;
         int typeInt, numConn = 0;
@@ -357,17 +382,31 @@ void readGraph(Manager& m, const std::string& path) {
     }
 
     for (size_t i = 0; i < m.geometries.size(); ++i) {
-        int id; in >> id;
+        int id;
+        if (!(in >> id)) {
+            std::cerr << "Failed to read geometry parameters\n";
+            return;
+        }
         auto* g = m.findGeometry(id);
         if (!g) {
             std::cerr << "Geometry id " << id << " not found in parameters\n";
             return;
         }
-        for (int k = 0; k < 6; ++k) in >> g->v[k];
+        for (int k = 0; k < 6; ++k) {
+            if (!(in >> g->v[k])) {
+                std::cerr << "Failed to read parameters for geometry id " << id << "\n";
+                return;
+            }
+        }
     }
 
     for (size_t i = 0; i < m.constraints.size(); ++i) {
-        int id; double val; in >> id >> val;
+        int id;
+        double val;
+        if (!(in >> id >> val)) {
+            std::cerr << "Failed to read constraint parameters\n";
+            return;
+        }
         auto* c = m.findConstraint(id);
         if (!c) {
             std::cerr << "Constraint id " << id << " not found in parameters\n";
@@ -445,6 +484,17 @@ void readGraphJSON(Manager& m, const std::string& path) {
             }
             m.constraints.push_back(c);
         }
+    }
+
+    const JsonValue* behavior = root.get("behavior");
+    if (behavior && behavior->type == JsonValue::Object) {
+        const JsonValue* mode = behavior->get("mode");
+        if (mode && mode->type == JsonValue::Number) {
+            m.behavior.mode = static_cast<SolveMode>(mode->asInt());
+        }
+        m.behavior.fixedGeometryIds = readIntArray(behavior->get("fixed_geometry_ids"));
+        m.behavior.drivenGeometryIds = readIntArray(behavior->get("driven_geometry_ids"));
+        m.behavior.targetConstraintIds = readIntArray(behavior->get("target_constraint_ids"));
     }
 
     const JsonValue* histArr = root.get("history");
@@ -618,6 +668,17 @@ void dumpGraphJSON(const Manager& m, const std::string& inputPath) {
     }
     w.writeEndArray();
 
+    w.writeKey("behavior");
+    w.writeStartObject();
+    w.writeKeyValue("mode", static_cast<int>(m.behavior.mode));
+    w.writeKey("fixed_geometry_ids");
+    writeIntArray(w, m.behavior.fixedGeometryIds);
+    w.writeKey("driven_geometry_ids");
+    writeIntArray(w, m.behavior.drivenGeometryIds);
+    w.writeKey("target_constraint_ids");
+    writeIntArray(w, m.behavior.targetConstraintIds);
+    w.writeEndObject();
+
     w.writeKey("history");
     w.writeStartArray();
     for (const auto& h : m.history) {
@@ -667,6 +728,11 @@ void printSummary(const Manager& m) {
             std::cout << "  " << h.action << ": " << h.payload << "\n";
         }
     }
+    std::cout << "Behavior: mode=" << typeNameSolveMode(m.behavior.mode)
+              << " fixed=" << m.behavior.fixedGeometryIds.size()
+              << " driven=" << m.behavior.drivenGeometryIds.size()
+              << " targets=" << m.behavior.targetConstraintIds.size()
+              << "\n";
 }
 
 }

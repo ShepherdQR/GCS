@@ -10,7 +10,7 @@
 - `analyzeStatus` classifies constraint status correctly (well/under/over)
 - DOF values per geometry type are correct (Point=3, Line=6, Plane=6)
 - DOF removed per constraint type are correct
-- RigidSet-aware DOF counting works
+- Current DOF counting is per-geometry; rigid-set-aware diagnostics are future work
 - `isWellConstrained` shortcut matches `analyzeStatus` result
 
 ## Test Cases

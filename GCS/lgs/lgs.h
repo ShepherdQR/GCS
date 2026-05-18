@@ -59,7 +59,7 @@ private:
     int computeGeometryDOF(const Manager& m, const dcm::SubProblem& sp) const;
     int computeConstraintRemovedDOF(const Manager& m, const dcm::SubProblem& sp) const;
     ConstraintStatus classifyStatus(int netDOF) const;
-    ConstraintStatus classifyStatusWithRigidSets(const Manager& m, const dcm::SubProblem& sp, int netDOF) const;
+    ConstraintStatus classifyStatusForSubProblem(const Manager& m, const dcm::SubProblem& sp, int netDOF) const;
     double computeConstraintResidual(const Manager& m, const Constraint& c) const;
 };
 

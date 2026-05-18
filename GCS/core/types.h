@@ -16,4 +16,10 @@ enum class ConstraintType {
     Angle = 4
 };
 
+enum class SolveMode {
+    Update = 0,
+    Drag = 1,
+    Simulation = 2
+};
+
 }

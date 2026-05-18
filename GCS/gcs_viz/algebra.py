@@ -19,6 +19,12 @@ class ConstraintType(IntEnum):
     Angle = 4
 
 
+class SolveMode(IntEnum):
+    Update = 0
+    Drag = 1
+    Simulation = 2
+
+
 VALID_CONSTRAINT_SIGNATURES = {
     ConstraintType.Coincident: [
         (GeometryType.Point, GeometryType.Point),
@@ -104,10 +110,36 @@ class Constraint:
 
 
 @dataclass
+class BehaviorModel:
+    mode: SolveMode = SolveMode.Update
+    fixed_geometry_ids: List[int] = field(default_factory=list)
+    driven_geometry_ids: List[int] = field(default_factory=list)
+    target_constraint_ids: List[int] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "mode": int(self.mode),
+            "fixed_geometry_ids": list(self.fixed_geometry_ids),
+            "driven_geometry_ids": list(self.driven_geometry_ids),
+            "target_constraint_ids": list(self.target_constraint_ids),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "BehaviorModel":
+        return cls(
+            mode=SolveMode(d.get("mode", int(SolveMode.Update))),
+            fixed_geometry_ids=list(d.get("fixed_geometry_ids", [])),
+            driven_geometry_ids=list(d.get("driven_geometry_ids", [])),
+            target_constraint_ids=list(d.get("target_constraint_ids", [])),
+        )
+
+
+@dataclass
 class GCSGraph:
     rigid_sets: List[RigidSet] = field(default_factory=list)
     geometries: List[Geometry] = field(default_factory=list)
     constraints: List[Constraint] = field(default_factory=list)
+    behavior: BehaviorModel = field(default_factory=BehaviorModel)
     history: List[dict] = field(default_factory=list)
 
     def find_geometry(self, gid: int) -> Optional[Geometry]:
@@ -232,6 +264,7 @@ class GCSGraph:
             "rigid_sets": [rs.to_dict() for rs in self.rigid_sets],
             "geometries": [g.to_dict() for g in self.geometries],
             "constraints": [c.to_dict() for c in self.constraints],
+            "behavior": self.behavior.to_dict(),
             "history": list(self.history),
         }
 
@@ -241,6 +274,7 @@ class GCSGraph:
         graph.rigid_sets = [RigidSet.from_dict(rs) for rs in d.get("rigid_sets", [])]
         graph.geometries = [Geometry.from_dict(g) for g in d.get("geometries", [])]
         graph.constraints = [Constraint.from_dict(c) for c in d.get("constraints", [])]
+        graph.behavior = BehaviorModel.from_dict(d.get("behavior", {}))
         graph.history = list(d.get("history", []))
         return graph
 

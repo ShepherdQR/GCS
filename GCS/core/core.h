@@ -25,6 +25,13 @@ struct Constraint {
     double value;
 };
 
+struct BehaviorModel {
+    SolveMode mode = SolveMode::Update;
+    std::vector<int> fixedGeometryIds;
+    std::vector<int> drivenGeometryIds;
+    std::vector<int> targetConstraintIds;
+};
+
 struct HistoryAction {
     std::string action;
     std::string payload;
@@ -34,6 +41,7 @@ struct Manager {
     std::vector<RigidSet> rigidSets;
     std::vector<Geometry> geometries;
     std::vector<Constraint> constraints;
+    BehaviorModel behavior;
     std::vector<HistoryAction> history;
 
     RigidSet* findRigidSet(int id);
@@ -46,6 +54,7 @@ struct Manager {
 
 std::string typeNameGeometry(GeometryType t);
 std::string typeNameConstraint(ConstraintType t);
+std::string typeNameSolveMode(SolveMode t);
 int dofGeometry(GeometryType t);
 int dofRemovedConstraint(ConstraintType t);
 

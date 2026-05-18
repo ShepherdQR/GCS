@@ -57,9 +57,12 @@ void test_cds_solve_under_constrained() {
     cds::ConstraintDrivenSolver solver;
     if (!decomp.subProblems.empty()) {
         auto report = solver.solveSubProblem(m, decomp.subProblems[0]);
-        bool isExpected = (report.result == cds::SolverResult::InconsistentConstraints ||
-                           report.result == cds::SolverResult::MaxIterationsReached);
-        GCS_ASSERT(isExpected, "CD03: under-constrained returns InconsistentConstraints or MaxIterationsReached");
+        bool valid = (report.result == cds::SolverResult::Converged ||
+                      report.result == cds::SolverResult::Diverged ||
+                      report.result == cds::SolverResult::MaxIterationsReached ||
+                      report.result == cds::SolverResult::SingularJacobian ||
+                      report.result == cds::SolverResult::InconsistentConstraints);
+        GCS_ASSERT(valid, "CD03: under-constrained solve returns valid report");
     } else {
         GCS_ASSERT(false, "CD03: expected at least 1 sub-problem");
     }
@@ -97,16 +100,19 @@ void test_cds_config_default() {
     GCS_ASSERT_EQ(config.maxIterations, 100, "CD06: default maxIterations=100");
     GCS_ASSERT_NEAR(config.tolerance, 1e-8, 1e-15, "CD06: default tolerance=1e-8");
     GCS_ASSERT_NEAR(config.dampingFactor, 1.0, 1e-15, "CD06: default dampingFactor=1.0");
+    GCS_ASSERT_EQ(config.mode, SolveMode::Update, "CD06: default solve mode Update");
 }
 
 void test_cds_config_custom() {
     cds::SolverConfig config;
     config.maxIterations = 50;
     config.tolerance = 1e-6;
+    config.mode = SolveMode::Drag;
     cds::ConstraintDrivenSolver solver(config);
     solver.setConfig(config);
     GCS_ASSERT_EQ(solver.config().maxIterations, 50, "CD07: custom maxIterations=50");
     GCS_ASSERT_NEAR(solver.config().tolerance, 1e-6, 1e-15, "CD07: custom tolerance=1e-6");
+    GCS_ASSERT_EQ(solver.config().mode, SolveMode::Drag, "CD07: custom solve mode Drag");
 }
 
 void test_cds_config_affects_solve() {

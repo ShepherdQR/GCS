@@ -21,18 +21,11 @@ ConstraintStatus LocalGeometricSolver::classifyStatus(int netDOF) const {
     return ConstraintStatus::OverConstrained;
 }
 
-ConstraintStatus LocalGeometricSolver::classifyStatusWithRigidSets(
+ConstraintStatus LocalGeometricSolver::classifyStatusForSubProblem(
     const Manager& m, const dcm::SubProblem& sp, int netDOF) const {
-    int nRS = (int)sp.rigidSetIds.size();
-    if (nRS <= 1) {
-        if (netDOF == 6) return ConstraintStatus::WellConstrained;
-        if (netDOF > 6)  return ConstraintStatus::UnderConstrained;
-        return ConstraintStatus::OverConstrained;
-    } else {
-        if (netDOF == 0) return ConstraintStatus::WellConstrained;
-        if (netDOF > 0)  return ConstraintStatus::UnderConstrained;
-        return ConstraintStatus::OverConstrained;
-    }
+    (void)m;
+    (void)sp;
+    return classifyStatus(netDOF);
 }
 
 int LocalGeometricSolver::computeGeometryDOF(
@@ -87,7 +80,7 @@ StatusReport LocalGeometricSolver::analyzeStatus(
     const Manager& m, const dcm::SubProblem& sp) const {
     StatusReport report;
     report.dofAnalysis = analyzeDOF(m, sp);
-    report.overallStatus = classifyStatusWithRigidSets(m, sp, report.dofAnalysis.netDOF);
+    report.overallStatus = classifyStatusForSubProblem(m, sp, report.dofAnalysis.netDOF);
     report.isConsistent = true;
 
     std::ostringstream oss;

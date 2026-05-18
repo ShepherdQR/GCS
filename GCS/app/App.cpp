@@ -1,5 +1,4 @@
 #include "app/App.h"
-#include <algorithm>
 
 namespace gcs {
 namespace app {
@@ -47,13 +46,8 @@ App& App::addConstraint(int id, ConstraintType type,
     return *this;
 }
 
-App& App::loadProblem(const IProblem& problem) {
-    translateProblem(problem, manager_);
-    computed_ = false;
-    return *this;
-}
-
 App& App::loadFile(const std::string& path) {
+    reset();
     if (path.size() >= 5 && path.substr(path.size() - 5) == ".json") {
         io::readGraphJSON(manager_, path);
     } else {
@@ -70,14 +64,16 @@ App& App::compute() {
     decomp_ = dcmMgr.decompose(manager_);
 
     lgs::LocalGeometricSolver lgs;
-    globalStatus_ = lgs.analyzeStatus(manager_);
-
     solverReports_.clear();
-    cds::ConstraintDrivenSolver solver;
+    cds::SolverConfig config;
+    config.mode = manager_.behavior.mode;
+    cds::ConstraintDrivenSolver solver(config);
     for (const auto& sp : decomp_.subProblems) {
         auto report = solver.solveSubProblem(manager_, sp);
         solverReports_.push_back(report);
     }
+
+    globalStatus_ = lgs.analyzeStatus(manager_);
 
     transformations_.clear();
     for (const auto& rs : manager_.rigidSets) {
@@ -129,36 +125,6 @@ App& App::reset() {
     transformations_.clear();
     computed_ = false;
     return *this;
-}
-
-void translateProblem(const IProblem& problem, Manager& m) {
-    m = Manager();
-
-    for (const auto& irs : problem.rigidSets()) {
-        RigidSet rs;
-        rs.id = irs->id();
-        rs.geometryIds = irs->geometryIds();
-        m.rigidSets.push_back(rs);
-    }
-
-    for (const auto& ig : problem.geometries()) {
-        Geometry g;
-        g.id = ig->id();
-        g.type = ig->type();
-        g.rigidSetId = ig->rigidSetId();
-        auto params = ig->parameters();
-        for (int i = 0; i < 6; ++i) g.v[i] = params[i];
-        m.geometries.push_back(g);
-    }
-
-    for (const auto& ic : problem.constraints()) {
-        Constraint c;
-        c.id = ic->id();
-        c.type = ic->type();
-        c.geometryIds = ic->geometryIds();
-        c.value = ic->value();
-        m.constraints.push_back(c);
-    }
 }
 
 } // namespace app

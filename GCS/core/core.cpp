@@ -53,6 +53,15 @@ std::string typeNameConstraint(ConstraintType t) {
     return "Unknown";
 }
 
+std::string typeNameSolveMode(SolveMode t) {
+    switch (t) {
+        case SolveMode::Update:     return "Update";
+        case SolveMode::Drag:       return "Drag";
+        case SolveMode::Simulation: return "Simulation";
+    }
+    return "Unknown";
+}
+
 int dofGeometry(GeometryType t) {
     switch (t) {
         case GeometryType::Point: return 3;

@@ -17,6 +17,12 @@ void test_core_enum_constraint_values() {
     GCS_ASSERT_EQ(static_cast<int>(ConstraintType::Angle), 4, "C02: ConstraintType::Angle == 4");
 }
 
+void test_core_enum_solve_mode_values() {
+    GCS_ASSERT_EQ(static_cast<int>(SolveMode::Update), 0, "C02b: SolveMode::Update == 0");
+    GCS_ASSERT_EQ(static_cast<int>(SolveMode::Drag), 1, "C02b: SolveMode::Drag == 1");
+    GCS_ASSERT_EQ(static_cast<int>(SolveMode::Simulation), 2, "C02b: SolveMode::Simulation == 2");
+}
+
 void test_core_geometry_create_point() {
     Geometry g;
     g.id = 10;
@@ -75,6 +81,7 @@ void test_core_manager_empty() {
     GCS_ASSERT_EQ(m.rigidSets.size(), size_t(0), "C08: Empty Manager rigidSets");
     GCS_ASSERT_EQ(m.geometries.size(), size_t(0), "C08: Empty Manager geometries");
     GCS_ASSERT_EQ(m.constraints.size(), size_t(0), "C08: Empty Manager constraints");
+    GCS_ASSERT_EQ(m.behavior.mode, SolveMode::Update, "C08: Empty Manager behavior Update");
 }
 
 void test_core_manager_populate() {
@@ -162,6 +169,12 @@ void test_core_helper_typename_constraint() {
     GCS_ASSERT_EQ(typeNameConstraint(ConstraintType::Angle), std::string("Angle"), "C15: typeNameConstraint Angle");
 }
 
+void test_core_helper_typename_solve_mode() {
+    GCS_ASSERT_EQ(typeNameSolveMode(SolveMode::Update), std::string("Update"), "C15b: typeNameSolveMode Update");
+    GCS_ASSERT_EQ(typeNameSolveMode(SolveMode::Drag), std::string("Drag"), "C15b: typeNameSolveMode Drag");
+    GCS_ASSERT_EQ(typeNameSolveMode(SolveMode::Simulation), std::string("Simulation"), "C15b: typeNameSolveMode Simulation");
+}
+
 void test_core_helper_dof_geometry() {
     GCS_ASSERT_EQ(dofGeometry(GeometryType::Point), 3, "C16: dofGeometry Point = 3");
     GCS_ASSERT_EQ(dofGeometry(GeometryType::Line), 6, "C16: dofGeometry Line = 6");
@@ -181,6 +194,7 @@ int main() {
 
     test_core_enum_geometry_values();
     test_core_enum_constraint_values();
+    test_core_enum_solve_mode_values();
     test_core_geometry_create_point();
     test_core_geometry_create_line();
     test_core_geometry_create_plane();
@@ -194,6 +208,7 @@ int main() {
     test_core_manager_find_rigidset();
     test_core_helper_typename_geometry();
     test_core_helper_typename_constraint();
+    test_core_helper_typename_solve_mode();
     test_core_helper_dof_geometry();
     test_core_helper_dof_removed_constraint();
 

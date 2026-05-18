@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`lgs` analyzes local geometric constraint status: degrees of freedom, under-constrained cases, over-constrained cases, and residual violations.
+`lgs` analyzes local geometric constraint status: degrees of freedom, under-constrained cases, over-constrained cases, consistency, and residual violations.
 
 ## Files
 
@@ -38,4 +38,7 @@ public:
 
 - `lgs` depends on `core` and `dcm`.
 - It does not perform file IO.
+- It does not mutate geometry.
 - It returns reports instead of launching UI behavior.
+- It currently classifies status from per-geometry net DOF.
+- It is the right place for future conflict, redundancy, and rigid-set DOF diagnostics.
