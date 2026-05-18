@@ -1,7 +1,7 @@
 #include "test_framework.h"
-#include "gcs/cds/cds.h"
-#include "gcs/dcm/dcm.h"
-#include "gcs/lgs/lgs.h"
+#include "cds/cds.h"
+#include "dcm/dcm.h"
+#include "lgs/lgs.h"
 
 using namespace gcs;
 

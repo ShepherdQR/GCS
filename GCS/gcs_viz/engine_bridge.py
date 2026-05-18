@@ -1,7 +1,5 @@
 import subprocess
 import os
-import json
-from typing import Optional
 
 
 class EngineBridge:
@@ -15,10 +13,6 @@ class EngineBridge:
                 env_exe,
                 os.path.join(repo_dir, "build", "bin", "x64", "Debug", "GCS.exe"),
                 os.path.join(repo_dir, "build", "bin", "x64", "Release", "GCS.exe"),
-                os.path.join(project_dir, "build", "bin", "x64", "Debug", "GCS.exe"),
-                os.path.join(project_dir, "build", "bin", "x64", "Release", "GCS.exe"),
-                os.path.join(repo_dir, "x64", "Debug", "GCS.exe"),
-                os.path.join(project_dir, "x64", "Debug", "GCS.exe"),
             ]
             exe_path = None
             for c in candidates:

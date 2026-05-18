@@ -1,4 +1,4 @@
-#include "gcs/core/core.h"
+#include "core/core.h"
 #include <algorithm>
 
 namespace gcs {

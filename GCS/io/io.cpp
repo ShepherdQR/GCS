@@ -1,8 +1,7 @@
-#include "gcs/io/io.h"
+#include "io/io.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <cstdlib>
 #include <sstream>
 #include <cmath>
 
@@ -640,64 +639,6 @@ void dumpGraphJSON(const Manager& m, const std::string& inputPath) {
     out << w.str() << "\n";
     out.close();
     std::cout << "Dumped graph to: " << outName << "\n";
-}
-
-void dumpGraphLocal(const Manager& m, const std::string& inputPath) {
-    if (inputPath.empty()) {
-        return;
-    }
-
-    std::string base = inputPath;
-    size_t pos = base.find_last_of("/\\");
-    if (pos != std::string::npos) base = base.substr(pos + 1);
-    size_t dot = base.find_last_of('.');
-    if (dot != std::string::npos) base = base.substr(0, dot);
-
-    std::string outName = base + "_graph.txt";
-    std::string outNameFull = std::string("../x64/Debug/") + outName;
-    std::ofstream out(outNameFull);
-
-    if (!out) {
-        std::cerr << "Failed to open output graph file: " << outName << "\n";
-        return;
-    }
-
-    out << m.rigidSets.size() << "\n";
-    for (size_t i = 0; i < m.rigidSets.size(); ++i) {
-        if (i) out << ' ';
-        out << m.rigidSets[i].id;
-    }
-    out << "\n";
-
-    out << m.geometries.size() << "\n";
-    for (const auto &g : m.geometries) {
-        out << g.id << ' ' << static_cast<int>(g.type) << ' ' << g.rigidSetId << "\n";
-    }
-
-    out << m.constraints.size() << "\n";
-    for (const auto &c : m.constraints) {
-        out << c.id << ' ' << static_cast<int>(c.type) << ' ' << c.geometryIds.size();
-        for (int gid : c.geometryIds) out << ' ' << gid;
-        out << "\n";
-    }
-
-    out << "\n";
-    for (const auto &g : m.geometries) {
-        out << g.id;
-        for (int k = 0; k < 6; ++k) out << ' ' << g.v[k];
-        out << "\n";
-    }
-
-    out << "\n";
-    for (const auto &c : m.constraints) {
-        out << c.id << ' ' << c.value << "\n";
-    }
-
-    out.close();
-    std::cout << "Dumped graph to: " << outName << "\n";
-}
-
-void displayGraph(const std::string& graphFile) {
 }
 
 void printSummary(const Manager& m) {

@@ -1,11 +1,11 @@
 #include "test_framework.h"
-#include "gcs/io/io.h"
+#include "io/io.h"
 #include <fstream>
 #include <cstdio>
 
 using namespace gcs;
 
-static const std::string test_dir = "test/io/";
+static const std::string test_dir = "scene/test/io/";
 
 static void writeTestFile(const std::string& path, const std::string& content) {
     std::ofstream out(path);

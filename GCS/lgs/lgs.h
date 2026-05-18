@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gcs/core/core.h"
-#include "gcs/dcm/dcm.h"
+#include "core/core.h"
+#include "dcm/dcm.h"
 #include <vector>
 #include <string>
 

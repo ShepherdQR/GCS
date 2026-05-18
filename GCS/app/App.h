@@ -1,10 +1,10 @@
 #pragma once
 
-#include "gcs/core/core.h"
-#include "gcs/dcm/dcm.h"
-#include "gcs/lgs/lgs.h"
-#include "gcs/cds/cds.h"
-#include "gcs/io/io.h"
+#include "core/core.h"
+#include "dcm/dcm.h"
+#include "lgs/lgs.h"
+#include "cds/cds.h"
+#include "io/io.h"
 #include <array>
 #include <memory>
 #include <unordered_map>

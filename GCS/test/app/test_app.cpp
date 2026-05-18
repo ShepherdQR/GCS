@@ -1,5 +1,5 @@
 #include "test_framework.h"
-#include "gcs/app/App.h"
+#include "app/App.h"
 #include <fstream>
 #include <cstdio>
 
@@ -115,7 +115,7 @@ void test_app_builder_chain() {
 
 void test_app_load_file() {
     App::instance().reset();
-    App::instance().loadFile("test/app/full_pipeline.txt");
+    App::instance().loadFile("scene/test/app/full_pipeline.txt");
     GCS_ASSERT(App::instance().manager().geometries.size() > 0, "A06: loadFile geometries populated");
     App::instance().reset();
 }

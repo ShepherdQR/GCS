@@ -1,5 +1,5 @@
 #include "test_framework.h"
-#include "gcs/core/core.h"
+#include "core/core.h"
 
 using namespace gcs;
 

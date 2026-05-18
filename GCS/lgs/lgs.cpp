@@ -1,4 +1,4 @@
-#include "gcs/lgs/lgs.h"
+#include "lgs/lgs.h"
 #include <cmath>
 #include <sstream>
 

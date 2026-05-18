@@ -1,4 +1,4 @@
-#include "gcs/dcm/dcm.h"
+#include "dcm/dcm.h"
 #include <queue>
 
 namespace gcs {

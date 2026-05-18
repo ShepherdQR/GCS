@@ -1,4 +1,4 @@
-#include "gcs/app/App.h"
+#include "app/App.h"
 #include <iostream>
 #include <cmath>
 
@@ -6,7 +6,7 @@ using namespace gcs;
 using namespace gcs::app;
 
 int main(int argc, char** argv) {
-    std::string path = "g1.txt";
+    std::string path = "scene/basic/g1.txt";
     if (argc > 1) path = argv[1];
 
     App::instance().loadFile(path).compute();

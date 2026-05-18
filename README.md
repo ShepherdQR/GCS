@@ -5,9 +5,10 @@ GCS is a geometric constraint solving project. The solver core is written in C++
 ## Entry Points
 
 - Visual interface: `GCS/start_tui.bat`
-- C++ solver main program: `GCS/app/src/main.cpp`
+- C++ solver main program: `GCS/app/main.cpp`
 - Visual Studio solution: `GCS.sln`
 - Visual Studio project: `GCS/GCS.vcxproj`
+- Model files: `GCS/scene/`
 
 ## Run
 
@@ -23,6 +24,10 @@ Build outputs are organized under `build/`, and the visual layer looks for the s
 - `build/bin/<Platform>/<Configuration>/`: executables
 - `build/obj/<Project>/<Platform>/<Configuration>/`: Visual Studio intermediate files
 - `build/obj/tests/<Platform>/<Configuration>/`: manually built test object files
+
+The C++ modules use a flat layout. For example, `GCS/cds/cds.h` and `GCS/cds/cds.cpp` live directly inside the `cds` module directory.
+
+Text graph models, including test fixtures, live under `GCS/scene/`.
 
 If Python dependencies are missing, install them with:
 

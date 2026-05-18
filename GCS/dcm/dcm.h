@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gcs/core/core.h"
+#include "core/core.h"
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>

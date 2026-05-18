@@ -1,8 +1,8 @@
 #pragma once
 
-#include "gcs/core/core.h"
-#include "gcs/lgs/lgs.h"
-#include "gcs/dcm/dcm.h"
+#include "core/core.h"
+#include "lgs/lgs.h"
+#include "dcm/dcm.h"
 #include <vector>
 #include <string>
 

@@ -1,4 +1,4 @@
-#include "gcs/app/App.h"
+#include "app/App.h"
 #include <algorithm>
 
 namespace gcs {
