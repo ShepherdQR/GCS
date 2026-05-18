@@ -18,7 +18,11 @@ cd GCS
 start_tui.bat
 ```
 
-The visual layer looks for the compiled solver at the usual Visual Studio output paths, such as `x64/Debug/GCS.exe`.
+Build outputs are organized under `build/`, and the visual layer looks for the solver there first:
+
+- `build/bin/<Platform>/<Configuration>/`: executables
+- `build/obj/<Project>/<Platform>/<Configuration>/`: Visual Studio intermediate files
+- `build/obj/tests/<Platform>/<Configuration>/`: manually built test object files
 
 If Python dependencies are missing, install them with:
 

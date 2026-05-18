@@ -7,18 +7,29 @@ from typing import Optional
 class EngineBridge:
     def __init__(self, exe_path: str = None):
         if exe_path is None:
+            package_dir = os.path.dirname(os.path.abspath(__file__))
+            project_dir = os.path.normpath(os.path.join(package_dir, ".."))
+            repo_dir = os.path.normpath(os.path.join(project_dir, ".."))
+            env_exe = os.environ.get("GCS_EXE")
             candidates = [
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "x64", "Debug", "GCS.exe"),
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "x64", "Debug", "GCS.exe"),
+                env_exe,
+                os.path.join(repo_dir, "build", "bin", "x64", "Debug", "GCS.exe"),
+                os.path.join(repo_dir, "build", "bin", "x64", "Release", "GCS.exe"),
+                os.path.join(project_dir, "build", "bin", "x64", "Debug", "GCS.exe"),
+                os.path.join(project_dir, "build", "bin", "x64", "Release", "GCS.exe"),
+                os.path.join(repo_dir, "x64", "Debug", "GCS.exe"),
+                os.path.join(project_dir, "x64", "Debug", "GCS.exe"),
             ]
             exe_path = None
             for c in candidates:
+                if not c:
+                    continue
                 c = os.path.normpath(c)
                 if os.path.isfile(c):
                     exe_path = c
                     break
             if exe_path is None:
-                exe_path = os.path.normpath(candidates[0])
+                exe_path = os.path.normpath(candidates[1])
         self.exe_path = exe_path
 
     def is_available(self) -> bool:

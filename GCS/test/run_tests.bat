@@ -1,5 +1,8 @@
 @echo off
+setlocal
 cd /d "%~dp0.."
+
+set "TEST_BIN=..\build\bin\x64\Debug"
 
 echo ==========================================
 echo === Running GCS Interface Tests ===
@@ -7,27 +10,27 @@ echo ==========================================
 
 echo.
 echo === test_core ===
-x64\Debug\test_core.exe
+"%TEST_BIN%\test_core.exe"
 echo.
 
 echo === test_io ===
-x64\Debug\test_io.exe
+"%TEST_BIN%\test_io.exe"
 echo.
 
 echo === test_dcm ===
-x64\Debug\test_dcm.exe
+"%TEST_BIN%\test_dcm.exe"
 echo.
 
 echo === test_lgs ===
-x64\Debug\test_lgs.exe
+"%TEST_BIN%\test_lgs.exe"
 echo.
 
 echo === test_cds ===
-x64\Debug\test_cds.exe
+"%TEST_BIN%\test_cds.exe"
 echo.
 
 echo === test_app ===
-x64\Debug\test_app.exe
+"%TEST_BIN%\test_app.exe"
 echo.
 
 echo ==========================================

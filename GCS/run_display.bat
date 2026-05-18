@@ -12,4 +12,23 @@ if "%~1"=="" (
     echo          run_display.bat bcc --scene
     exit /b 1
 )
-C:\Softwares\miniconda3\python.exe "%~dp0run_display.py" %*
+
+if defined GCS_PYTHON (
+    "%GCS_PYTHON%" "%~dp0run_display.py" %*
+    exit /b %ERRORLEVEL%
+)
+
+where python >nul 2>nul
+if %ERRORLEVEL%==0 (
+    python "%~dp0run_display.py" %*
+    exit /b %ERRORLEVEL%
+)
+
+where py >nul 2>nul
+if %ERRORLEVEL%==0 (
+    py -3 "%~dp0run_display.py" %*
+    exit /b %ERRORLEVEL%
+)
+
+echo Python 3 was not found. Install Python 3 or set GCS_PYTHON to the interpreter path.
+exit /b 1
