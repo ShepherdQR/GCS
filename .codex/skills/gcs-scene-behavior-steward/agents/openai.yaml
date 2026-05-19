@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Scene Behavior Steward"
+  short_description: "Preserve scene IO, behavior, and history."
+  default_prompt: "Use this skill to change GCS scene formats or history behavior."

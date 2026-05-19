@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Architecture Steward"
+  short_description: "Steward GCS architecture boundaries."
+  default_prompt: "Use this skill to plan or review a GCS architecture change."

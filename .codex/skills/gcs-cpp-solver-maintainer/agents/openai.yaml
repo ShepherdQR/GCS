@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS C++ Solver Maintainer"
+  short_description: "Maintain the C++ solver modules safely."
+  default_prompt: "Use this skill to change or review C++ solver code."

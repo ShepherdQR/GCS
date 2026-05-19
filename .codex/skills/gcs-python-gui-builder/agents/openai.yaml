@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Python GUI Builder"
+  short_description: "Build the local tkinter GCS interface."
+  default_prompt: "Use this skill to work on the Python GUI and visualizer."
