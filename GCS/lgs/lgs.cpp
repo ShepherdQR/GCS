@@ -1,6 +1,14 @@
-#include "lgs/lgs.h"
+module;
+
 #include <cmath>
 #include <sstream>
+#include <string>
+#include <vector>
+
+module gcs.lgs;
+
+import gcs.core;
+import gcs.dcm;
 
 namespace gcs {
 namespace lgs {

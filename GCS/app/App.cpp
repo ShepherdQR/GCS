@@ -1,4 +1,17 @@
-#include "app/App.h"
+module;
+
+#include <array>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+module gcs.app;
+
+import gcs.core;
+import gcs.dcm;
+import gcs.lgs;
+import gcs.cds;
+import gcs.io;
 
 namespace gcs {
 namespace app {

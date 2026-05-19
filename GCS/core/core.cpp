@@ -1,5 +1,10 @@
-#include "core/core.h"
+module;
+
 #include <algorithm>
+#include <string>
+#include <vector>
+
+module gcs.core;
 
 namespace gcs {
 

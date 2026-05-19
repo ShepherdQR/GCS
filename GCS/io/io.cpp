@@ -1,9 +1,18 @@
-#include "io/io.h"
-#include <iostream>
-#include <fstream>
+module;
+
 #include <algorithm>
-#include <sstream>
 #include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
+module gcs.io;
+
+import gcs.core;
 
 namespace gcs {
 namespace io {

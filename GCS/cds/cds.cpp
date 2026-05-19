@@ -1,8 +1,16 @@
-#include "cds/cds.h"
+module;
+
 #include <cmath>
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <string>
+#include <vector>
+
+module gcs.cds;
+
+import gcs.core;
+import gcs.dcm;
 
 namespace gcs {
 namespace cds {

@@ -1,5 +1,12 @@
-#include "dcm/dcm.h"
+module;
+
 #include <queue>
+#include <unordered_set>
+#include <vector>
+
+module gcs.dcm;
+
+import gcs.core;
 
 namespace gcs {
 namespace dcm {

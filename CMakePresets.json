@@ -1,0 +1,33 @@
+{
+  "version": 8,
+  "configurePresets": [
+    {
+      "name": "clang-ninja",
+      "displayName": "Clang 20 + Ninja + C++23 Modules",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/clang-ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "C:/Softwares/LLVM/LLVM_20_1_7/bin/clang++.exe",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS": "C:/Softwares/LLVM/LLVM_20_1_7/bin/clang-scan-deps.exe",
+        "CMAKE_MAKE_PROGRAM": "C:/Softwares/ninja/ninja_1_13_2/ninja.exe",
+        "CMAKE_AR": "C:/Softwares/LLVM/LLVM_20_1_7/bin/llvm-ar.exe",
+        "CMAKE_RANLIB": "C:/Softwares/LLVM/LLVM_20_1_7/bin/llvm-ranlib.exe",
+        "CMAKE_LINKER": "C:/Softwares/LLVM/LLVM_20_1_7/bin/lld-link.exe",
+        "CMAKE_RC_COMPILER": "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/rc.exe",
+        "CMAKE_MT": "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/mt.exe",
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_EXTENSIONS": "OFF",
+        "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=lld",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "clang-ninja",
+      "configurePreset": "clang-ninja"
+    }
+  ]
+}
