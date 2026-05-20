@@ -1,72 +1,203 @@
 {
   "format_version": 1,
-  "rigid_sets": [{
+  "rigid_sets": [
+    {
       "id": 0,
-      "geometry_ids": [0,1,2
+      "geometry_ids": [
+        0
+      ]
+    },
+    {
+      "id": 1,
+      "geometry_ids": [
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "geometry_ids": [
+        2
       ]
     }
   ],
-  "geometries": [{
+  "geometries": [
+    {
       "id": 0,
       "type": 0,
       "rigid_set_id": 0,
-      "v": [0,0,0,0,0,0
+      "v": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ]
-    },{
+    },
+    {
       "id": 1,
       "type": 0,
-      "rigid_set_id": 0,
-      "v": [1,0,0,0,0,0
+      "rigid_set_id": 1,
+      "v": [
+        0.561127564236894,
+        -0.827729340277132,
+        0,
+        0,
+        0,
+        0
       ]
-    },{
+    },
+    {
       "id": 2,
       "type": 0,
-      "rigid_set_id": 0,
-      "v": [-1,0.000116751054881335,0,0,0,0
+      "rigid_set_id": 2,
+      "v": [
+        -0.561021530920968,
+        0.82780121161171,
+        -3.70072969161617e-09,
+        0,
+        0,
+        0
       ]
     }
   ],
-  "constraints": [{
+  "constraints": [
+    {
       "id": 0,
       "type": 3,
-      "geometry_ids": [0,1
+      "geometry_ids": [
+        0,
+        1
       ],
       "value": 1
-    },{
+    },
+    {
       "id": 1,
       "type": 3,
-      "geometry_ids": [0,2
+      "geometry_ids": [
+        0,
+        2
       ],
       "value": 1
-    },{
+    },
+    {
       "id": 2,
       "type": 3,
-      "geometry_ids": [1,2
+      "geometry_ids": [
+        1,
+        2
       ],
       "value": 2
     }
   ],
-  "history": [{
+  "behavior": {
+    "mode": 0,
+    "fixed_geometry_ids": [],
+    "driven_geometry_ids": [],
+    "target_constraint_ids": []
+  },
+  "history": [
+    {
       "action": "AddRigidSet",
-      "payload": "{\"id\":0}"
-    },{
+      "payload": {
+        "id": 0
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 1
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 2
+      }
+    },
+    {
       "action": "AddGeometry",
-      "payload": "{\"id\":0,\"type\":0,\"rigid_set_id\":0,\"v\":[0,0,0,0,0,0]}"
-    },{
+      "payload": {
+        "id": 0,
+        "type": 0,
+        "rigid_set_id": 0,
+        "v": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
       "action": "AddGeometry",
-      "payload": "{\"id\":1,\"type\":0,\"rigid_set_id\":0,\"v\":[1,0,0,0,0,0]}"
-    },{
+      "payload": {
+        "id": 1,
+        "type": 0,
+        "rigid_set_id": 1,
+        "v": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
       "action": "AddGeometry",
-      "payload": "{\"id\":2,\"type\":0,\"rigid_set_id\":0,\"v\":[0.5,0.866,0,0,0,0]}"
-    },{
+      "payload": {
+        "id": 2,
+        "type": 0,
+        "rigid_set_id": 2,
+        "v": [
+          0.5,
+          0.866025,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
       "action": "AddConstraint",
-      "payload": "{\"id\":0,\"type\":3,\"geometry_ids\":[0,1],\"value\":1}"
-    },{
+      "payload": {
+        "id": 0,
+        "type": 3,
+        "geometry_ids": [
+          0,
+          1
+        ],
+        "value": 1
+      }
+    },
+    {
       "action": "AddConstraint",
-      "payload": "{\"id\":1,\"type\":3,\"geometry_ids\":[0,2],\"value\":1}"
-    },{
+      "payload": {
+        "id": 1,
+        "type": 3,
+        "geometry_ids": [
+          0,
+          2
+        ],
+        "value": 1
+      }
+    },
+    {
       "action": "AddConstraint",
-      "payload": "{\"id\":2,\"type\":3,\"geometry_ids\":[1,2],\"value\":2}"
+      "payload": {
+        "id": 2,
+        "type": 3,
+        "geometry_ids": [
+          1,
+          2
+        ],
+        "value": 2
+      }
     }
   ]
 }

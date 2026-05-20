@@ -12,6 +12,12 @@ Structural model:
 - `Geometry`: point, line, or plane with six numeric parameters.
 - `Constraint`: geometric relation plus optional numeric value.
 
+Constraint incidence rule:
+
+- Constraint endpoints must reference geometries from different rigid sets.
+  Same-rigid-set endpoints are invalid model data because the rigid set already
+  represents one body-level parameter block.
+
 Behavior model:
 
 - `SolveMode::Update`: solve the current constraint graph.

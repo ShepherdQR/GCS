@@ -1,25 +1,197 @@
 {
   "format_version": 1,
   "rigid_sets": [
-    {"id": 0, "geometry_ids": [0, 1, 2]}
+    {
+      "id": 0,
+      "geometry_ids": [
+        0
+      ]
+    },
+    {
+      "id": 1,
+      "geometry_ids": [
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "geometry_ids": [
+        2
+      ]
+    }
   ],
   "geometries": [
-    {"id": 0, "type": 0, "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
-    {"id": 1, "type": 0, "rigid_set_id": 0, "v": [1, 0, 0, 0, 0, 0]},
-    {"id": 2, "type": 0, "rigid_set_id": 0, "v": [0.5, 0.8660254037844386, 0, 0, 0, 0]}
+    {
+      "id": 0,
+      "type": 0,
+      "rigid_set_id": 0,
+      "v": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 1,
+      "type": 0,
+      "rigid_set_id": 1,
+      "v": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 2,
+      "type": 0,
+      "rigid_set_id": 2,
+      "v": [
+        0.5,
+        0.8660254037844386,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
   ],
   "constraints": [
-    {"id": 0, "type": 3, "geometry_ids": [0, 1], "value": 1.0},
-    {"id": 1, "type": 3, "geometry_ids": [0, 2], "value": 1.0},
-    {"id": 2, "type": 3, "geometry_ids": [1, 2], "value": 2.0}
+    {
+      "id": 0,
+      "type": 3,
+      "geometry_ids": [
+        0,
+        1
+      ],
+      "value": 1.0
+    },
+    {
+      "id": 1,
+      "type": 3,
+      "geometry_ids": [
+        0,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "id": 2,
+      "type": 3,
+      "geometry_ids": [
+        1,
+        2
+      ],
+      "value": 2.0
+    }
   ],
   "history": [
-    {"action": "AddRigidSet", "payload": {"id": 0}},
-    {"action": "AddGeometry", "payload": {"id": 0, "type": 0, "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]}},
-    {"action": "AddGeometry", "payload": {"id": 1, "type": 0, "rigid_set_id": 0, "v": [1, 0, 0, 0, 0, 0]}},
-    {"action": "AddGeometry", "payload": {"id": 2, "type": 0, "rigid_set_id": 0, "v": [0.5, 0.866, 0, 0, 0, 0]}},
-    {"action": "AddConstraint", "payload": {"id": 0, "type": 3, "geometry_ids": [0, 1], "value": 1.0}},
-    {"action": "AddConstraint", "payload": {"id": 1, "type": 3, "geometry_ids": [0, 2], "value": 1.0}},
-    {"action": "AddConstraint", "payload": {"id": 2, "type": 3, "geometry_ids": [1, 2], "value": 2.0}}
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 0
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 1
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 2
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 0,
+        "type": 0,
+        "rigid_set_id": 0,
+        "v": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 1,
+        "type": 0,
+        "rigid_set_id": 1,
+        "v": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 2,
+        "type": 0,
+        "rigid_set_id": 2,
+        "v": [
+          0.5,
+          0.8660254037844386,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "id": 0,
+        "type": 3,
+        "geometry_ids": [
+          0,
+          1
+        ],
+        "value": 1.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "id": 1,
+        "type": 3,
+        "geometry_ids": [
+          0,
+          2
+        ],
+        "value": 1.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "id": 2,
+        "type": 3,
+        "geometry_ids": [
+          1,
+          2
+        ],
+        "value": 2.0
+      }
+    }
   ]
 }

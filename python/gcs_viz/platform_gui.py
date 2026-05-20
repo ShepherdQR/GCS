@@ -36,6 +36,7 @@ class GCSPlatformGUI:
         self.engine = EngineBridge()
         self.scene_id = "default"
         self.current_view = "3d"
+        self.current_model_name = "Untitled"
         self._history_replay_job = None
         self._history_replay_history = []
         self._history_replay_index = -1
@@ -48,6 +49,7 @@ class GCSPlatformGUI:
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.replay_speed_var = tk.DoubleVar(value=1.0)
         self.replay_speed_label_var = tk.StringVar(value="Replay Speed: 1.00x")
+        self.model_name_var = tk.StringVar(value="Model: Untitled")
 
         style = ttk.Style()
         style.configure("DOF.TLabel", font=("Segoe UI", 11, "bold"))
@@ -181,6 +183,8 @@ class GCSPlatformGUI:
 
         ttk.Separator(toolbar_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=8)
         ttk.Button(toolbar_frame, text="🔄 Refresh", command=self._refresh_canvas).pack(side=tk.LEFT, padx=4)
+        ttk.Separator(toolbar_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=8)
+        ttk.Label(toolbar_frame, textvariable=self.model_name_var, style="Section.TLabel").pack(side=tk.LEFT, padx=4)
 
         self.fig = plt.figure(figsize=(8, 6), dpi=100)
         self.canvas_widget = FigureCanvasTkAgg(self.fig, master=parent)
@@ -294,6 +298,10 @@ class GCSPlatformGUI:
         self._cancel_history_replay()
         self._draw_graph_on_canvas(self.graph, self.view_var.get(), use_welcome=True)
 
+    def _set_current_model(self, filepath):
+        self.current_model_name = os.path.basename(filepath) if filepath else "Untitled"
+        self.model_name_var.set(f"Model: {self.current_model_name}")
+
     def _draw_graph_on_canvas(self, graph: GCSGraph, view: str, use_welcome: bool = False, title=None):
         if not graph.geometries:
             if use_welcome:
@@ -371,6 +379,9 @@ class GCSPlatformGUI:
         dialog = AddConstraintDialog(self.root, self.graph)
         if dialog.result is not None:
             r = dialog.result
+            if not self.graph.geometries_span_rigid_sets(r["geometry_ids"]):
+                self._log_warning("Constraint geometries must belong to different rigid sets")
+                return
             cid = self.graph.next_constraint_id()
             self.graph.add_constraint(r["type"], r["geometry_ids"], value=r["value"], cid=cid)
             self.graph.history.append({"action": "AddConstraint", "payload": {"id": cid, "type": int(r["type"]), "geometry_ids": r["geometry_ids"], "value": r["value"]}})
@@ -532,6 +543,7 @@ class GCSPlatformGUI:
         if filepath:
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
             write_graph_file(self.graph, filepath)
+            self._set_current_model(filepath)
             self.event_store.append(self.scene_id, "ModelSaved", {"path": filepath})
             self._log_success(f"Saved to {filepath}")
 
@@ -544,6 +556,7 @@ class GCSPlatformGUI:
         if filepath:
             try:
                 self.graph = read_graph_file(filepath)
+                self._set_current_model(filepath)
                 self.event_store.append(self.scene_id, "GraphLoaded", {"path": filepath})
                 self._refresh_tables()
                 self._refresh_canvas()

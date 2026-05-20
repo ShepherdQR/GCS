@@ -49,6 +49,19 @@ A constraint definition should declare:
 
 This belongs in `constraint_catalog`, not inside arbitrary solver branches.
 
+## Rigid Set Incidence
+
+Rigid sets are the body-level incidence boundary for persisted scenes. A
+constraint may reference multiple geometries, but every referenced geometry must
+belong to a different rigid set. Constraints inside a single rigid set are
+invalid model data because rigid-set-internal geometry is already treated as
+belonging to the same body-level parameter block.
+
+Scene IO, fixture generation, repair tools, and GUI construction flows should
+reject or repair same-rigid-set constraint endpoints before the model reaches a
+solver run. Legacy fixtures that intentionally exercise malformed input should
+name that intent explicitly instead of appearing as normal saved models.
+
 ## Serialization Contract
 
 Scenes and fixtures should be versioned. A serialized model should identify:

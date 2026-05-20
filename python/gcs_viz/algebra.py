@@ -258,6 +258,22 @@ class GCSGraph:
         valid = VALID_CONSTRAINT_SIGNATURES.get(c.type, [])
         return (g1.type, g2.type) in valid or (g2.type, g1.type) in valid
 
+    def geometry_rigid_set_ids(self, geometry_ids: List[int]) -> Optional[List[int]]:
+        rs_ids = []
+        for gid in geometry_ids:
+            geometry = self.find_geometry(gid)
+            if geometry is None:
+                return None
+            rs_ids.append(geometry.rigid_set_id)
+        return rs_ids
+
+    def geometries_span_rigid_sets(self, geometry_ids: List[int]) -> bool:
+        rs_ids = self.geometry_rigid_set_ids(geometry_ids)
+        return rs_ids is not None and len(rs_ids) >= 2 and len(set(rs_ids)) == len(rs_ids)
+
+    def validate_constraint_rigid_sets(self, c: Constraint) -> bool:
+        return self.geometries_span_rigid_sets(c.geometry_ids)
+
     def to_dict(self) -> dict:
         return {
             "format_version": 1,
