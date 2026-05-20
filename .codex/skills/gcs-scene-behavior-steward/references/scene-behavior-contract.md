@@ -52,3 +52,25 @@ Current action names should remain stable unless a migration is added:
 
 Each action stores an explicit `payload` object. Replayers should tolerate
 `Solve` as a marker when they are only reconstructing topology.
+
+## Expected Payload Shapes
+
+- `AddRigidSet`: `{"id": int}`
+- `RemoveRigidSet`: `{"id": int}`
+- `AddGeometry`: `{"id": int, "type": int, "rigid_set_id": int, "v": [number, ...]}`
+- `RemoveGeometry`: `{"id": int}`
+- `AddConstraint`: `{"id": int, "type": int, "geometry_ids": [int, ...], "value": number}`
+- `RemoveConstraint`: `{"id": int}`
+- `UpdateConstraint`: `{"id": int, "value": number}`
+- `Solve`: `{}`
+
+## Compatibility Checklist
+
+- Text fixtures still load when JSON-only fields are added.
+- JSON scenes round-trip stable IDs, geometry parameters, constraint values,
+  behavior fields, and history arrays.
+- C++ `io_adapters` and Python `gcs_viz.algebra` agree on field names and enum
+  integer values.
+- Replay code can skip `Solve` markers and unknown future actions without
+  corrupting the reconstructed topology.
+- Saved scenes contain no absolute local paths or display-only state.

@@ -1,6 +1,6 @@
 ---
 name: gcs-scene-behavior-steward
-description: Project-specific workflow for GCS scene formats, JSON behavior models, history replay, and IO compatibility. Use when editing fixtures/scene, src/gcs/io_adapters JSON or text readers/writers, python/gcs_viz/algebra.py serialization, behavior modes, history actions, fixtures, or replay features.
+description: Project-specific workflow for GCS scene formats, JSON behavior models, history replay, and IO compatibility. Use when editing fixtures/scene, src/gcs/io_adapters JSON or text readers/writers, python/gcs_viz/algebra.py serialization, behavior modes, history actions, saved scenes, replay reconstruction, or scene compatibility fixtures.
 ---
 
 # GCS Scene Behavior Steward
@@ -10,6 +10,13 @@ description: Project-specific workflow for GCS scene formats, JSON behavior mode
 Use this skill whenever a change touches model persistence or replay. Read
 `references/scene-behavior-contract.md` before changing C++ IO, Python
 serialization, saved scenes, or history behavior.
+
+If the change is C++ implementation work, also use
+`gcs-cpp-solver-maintainer`. If it changes GUI replay UX, also use
+`gcs-python-gui-builder`. If it changes the durable ownership of commands,
+history, or IO, also use `gcs-architecture-steward`. If a generated scene is
+being created, validated, repaired, or promoted from `tools/scene_generation`,
+also use `gcs-scene-generation-engineer`.
 
 ## Format Rules
 
@@ -30,6 +37,8 @@ serialization, saved scenes, or history behavior.
 - Record topology edits and value edits with explicit action names and payloads.
 - Treat `Solve` as an action marker; replay may skip numeric solving unless the
   feature explicitly supports solve replay.
+- Replayers should tolerate unknown future actions by skipping or surfacing a
+  non-fatal warning, not by corrupting the reconstructed graph.
 
 ## Change Workflow
 
@@ -41,6 +50,7 @@ serialization, saved scenes, or history behavior.
 4. Verify text compatibility still works when the change is JSON-only.
 5. Verify a JSON scene can round-trip through both C++ and Python paths when
    feasible.
+6. Keep runtime event logs separate from model-embedded `history`.
 
 ## Compatibility Guardrails
 
@@ -48,3 +58,16 @@ serialization, saved scenes, or history behavior.
   approves the dependency change.
 - Do not make saved scenes depend on local absolute paths.
 - Do not store display-only state as solver truth.
+
+## Validation
+
+Use targeted checks for the affected path:
+
+```bat
+python -m compileall -q python\gcs_viz
+scripts\build_clang_ninja.cmd
+out\build\clang-ninja\GCS.exe fixtures\scene\basic\g1.txt
+```
+
+When possible, load and save a representative JSON fixture and inspect that
+stable IDs, behavior, constraints, values, and `history` survive unchanged.

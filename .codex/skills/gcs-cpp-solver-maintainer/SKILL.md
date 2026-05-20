@@ -1,6 +1,6 @@
 ---
 name: gcs-cpp-solver-maintainer
-description: Project-specific workflow for maintaining the GCS C++ solver modules, CMake build, fixtures, and C++ behavior modes.
+description: Project-specific workflow for maintaining the GCS C++ solver modules. Use when editing src/gcs, apps/gcs_cli, CMakeLists.txt, CMakePresets.json, scripts/build_clang_ninja.cmd, C++23 module boundaries, numeric/diagnostic behavior, solver fixtures, or GCS.exe execution behavior.
 ---
 
 # GCS C++ Solver Maintainer
@@ -10,6 +10,10 @@ description: Project-specific workflow for maintaining the GCS C++ solver module
 Use this skill for C++ solver work under `src/gcs/`, the CLI under
 `apps/gcs_cli/`, and scene fixtures under `fixtures/scene/`. Read
 `references/cpp-solver-map.md` before touching shared module boundaries.
+
+If the change affects target module boundaries, also use
+`gcs-architecture-steward`. If it changes text/JSON scene IO or history fields,
+also use `gcs-scene-behavior-steward`.
 
 ## Module Rules
 
@@ -22,16 +26,19 @@ Use this skill for C++ solver work under `src/gcs/`, the CLI under
 - `session_runtime` is the temporary orchestration facade. Keep executable
   policy in `apps/gcs_cli` thin.
 
+Do not add viewer policy, GUI dependencies, or local Python package assumptions
+to these modules.
+
 ## Change Workflow
 
 1. Inspect the target module interface and implementation together.
 2. Preserve public contracts unless the user asks for an API change. If a
    contract changes, update callers and architecture notes.
-3. Use C++23 modules and the CMake/Ninja/Clang build.
-4. When adding C++ files, update `CMakeLists.txt`.
-5. Do not recreate the removed legacy C++ unit test tree. New verification
+3. Keep C++23 module declarations, imports, and implementation files aligned.
+4. Update `CMakeLists.txt` whenever adding, renaming, or moving C++ files.
+5. Preserve deterministic fixture behavior and stable IDs.
+6. Do not recreate the removed legacy C++ unit test tree. New verification
    should be contract-driven and designed from `docs/architecture/`.
-6. Build with `scripts\build_clang_ninja.cmd` when validation is requested.
 
 ## Hard Boundaries
 
@@ -45,10 +52,13 @@ Use this skill for C++ solver work under `src/gcs/`, the CLI under
 
 ## Validation
 
-Prefer the CMake build for compile checks:
+Use the narrowest checks that cover the change:
 
 ```bat
 scripts\build_clang_ninja.cmd
+out\build\clang-ninja\GCS.exe fixtures\scene\basic\g1.txt
 ```
 
-Legacy C++ tests were intentionally removed during the architecture reset.
+If validation touches scene compatibility, also round-trip the relevant JSON or
+text scene through both C++ and Python paths where feasible. Legacy C++ tests
+were intentionally removed during the architecture reset.

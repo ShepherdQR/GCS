@@ -24,4 +24,40 @@ Start with `docs/architecture/README.md`. Load only the next file needed:
 
 ## Current Physical Names
 
-The current implementation is physically staged under target-oriented paths such as `src/gcs/kernel`, `src/gcs/incidence_graph`, `src/gcs/diagnostics`, `src/gcs/numeric_engine`, `src/gcs/io_adapters`, `src/gcs/session_runtime`, and `python/gcs_viz`. Some prototype namespaces and class names still reflect the old implementation; treat those as migration debt.
+The current implementation is physically staged under target-oriented paths such
+as `src/gcs/kernel`, `src/gcs/incidence_graph`, `src/gcs/diagnostics`,
+`src/gcs/numeric_engine`, `src/gcs/io_adapters`, `src/gcs/session_runtime`,
+`python/gcs_viz`, and `tools/scene_generation`. Some prototype namespaces and
+class names still reflect the old implementation; treat those as migration
+debt.
+
+## Boundary Decision Checklist
+
+Before creating or moving code, answer:
+
+- Which target module owns the durable truth?
+- Is this code computing solver meaning, orchestrating a command, adapting IO, or only viewing a snapshot?
+- Does a lower mathematical layer gain a dependency on UI, file paths, process launch, or local app state?
+- Is the contract expressed as stable IDs, snapshots, deltas, reports, or explicit runtime commits?
+- Is this a durable architecture rule that should update `docs/architecture/`, or a local implementation cleanup?
+
+## Python Viewer Mapping
+
+- `python/gcs_viz/algebra.py` mirrors scene/model structures for local tooling;
+  keep it compatible with C++ IO when persistence changes.
+- `python/gcs_viz/visualizer.py` is renderer policy, not solver truth.
+- `python/gcs_viz/platform_gui.py` is application orchestration, not target
+  `session_runtime`.
+- A Python `viewer_bridge` or facade may be introduced as a read-only boundary
+  over snapshots, histories, and reports. Do not let it own solver mutation.
+- Temporary GUI history recording is acceptable during prototyping, but durable
+  command semantics belong in `session_runtime`.
+
+## Generation Tool Mapping
+
+- `tools/scene_generation` is research and fixture-generation tooling, not a
+  solver runtime layer.
+- Generated `.store` data is scratch until explicitly promoted to
+  `fixtures/scene`.
+- Generator validation and repair reports may inform fixtures and diagnostics,
+  but generator policy should not leak into the solver core.

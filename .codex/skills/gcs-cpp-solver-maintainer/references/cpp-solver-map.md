@@ -31,6 +31,29 @@ Expected executable:
 out/build/clang-ninja/GCS.exe
 ```
 
+Run a representative fixture with:
+
+```bat
+out\build\clang-ninja\GCS.exe fixtures\scene\basic\g1.txt
+```
+
+## Module Touchpoints
+
+- New or renamed C++ module/interface files require `CMakeLists.txt` updates.
+- Scene schema changes usually touch `kernel`, `io_adapters`, Python
+  `algebra.py`, and fixtures together.
+- Numeric behavior changes usually need diagnostics output reviewed so the CLI
+  and GUI can explain the result.
+- CLI policy should stay in `apps/gcs_cli/main.cpp`; solver modules should
+  return data or reports rather than printing UI-oriented narratives directly.
+
+## Common Checks
+
+```bat
+rg -n "import|export module|module;" src\gcs apps\gcs_cli CMakeLists.txt
+rg -n "system\(|start |python|matplotlib|tkinter|GCS_GUI" src apps
+```
+
 ## Tests
 
 The previous handwritten C++ unit tests were removed. Future tests should be

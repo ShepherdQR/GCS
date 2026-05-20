@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Scene Generation Engineer"
+  short_description: "Work with GCS graph and scene generation tools"
+  default_prompt: "Use $gcs-scene-generation-engineer to generate, validate, or repair synthetic GCS scene graphs."

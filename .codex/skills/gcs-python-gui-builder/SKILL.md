@@ -1,57 +1,68 @@
 ---
 name: gcs-python-gui-builder
-description: Project-specific workflow for the GCS local Python visualization interface. Use when editing python/gcs_viz, tkinter dialogs, matplotlib views, engine_bridge, platform_gui, visualizer behavior, history replay UI, or local GUI behavior.
+description: Project-specific workflow for the GCS local Python visualization interface. Use when editing python/gcs_viz, tkinter dialogs, matplotlib renderers, viewer_bridge/facade code, engine_bridge, platform_gui, visualizer behavior, scripts/start_gui.cmd, history replay UI, GUI bug fixes, or local desktop visualization behavior.
 ---
 
 # GCS Python GUI Builder
 
 ## Start Here
 
-Use this skill for `python/gcs_viz/` work. Read
-`references/python-gui-map.md` before changing the GUI flow, visualizer, or
-engine bridge.
+Read `references/python-gui-map.md` before changing GUI flow, rendering,
+startup, engine bridge behavior, or history replay.
+
+If the change alters saved JSON, history action schemas, or text scene
+compatibility, also use `gcs-scene-behavior-steward`. If it changes dependency
+direction or durable module boundaries, also use `gcs-architecture-steward`.
 
 ## Product Direction
 
-The project direction is local desktop GUI, not web. Prefer `tkinter` plus
-`matplotlib` TkAgg, embedded canvases, and zero server/browser dependencies.
+Prefer optimizing the existing local desktop GUI over rewriting it. Keep the
+stack `tkinter` plus embedded `matplotlib` TkAgg, with no browser, HTTP server,
+web assets, or external viewer dependency.
 
-## UI Rules
+Reimplement only when the user explicitly asks, or when the current architecture
+cannot support the requested workflow after a concrete boundary analysis.
 
-- Keep the main interface in `platform_gui.py`: left controls, right embedded
-  figure, status/log area, and actions.
-- Keep view rendering in `visualizer.py`. Prefer functions that draw onto a
-  provided `matplotlib.figure.Figure` so the same renderer can be embedded or
-  tested.
-- Keep modal input details in `screens/dialogs_tk.py`.
-- Use status/log messages for normal warnings, solve results, and validation
-  feedback. Avoid disruptive `messagebox` calls for routine flow.
-- After graph edits, refresh tables, refresh canvas, and update status
-  consistently.
-- Record user-visible topology or value changes into `graph.history` when they
-  should replay later.
+## Ownership Rules
 
-## Integration Rules
-
-- Do not launch browsers, HTTP servers, external image viewers, or web assets
-  from GUI code.
-- Keep the C++ bridge in `engine_bridge.py`; GUI code should call bridge
-  methods instead of constructing solver command lines in random handlers.
-- Keep Python scene read/write behavior aligned with C++ IO when editing JSON,
-  behavior, or history.
+- Keep `platform_gui.py` as GUI orchestration: widgets, commands, refresh
+  scheduling, status/log messages, and user actions.
+- Keep `visualizer.py` as rendering code only. It should draw onto a provided
+  `matplotlib.figure.Figure`, return axes when useful, and avoid Tk widgets,
+  file paths, solver calls, and model mutation.
+- Keep `screens/dialogs_tk.py` for modal input and focused Tk dialogs. Dialogs
+  may preview read-only snapshots but should not own solver truth.
+- Put reusable read-only view dispatch, summaries, and replay reconstruction in
+  a viewer bridge/facade module when the logic would otherwise be duplicated
+  between GUI surfaces.
+- Keep C++ process invocation in `engine_bridge.py`; GUI handlers should call
+  bridge methods instead of constructing solver commands inline.
 - Treat `platform.py` textual code as legacy compatibility unless the user
   explicitly asks to improve it.
 
+## Interaction Rules
+
+- Use status/log messages for normal warnings, solve results, and validation
+  feedback. Avoid disruptive `messagebox` calls for routine flow.
+- After graph edits, refresh tables, refresh canvas, update status, and record
+  user-visible topology/value changes into `graph.history` when replay should
+  preserve them.
+- Treat `Solve` history entries as markers unless the feature explicitly
+  re-runs the solver during replay.
+- Make startup failures actionable: distinguish missing Python, missing
+  packages, import errors, missing `GCS.exe`, and renderer exceptions.
+
 ## Validation
 
-Use lightweight import and serialization checks when GUI windows cannot be
-opened:
+Use the narrowest checks that cover the change:
 
 ```bat
-python -m pip install -r python\requirements.txt
+python -m compileall -q python\gcs_viz
 set PYTHONPATH=%CD%\python
-python -m gcs_viz --help
+python -c "import gcs_viz.platform_gui; print('platform_gui import ok')"
+scripts\start_gui.cmd
 ```
 
-For visual changes, manually run `scripts\start_gui.cmd` when the environment
-can display windows.
+If dependencies are missing, first install `python\requirements.txt` in the
+interpreter used by `scripts\start_gui.cmd`. For visual changes, manually run
+the GUI when the environment can display windows.
