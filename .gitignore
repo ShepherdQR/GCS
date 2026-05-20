@@ -10,6 +10,7 @@ Desktop.ini
 .vscode/
 .idea/
 .trae/
+*.code-workspace
 *.sln
 *.vcxproj
 *.vcxproj.filters
@@ -73,10 +74,12 @@ env/
 # Local tool stores and generated runtime state
 .store/
 **/.store/
-GCS/gcs_viz/.events/
-GCS/scene/_tui_temp/
+python/gcs_viz/.events/
+fixtures/scene/_tui_temp/
 
 # Generated visualizer / solver scratch outputs
-GCS/display.html
-GCS/*_graph.txt
-GCS/display/web/*_graph.txt
+GCS/
+var/
+display.html
+*_graph.txt
+display/web/*_graph.txt

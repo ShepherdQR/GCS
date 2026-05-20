@@ -2,26 +2,37 @@
 
 ## Current Layout
 
-- `GCS/core/core.h`, `core.cpp`, `types.h`: model structs, behavior intent, type names.
-- `GCS/io/io.h`, `io.cpp`: text and JSON scene read/write, summaries, graph dumping.
-- `GCS/dcm/dcm.h`, `dcm.cpp`: decomposition manager.
-- `GCS/lgs/lgs.h`, `lgs.cpp`: local geometric status and DOF diagnostics.
-- `GCS/cds/cds.h`, `cds.cpp`: constraint-driven numeric solver.
-- `GCS/app/App.h`, `App.cpp`, `main.cpp`: application facade and demo executable.
-- `GCS/test/`: custom C++ test executables and fixtures.
-- `GCS/scene/`: reusable text and JSON scene data.
+- `src/gcs/kernel/kernel.cppm`, `kernel.cpp`: model structs, behavior intent,
+  type names.
+- `src/gcs/io_adapters/io_adapters.cppm`, `io_adapters.cpp`: text and JSON
+  scene read/write, summaries, graph dumping.
+- `src/gcs/incidence_graph/incidence_graph.cppm`, `incidence_graph.cpp`:
+  connected-component decomposition prototype.
+- `src/gcs/diagnostics/diagnostics.cppm`, `diagnostics.cpp`: local geometric
+  status and DOF diagnostics.
+- `src/gcs/numeric_engine/numeric_engine.cppm`, `numeric_engine.cpp`:
+  constraint-driven numeric solver prototype.
+- `src/gcs/session_runtime/session_runtime.cppm`, `session_runtime.cpp`:
+  temporary application facade.
+- `apps/gcs_cli/main.cpp`: CLI executable.
+- `fixtures/scene/`: reusable text and JSON scene data.
+
+## Build
+
+Build the CLI and solver library with:
+
+```bat
+scripts\build_clang_ninja.cmd
+```
+
+Expected executable:
+
+```text
+out/build/clang-ninja/GCS.exe
+```
 
 ## Tests
 
-- Build tests with `GCS\test\build_tests.bat`.
-- Run tests with `GCS\test\run_tests.bat`.
-- Expected executables are under `build\bin\x64\Debug`.
-
-## Project Files
-
-When adding source or header files, update:
-
-- `GCS/GCS.vcxproj`
-- `GCS/GCS.vcxproj.filters`
-
-Keep include paths compatible with the existing commands in `build_tests.bat`, which compile from the `GCS/` directory with `/I"." /I"test"`.
+The previous handwritten C++ unit tests were removed. Future tests should be
+introduced as new contract-driven verification suites, not by restoring the
+legacy test tree.

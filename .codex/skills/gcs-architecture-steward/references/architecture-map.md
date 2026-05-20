@@ -2,13 +2,13 @@
 
 ## Read Order
 
-Start with `architecture/README.md`. Load only the next file needed:
+Start with `docs/architecture/README.md`. Load only the next file needed:
 
-- Foundations: `architecture/00-foundations/problem-formulation.md`, `architecture/00-foundations/architectural-principles.md`
-- System shape: `architecture/10-system/system-topology.md`, `architecture/10-system/current-to-target-map.md`
-- Pipeline: `architecture/20-solver-pipeline/pipeline.md`, `decomposition-planning.md`, `numerical-solving.md`
-- Contracts: `architecture/30-contracts/domain-contracts.md`, `solver-contracts.md`
-- Quality: `architecture/40-quality/verification-strategy.md`
+- Foundations: `docs/architecture/00-foundations/problem-formulation.md`, `docs/architecture/00-foundations/architectural-principles.md`
+- System shape: `docs/architecture/10-system/system-topology.md`, `docs/architecture/10-system/current-to-target-map.md`
+- Pipeline: `docs/architecture/20-solver-pipeline/pipeline.md`, `decomposition-planning.md`, `numerical-solving.md`
+- Contracts: `docs/architecture/30-contracts/domain-contracts.md`, `solver-contracts.md`
+- Quality: `docs/architecture/40-quality/verification-strategy.md`
 
 ## Target Vocabulary
 
@@ -22,6 +22,6 @@ Start with `architecture/README.md`. Load only the next file needed:
 - `io_adapters`: versioned scene import/export and fixtures.
 - `viewer_bridge`: read-only visualization and interaction bridge.
 
-## Current Names
+## Current Physical Names
 
-The current implementation still uses `core`, `io`, `dcm`, `lgs`, `cds`, `app`, and `gcs_viz`. Keep current names when making small maintenance changes. Use target vocabulary for new architecture documents or rewrite planning.
+The current implementation is physically staged under target-oriented paths such as `src/gcs/kernel`, `src/gcs/incidence_graph`, `src/gcs/diagnostics`, `src/gcs/numeric_engine`, `src/gcs/io_adapters`, `src/gcs/session_runtime`, and `python/gcs_viz`. Some prototype namespaces and class names still reflect the old implementation; treat those as migration debt.

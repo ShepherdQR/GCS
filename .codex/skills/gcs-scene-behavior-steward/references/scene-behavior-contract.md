@@ -19,7 +19,7 @@ constraintId value
 ...
 ```
 
-Keep text fixtures valid for existing parser tests.
+Keep text fixtures valid for C++ and Python parsers.
 
 ## JSON Scene Format
 
@@ -32,7 +32,10 @@ JSON scenes may include:
 - `behavior`
 - `history`
 
-The C++ implementation lives in `GCS/io/io.cpp` and `GCS/core/core.h`. The Python implementation lives in `GCS/gcs_viz/algebra.py`.
+The C++ implementation lives in
+`src/gcs/io_adapters/io_adapters.cpp` and
+`src/gcs/kernel/kernel.cppm`. The Python implementation lives in
+`python/gcs_viz/algebra.py`.
 
 ## History Actions
 
@@ -47,4 +50,5 @@ Current action names should remain stable unless a migration is added:
 - `UpdateConstraint`
 - `Solve`
 
-Each action stores an explicit `payload` object. Replayers should tolerate `Solve` as a marker when they are only reconstructing topology.
+Each action stores an explicit `payload` object. Replayers should tolerate
+`Solve` as a marker when they are only reconstructing topology.

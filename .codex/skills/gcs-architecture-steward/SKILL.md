@@ -7,7 +7,7 @@ description: Project-specific architecture guidance for GCS. Use when changing a
 
 ## Start Here
 
-Use the `architecture/` tree as the source of truth for the next GCS rewrite. The current source tree is useful evidence, but it must not accidentally define the target architecture.
+Use the `docs/architecture/` tree as the source of truth for the next GCS rewrite. The current source tree is useful evidence, but it must not accidentally define the target architecture.
 
 Read `references/architecture-map.md` first, then open only the architecture documents relevant to the requested change.
 
@@ -17,7 +17,7 @@ Read `references/architecture-map.md` first, then open only the architecture doc
 2. Map current names such as `core`, `dcm`, `lgs`, `cds`, and `gcs_viz` to the target vocabulary before proposing new files or APIs.
 3. Check dependency direction before coding: mathematical layers must not call UI, IO lifecycle, application singletons, file-path policy, or visualization.
 4. Define or preserve contracts before implementation. Prefer stable IDs, snapshots, proposed deltas, reports, and explicit runtime commits.
-5. Keep architecture docs and code mutually honest. If a code change establishes a durable rule, update the closest document under `architecture/`.
+5. Keep architecture docs and code mutually honest. If a code change establishes a durable rule, update the closest document under `docs/architecture/`.
 
 ## Boundary Rules
 

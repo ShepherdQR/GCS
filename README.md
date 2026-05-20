@@ -1,42 +1,70 @@
 # GCS
 
-GCS is a geometric constraint solving project. The solver core is written in C++ and the visual interface is launched through a batch entry point.
+GCS is a geometric constraint solving workspace. The repository is now arranged
+around the target architecture vocabulary and a C++23 modules build.
 
-## Entry Points
+## Repository Layout
 
-- Visual interface: `GCS/start_tui.bat`
-- C++ solver main program: `GCS/app/main.cpp`
-- Visual Studio solution: `GCS.sln`
-- Visual Studio project: `GCS/GCS.vcxproj`
-- Model files: `GCS/scene/`
-- Architecture: `architecture/README.md`
-- Commercial GCS references: `architecture/90-references/`
+| Path | Purpose |
+| --- | --- |
+| `src/gcs/kernel` | Domain model, stable IDs, behavior intent, and type helpers. |
+| `src/gcs/incidence_graph` | Current connected-component decomposition prototype. |
+| `src/gcs/diagnostics` | Current DOF/status/residual diagnostics prototype. |
+| `src/gcs/numeric_engine` | Current numeric solving prototype. |
+| `src/gcs/io_adapters` | Text and JSON scene import/export. |
+| `src/gcs/session_runtime` | Temporary orchestration facade over the current solver modules. |
+| `apps/gcs_cli` | Thin command-line executable entry point. |
+| `python/gcs_viz` | Local Python visualization application. |
+| `fixtures/scene` | Reproducible text and JSON scene inputs. |
+| `scripts` | Repository automation and launch scripts. |
+| `docs/architecture` | Durable architecture source of truth. |
+| `docs/research` | Background research notes and exploratory material. |
 
-## Run
+The current C++ implementation still contains prototype logic from the old
+`core/dcm/lgs/cds/io/app` modules, but the physical layout now names the target
+responsibilities. Future solver work should make the code match these
+boundaries instead of reintroducing legacy project structure.
 
-Build the C++ solver with Visual Studio first, then start the visual interface:
+## Build
 
-```bat
-cd GCS
-start_tui.bat
-```
-
-Build outputs are organized under `build/`, and the visual layer looks for the solver there first:
-
-- `build/bin/<Platform>/<Configuration>/`: executables
-- `build/obj/<Project>/<Platform>/<Configuration>/`: Visual Studio intermediate files
-- `build/obj/tests/<Platform>/<Configuration>/`: manually built test object files
-
-The C++ modules use a flat layout. For example, `GCS/cds/cds.h` and `GCS/cds/cds.cpp` live directly inside the `cds` module directory.
-
-Text graph models, including test fixtures, live under `GCS/scene/`.
-
-If Python dependencies are missing, install them with:
+Use the Clang + Ninja CMake preset:
 
 ```bat
-python -m pip install -r GCS/requirements.txt
+scripts\build_clang_ninja.cmd
 ```
 
-## Repository Hygiene
+The executable is generated at:
 
-The repository keeps source code, project files, documentation, tests, and reusable scene data. Local IDE state, compiler outputs, Python caches, temporary TUI scenes, and generated visualization files are ignored by `.gitignore`.
+```text
+out/build/clang-ninja/GCS.exe
+```
+
+The CLI defaults to `fixtures/scene/basic/g1.txt` when no scene path is passed:
+
+```bat
+out\build\clang-ninja\GCS.exe fixtures\scene\basic\g1.txt
+```
+
+## Python Viewer
+
+Install Python dependencies when needed:
+
+```bat
+python -m pip install -r python\requirements.txt
+```
+
+Launch the local viewer:
+
+```bat
+scripts\start_gui.cmd
+```
+
+Set `GCS_EXE` if you want the viewer to call a solver executable outside the
+default CMake preset output path.
+
+## Testing
+
+The previous handwritten C++ unit tests were removed during the architecture
+reset. New tests should be designed around the target contracts in
+`docs/architecture/30-contracts` and the verification scenes in
+`fixtures/scene/verification`.

@@ -13,26 +13,26 @@ target_sources(gcs_solver
     PUBLIC
         FILE_SET CXX_MODULES
         BASE_DIRS
-            ${CMAKE_CURRENT_SOURCE_DIR}/GCS
+            ${CMAKE_CURRENT_SOURCE_DIR}/src
         FILES
-            GCS/core/core.cppm
-            GCS/dcm/dcm.cppm
-            GCS/lgs/lgs.cppm
-            GCS/cds/cds.cppm
-            GCS/io/io.cppm
-            GCS/app/App.cppm
+            src/gcs/kernel/kernel.cppm
+            src/gcs/incidence_graph/incidence_graph.cppm
+            src/gcs/diagnostics/diagnostics.cppm
+            src/gcs/numeric_engine/numeric_engine.cppm
+            src/gcs/io_adapters/io_adapters.cppm
+            src/gcs/session_runtime/session_runtime.cppm
     PRIVATE
-        GCS/core/core.cpp
-        GCS/dcm/dcm.cpp
-        GCS/lgs/lgs.cpp
-        GCS/cds/cds.cpp
-        GCS/io/io.cpp
-        GCS/app/App.cpp
+        src/gcs/kernel/kernel.cpp
+        src/gcs/incidence_graph/incidence_graph.cpp
+        src/gcs/diagnostics/diagnostics.cpp
+        src/gcs/numeric_engine/numeric_engine.cpp
+        src/gcs/io_adapters/io_adapters.cpp
+        src/gcs/session_runtime/session_runtime.cpp
 )
 
 target_compile_features(gcs_solver PUBLIC cxx_std_23)
 
-add_executable(gcs_cli GCS/app/main.cpp)
+add_executable(gcs_cli apps/gcs_cli/main.cpp)
 target_link_libraries(gcs_cli PRIVATE gcs_solver)
 target_compile_features(gcs_cli PRIVATE cxx_std_23)
 set_target_properties(gcs_cli PROPERTIES OUTPUT_NAME GCS)
