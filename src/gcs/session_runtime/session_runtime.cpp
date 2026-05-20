@@ -1,144 +1,163 @@
 module;
 
-#include <array>
 #include <string>
-#include <unordered_map>
+#include <utility>
 #include <vector>
 
 module gcs.session_runtime;
 
 import gcs.kernel;
+import gcs.constraint_catalog;
 import gcs.incidence_graph;
-import gcs.diagnostics;
+import gcs.decomposition_planner;
 import gcs.numeric_engine;
-import gcs.io_adapters;
+import gcs.diagnostics;
 
-namespace gcs {
-namespace app {
+namespace gcs::runtime {
 
-std::array<double, 6> App::zero_params_ = {0, 0, 0, 0, 0, 0};
+SessionRuntime::SessionRuntime(ModelSnapshot snapshot)
+    : currentSnapshot_(std::move(snapshot)) {}
 
-App& App::instance() {
-    static App inst;
-    return inst;
+void SessionRuntime::loadSnapshot(ModelSnapshot snapshot) {
+    currentSnapshot_ = std::move(snapshot);
 }
 
-App& App::addRigidSet(int id) {
-    RigidSet rs;
-    rs.id = id;
-    manager_.rigidSets.push_back(rs);
-    computed_ = false;
-    return *this;
+const ModelSnapshot& SessionRuntime::currentSnapshot() const {
+    return currentSnapshot_;
 }
 
-App& App::addGeometry(int id, GeometryType type, int rigidSetId,
-                       const std::array<double, 6>& params) {
-    Geometry g;
-    g.id = id;
-    g.type = type;
-    g.rigidSetId = rigidSetId;
-    for (int i = 0; i < 6; ++i) g.v[i] = params[i];
-    manager_.geometries.push_back(g);
-
-    auto* rs = manager_.findRigidSet(rigidSetId);
-    if (rs) rs->geometryIds.push_back(id);
-
-    computed_ = false;
-    return *this;
+CommandResult SessionRuntime::solve(SolveIntent intent) {
+    return execute(makeSolveCommand(std::move(intent)));
 }
 
-App& App::addConstraint(int id, ConstraintType type,
-                         const std::vector<int>& geomIds, double value) {
-    Constraint c;
-    c.id = id;
-    c.type = type;
-    c.geometryIds = geomIds;
-    c.value = value;
-    manager_.constraints.push_back(c);
-    computed_ = false;
-    return *this;
-}
-
-App& App::loadFile(const std::string& path) {
-    reset();
-    if (path.size() >= 5 && path.substr(path.size() - 5) == ".json") {
-        io::readGraphJSON(manager_, path);
-    } else {
-        io::readGraph(manager_, path);
-    }
-    computed_ = false;
-    return *this;
-}
-
-App& App::compute() {
-    if (computed_) return *this;
-
-    dcm::DecompositionManager dcmMgr;
-    decomp_ = dcmMgr.decompose(manager_);
-
-    lgs::LocalGeometricSolver lgs;
-    solverReports_.clear();
-    cds::SolverConfig config;
-    config.mode = manager_.behavior.mode;
-    cds::ConstraintDrivenSolver solver(config);
-    for (const auto& sp : decomp_.subProblems) {
-        auto report = solver.solveSubProblem(manager_, sp);
-        solverReports_.push_back(report);
+CommandResult SessionRuntime::execute(const Command& command) {
+    CommandResult result;
+    if (command.kind != CommandKind::Solve) {
+        result.userVisibleStatus = SolveStatus::Unsupported;
+        result.obstructionReport = diagnostics::makeObstruction(
+            "runtime.unsupported_command",
+            "Only solve commands are supported by the first runtime skeleton.");
+        return result;
     }
 
-    globalStatus_ = lgs.analyzeStatus(manager_);
+    currentSnapshot_.solveIntent = command.solveIntent;
 
-    transformations_.clear();
-    for (const auto& rs : manager_.rigidSets) {
-        std::array<double, 6> t = {0, 0, 0, 0, 0, 0};
-        bool first = true;
-        for (int gid : rs.geometryIds) {
-            auto* g = manager_.findGeometry(gid);
-            if (g) {
-                if (first) {
-                    for (int i = 0; i < 6; ++i) t[i] = g->v[i];
-                    first = false;
-                }
+    StageReport validationReport = constraints::validateModelConstraints(currentSnapshot_);
+    result.stageReports.push_back(validationReport);
+    if (validationReport.status == StageStatus::Error) {
+        result.userVisibleStatus = SolveStatus::InvalidModel;
+        result.obstructionReport = diagnostics::makeObstruction(
+            "runtime.invalid_model",
+            "Constraint catalog validation failed before planning.");
+        return result;
+    }
+
+    graph::IncidenceIndices incidence = graph::buildIncidenceIndices(graph::IncidenceInput{currentSnapshot_});
+    result.stageReports.push_back(incidence.report);
+    if (incidence.report.status == StageStatus::Error) {
+        result.userVisibleStatus = SolveStatus::InvalidModel;
+        result.obstructionReport = diagnostics::makeObstruction(
+            "runtime.invalid_incidence",
+            "Incidence graph construction failed.");
+        return result;
+    }
+
+    result.plannerOutput = planning::planDecomposition(
+        planning::PlannerInput{currentSnapshot_, incidence, command.solveIntent, {}});
+    result.stageReports.push_back(result.plannerOutput.structuralReport);
+
+    ContextSnapshot rootContext = makeWholeModelContext(currentSnapshot_);
+    result.preSolveDiagnostics = diagnostics::diagnose(
+        diagnostics::DiagnosticInput{
+            currentSnapshot_,
+            rootContext,
+            {},
+            result.plannerOutput.gaugePolicy});
+
+    std::vector<LocalSection> localSections;
+    for (const auto& subproblem : result.plannerOutput.subproblems) {
+        const ContextSnapshot* context = nullptr;
+        for (const auto& candidate : result.plannerOutput.coverPlan.contexts) {
+            if (candidate.id == subproblem.contextId) {
+                context = &candidate;
+                break;
             }
         }
-        transformations_[rs.id] = t;
+        if (context == nullptr) {
+            result.userVisibleStatus = SolveStatus::InvalidModel;
+            result.obstructionReport = diagnostics::makeObstruction(
+                "runtime.missing_context",
+                "Planner produced a subproblem whose context is absent from the cover plan.");
+            return result;
+        }
+
+        auto task = numeric::makeNumericTask(
+            currentSnapshot_,
+            *context,
+            subproblem.activeVariables,
+            subproblem.activeEquations,
+            result.plannerOutput.gaugePolicy);
+        task.boundaryVariables = subproblem.boundaryVariables;
+
+        auto numericReport = numeric::solveLocal(task);
+        localSections.push_back(numericReport.localSection);
+        result.stageReports.push_back(numericReport.stageReport);
+        result.numericReports.push_back(numericReport);
+
+        if (numericReport.resultCode != SolveStatus::Solved) {
+            result.userVisibleStatus = numericReport.resultCode;
+            result.obstructionReport = diagnostics::makeObstruction(
+                "runtime.numeric_failure",
+                numericReport.failureCause.empty() ? "Numeric engine failed." : numericReport.failureCause);
+            return result;
+        }
     }
 
-    computed_ = true;
-    return *this;
+    result.gluingReport = diagnostics::glueLocalSections(
+        diagnostics::GluingInput{
+            currentSnapshot_,
+            result.plannerOutput.coverPlan,
+            localSections,
+            result.plannerOutput.boundaryProjections,
+            result.plannerOutput.gaugePolicy,
+            currentSnapshot_.tolerances});
+    result.stageReports.push_back(result.gluingReport.stageReport);
+
+    if (!result.gluingReport.accepted) {
+        result.userVisibleStatus = SolveStatus::Inconsistent;
+        result.obstructionReport = result.gluingReport.obstructionReport;
+        return result;
+    }
+
+    commitAcceptedState(result.gluingReport.proposedGlobalState);
+    result.accepted = true;
+    result.newStateVersion = currentSnapshot_.stateVersion;
+    result.userVisibleStatus = result.preSolveDiagnostics.statusCode == SolveStatus::Solved
+        ? SolveStatus::Solved
+        : SolveStatus::AcceptedWithWarnings;
+    return result;
 }
 
-const std::array<double, 6>& App::getTransformation(int rigidSetId) const {
-    auto it = transformations_.find(rigidSetId);
-    if (it != transformations_.end()) return it->second;
-    return zero_params_;
+Command SessionRuntime::makeSolveCommand(SolveIntent intent) {
+    Command command;
+    command.id = nextCommandId_;
+    nextCommandId_ = CommandId{nextCommandId_.value + 1};
+    command.kind = CommandKind::Solve;
+    command.solveIntent = std::move(intent);
+    command.modelEditOrSolveRequest = currentSnapshot_;
+    return command;
 }
 
-const Manager& App::manager() const {
-    return manager_;
+void SessionRuntime::commitAcceptedState(const ProposedState& proposedState) {
+    for (const auto& state : proposedState.entityStates) {
+        for (auto& entity : currentSnapshot_.entities) {
+            if (entity.id == state.entityId) {
+                entity.parameters = state.parameters;
+                break;
+            }
+        }
+    }
+    currentSnapshot_.stateVersion = nextVersion(currentSnapshot_.stateVersion);
 }
 
-const dcm::DecompositionResult& App::decomposition() const {
-    return decomp_;
 }
-
-const lgs::StatusReport& App::globalStatus() const {
-    return globalStatus_;
-}
-
-const std::vector<cds::SolverReport>& App::solverReports() const {
-    return solverReports_;
-}
-
-App& App::reset() {
-    manager_ = Manager();
-    decomp_ = dcm::DecompositionResult();
-    globalStatus_ = lgs::StatusReport();
-    solverReports_.clear();
-    transformations_.clear();
-    computed_ = false;
-    return *this;
-}
-
-} // namespace app
-} // namespace gcs

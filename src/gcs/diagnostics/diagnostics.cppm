@@ -1,68 +1,99 @@
 module;
 
+#include <optional>
 #include <string>
 #include <vector>
 
 export module gcs.diagnostics;
 
 export import gcs.kernel;
-export import gcs.incidence_graph;
+export import gcs.numeric_engine;
 
-export namespace gcs::lgs {
+export namespace gcs::diagnostics {
 
-enum class ConstraintStatus {
-    WellConstrained,
-    UnderConstrained,
-    OverConstrained,
-    OverConstrainedConsistent
+struct DofReport {
+    int parameterDof = 0;
+    int equationDof = 0;
+    int gaugeDof = 0;
+    int freeDof = 0;
+    SolveStatus status = SolveStatus::NotRun;
 };
 
-std::string toString(ConstraintStatus status);
-
-struct DOFAnalysis {
-    int geometryDOF = 0;
-    int constraintRemovedDOF = 0;
-    int netDOF = 0;
-    ConstraintStatus status = ConstraintStatus::WellConstrained;
+struct RankReport {
+    int structuralRankEstimate = 0;
+    int numericRankEstimate = 0;
+    double conditionEstimate = 0.0;
 };
 
-struct ConstraintViolation {
-    int constraintId = 0;
+struct ConstraintResidual {
+    ConstraintId constraintId;
     double residual = 0.0;
     double tolerance = 0.0;
     bool satisfied = true;
 };
 
-struct StatusReport {
-    ConstraintStatus overallStatus = ConstraintStatus::WellConstrained;
-    DOFAnalysis dofAnalysis;
-    std::vector<ConstraintViolation> violations;
-    bool isConsistent = true;
-    std::string summaryText;
+struct ResidualReport {
+    double totalResidual = 0.0;
+    double maxResidual = 0.0;
+    std::vector<ConstraintResidual> constraints;
 };
 
-class LocalGeometricSolver {
-public:
-    LocalGeometricSolver() = default;
-
-    DOFAnalysis analyzeDOF(const Manager& m) const;
-    DOFAnalysis analyzeDOF(const Manager& m, const dcm::SubProblem& sp) const;
-
-    StatusReport analyzeStatus(const Manager& m) const;
-    StatusReport analyzeStatus(const Manager& m, const dcm::SubProblem& sp) const;
-
-    std::vector<ConstraintViolation> checkSatisfaction(
-        const Manager& m,
-        double tolerance = 1e-6) const;
-
-    bool isWellConstrained(const Manager& m) const;
-
-private:
-    int computeGeometryDOF(const Manager& m, const dcm::SubProblem& sp) const;
-    int computeConstraintRemovedDOF(const Manager& m, const dcm::SubProblem& sp) const;
-    ConstraintStatus classifyStatus(int netDOF) const;
-    ConstraintStatus classifyStatusForSubProblem(const Manager& m, const dcm::SubProblem& sp, int netDOF) const;
-    double computeConstraintResidual(const Manager& m, const Constraint& c) const;
+struct ObstructionReport {
+    bool present = false;
+    std::string code;
+    std::string message;
+    std::vector<ContextId> contextIds;
+    std::vector<EntityId> entityIds;
+    std::vector<ConstraintId> constraintIds;
 };
+
+struct OverlapStatus {
+    ProjectionId projectionId;
+    bool compatible = true;
+    double boundaryResidual = 0.0;
+    std::vector<EntityId> entityIds;
+};
+
+struct GluingInput {
+    ModelSnapshot model;
+    CoverPlan coverPlan;
+    std::vector<LocalSection> localSections;
+    std::vector<BoundaryProjection> boundaryProjections;
+    GaugePolicy gaugePolicy;
+    TolerancePolicy tolerances;
+};
+
+struct GluingReport {
+    bool accepted = false;
+    ProposedState proposedGlobalState;
+    std::vector<OverlapStatus> overlapStatuses;
+    bool gaugeConsistent = true;
+    ObstructionReport obstructionReport;
+    StageReport stageReport;
+};
+
+struct DiagnosticInput {
+    ModelSnapshot model;
+    std::optional<ContextSnapshot> context;
+    std::optional<numeric::NumericReport> numericReport;
+    GaugePolicy gaugePolicy;
+};
+
+struct DiagnosticOutput {
+    SolveStatus statusCode = SolveStatus::NotRun;
+    DofReport dofReport;
+    RankReport rankReport;
+    ResidualReport residualReport;
+    GluingReport gluingReport;
+    ObstructionReport obstructionReport;
+    std::vector<ReportMessage> warnings;
+};
+
+DofReport analyzeDof(const ModelSnapshot& model,
+                     const ContextSnapshot& context,
+                     const GaugePolicy& gaugePolicy);
+DiagnosticOutput diagnose(const DiagnosticInput& input);
+GluingReport glueLocalSections(const GluingInput& input);
+ObstructionReport makeObstruction(std::string code, std::string message);
 
 }

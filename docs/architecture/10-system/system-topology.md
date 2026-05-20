@@ -76,6 +76,10 @@ The target topology maps directly to the repository layout:
 - `python/gcs_viz`
 - `fixtures/scene`
 
+The C++ solver implementation must use C++23 modules. Module interfaces are
+`.cppm` files, implementations are `.cpp` files, and build configuration must
+register interfaces through a CMake `CXX_MODULES` file set.
+
 ## Core Data Flow
 
 ```text

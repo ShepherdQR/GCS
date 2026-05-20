@@ -1,145 +1,146 @@
 module;
 
 #include <cmath>
-#include <sstream>
+#include <cstddef>
+#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 module gcs.diagnostics;
 
 import gcs.kernel;
-import gcs.incidence_graph;
+import gcs.numeric_engine;
 
-namespace gcs {
-namespace lgs {
+namespace gcs::diagnostics {
 
-std::string toString(ConstraintStatus status) {
-    switch (status) {
-        case ConstraintStatus::WellConstrained:            return "WellConstrained";
-        case ConstraintStatus::UnderConstrained:           return "UnderConstrained";
-        case ConstraintStatus::OverConstrained:            return "OverConstrained";
-        case ConstraintStatus::OverConstrainedConsistent:  return "OverConstrainedConsistent";
+namespace {
+
+bool sameParameters(const ParameterBlock& lhs, const ParameterBlock& rhs, double tolerance) {
+    const int dimension = lhs.dimension < rhs.dimension ? lhs.dimension : rhs.dimension;
+    for (int i = 0; i < dimension; ++i) {
+        if (std::abs(lhs.values[static_cast<std::size_t>(i)] -
+                     rhs.values[static_cast<std::size_t>(i)]) > tolerance) {
+            return false;
+        }
     }
-    return "Unknown";
+    return true;
 }
 
-ConstraintStatus LocalGeometricSolver::classifyStatus(int netDOF) const {
-    if (netDOF == 0) return ConstraintStatus::WellConstrained;
-    if (netDOF > 0)  return ConstraintStatus::UnderConstrained;
-    return ConstraintStatus::OverConstrained;
-}
-
-ConstraintStatus LocalGeometricSolver::classifyStatusForSubProblem(
-    const Manager& m, const dcm::SubProblem& sp, int netDOF) const {
-    (void)m;
-    (void)sp;
-    return classifyStatus(netDOF);
-}
-
-int LocalGeometricSolver::computeGeometryDOF(
-    const Manager& m, const dcm::SubProblem& sp) const {
-    int dof = 0;
-    for (int gid : sp.geometryIds) {
-        const auto* g = m.findGeometry(gid);
-        if (g) dof += dofGeometry(g->type);
+EntityState* findState(std::vector<EntityState>& states, EntityId entityId) {
+    for (auto& state : states) {
+        if (state.entityId == entityId) return &state;
     }
-    return dof;
+    return nullptr;
 }
 
-int LocalGeometricSolver::computeConstraintRemovedDOF(
-    const Manager& m, const dcm::SubProblem& sp) const {
-    int removed = 0;
-    for (int cid : sp.constraintIds) {
-        const auto* c = m.findConstraint(cid);
-        if (c) removed += dofRemovedConstraint(c->type);
+SolveStatus classifyFreeDof(int freeDof) {
+    if (freeDof > 0) return SolveStatus::UnderConstrained;
+    if (freeDof < 0) return SolveStatus::OverConstrained;
+    return SolveStatus::Solved;
+}
+
+}
+
+DofReport analyzeDof(const ModelSnapshot& model,
+                     const ContextSnapshot& context,
+                     const GaugePolicy& gaugePolicy) {
+    DofReport report;
+    report.gaugeDof = gaugePolicy.removedDof;
+    for (EntityId entityId : context.entityIds) {
+        if (const auto* entity = findEntity(model, entityId)) {
+            report.parameterDof += geometryDof(entity->kind);
+        }
     }
-    return removed;
-}
-
-DOFAnalysis LocalGeometricSolver::analyzeDOF(const Manager& m) const {
-    dcm::SubProblem all;
-    all.id = 0;
-    for (const auto& g : m.geometries) all.geometryIds.push_back(g.id);
-    for (const auto& c : m.constraints) all.constraintIds.push_back(c.id);
-    for (const auto& rs : m.rigidSets) all.rigidSetIds.push_back(rs.id);
-    return analyzeDOF(m, all);
-}
-
-DOFAnalysis LocalGeometricSolver::analyzeDOF(
-    const Manager& m, const dcm::SubProblem& sp) const {
-    DOFAnalysis analysis;
-    analysis.geometryDOF = computeGeometryDOF(m, sp);
-    analysis.constraintRemovedDOF = computeConstraintRemovedDOF(m, sp);
-    analysis.netDOF = analysis.geometryDOF - analysis.constraintRemovedDOF;
-    analysis.status = classifyStatus(analysis.netDOF);
-    return analysis;
-}
-
-StatusReport LocalGeometricSolver::analyzeStatus(const Manager& m) const {
-    dcm::SubProblem all;
-    all.id = 0;
-    for (const auto& g : m.geometries) all.geometryIds.push_back(g.id);
-    for (const auto& c : m.constraints) all.constraintIds.push_back(c.id);
-    for (const auto& rs : m.rigidSets) all.rigidSetIds.push_back(rs.id);
-    return analyzeStatus(m, all);
-}
-
-StatusReport LocalGeometricSolver::analyzeStatus(
-    const Manager& m, const dcm::SubProblem& sp) const {
-    StatusReport report;
-    report.dofAnalysis = analyzeDOF(m, sp);
-    report.overallStatus = classifyStatusForSubProblem(m, sp, report.dofAnalysis.netDOF);
-    report.isConsistent = true;
-
-    std::ostringstream oss;
-    oss << "DOF: " << report.dofAnalysis.geometryDOF
-        << " - " << report.dofAnalysis.constraintRemovedDOF
-        << " = " << report.dofAnalysis.netDOF
-        << " (" << toString(report.overallStatus) << ")";
-    report.summaryText = oss.str();
-
+    for (ConstraintId constraintId : context.constraintIds) {
+        if (const auto* constraint = findConstraint(model, constraintId)) {
+            report.equationDof += constraintDofEffect(constraint->kind);
+        }
+    }
+    report.freeDof = report.parameterDof - report.equationDof - report.gaugeDof;
+    report.status = classifyFreeDof(report.freeDof);
     return report;
 }
 
-double LocalGeometricSolver::computeConstraintResidual(
-    const Manager& m, const Constraint& c) const {
-    if (c.geometryIds.size() < 2) return 0.0;
+DiagnosticOutput diagnose(const DiagnosticInput& input) {
+    DiagnosticOutput output;
+    ContextSnapshot context = input.context.value_or(makeWholeModelContext(input.model));
+    output.dofReport = analyzeDof(input.model, context, input.gaugePolicy);
+    output.statusCode = output.dofReport.status;
 
-    const auto* g1 = m.findGeometry(c.geometryIds[0]);
-    const auto* g2 = m.findGeometry(c.geometryIds[1]);
-    if (!g1 || !g2) return 0.0;
-
-    switch (c.type) {
-        case ConstraintType::Coincident: {
-            double dx = g2->v[0] - g1->v[0];
-            double dy = g2->v[1] - g1->v[1];
-            double dz = g2->v[2] - g1->v[2];
-            return std::sqrt(dx*dx + dy*dy + dz*dz);
+    if (input.numericReport.has_value()) {
+        output.rankReport.numericRankEstimate = input.numericReport->rankEstimate;
+        output.rankReport.conditionEstimate = input.numericReport->conditionEstimate;
+        output.residualReport.totalResidual = input.numericReport->finalResidual;
+        output.residualReport.maxResidual = input.numericReport->finalResidual;
+        if (input.numericReport->resultCode != SolveStatus::Solved) {
+            output.statusCode = input.numericReport->resultCode;
         }
-        case ConstraintType::Distance: {
-            double dx = g2->v[0] - g1->v[0];
-            double dy = g2->v[1] - g1->v[1];
-            double dz = g2->v[2] - g1->v[2];
-            return std::abs(std::sqrt(dx*dx + dy*dy + dz*dz) - c.value);
+    }
+
+    output.rankReport.structuralRankEstimate = output.dofReport.equationDof;
+    return output;
+}
+
+GluingReport glueLocalSections(const GluingInput& input) {
+    GluingReport report;
+    report.stageReport = makeStageReport("diagnostics.glue_local_sections");
+    report.proposedGlobalState.baseVersion = input.model.stateVersion;
+
+    for (const auto& section : input.localSections) {
+        if (!section.valid) {
+            report.accepted = false;
+            report.obstructionReport = makeObstruction(
+                "gluing.invalid_local_section",
+                "At least one local section was marked invalid by its producer.");
+            report.obstructionReport.contextIds.push_back(section.contextId);
+            report.stageReport.status = StageStatus::Error;
+            return report;
         }
-        default:
-            return 0.0;
+
+        for (const auto& state : section.entityStates) {
+            if (auto* existing = findState(report.proposedGlobalState.entityStates, state.entityId)) {
+                if (!sameParameters(existing->parameters, state.parameters, input.tolerances.boundary)) {
+                    report.accepted = false;
+                    report.obstructionReport = makeObstruction(
+                        "gluing.entity_state_mismatch",
+                        "Local sections disagree on a shared entity state.");
+                    report.obstructionReport.contextIds.push_back(section.contextId);
+                    report.obstructionReport.entityIds.push_back(state.entityId);
+                    report.stageReport.status = StageStatus::Error;
+                    return report;
+                }
+            } else {
+                report.proposedGlobalState.entityStates.push_back(state);
+            }
+        }
     }
-}
 
-std::vector<ConstraintViolation> LocalGeometricSolver::checkSatisfaction(
-    const Manager& m, double tolerance) const {
-    std::vector<ConstraintViolation> violations;
-    for (const auto& c : m.constraints) {
-        double residual = computeConstraintResidual(m, c);
-        violations.push_back({c.id, residual, tolerance, residual < tolerance});
+    for (const auto& projection : input.boundaryProjections) {
+        OverlapStatus status;
+        status.projectionId = projection.id;
+        status.compatible = true;
+        status.boundaryResidual = 0.0;
+        status.entityIds = projection.entityIds;
+        report.overlapStatuses.push_back(status);
     }
-    return violations;
+
+    report.gaugeConsistent = true;
+    report.accepted = true;
+    ReportMessage message;
+    message.severity = ReportSeverity::Info;
+    message.code = "gluing.accepted";
+    message.message = "All local sections are compatible within boundary tolerance.";
+    report.stageReport.messages.push_back(message);
+    return report;
 }
 
-bool LocalGeometricSolver::isWellConstrained(const Manager& m) const {
-    return analyzeDOF(m).status == ConstraintStatus::WellConstrained;
+ObstructionReport makeObstruction(std::string code, std::string message) {
+    ObstructionReport obstruction;
+    obstruction.present = true;
+    obstruction.code = std::move(code);
+    obstruction.message = std::move(message);
+    return obstruction;
 }
 
-}
 }

@@ -1,161 +1,111 @@
 module;
 
 #include <queue>
-#include <unordered_set>
+#include <cstddef>
 #include <vector>
 
 module gcs.incidence_graph;
 
 import gcs.kernel;
 
-namespace gcs {
-namespace dcm {
+namespace gcs::graph {
 
-void DecompositionManager::buildAdjacencyList(const Manager& m) {
-    adjacencyList_.clear();
-    for (const auto& g : m.geometries) {
-        adjacencyList_[g.id] = {};
+namespace {
+
+int entityIndex(const ModelSnapshot& model, EntityId entityId) {
+    for (int i = 0; i < static_cast<int>(model.entities.size()); ++i) {
+        if (model.entities[static_cast<std::size_t>(i)].id == entityId) return i;
     }
-    for (const auto& c : m.constraints) {
-        for (size_t i = 0; i < c.geometryIds.size(); ++i) {
-            for (size_t j = i + 1; j < c.geometryIds.size(); ++j) {
-                int a = c.geometryIds[i];
-                int b = c.geometryIds[j];
-                adjacencyList_[a].push_back(b);
-                adjacencyList_[b].push_back(a);
-            }
-        }
-    }
-    for (const auto& rs : m.rigidSets) {
-        for (size_t i = 0; i < rs.geometryIds.size(); ++i) {
-            for (size_t j = i + 1; j < rs.geometryIds.size(); ++j) {
-                int a = rs.geometryIds[i];
-                int b = rs.geometryIds[j];
-                adjacencyList_[a].push_back(b);
-                adjacencyList_[b].push_back(a);
-            }
-        }
-    }
+    return -1;
 }
 
-std::vector<int> DecompositionManager::bfsComponent(int startGeomId) {
-    std::vector<int> component;
-    std::queue<int> q;
-    q.push(startGeomId);
-    visited_.insert(startGeomId);
+bool componentContains(const ConnectedComponent& component, EntityId entityId) {
+    return containsEntity(component.entityIds, entityId);
+}
 
-    while (!q.empty()) {
-        int curr = q.front();
-        q.pop();
-        component.push_back(curr);
+}
 
-        auto it = adjacencyList_.find(curr);
-        if (it != adjacencyList_.end()) {
-            for (int neighbor : it->second) {
-                if (visited_.find(neighbor) == visited_.end()) {
-                    visited_.insert(neighbor);
-                    q.push(neighbor);
+IncidenceIndices buildIncidenceIndices(const IncidenceInput& input) {
+    IncidenceIndices indices;
+    indices.report = makeStageReport("incidence_graph.build_indices");
+
+    const auto& model = input.model;
+    indices.entityIncidence.reserve(model.entities.size());
+    for (const auto& entity : model.entities) {
+        indices.entityIncidence.push_back(EntityIncidence{entity.id, {}});
+    }
+
+    std::vector<std::vector<int>> adjacency(model.entities.size());
+    for (const auto& constraint : model.constraints) {
+        std::vector<int> incidentEntityIndexes;
+        for (EntityId entityId : constraint.entityIds) {
+            int index = entityIndex(model, entityId);
+            if (index < 0) {
+                ReportMessage message;
+                message.severity = ReportSeverity::Error;
+                message.code = "incidence.missing_entity";
+                message.message = "Constraint references an entity missing from incidence indices.";
+                message.constraintIds.push_back(constraint.id);
+                message.entityIds.push_back(entityId);
+                indices.report.messages.push_back(message);
+                indices.report.status = StageStatus::Error;
+                continue;
+            }
+            indices.entityIncidence[static_cast<std::size_t>(index)].constraintIds.push_back(constraint.id);
+            incidentEntityIndexes.push_back(index);
+        }
+
+        for (int lhs : incidentEntityIndexes) {
+            for (int rhs : incidentEntityIndexes) {
+                if (lhs != rhs) adjacency[static_cast<std::size_t>(lhs)].push_back(rhs);
+            }
+        }
+    }
+
+    std::vector<bool> visited(model.entities.size(), false);
+    int componentIndex = 0;
+    for (int start = 0; start < static_cast<int>(model.entities.size()); ++start) {
+        if (visited[static_cast<std::size_t>(start)]) continue;
+
+        ConnectedComponent component;
+        component.index = componentIndex++;
+        std::queue<int> queue;
+        queue.push(start);
+        visited[static_cast<std::size_t>(start)] = true;
+
+        while (!queue.empty()) {
+            int current = queue.front();
+            queue.pop();
+            const auto& entity = model.entities[static_cast<std::size_t>(current)];
+            component.entityIds.push_back(entity.id);
+            if (!containsRigidSet(component.rigidSetIds, entity.rigidSetId)) {
+                component.rigidSetIds.push_back(entity.rigidSetId);
+            }
+            for (int next : adjacency[static_cast<std::size_t>(current)]) {
+                if (!visited[static_cast<std::size_t>(next)]) {
+                    visited[static_cast<std::size_t>(next)] = true;
+                    queue.push(next);
                 }
             }
         }
-    }
-    return component;
-}
 
-std::vector<std::vector<int>> DecompositionManager::findConnectedComponents() {
-    std::vector<std::vector<int>> components;
-    visited_.clear();
-
-    for (const auto& [geomId, _] : adjacencyList_) {
-        if (visited_.find(geomId) == visited_.end()) {
-            components.push_back(bfsComponent(geomId));
-        }
-    }
-    return components;
-}
-
-DecompositionResult DecompositionManager::decompose(const Manager& m) {
-    DecompositionResult result;
-    result.totalGeometries = static_cast<int>(m.geometries.size());
-    result.totalConstraints = static_cast<int>(m.constraints.size());
-
-    if (m.geometries.empty()) {
-        result.isSingleComponent = true;
-        return result;
-    }
-
-    buildAdjacencyList(m);
-    auto components = findConnectedComponents();
-
-    result.isSingleComponent = (components.size() <= 1);
-
-    for (size_t i = 0; i < components.size(); ++i) {
-        SubProblem sp;
-        sp.id = static_cast<int>(i);
-        sp.geometryIds = components[i];
-
-        std::unordered_set<int> geomSet(components[i].begin(), components[i].end());
-
-        for (const auto& c : m.constraints) {
-            bool belongs = true;
-            for (int gid : c.geometryIds) {
-                if (geomSet.find(gid) == geomSet.end()) {
-                    belongs = false;
+        for (const auto& constraint : model.constraints) {
+            bool touchesComponent = false;
+            for (EntityId entityId : constraint.entityIds) {
+                if (componentContains(component, entityId)) {
+                    touchesComponent = true;
                     break;
                 }
             }
-            if (belongs && !c.geometryIds.empty()) {
-                sp.constraintIds.push_back(c.id);
+            if (touchesComponent && !containsConstraint(component.constraintIds, constraint.id)) {
+                component.constraintIds.push_back(constraint.id);
             }
         }
 
-        for (const auto& rs : m.rigidSets) {
-            for (int gid : rs.geometryIds) {
-                if (geomSet.find(gid) != geomSet.end()) {
-                    sp.rigidSetIds.push_back(rs.id);
-                    break;
-                }
-            }
-        }
-
-        result.subProblems.push_back(sp);
+        indices.connectedComponents.push_back(component);
     }
 
-    return result;
+    return indices;
 }
 
-SubProblem DecompositionManager::extractSubProblem(
-    const Manager& m, const std::vector<int>& geometryIds) const {
-    SubProblem sp;
-    sp.id = 0;
-    sp.geometryIds = geometryIds;
-
-    std::unordered_set<int> geomSet(geometryIds.begin(), geometryIds.end());
-
-    for (const auto& c : m.constraints) {
-        bool belongs = true;
-        for (int gid : c.geometryIds) {
-            if (geomSet.find(gid) == geomSet.end()) {
-                belongs = false;
-                break;
-            }
-        }
-        if (belongs && !c.geometryIds.empty()) {
-            sp.constraintIds.push_back(c.id);
-        }
-    }
-
-    for (const auto& rs : m.rigidSets) {
-        for (int gid : rs.geometryIds) {
-            if (geomSet.find(gid) != geomSet.end()) {
-                sp.rigidSetIds.push_back(rs.id);
-                break;
-            }
-        }
-    }
-
-    return sp;
-}
-
-}
 }

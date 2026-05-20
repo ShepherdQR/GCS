@@ -78,7 +78,7 @@ python/gcs_viz/.events/
 fixtures/scene/_tui_temp/
 
 # Generated visualizer / solver scratch outputs
-GCS/
+/GCS/
 var/
 display.html
 *_graph.txt

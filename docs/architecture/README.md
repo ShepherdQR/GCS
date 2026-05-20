@@ -25,7 +25,12 @@ order, not by historical source order. Background research notes live under
    - `solver-contracts.md`: planner, diagnostics, and numeric engine contracts.
 5. `40-quality/`
    - `verification-strategy.md`: tests, scenario corpus, and correctness gates.
-6. `90-references/`
+6. `50-implementation/`
+   - `cpp23-module-solver-architecture.md`: C++23 module implementation
+     layout, contracts, rollout order, and minimal gtest strategy.
+   - `third-party-policy.md`: dependency governance, vendoring layout,
+     binary/DLL rules, and GoogleTest integration policy.
+7. `90-references/`
    - Commercial and research notes used as background material.
 
 ## Target Thesis

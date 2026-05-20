@@ -16,6 +16,7 @@
         "CMAKE_LINKER": "C:/Softwares/LLVM/LLVM_20_1_7/bin/lld-link.exe",
         "CMAKE_RC_COMPILER": "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/rc.exe",
         "CMAKE_MT": "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/mt.exe",
+        "CMAKE_PREFIX_PATH": "C:/Softwares/GTest/GTest_1_17_0/install/clang-ninja-debug",
         "CMAKE_CXX_STANDARD": "23",
         "CMAKE_CXX_STANDARD_REQUIRED": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF",
