@@ -25,8 +25,8 @@ from gcs_viz.algebra import (
 from gcs_viz.color_scheme import GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME
 from gcs_viz.event_store import EventStore
 from gcs_viz.engine_bridge import EngineBridge
-from gcs_viz.visualizer import build_3d_on_figure, build_graph_on_figure, build_three_view_on_figure
-from gcs_viz.screens.dialogs_tk import AddRigidSetDialog, AddGeometryDialog, AddConstraintDialog, DeleteConfirmDialog, EditConstraintDialog, HistoryReplayDialog
+from gcs_viz.viewer_bridge import build_history_graph, graph_summary, render_graph_view, render_message
+from gcs_viz.screens.dialogs_tk import AddRigidSetDialog, AddGeometryDialog, AddConstraintDialog, DeleteConfirmDialog, EditConstraintDialog
 
 
 class GCSPlatformGUI:
@@ -36,12 +36,18 @@ class GCSPlatformGUI:
         self.engine = EngineBridge()
         self.scene_id = "default"
         self.current_view = "3d"
+        self._history_replay_job = None
+        self._history_replay_history = []
+        self._history_replay_index = -1
+        self._history_replay_view = None
 
         self.root = tk.Tk()
         self.root.title("GCS Platform — Geometric Constraint Solver")
         self.root.geometry("1280x800")
         self.root.minsize(960, 600)
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
+        self.replay_speed_var = tk.DoubleVar(value=1.0)
+        self.replay_speed_label_var = tk.StringVar(value="Replay Speed: 1.00x")
 
         style = ttk.Style()
         style.configure("DOF.TLabel", font=("Segoe UI", 11, "bold"))
@@ -53,6 +59,7 @@ class GCSPlatformGUI:
         self._build_ui()
 
     def _on_close(self):
+        self._cancel_history_replay()
         self.root.destroy()
         sys.exit(0)
 
@@ -143,6 +150,17 @@ class GCSPlatformGUI:
 
         ttk.Button(action_frame, text="⚡ Solve", style="Action.TButton", command=self._solve).pack(fill=tk.X, padx=4, pady=2)
         ttk.Button(action_frame, text="🎬 Replay History", style="Action.TButton", command=self._replay_history).pack(fill=tk.X, padx=4, pady=2)
+
+        speed_frame = ttk.Frame(action_frame)
+        speed_frame.pack(fill=tk.X, padx=4, pady=(2, 4))
+        ttk.Label(speed_frame, textvariable=self.replay_speed_label_var).pack(anchor=tk.W)
+        ttk.Scale(
+            speed_frame,
+            from_=0.25,
+            to=4.0,
+            variable=self.replay_speed_var,
+            command=self._on_replay_speed_change,
+        ).pack(fill=tk.X, pady=(2, 0))
 
         sep = ttk.Separator(action_frame, orient=tk.HORIZONTAL)
         sep.pack(fill=tk.X, padx=4, pady=4)
@@ -261,29 +279,32 @@ class GCSPlatformGUI:
             self.dof_label.config(text="  Net DOF: — (Empty)  ", foreground="gray")
 
     def _update_status_info(self):
-        n_rs = len(self.graph.rigid_sets)
-        n_g = len(self.graph.geometries)
-        n_c = len(self.graph.constraints)
-        dof = self.graph.compute_dof()
-        status = self.graph.classify_dof_status()
-        self.status_label.config(text=f"  RS:{n_rs}  G:{n_g}  C:{n_c}  DOF:{dof}  [{status}]")
+        summary = graph_summary(self.graph)
+        self.status_label.config(
+            text=(
+                f"  RS:{summary['rigid_sets']}  G:{summary['geometries']}  "
+                f"C:{summary['constraints']}  DOF:{summary['dof']}  [{summary['status']}]"
+            )
+        )
 
     def _on_view_change(self):
         self._refresh_canvas()
 
     def _refresh_canvas(self):
-        if not self.graph.geometries:
-            self._draw_welcome()
+        self._cancel_history_replay()
+        self._draw_graph_on_canvas(self.graph, self.view_var.get(), use_welcome=True)
+
+    def _draw_graph_on_canvas(self, graph: GCSGraph, view: str, use_welcome: bool = False, title=None):
+        if not graph.geometries:
+            if use_welcome:
+                self._draw_welcome()
+            else:
+                self.fig.clear()
+                self.canvas_widget.draw()
             return
 
-        view = self.view_var.get()
         try:
-            if view == "3d":
-                build_3d_on_figure(self.graph, self.fig)
-            elif view == "graph":
-                build_graph_on_figure(self.graph, self.fig)
-            elif view == "3view":
-                build_three_view_on_figure(self.graph, self.fig)
+            render_graph_view(graph, self.fig, view, title=title)
             self.canvas_widget.draw()
         except Exception as e:
             self._log_error(f"View error: {e}")
@@ -534,7 +555,81 @@ class GCSPlatformGUI:
         if not self.graph.history:
             self._log_warning("No history to replay")
             return
-        HistoryReplayDialog(self.root, self.graph)
+        self._cancel_history_replay()
+        self._history_replay_history = list(self.graph.history)
+        self._history_replay_index = -1
+        self._history_replay_view = self.view_var.get()
+
+        self.fig.clear()
+        self.canvas_widget.draw()
+        speed = self._history_replay_speed()
+        self._log_info(f"Replay history: clearing view (0/{len(self._history_replay_history)}, {speed:.2f}x)")
+        self._history_replay_job = self.root.after(self._history_replay_delay_ms(350), self._advance_history_replay)
+
+    def _advance_history_replay(self):
+        self._history_replay_job = None
+        history = self._history_replay_history
+        if not history:
+            return
+
+        next_index = self._history_replay_index + 1
+        if next_index >= len(history):
+            self._finish_history_replay()
+            return
+
+        self._history_replay_index = next_index
+        entry = history[next_index]
+        action = str(entry.get("action", "Unknown"))
+        replay_graph = build_history_graph(history, next_index)
+        title = f"Replay History - Step {next_index + 1}/{len(history)}: {action}"
+
+        try:
+            self._draw_graph_on_canvas(replay_graph, self._history_replay_view or self.view_var.get(), title=title)
+            speed = self._history_replay_speed()
+            self._log_info(f"Replay history: step {next_index + 1}/{len(history)} {action} ({speed:.2f}x)")
+        except Exception as exc:
+            render_message(self.fig, f"Replay error:\n{exc}", title="Replay History")
+            self.canvas_widget.draw()
+            self._log_error(f"Replay error: {exc}")
+            self._history_replay_job = self.root.after(800, self._finish_history_replay)
+            return
+
+        self._history_replay_job = self.root.after(self._history_replay_delay_ms(650), self._advance_history_replay)
+
+    def _finish_history_replay(self):
+        restore_view = self._history_replay_view or self.view_var.get()
+        self._history_replay_job = None
+        self._history_replay_history = []
+        self._history_replay_index = -1
+        self._history_replay_view = None
+        self.view_var.set(restore_view)
+        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True)
+        self._log_success("Replay history complete; restored current view")
+
+    def _cancel_history_replay(self):
+        if self._history_replay_job is not None:
+            try:
+                self.root.after_cancel(self._history_replay_job)
+            except tk.TclError:
+                pass
+        self._history_replay_job = None
+        self._history_replay_history = []
+        self._history_replay_index = -1
+        self._history_replay_view = None
+
+    def _on_replay_speed_change(self, value=None):
+        speed = self._history_replay_speed()
+        self.replay_speed_label_var.set(f"Replay Speed: {speed:.2f}x")
+
+    def _history_replay_speed(self):
+        try:
+            speed = float(self.replay_speed_var.get())
+        except (tk.TclError, ValueError):
+            speed = 1.0
+        return max(0.25, min(4.0, speed))
+
+    def _history_replay_delay_ms(self, base_ms: int):
+        return max(80, int(base_ms / self._history_replay_speed()))
 
     def run(self):
         self._refresh_tables()
