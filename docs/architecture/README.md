@@ -9,6 +9,8 @@ order, not by historical source order. Background research notes live under
 
 1. `00-foundations/`
    - `problem-formulation.md`: the mathematical problem GCS solves.
+   - `topos-semantic-model.md`: local-to-global semantics for decomposition,
+     gluing, gauge, and diagnostic obstructions.
    - `architectural-principles.md`: invariants that shape every module.
 2. `10-system/`
    - `system-topology.md`: target module topology and dependency rules.
@@ -40,9 +42,13 @@ problem. It is a layered problem over:
   redundancy, conflict, and failure.
 
 The architecture therefore separates model, graph, planner, diagnostics,
-numeric engine, runtime, IO, and visualization. A solver run should produce not
-only coordinates, but also a certificate-like report that explains what was
-solved, what remains free, what is inconsistent, and how reliable the result is.
+numeric engine, runtime, IO, and visualization. Its organizing semantic is
+local-to-global: decomposition produces a cover of local contexts, numeric
+engines propose local sections, assembly glues compatible sections into a
+global state, and diagnostics explain obstructions when gluing fails. A solver
+run should produce not only coordinates, but also a certificate-like report
+that explains what was solved, what remains free, what is inconsistent, and how
+reliable the result is.
 
 ## Target Directory Vocabulary
 
@@ -78,3 +84,19 @@ The repository now uses the target vocabulary for its physical layout:
 
 Some source files still contain prototype class and namespace names from the
 old implementation. Treat those names as migration debt, not as architecture.
+
+## Semantic Vocabulary
+
+Topos theory informs the architecture through practical names:
+
+| Term | Meaning |
+| --- | --- |
+| `ContextSnapshot` | Immutable local view of model state, variables, and constraints. |
+| `CoverPlan` | Planner-selected family of contexts that covers a solve request. |
+| `BoundaryProjection` | Restriction from a context to an overlap or shared boundary. |
+| `LocalSection` | Numeric or construction proposal over one context. |
+| `GluingReport` | Compatibility and assembly result for local sections. |
+| `ObstructionReport` | Explanation for failed gluing, non-uniqueness, or singularity. |
+
+These terms should shape contracts and reports. They do not require solver
+modules to expose category-theory terminology in everyday APIs.

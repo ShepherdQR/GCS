@@ -40,6 +40,21 @@ default. It should:
 6. solve leaves with the numeric engine;
 7. assemble and verify globally.
 
+## Treat Decomposition As Local-To-Global Semantics
+
+Decomposition is a semantic operation, not only a performance optimization.
+The planner selects local contexts that cover the requested solve. Numeric or
+construction engines propose local sections over those contexts. Assembly
+checks overlap compatibility and glues the accepted sections into a global
+state proposal.
+
+Rules:
+
+- every subproblem declares its boundary variables;
+- every boundary has an explicit projection from the parent context;
+- every local result carries enough report data to test overlap compatibility;
+- failed assembly produces an obstruction report, not a generic solve failure.
+
 ## Respect Degeneracy
 
 Degenerate geometry is normal in CAD and sketching:

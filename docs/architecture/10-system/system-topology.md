@@ -35,9 +35,9 @@ lower mathematical layers do not call UI, IO, app lifecycle, or visualization.
 | `kernel` | Typed entities, constraints, IDs, parameter state, units, tolerances. |
 | `constraint_catalog` | Residual definitions, Jacobians, dimension metadata, validation rules. |
 | `incidence_graph` | Hypergraph projections, connected components, structural indices. |
-| `decomposition_planner` | Rigidity analysis, clustering, ordering, subproblem extraction. |
-| `diagnostics` | DOF/rank/status/residual/conflict/redundancy analysis. |
-| `numeric_engine` | Equation assembly, scaling, damping, manifold updates, convergence reports. |
+| `decomposition_planner` | Rigidity analysis, context covers, boundary projections, solve ordering. |
+| `diagnostics` | DOF/rank/status/residual/conflict/redundancy and obstruction analysis. |
+| `numeric_engine` | Local equation assembly, scaling, damping, manifold updates, convergence reports. |
 | `session_runtime` | User intent, commands, transactions, history, orchestration. |
 | `io_adapters` | Versioned import/export, fixture loading, reproducible serialization. |
 | `viewer_bridge` | Observability and interaction bridge; never owns solver truth. |
@@ -83,13 +83,25 @@ input scene or runtime command
   -> io_adapters / session_runtime
   -> kernel model validation
   -> incidence_graph indices
-  -> decomposition_planner solve plan
+  -> decomposition_planner context cover and solve plan
   -> diagnostics pre-solve classification
-  -> numeric_engine prepared tasks
-  -> diagnostics post-solve verification
+  -> numeric_engine local solve tasks
+  -> diagnostics gluing and post-solve verification
   -> session_runtime transaction commit
   -> viewer_bridge / io_adapters output
 ```
+
+## Semantic Layer
+
+Topos-inspired local-to-global semantics does not add a new dependency layer.
+It refines the contracts passed between existing modules:
+
+- `kernel` owns stable model identity used by every context.
+- `incidence_graph` provides the structural facts used to form covers.
+- `decomposition_planner` emits `CoverPlan` and `BoundaryProjection` data.
+- `numeric_engine` returns local sections over planned contexts.
+- `diagnostics` checks overlap compatibility and reports obstructions.
+- `session_runtime` commits only a globally verified proposal.
 
 ## Non-Goals For The Solver Core
 

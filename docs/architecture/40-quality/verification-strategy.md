@@ -13,9 +13,9 @@ diagnostics.
 | Kernel tests | Identity, typing, units, tolerance, serialization invariants. |
 | Constraint tests | Residuals, Jacobians, degeneracy warnings, DOF metadata. |
 | Graph tests | Incidence projections, components, separators, rigid groups. |
-| Planner tests | Subproblem extraction, gauge policy, solve order, unsupported cases. |
+| Planner tests | Context covers, boundary projections, gauge policy, solve order, unsupported cases. |
 | Numeric tests | Convergence, rank, residual reduction, iteration status. |
-| Diagnostic tests | Under/over/well/inconsistent/redundant classifications. |
+| Diagnostic tests | Under/over/well/inconsistent/redundant classifications and obstruction reports. |
 | Pipeline tests | End-to-end command result and report consistency. |
 | Regression fixtures | Real scenes and previously failing cases. |
 
@@ -33,6 +33,7 @@ fixtures/
   inconsistent/
   singular/
   decomposable/
+  gluing/
   rigid_sets/
   interaction_modes/
   regression/
@@ -49,6 +50,7 @@ A solver result should be accepted by tests only when:
 - over-constraint or redundancy is reported when expected;
 - result is deterministic under fixed configuration;
 - reports identify relevant entity and constraint IDs;
+- gluing reports accept every required overlap or report a specific obstruction;
 - serialization round-trips without losing identity.
 
 ## Numeric Robustness Tests
@@ -61,6 +63,7 @@ Numerical tests should include:
 - redundant equations;
 - disconnected components;
 - anchor/gauge variants;
+- overlapping subproblems with compatible and incompatible boundary data;
 - randomized perturbations around known solutions.
 
 ## Documentation Tests

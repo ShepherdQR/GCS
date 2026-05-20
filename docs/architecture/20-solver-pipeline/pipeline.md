@@ -25,11 +25,11 @@
 | Normalize | Raw payload. | Canonical units, IDs, and typed entities. |
 | Validate | Canonical model. | Valid model or validation errors. |
 | Index | Valid model. | Incidence graph and structural indices. |
-| Decompose | Graph indices. | Components, clusters, and subproblem candidates. |
+| Decompose | Graph indices. | Components, clusters, overlaps, and context candidates. |
 | Diagnose | Model, graph, subproblems. | DOF, rank, conflict, redundancy, residual reports. |
-| Plan | Diagnostics and decomposition. | Ordered solve plan with fallback strategy. |
-| Solve | Prepared solve tasks. | Numeric reports and proposed coordinate deltas. |
-| Assemble | Subproblem results. | Global proposed state. |
+| Plan | Diagnostics and decomposition. | `CoverPlan`, ordered solve plan, gauge policy, fallback strategy. |
+| Solve | Prepared solve tasks. | Local sections, numeric reports, and proposed coordinate deltas. |
+| Assemble | Subproblem results. | `GluingReport` and global proposed state. |
 | Verify | Proposed state. | Satisfaction and reliability report. |
 | Commit | Current state and verified proposal. | New versioned state or rejection. |
 | Report | All stage reports. | User/API/fixture-facing explanation. |
@@ -52,6 +52,23 @@ Failure is not binary. The pipeline should preserve the most specific status:
 
 Every failure should identify the stage that produced it and the smallest known
 set of entities or constraints involved.
+
+## Local-To-Global Rule
+
+The pipeline treats decomposition as cover selection and assembly as gluing:
+
+```text
+model snapshot
+  -> context cover
+  -> local solve sections
+  -> overlap compatibility checks
+  -> global proposed state or obstruction report
+```
+
+An accepted numeric result for one subproblem is not sufficient for command
+success. The runtime accepts only a globally verified proposal whose local
+sections agree on every declared overlap and whose remaining free degrees of
+freedom match the solve intent.
 
 ## Transaction Rule
 

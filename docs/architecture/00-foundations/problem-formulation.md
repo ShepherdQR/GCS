@@ -50,6 +50,25 @@ Useful projections include geometry-constraint incidence, body-constraint
 graphs, connected components, biconnected components, articulation structure,
 and future SPQR-like decompositions for 2D rigidity planning.
 
+## Local-To-Global View
+
+The graph view is also the base for a finite local-to-global semantics. A
+solve request can be covered by smaller contexts. Each context has a local
+state proposal, and shared boundaries define whether those proposals are
+compatible:
+
+```text
+global solve request
+  -> context cover
+  -> local sections
+  -> boundary agreement
+  -> global section or obstruction
+```
+
+This is the practical topos-inspired reading of GCS. It unifies decomposition,
+gauge policy, assembly, and diagnostics without changing the underlying
+manifold equation model.
+
 ## Numeric View
 
 The numeric engine sees a local least-squares or root-finding problem:

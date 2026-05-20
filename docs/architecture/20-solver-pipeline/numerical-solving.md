@@ -5,14 +5,19 @@
 The numeric engine solves prepared equation systems on local parameter spaces.
 It is replaceable: a simple dense baseline, a sparse backend, or a future
 construction-based solver should all fit behind the same task/report contract.
+Under the local-to-global architecture, each numeric task computes a local
+section over one context. It does not decide whether that section glues with
+other local sections.
 
 ## Prepared Solve Task
 
 A solve task should include:
 
 - immutable problem snapshot;
+- context ID and context boundary metadata;
 - active entity IDs;
 - active constraint IDs;
+- active boundary variables and overlap projections;
 - gauge-fixing or anchor policy;
 - parameterization policy;
 - tolerance policy;
@@ -38,6 +43,7 @@ It does not own:
 
 - model identity;
 - graph decomposition;
+- overlap compatibility or global gluing;
 - user command semantics;
 - file IO;
 - visualization;

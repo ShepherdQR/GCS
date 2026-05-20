@@ -10,6 +10,8 @@ Every durable object has a stable ID:
 - solve command ID;
 - state version ID;
 - report ID.
+- context ID for decomposition snapshots;
+- cover ID for planned local-to-global solves.
 
 Coordinates may change. IDs do not change unless the user performs an explicit
 topology edit.
@@ -26,7 +28,24 @@ The target kernel should model:
 - tolerance policy;
 - solve intent;
 - state versions;
+- context snapshots and boundary references;
 - references between objects.
+
+## Context And Boundary Identity
+
+Decomposition introduces local views of the same durable model. These views
+must preserve identity rather than cloning domain truth:
+
+- a `ContextSnapshot` references stable entity and constraint IDs from a model
+  snapshot;
+- a boundary variable references the same durable entity or parameter block
+  seen through a smaller overlap context;
+- a `CoverPlan` has stable IDs for contexts, overlaps, and projections;
+- local solve proposals identify the context they were computed over;
+- gluing reports identify every overlap they accepted or rejected.
+
+Context identity is solver/runtime metadata. It must not replace durable entity
+or constraint identity.
 
 ## Model Immutability Boundary
 

@@ -3,7 +3,8 @@
 ## Purpose
 
 The decomposition planner turns a raw constraint graph into a solve strategy.
-It is the bridge between combinatorics and numerics.
+It is the bridge between combinatorics and numerics, and it gives the solver a
+local-to-global semantics by choosing a cover of contexts.
 
 ## Structural Layers
 
@@ -12,20 +13,38 @@ It is the bridge between combinatorics and numerics.
 3. Component graph: independent connected components.
 4. Articulation and biconnected structure: split along separators.
 5. Rigidity candidates: detect generically rigid or flexible clusters.
-6. Solve DAG: order subproblems and shared boundary variables.
+6. Context cover: name subproblems, overlaps, and restriction projections.
+7. Solve DAG: order subproblems and shared boundary variables.
 
 ## Planner Output
 
 The planner should produce:
 
 - subproblem IDs;
+- context IDs and a `CoverPlan`;
 - entity and constraint membership;
 - boundary variables;
+- overlap contexts and boundary projections;
 - anchors or gauge-fixing policy;
 - expected DOF;
 - structural warnings;
 - solve order;
 - fallback strategy when a preferred decomposition is not supported.
+
+## Cover Rules
+
+The planner must make the local-to-global contract explicit:
+
+- every active entity and constraint belongs to at least one context;
+- every shared variable is represented in an overlap context;
+- every overlap has a projection from each participating context;
+- every context declares whether it is solved independently, used as a boundary,
+  or kept only for diagnostics;
+- every gauge choice is represented as policy, not hidden inside a numeric task.
+
+The resulting `CoverPlan` is not a solved model. It is a finite description of
+which local sections must be produced and how they will be checked for
+compatibility.
 
 ## Rigidity Principles
 
@@ -48,6 +67,7 @@ The planner must not:
 - print user-facing messages;
 - silently drop constraints;
 - choose UI behavior.
+- decide that incompatible local sections are globally acceptable.
 
 It may ask diagnostics for rank or status information, but its output remains a
 plan, not a solved model.
