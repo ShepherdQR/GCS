@@ -70,12 +70,12 @@ CommandResult SessionRuntime::execute(const Command& command) {
     result.stage_reports.push_back(result.planner_output.structural_report);
 
     kernel::ContextSnapshot root_context = kernel::make_whole_model_context(current_snapshot_);
-    result.pre_solve_diagnostics = diagnostics::diagnose(
-        diagnostics::DiagnosticInput{
-            current_snapshot_,
-            root_context,
-            {},
-            result.planner_output.gauge_policy});
+    diagnostics::DiagnosticInput pre_solve_input;
+    pre_solve_input.phase = diagnostics::DiagnosticPhase::pre_solve;
+    pre_solve_input.model = current_snapshot_;
+    pre_solve_input.context = root_context;
+    pre_solve_input.gauge_policy = result.planner_output.gauge_policy;
+    result.pre_solve_diagnostics = diagnostics::diagnose(pre_solve_input);
 
     std::vector<kernel::LocalSection> local_sections;
     for (const auto& subproblem : result.planner_output.subproblems) {

@@ -114,6 +114,7 @@ For each commit-level step:
   - `tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp`
   - `tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp`
   - `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp`
+  - `tests/contracts/diagnostics/diagnostics_contract_tests.cpp`
 
 ## Commit-Level Step Queue
 
@@ -131,10 +132,10 @@ Status legend: `done`, `in_progress`, `pending`.
    constraint catalog.
 6. `done` - add numeric residual/Jacobian/rank reports and baseline local
    solve tests.
-7. `in_progress` - add diagnostics DOF/rank/residual/status precedence
+7. `done` - add diagnostics DOF/rank/residual/status precedence
    contracts.
-8. `pending` - add projection-aware gluing obstruction and conflict/redundancy
-   diagnostics.
+8. `in_progress` - add projection-aware gluing obstruction and
+   conflict/redundancy diagnostics.
 9. `pending` - harden session runtime transaction, rollback, stage trace, and
    replay contracts.
 10. `pending` - add IO schema registry, canonical text/JSON path, parse
@@ -273,6 +274,56 @@ Implement the diagnostics DOF/rank/residual/status precedence milestone:
   deepened in the following diagnostics step.
 - Add diagnostics contract tests under
   `tests/contracts/diagnostics/diagnostics_contract_tests.cpp`.
+
+## Diagnostics Certification Step Plan
+
+Current commit-level scope:
+
+- Extend `gcs.diagnostics` with explicit diagnostic phases, DOF requests,
+  residual analysis requests, status precedence inputs, and typed precedence
+  traces.
+- Preserve structural and numeric evidence as separate fields: structural DOF
+  and rank come from model/context shape, while numeric rank, nullity,
+  condition, and residual blocks come from `NumericReport`.
+- Resolve final diagnostic status through a deterministic precedence function
+  instead of incidental branch order.
+- Add typed `ConflictSet` and `RedundancySet` placeholders so later
+  certification algorithms can fill stable subject IDs without reshaping the
+  public contract.
+- Add `tests/contracts/diagnostics/diagnostics_contract_tests.cpp` and keep the
+  tests focused on public structured reports.
+
+## Diagnostics Certification Milestone
+
+Implemented scope for the diagnostics DOF/rank/residual/status precedence
+milestone:
+
+- Add `DiagnosticPhase`, `DofAnalysisRequest`, `ResidualAnalysisRequest`,
+  `StatusPrecedenceInput`, and `StatusPrecedenceTrace` to `gcs.diagnostics`.
+- Reconcile structural DOF/rank separately from numeric rank, nullity,
+  singularity, condition evidence, and residual blocks.
+- Promote numeric residual blocks into `diagnostics::ResidualReport` and mark
+  unsatisfied constraints without hiding the source numeric report.
+- Resolve final diagnostic status through deterministic precedence evidence
+  instead of incidental branch order.
+- Add typed `ConflictSet` and `RedundancySet` placeholders for the next
+  certification algorithms.
+- Add `tests/contracts/diagnostics/diagnostics_contract_tests.cpp` and the
+  `gcs_diagnostics_contract_tests` CTest target.
+
+## Next Milestone
+
+Implement the projection-aware gluing obstruction milestone:
+
+- Compare local sections through declared `BoundaryProjection` records instead
+  of only merging duplicate entity states.
+- Produce `BoundaryAgreementReport` evidence per projection.
+- Return typed obstruction reports with smallest known projection, context,
+  entity, and constraint subjects when gluing fails.
+- Populate conflict/redundancy placeholder structures for projection-level
+  failures where possible.
+- Extend diagnostics contract tests for compatible overlaps, mismatched
+  overlap projections, and stable obstruction subject IDs.
 
 ## Decomposition Planner Step Plan
 
