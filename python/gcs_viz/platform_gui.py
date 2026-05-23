@@ -52,11 +52,7 @@ class GCSPlatformGUI:
         self.model_name_var = tk.StringVar(value="Model: Untitled")
 
         style = ttk.Style()
-        style.configure("DOF.TLabel", font=("Segoe UI", 11, "bold"))
-        style.configure("Section.TLabel", font=("Segoe UI", 9, "bold"))
-        style.configure("Status.TLabel", font=("Consolas", 9))
-        style.configure("Log.TLabel", font=("Consolas", 9))
-        style.configure("Action.TButton", padding=4)
+        self._configure_theme(style)
 
         self._build_ui()
 
@@ -66,6 +62,7 @@ class GCSPlatformGUI:
         sys.exit(0)
 
     def _build_ui(self):
+        self.root.configure(bg=GCS_THEME["bg_window"])
         main_paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
         main_paned.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
@@ -80,7 +77,7 @@ class GCSPlatformGUI:
         self._build_status_bar()
 
     def _build_left_panel(self, parent):
-        canvas = tk.Canvas(parent, width=290, highlightthickness=0)
+        canvas = tk.Canvas(parent, width=290, highlightthickness=0, bg=GCS_THEME["bg_panel"])
         scrollbar = ttk.Scrollbar(parent, orient=tk.VERTICAL, command=canvas.yview)
         scroll_frame = ttk.Frame(canvas)
 
@@ -201,20 +198,95 @@ class GCSPlatformGUI:
         self.status_label = ttk.Label(status_frame, text="  RS:0  G:0  C:0  DOF:0  [Empty]", style="Status.TLabel", relief=tk.SUNKEN, anchor=tk.W)
         self.status_label.pack(fill=tk.X)
 
-        self.log_label = tk.Label(status_frame, text="  Ready", font=("Consolas", 9), anchor=tk.W, bg="#1a1a2e", fg="#a0a0a0", padx=4, pady=2)
+        self.log_label = tk.Label(
+            status_frame,
+            text="  Ready",
+            font=("Consolas", 9),
+            anchor=tk.W,
+            bg=GCS_THEME["bg_panel_alt"],
+            fg=GCS_THEME["text_secondary"],
+            padx=4,
+            pady=2,
+        )
         self.log_label.pack(fill=tk.X)
 
     def _log_info(self, msg):
-        self.log_label.config(text=f"  ℹ {msg}", fg="#00bfff")
+        self.log_label.config(text=f"  INFO {msg}", fg=GCS_THEME["info"])
 
     def _log_warning(self, msg):
-        self.log_label.config(text=f"  ⚠ {msg}", fg="#ffc107")
+        self.log_label.config(text=f"  WARN {msg}", fg=GCS_THEME["warning"])
 
     def _log_error(self, msg):
-        self.log_label.config(text=f"  ✗ {msg}", fg="#ff5252")
+        self.log_label.config(text=f"  ERR  {msg}", fg=GCS_THEME["error"])
 
     def _log_success(self, msg):
-        self.log_label.config(text=f"  ✓ {msg}", fg="#00e676")
+        self.log_label.config(text=f"  OK   {msg}", fg=GCS_THEME["success"])
+
+    def _configure_theme(self, style):
+        try:
+            style.theme_use("clam")
+        except tk.TclError:
+            pass
+
+        font_ui = ("Segoe UI", 9)
+        style.configure(".", background=GCS_THEME["bg_window"], foreground=GCS_THEME["text_primary"], font=font_ui)
+        style.configure("TFrame", background=GCS_THEME["bg_window"])
+        style.configure("TLabelframe", background=GCS_THEME["bg_panel"], bordercolor=GCS_THEME["border"], relief=tk.SOLID)
+        style.configure(
+            "TLabelframe.Label",
+            background=GCS_THEME["bg_panel"],
+            foreground=GCS_THEME["text_secondary"],
+            font=("Segoe UI", 9, "bold"),
+        )
+        style.configure("TLabel", background=GCS_THEME["bg_window"], foreground=GCS_THEME["text_primary"])
+        style.configure("DOF.TLabel", font=("Segoe UI", 11, "bold"), background=GCS_THEME["bg_panel"])
+        style.configure("Section.TLabel", font=("Segoe UI", 9, "bold"), foreground=GCS_THEME["text_secondary"])
+        style.configure("Status.TLabel", font=("Consolas", 9), background=GCS_THEME["bg_panel_alt"], foreground=GCS_THEME["text_secondary"])
+        style.configure("Log.TLabel", font=("Consolas", 9))
+        style.configure(
+            "Action.TButton",
+            padding=4,
+            background=GCS_THEME["bg_panel_alt"],
+            foreground=GCS_THEME["text_primary"],
+            bordercolor=GCS_THEME["border"],
+            focuscolor=GCS_THEME["border"],
+        )
+        style.map(
+            "Action.TButton",
+            background=[("active", GCS_THEME["bg_table_selected"]), ("pressed", GCS_THEME["accent"])],
+            foreground=[("pressed", GCS_THEME["text_on_accent"])],
+        )
+        style.configure(
+            "TButton",
+            background=GCS_THEME["bg_panel_alt"],
+            foreground=GCS_THEME["text_primary"],
+            bordercolor=GCS_THEME["border"],
+            focuscolor=GCS_THEME["border"],
+        )
+        style.map("TButton", background=[("active", GCS_THEME["bg_table_selected"]), ("pressed", GCS_THEME["accent"])])
+        style.configure("TRadiobutton", background=GCS_THEME["bg_window"], foreground=GCS_THEME["text_secondary"])
+        style.map("TRadiobutton", foreground=[("selected", GCS_THEME["text_primary"]), ("active", GCS_THEME["accent_active"])])
+        style.configure("Horizontal.TScale", background=GCS_THEME["bg_panel"], troughcolor=GCS_THEME["bg_panel_alt"])
+        style.configure(
+            "Treeview",
+            background=GCS_THEME["bg_table"],
+            fieldbackground=GCS_THEME["bg_table"],
+            foreground=GCS_THEME["text_primary"],
+            bordercolor=GCS_THEME["border"],
+            rowheight=22,
+        )
+        style.configure(
+            "Treeview.Heading",
+            background=GCS_THEME["bg_panel_alt"],
+            foreground=GCS_THEME["text_secondary"],
+            bordercolor=GCS_THEME["border"],
+            font=("Segoe UI", 9, "bold"),
+        )
+        style.map(
+            "Treeview",
+            background=[("selected", GCS_THEME["bg_table_selected"])],
+            foreground=[("selected", GCS_THEME["text_primary"])],
+        )
 
     def _draw_welcome(self):
         self.fig.clear()
@@ -236,8 +308,10 @@ class GCSPlatformGUI:
             "  1 RS: WellConstrained if DOF=6\n"
             "  N RS: WellConstrained if DOF=6*(N-1)"
         )
+        self.fig.patch.set_facecolor(GCS_THEME["bg_canvas"])
+        ax.set_facecolor(GCS_THEME["bg_canvas"])
         ax.text(0.5, 0.5, welcome, ha="center", va="center", fontsize=11, family="monospace",
-                transform=ax.transAxes, color="#333333")
+                transform=ax.transAxes, color=GCS_THEME["text_secondary"])
         self.canvas_widget.draw()
 
     def _refresh_tables(self):
@@ -274,13 +348,13 @@ class GCSPlatformGUI:
         dof = self.graph.compute_dof()
         status = self.graph.classify_dof_status()
         if status == "WellConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Well-constrained) ✓  ", foreground="green")
+            self.dof_label.config(text=f"  Net DOF: {dof} (Well-constrained) ✓  ", foreground=GCS_THEME["success"])
         elif status == "UnderConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Under-constrained) ⚠  ", foreground="#cc8800")
+            self.dof_label.config(text=f"  Net DOF: {dof} (Under-constrained) ⚠  ", foreground=GCS_THEME["warning"])
         elif status == "OverConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Over-constrained) ✗  ", foreground="red")
+            self.dof_label.config(text=f"  Net DOF: {dof} (Over-constrained) ✗  ", foreground=GCS_THEME["error"])
         else:
-            self.dof_label.config(text="  Net DOF: — (Empty)  ", foreground="gray")
+            self.dof_label.config(text="  Net DOF: — (Empty)  ", foreground=GCS_THEME["text_muted"])
 
     def _update_status_info(self):
         summary = graph_summary(self.graph)

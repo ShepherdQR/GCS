@@ -2,40 +2,40 @@
 <title id="title">GCS geometry fixture panel</title>
 <defs>
 <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-<path d="M0,0 L8,4 L0,8 Z" fill="#5b677a"/>
+<path d="M0,0 L8,4 L0,8 Z" fill="#5f5b53"/>
 </marker>
 </defs>
-<rect x="0.0" y="0.0" width="430.0" height="300.0" rx="10.0" fill="#ffffff" stroke="#d7deea" stroke-width="1.1"/>
-<text x="18.0" y="29.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#172033" text-anchor="start">a</text>
-<text x="48.0" y="27.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#172033" text-anchor="start">Geometry fixture</text>
-<rect x="24.0" y="58.0" width="244.0" height="190.0" rx="8.0" fill="#fbfcff" stroke="#e5eaf3" stroke-width="1.1"/>
-<line x1="146.0" y1="153.0" x2="187.3" y2="214.0" stroke="#f59e0b" stroke-width="2.4" stroke-linecap="round"/>
-<line x1="146.0" y1="153.0" x2="104.7" y2="92.0" stroke="#f59e0b" stroke-width="2.4" stroke-linecap="round"/>
-<line x1="187.3" y1="214.0" x2="104.7" y2="92.0" stroke="#f59e0b" stroke-width="2.4" stroke-linecap="round"/>
-<circle cx="146.0" cy="153.0" r="8.0" fill="#274c9b" stroke="#ffffff" stroke-width="2"/>
-<rect x="129.0" y="123.0" width="34.0" height="18.0" rx="9.0" fill="#ffffff" stroke="#d8e0ee" stroke-width="1.1"/>
-<text x="146.0" y="137.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#172033" text-anchor="middle">G0</text>
-<circle cx="187.3" cy="214.0" r="8.0" fill="#274c9b" stroke="#ffffff" stroke-width="2"/>
-<rect x="170.3" y="184.0" width="34.0" height="18.0" rx="9.0" fill="#ffffff" stroke="#d8e0ee" stroke-width="1.1"/>
-<text x="187.3" y="198.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#172033" text-anchor="middle">G1</text>
-<circle cx="104.7" cy="92.0" r="8.0" fill="#274c9b" stroke="#ffffff" stroke-width="2"/>
-<rect x="87.7" y="62.0" width="34.0" height="18.0" rx="9.0" fill="#ffffff" stroke="#d8e0ee" stroke-width="1.1"/>
-<text x="104.7" y="76.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#172033" text-anchor="middle">G2</text>
-<text x="288.0" y="62.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#5b677a" text-anchor="start">constraint evidence</text>
-<rect x="288.0" y="69.0" width="118.0" height="42.0" rx="6.0" fill="#ffffff" stroke="#e5eaf3" stroke-width="1.1"/>
-<text x="298.0" y="88.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#172033" text-anchor="start">C0</text>
-<text x="330.0" y="88.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5b677a" text-anchor="start">G0-G1</text>
-<text x="298.0" y="102.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5b677a" text-anchor="start">target 1  actual 1</text>
-<text x="298.0" y="115.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5b677a" text-anchor="start">residual +2.1e-09</text>
-<rect x="288.0" y="121.0" width="118.0" height="42.0" rx="6.0" fill="#ffffff" stroke="#e5eaf3" stroke-width="1.1"/>
-<text x="298.0" y="140.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#172033" text-anchor="start">C1</text>
-<text x="330.0" y="140.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5b677a" text-anchor="start">G0-G2</text>
-<text x="298.0" y="154.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5b677a" text-anchor="start">target 1  actual 1</text>
-<text x="298.0" y="167.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5b677a" text-anchor="start">residual +2.1e-09</text>
-<rect x="288.0" y="173.0" width="118.0" height="42.0" rx="6.0" fill="#ffffff" stroke="#e5eaf3" stroke-width="1.1"/>
-<text x="298.0" y="192.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#172033" text-anchor="start">C2</text>
-<text x="330.0" y="192.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5b677a" text-anchor="start">G1-G2</text>
-<text x="298.0" y="206.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5b677a" text-anchor="start">target 2  actual 2</text>
-<text x="298.0" y="219.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5b677a" text-anchor="start">residual +2.5e-13</text>
-<text x="24.0" y="282.0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5b677a" text-anchor="start">3 geometries, 3 constraints, stable IDs</text>
+<rect x="0.0" y="0.0" width="430.0" height="300.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="18.0" y="29.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="22" font-weight="700" fill="#c8643f" text-anchor="start">a</text>
+<text x="48.0" y="27.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Geometry fixture</text>
+<rect x="24.0" y="58.0" width="244.0" height="190.0" rx="8.0" fill="#fbfaf5" stroke="#ece7dd" stroke-width="1.1"/>
+<line x1="146.0" y1="153.0" x2="187.3" y2="214.0" stroke="#b97834" stroke-width="2.4" stroke-linecap="round"/>
+<line x1="146.0" y1="153.0" x2="104.7" y2="92.0" stroke="#b97834" stroke-width="2.4" stroke-linecap="round"/>
+<line x1="187.3" y1="214.0" x2="104.7" y2="92.0" stroke="#b97834" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="146.0" cy="153.0" r="8.0" fill="#334c78" stroke="#ffffff" stroke-width="2"/>
+<rect x="129.0" y="123.0" width="34.0" height="18.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="146.0" y="137.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="middle">G0</text>
+<circle cx="187.3" cy="214.0" r="8.0" fill="#334c78" stroke="#ffffff" stroke-width="2"/>
+<rect x="170.3" y="184.0" width="34.0" height="18.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="187.3" y="198.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="middle">G1</text>
+<circle cx="104.7" cy="92.0" r="8.0" fill="#334c78" stroke="#ffffff" stroke-width="2"/>
+<rect x="87.7" y="62.0" width="34.0" height="18.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="104.7" y="76.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="middle">G2</text>
+<text x="286.0" y="62.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#5f5b53" text-anchor="start">constraint evidence</text>
+<rect x="286.0" y="76.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<text x="296.0" y="93.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="start">C0</text>
+<text x="330.0" y="93.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5f5b53" text-anchor="start">G0-G1</text>
+<text x="296.0" y="108.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">target 1  actual 1</text>
+<text x="296.0" y="121.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">residual +2.1e-09</text>
+<rect x="286.0" y="134.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<text x="296.0" y="151.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="start">C1</text>
+<text x="330.0" y="151.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5f5b53" text-anchor="start">G0-G2</text>
+<text x="296.0" y="166.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">target 1  actual 1</text>
+<text x="296.0" y="179.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">residual +2.1e-09</text>
+<rect x="286.0" y="192.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<text x="296.0" y="209.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="start">C2</text>
+<text x="330.0" y="209.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5f5b53" text-anchor="start">G1-G2</text>
+<text x="296.0" y="224.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">target 2  actual 2</text>
+<text x="296.0" y="237.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">residual +2.5e-13</text>
+<text x="24.0" y="282.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="start">3 geometries, 3 constraints, stable IDs</text>
 </svg>

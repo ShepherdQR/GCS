@@ -67,6 +67,22 @@ ways:
   evidence that makes a command acceptable;
 - the fixture corpus gains a better canonical local-to-global example.
 
+## Editorial Aesthetic Direction
+
+The Figure 1 aesthetic should follow a Claude-influenced scientific editorial
+style:
+
+- warm paper and panel surfaces, not sterile white UI chrome;
+- near-black text with warm gray secondary labels;
+- sparse semantic accents instead of saturated default diagram colors;
+- serif-capable figure title with restrained sans-serif labels;
+- flat surfaces, thin borders, and limited radius;
+- no decorative gradients, orbs, or texture that does not encode information.
+
+The visual goal is not to imitate Claude branding literally. It is to preserve
+GCS' mathematical seriousness while using the same current design instincts:
+quiet warmth, strong hierarchy, and design-system discipline.
+
 ## 1. System Landscape
 
 Viewpoint: onboarding engineer or architecture reviewer.

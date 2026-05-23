@@ -1,29 +1,41 @@
 RIGID_SET_COLORS = [
-    "#e6194b", "#3cb44b", "#4363d8", "#f58231", "#911eb4",
-    "#42d4f4", "#f032e6", "#bfef45", "#fabed4", "#469990",
-    "#dcbeff", "#9A6324", "#fffac8", "#800000", "#aaffc3",
+    "#587C7A", "#B88746", "#7C617B", "#788C5D", "#C66E4E",
+    "#66738F", "#8A8178", "#9A7A5F", "#5F7D9A", "#A86E73",
+    "#6F8B72", "#9B8A5F", "#6E6A86", "#A06F4F", "#557D8A",
 ]
 
 CONSTRAINT_COLORS = {
-    0: "#ff4444",
-    1: "#44ff44",
-    2: "#4444ff",
-    3: "#ffaa00",
-    4: "#ff44ff",
+    0: "#B8574E",
+    1: "#788C5D",
+    2: "#66738F",
+    3: "#B88746",
+    4: "#7C617B",
 }
 
 GEOMETRY_NAMES = {0: "Point", 1: "Line", 2: "Plane"}
 CONSTRAINT_NAMES = {0: "Coincident", 1: "Parallel", 2: "Perpendicular", 3: "Distance", 4: "Angle"}
 
 GCS_THEME = {
-    "bg_primary": "#0a0a0a",
-    "bg_secondary": "#1a1a2e",
-    "bg_panel": "#16213e",
-    "text_primary": "#e0e0e0",
-    "text_secondary": "#a0a0a0",
-    "accent": "#00bfff",
-    "success": "#00e676",
-    "warning": "#ffc107",
-    "error": "#ff5252",
-    "border": "#333366",
+    "bg_window": "#F7F3EA",
+    "bg_primary": "#F7F3EA",
+    "bg_panel": "#EFE8DC",
+    "bg_panel_alt": "#E8DFD0",
+    "bg_canvas": "#FAF9F5",
+    "bg_table": "#FFFCF7",
+    "bg_table_selected": "#EAD9CF",
+    "text_primary": "#141413",
+    "text_secondary": "#6F6A60",
+    "text_muted": "#8A8178",
+    "text_on_accent": "#FAF9F5",
+    "accent": "#D97757",
+    "accent_active": "#B85F45",
+    "info": "#6A8FB5",
+    "success": "#788C5D",
+    "warning": "#B88746",
+    "error": "#B8574E",
+    "border": "#DDD5C7",
+    "border_strong": "#C9BDAA",
+    "grid": "#E6DED1",
+    "axis": "#8A8178",
+    "constraint_default": "#8A8178",
 }

@@ -23,29 +23,36 @@ DEFAULT_OUT_DIR = ROOT / "docs" / "architecture" / "70-visualization" / "assets"
 
 
 COLORS = {
-    "ink": "#172033",
-    "muted": "#5b677a",
-    "rule": "#d7deea",
-    "panel": "#ffffff",
-    "paper": "#f7f9fc",
-    "domain": "#e8f0ff",
-    "domain_stroke": "#3157a4",
-    "graph": "#efe8ff",
-    "graph_stroke": "#7057b8",
-    "planner": "#dcfbf4",
-    "planner_stroke": "#0f766e",
-    "numeric": "#e8f7df",
-    "numeric_stroke": "#3a8a36",
-    "diagnostic": "#fff3d6",
-    "diagnostic_stroke": "#b7791f",
-    "failure": "#fee2e2",
-    "failure_stroke": "#b91c1c",
-    "boundary": "#f3f4f6",
-    "boundary_stroke": "#667085",
-    "constraint": "#f59e0b",
-    "point": "#274c9b",
-    "ok": "#20966f",
+    "ink": "#181715",
+    "muted": "#5f5b53",
+    "quiet": "#8b867a",
+    "rule": "#d8d1c4",
+    "rule_soft": "#ece7dd",
+    "panel": "#fffefa",
+    "paper": "#f7f4ec",
+    "domain": "#e7edf8",
+    "domain_stroke": "#435f8c",
+    "graph": "#efe7f3",
+    "graph_stroke": "#765d87",
+    "planner": "#e3f0e4",
+    "planner_stroke": "#477861",
+    "numeric": "#edf2df",
+    "numeric_stroke": "#5e7d43",
+    "diagnostic": "#f6e7cf",
+    "diagnostic_stroke": "#a36b32",
+    "failure": "#f3ddd7",
+    "failure_stroke": "#a94c43",
+    "boundary": "#efede6",
+    "boundary_stroke": "#777166",
+    "constraint": "#b97834",
+    "point": "#334c78",
+    "ok": "#4b8a64",
+    "accent": "#c8643f",
 }
+
+
+SANS = "Anthropic Sans, Inter, Segoe UI, Arial, sans-serif"
+SERIF = "Anthropic Serif, Georgia, Cambria, Times New Roman, serif"
 
 
 CONSTRAINT_TYPE_NAMES = {
@@ -265,10 +272,11 @@ def svg_text(
     weight: int = 400,
     fill: str | None = None,
     anchor: str = "start",
+    family: str = SANS,
 ) -> str:
     color = fill or COLORS["ink"]
     return (
-        f'<text x="{x:.1f}" y="{y:.1f}" font-family="Inter, Segoe UI, Arial, sans-serif" '
+        f'<text x="{x:.1f}" y="{y:.1f}" font-family="{family}" '
         f'font-size="{size}" font-weight="{weight}" fill="{color}" text-anchor="{anchor}">'
         f'{escape(text)}</text>'
     )
@@ -293,8 +301,8 @@ def svg_arrow(x1: float, y1: float, x2: float, y2: float, stroke: str, width: fl
 
 def panel_frame(label: str, title: str, width: int, height: int) -> list[str]:
     return [
-        svg_rect(0, 0, width, height, COLORS["panel"], COLORS["rule"], rx=10),
-        svg_text(label, 18, 29, size=22, weight=700),
+        svg_rect(0, 0, width, height, COLORS["panel"], COLORS["rule"], rx=8),
+        svg_text(label, 18, 29, size=22, weight=700, fill=COLORS["accent"], family=SERIF),
         svg_text(title, 48, 27, size=15, weight=650),
     ]
 
@@ -302,7 +310,7 @@ def panel_frame(label: str, title: str, width: int, height: int) -> list[str]:
 def geometry_panel(scene: Scene, width: int = 430, height: int = 300) -> str:
     parts = panel_frame("a", "Geometry fixture", width, height)
     plot_x, plot_y, plot_w, plot_h = 24, 58, 244, height - 110
-    parts.append(svg_rect(plot_x, plot_y, plot_w, plot_h, "#fbfcff", "#e5eaf3", rx=8))
+    parts.append(svg_rect(plot_x, plot_y, plot_w, plot_h, "#fbfaf5", COLORS["rule_soft"], rx=8))
     layout = point_layout(scene, plot_w, plot_h, 34)
     evidence_by_constraint = {item.constraint_id: item for item in scene.evidence}
 
@@ -322,23 +330,26 @@ def geometry_panel(scene: Scene, width: int = 430, height: int = 300) -> str:
         sx, sy = plot_x + x, plot_y + y
         parts.append(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="8.0" fill="{COLORS["point"]}" stroke="#ffffff" stroke-width="2"/>')
         label_y = sy - 16 if sy > plot_y + 30 else sy + 25
-        parts.append(svg_rect(sx - 17, label_y - 14, 34, 18, "#ffffff", "#d8e0ee", rx=9))
+        parts.append(svg_rect(sx - 17, label_y - 14, 34, 18, COLORS["panel"], COLORS["rule"], rx=8))
         parts.append(svg_text(f"G{geometry.id}", sx, label_y, size=10, weight=650, anchor="middle"))
 
-    legend_x = 288
+    legend_x = 286
     parts.append(svg_text("constraint evidence", legend_x, 62, size=11, weight=650, fill=COLORS["muted"]))
     for index, constraint in enumerate(scene.constraints):
-        y = 84 + index * 52
+        card_x = legend_x
+        card_y = 76 + index * 58
+        card_w = 128
+        card_h = 50
         evidence = evidence_by_constraint.get(constraint.id)
         residual = 0.0 if not evidence or evidence.residual is None else evidence.residual
         target = "-" if not evidence or evidence.target is None else f"{evidence.target:.3g}"
         actual = "-" if not evidence or evidence.actual is None else f"{evidence.actual:.3g}"
         endpoints = "-".join(f"G{geometry_id}" for geometry_id in constraint.geometry_ids)
-        parts.append(svg_rect(legend_x, y - 15, 118, 42, "#ffffff", "#e5eaf3", rx=6))
-        parts.append(svg_text(f"C{constraint.id}", legend_x + 10, y + 4, size=11, weight=650))
-        parts.append(svg_text(endpoints, legend_x + 42, y + 4, size=9, fill=COLORS["muted"]))
-        parts.append(svg_text(f"target {target}  actual {actual}", legend_x + 10, y + 18, size=8, fill=COLORS["muted"]))
-        parts.append(svg_text(f"residual {residual:+.1e}", legend_x + 10, y + 31, size=8, fill=COLORS["muted"]))
+        parts.append(svg_rect(card_x, card_y, card_w, card_h, "#fffdf7", COLORS["rule_soft"], rx=6))
+        parts.append(svg_text(f"C{constraint.id}", card_x + 10, card_y + 17, size=11, weight=650))
+        parts.append(svg_text(endpoints, card_x + 44, card_y + 17, size=9, fill=COLORS["muted"]))
+        parts.append(svg_text(f"target {target}  actual {actual}", card_x + 10, card_y + 32, size=8, fill=COLORS["muted"]))
+        parts.append(svg_text(f"residual {residual:+.1e}", card_x + 10, card_y + 45, size=8, fill=COLORS["muted"]))
 
     parts.append(svg_text(f"{len(scene.geometries)} geometries, {len(scene.constraints)} constraints, stable IDs", 24, height - 18, size=12, fill=COLORS["muted"]))
     return "\n".join(parts)
@@ -361,11 +372,11 @@ def incidence_panel(scene: Scene, width: int = 430, height: int = 300) -> str:
         y = matrix_y + row * cell
         parts.append(svg_rect(34, y - 16, 48, 28, COLORS["domain"], COLORS["domain_stroke"], rx=14))
         parts.append(svg_text(f"G{geometry.id}", 58, y + 3, size=11, weight=650, anchor="middle"))
-        parts.append(svg_line(matrix_x - 28, y, matrix_x + cell * (len(scene.constraints) - 1) + 28, y, "#e9edf5", width=1.0))
+        parts.append(svg_line(matrix_x - 28, y, matrix_x + cell * (len(scene.constraints) - 1) + 28, y, COLORS["rule_soft"], width=1.0))
 
     for index, constraint in enumerate(scene.constraints):
         x = matrix_x + index * cell
-        parts.append(svg_line(x, matrix_y - 8, x, matrix_y + cell * (len(scene.geometries) - 1) + 22, "#e9edf5", width=1.0))
+        parts.append(svg_line(x, matrix_y - 8, x, matrix_y + cell * (len(scene.geometries) - 1) + 22, COLORS["rule_soft"], width=1.0))
         for geometry_id in constraint.geometry_ids:
             row = next((i for i, geometry in enumerate(scene.geometries) if geometry.id == geometry_id), None)
             if row is None:
@@ -375,12 +386,12 @@ def incidence_panel(scene: Scene, width: int = 430, height: int = 300) -> str:
 
     site_x, site_y = 288, 82
     parts.append(svg_text("finite site C", site_x + 50, site_y - 14, size=11, weight=650, fill=COLORS["muted"], anchor="middle"))
-    parts.append(svg_rect(site_x, site_y, 100, 118, "#ffffff", "#e5eaf3", rx=8))
+    parts.append(svg_rect(site_x, site_y, 100, 118, "#fffdf7", COLORS["rule_soft"], rx=8))
     parts.append(svg_rect(site_x + 28, site_y + 10, 44, 24, COLORS["domain"], COLORS["domain_stroke"], rx=12))
     parts.append(svg_text("X", site_x + 50, site_y + 27, size=11, weight=650, anchor="middle"))
     parts.append(svg_rect(site_x + 10, site_y + 58, 38, 24, COLORS["planner"], COLORS["planner_stroke"], rx=12))
     parts.append(svg_text("Ua", site_x + 29, site_y + 75, size=10, weight=650, anchor="middle"))
-    parts.append(svg_rect(site_x + 52, site_y + 58, 38, 24, "#e6f7ff", COLORS["domain_stroke"], rx=12))
+    parts.append(svg_rect(site_x + 52, site_y + 58, 38, 24, "#e9f3f6", COLORS["domain_stroke"], rx=12))
     parts.append(svg_text("Ub", site_x + 71, site_y + 75, size=10, weight=650, anchor="middle"))
     parts.append(svg_rect(site_x + 31, site_y + 88, 38, 22, COLORS["graph"], COLORS["graph_stroke"], rx=11))
     parts.append(svg_text("Uab", site_x + 50, site_y + 103, size=9, weight=650, anchor="middle"))
@@ -408,21 +419,22 @@ def evidence_panel(scene: Scene, width: int = 520, height: int = 300) -> str:
         bar_w = max(bar_w, 3.0 if value <= 1.0e-9 else bar_w)
         fill = COLORS["ok"] if value <= 1.0e-6 else COLORS["failure_stroke"]
         parts.append(svg_text(f"C{item.constraint_id}", chart_x, y + 14, size=12, weight=650))
-        parts.append(svg_rect(chart_x + 34, y, chart_w, 18, "#eef2f7", "#e1e7ef", rx=4))
+        parts.append(svg_rect(chart_x + 34, y, chart_w, 18, "#efebe2", COLORS["rule_soft"], rx=4))
         parts.append(svg_rect(chart_x + 34, y, bar_w, 18, fill, fill, rx=4))
         parts.append(svg_text(f"{value:.2e}", chart_x + chart_w + 50, y + 14, size=11, fill=COLORS["muted"]))
 
-    rank_x = 358
+    rank_x = 342
+    rank_w = 154
     nullity = max(scene.variable_dimension - scene.rank, 0)
     gauge_dof = min(nullity, 6)
-    parts.append(svg_rect(rank_x, 76, 136, 154, COLORS["numeric"], COLORS["numeric_stroke"], rx=8))
-    parts.append(svg_text("Jacobian evidence", rank_x + 18, 102, size=12, fill=COLORS["muted"]))
-    parts.append(svg_text(f"{scene.rank}", rank_x + 18, 137, size=34, weight=700, fill=COLORS["numeric_stroke"]))
-    parts.append(svg_text(f"/ {scene.residual_dimension} equations", rank_x + 69, 133, size=12, fill=COLORS["muted"]))
-    parts.append(svg_line(rank_x + 18, 151, rank_x + 118, 151, "#c8e4be", width=1.0))
-    parts.append(svg_text(f"variables {scene.variable_dimension}", rank_x + 18, 174, size=12, fill=COLORS["muted"]))
-    parts.append(svg_text(f"nullity {nullity}", rank_x + 18, 195, size=12, fill=COLORS["muted"]))
-    parts.append(svg_text(f"gauge dof {gauge_dof}", rank_x + 18, 216, size=12, fill=COLORS["muted"]))
+    parts.append(svg_rect(rank_x, 76, rank_w, 160, COLORS["numeric"], COLORS["numeric_stroke"], rx=8))
+    parts.append(svg_text("Jacobian evidence", rank_x + 16, 101, size=11, fill=COLORS["muted"]))
+    parts.append(svg_text(f"{scene.rank}", rank_x + 16, 137, size=34, weight=700, fill=COLORS["numeric_stroke"]))
+    parts.append(svg_text(f"/ {scene.residual_dimension} eqs", rank_x + 63, 132, size=11, fill=COLORS["muted"]))
+    parts.append(svg_line(rank_x + 16, 152, rank_x + rank_w - 16, 152, "#d7dfc8", width=1.0))
+    parts.append(svg_text(f"variables {scene.variable_dimension}", rank_x + 16, 176, size=11, fill=COLORS["muted"]))
+    parts.append(svg_text(f"nullity {nullity}", rank_x + 16, 197, size=11, fill=COLORS["muted"]))
+    parts.append(svg_text(f"gauge dof {gauge_dof}", rank_x + 16, 218, size=11, fill=COLORS["muted"]))
     parts.append(svg_text("numeric evidence is a report, not a commit", 30, height - 18, size=12, fill=COLORS["muted"]))
     return "\n".join(parts)
 
@@ -471,7 +483,7 @@ def topos_semantics_panel(width: int = 780, height: int = 360) -> str:
         (472, column_y, 280, 200, "3 Sheaf condition", "gluing or obstruction", "diagnostic"),
     ]
     for x, y, w, h, title, subtitle, token in columns:
-        parts.append(svg_rect(x, y, w, h, "#ffffff", "#d7deea", rx=8))
+        parts.append(svg_rect(x, y, w, h, "#fffdf7", COLORS["rule"], rx=8))
         parts.append(svg_text(title, x + 14, y + 24, size=12, weight=650))
         parts.append(svg_text(subtitle, x + 14, y + 43, size=10, fill=COLORS["muted"]))
 
@@ -494,7 +506,7 @@ def topos_semantics_panel(width: int = 780, height: int = 360) -> str:
     px, py = 250, 120
     parts.append(svg_rect(px, py - 34, 74, 30, COLORS["numeric"], COLORS["numeric_stroke"], rx=7))
     parts.append(svg_text("F(Ua)", px + 37, py - 14, size=11, weight=650, anchor="middle"))
-    parts.append(svg_rect(px + 118, py - 34, 74, 30, "#e6f7ff", COLORS["domain_stroke"], rx=7))
+    parts.append(svg_rect(px + 118, py - 34, 74, 30, "#e9f3f6", COLORS["domain_stroke"], rx=7))
     parts.append(svg_text("F(Ub)", px + 155, py - 14, size=11, weight=650, anchor="middle"))
     parts.append(svg_rect(px + 58, py + 70, 78, 30, COLORS["graph"], COLORS["graph_stroke"], rx=7))
     parts.append(svg_text("F(Uab)", px + 97, py + 90, size=11, weight=650, anchor="middle"))
@@ -507,8 +519,8 @@ def topos_semantics_panel(width: int = 780, height: int = 360) -> str:
     gx, gy = 494, 124
     parts.append(svg_text("Gamma(X,F) = compatible families", gx, gy + 6, size=12, weight=650))
     parts.append(svg_text("Eq(F(Ua) x F(Ub) => F(Uab))", gx, gy + 31, size=11, fill=COLORS["muted"]))
-    parts.append(svg_rect(gx, gy + 54, 230, 38, COLORS["diagnostic"], COLORS["diagnostic_stroke"], rx=7))
-    parts.append(svg_text("GluingReport: rho_a(sa) == rho_b(sb)", gx + 115, gy + 79, size=11, weight=650, anchor="middle"))
+    parts.append(svg_rect(gx, gy + 54, 246, 38, COLORS["diagnostic"], COLORS["diagnostic_stroke"], rx=7))
+    parts.append(svg_text("GluingReport: rho_a(sa) == rho_b(sb)", gx + 123, gy + 79, size=10, weight=650, anchor="middle"))
     parts.append(svg_rect(gx, gy + 108, 108, 34, COLORS["planner"], COLORS["planner_stroke"], rx=7))
     parts.append(svg_text("global section", gx + 54, gy + 130, size=11, weight=650, anchor="middle"))
     parts.append(svg_rect(gx + 122, gy + 108, 108, 34, COLORS["failure"], COLORS["failure_stroke"], rx=7))
@@ -530,7 +542,7 @@ def topos_semantics_panel(width: int = 780, height: int = 360) -> str:
         col = index % 4
         x = 28 + col * 184
         y = map_y + row * 34
-        parts.append(svg_rect(x, y, 166, 30, "#ffffff", "#e5eaf3", rx=6))
+        parts.append(svg_rect(x, y, 174, 30, "#fffdf7", COLORS["rule_soft"], rx=6))
         parts.append(svg_text(left, x + 8, y + 11, size=8, fill=COLORS["muted"]))
         parts.append(svg_text(right, x + 8, y + 25, size=8, weight=650))
 
@@ -577,8 +589,8 @@ def final_figure(scene: Scene, fixture_label: str) -> str:
     width, height = 1600, 980
     parts = [
         f'<rect x="0" y="0" width="{width}" height="{height}" fill="{COLORS["paper"]}"/>',
-        svg_text("Figure 1 | GCS Local-To-Global Constraint Solving", 48, 54, size=26, weight=720),
-        svg_text("Structural source: Mermaid atlas. Mathematical source: finite-site / sheaf gluing semantics.", 48, 82, size=13, fill=COLORS["muted"]),
+        svg_text("Figure 1 | GCS Local-To-Global Constraint Solving", 48, 54, size=29, weight=650, family=SERIF),
+        svg_text("Structural source: Mermaid atlas. Mathematical source: finite-site / sheaf gluing semantics.", 48, 84, size=13, fill=COLORS["muted"]),
         svg_text(f"Fixture: {fixture_label}", width - 48, 82, size=12, fill=COLORS["muted"], anchor="end"),
         f'<g transform="translate(48 118)">{geometry_panel(scene, 430, 300)}</g>',
         f'<g transform="translate(522 118)">{incidence_panel(scene, 430, 300)}</g>',

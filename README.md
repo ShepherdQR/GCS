@@ -3,6 +3,17 @@
 GCS is a geometric constraint solving workspace. The repository is now arranged
 around the target architecture vocabulary and a C++23 modules build.
 
+## Architecture
+
+![GCS Local-To-Global Constraint Solving](docs/architecture/70-visualization/assets/figure1-gcs-local-to-global.svg)
+
+The architecture source of truth lives in
+[`docs/architecture`](docs/architecture/README.md). The editorial figure above
+is generated from
+[`tools/architecture_visualization/render_gcs_figure1.py`](tools/architecture_visualization/render_gcs_figure1.py)
+and documented in the
+[`GCS Architecture Atlas`](docs/architecture/70-visualization/gcs-architecture-atlas.md).
+
 ## Repository Layout
 
 | Path | Purpose |
