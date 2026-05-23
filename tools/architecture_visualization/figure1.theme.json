@@ -1,0 +1,53 @@
+{
+  "name": "claude-warm-editorial",
+  "description": "Warm scientific editorial theme for GCS Figure 1.",
+  "colors": {
+    "ink": "#181715",
+    "muted": "#5f5b53",
+    "quiet": "#8b867a",
+    "rule": "#d8d1c4",
+    "rule_soft": "#ece7dd",
+    "panel": "#fffefa",
+    "paper": "#f7f4ec",
+    "surface": "#fffdf7",
+    "plot": "#fbfaf5",
+    "bar_track": "#efebe2",
+    "domain": "#e7edf8",
+    "domain_stroke": "#435f8c",
+    "graph": "#efe7f3",
+    "graph_stroke": "#765d87",
+    "planner": "#e3f0e4",
+    "planner_stroke": "#477861",
+    "numeric": "#edf2df",
+    "numeric_stroke": "#5e7d43",
+    "diagnostic": "#f6e7cf",
+    "diagnostic_stroke": "#a36b32",
+    "failure": "#f3ddd7",
+    "failure_stroke": "#a94c43",
+    "boundary": "#efede6",
+    "boundary_stroke": "#777166",
+    "constraint": "#b97834",
+    "point": "#334c78",
+    "ok": "#4b8a64",
+    "accent": "#c8643f",
+    "white": "#ffffff",
+    "cool_domain": "#e9f3f6"
+  },
+  "fonts": {
+    "sans": "Anthropic Sans, Inter, Segoe UI, Arial, sans-serif",
+    "serif": "Anthropic Serif, Georgia, Cambria, Times New Roman, serif"
+  },
+  "radii": {
+    "panel": 8,
+    "plot": 8,
+    "card": 6,
+    "pill": 12,
+    "small": 4
+  },
+  "strokes": {
+    "default": 1.1,
+    "grid": 1.0,
+    "arrow": 1.4,
+    "constraint": 2.4
+  }
+}
