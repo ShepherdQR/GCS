@@ -50,6 +50,10 @@ class GCSPlatformGUI:
         self.replay_speed_var = tk.DoubleVar(value=1.0)
         self.replay_speed_label_var = tk.StringVar(value="Replay Speed: 1.00x")
         self.model_name_var = tk.StringVar(value="Model: Untitled")
+        self.summary_model_var = tk.StringVar(value="Untitled")
+        self.summary_counts_var = tk.StringVar(value="RS 0   G 0   C 0")
+        self.summary_dof_var = tk.StringVar(value="Net DOF: 0")
+        self.summary_status_var = tk.StringVar(value="Status: Empty")
 
         style = ttk.Style()
         self._configure_theme(style)
@@ -66,15 +70,112 @@ class GCSPlatformGUI:
         main_paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
         main_paned.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        left_frame = ttk.Frame(main_paned, width=300)
+        left_frame = ttk.Frame(main_paned, width=320)
         main_paned.add(left_frame, weight=0)
 
         right_frame = ttk.Frame(main_paned)
         main_paned.add(right_frame, weight=1)
 
-        self._build_left_panel(left_frame)
+        self._build_inspector_panel(left_frame)
         self._build_right_panel(right_frame)
         self._build_status_bar()
+
+    def _build_inspector_panel(self, parent):
+        parent.configure(width=320)
+        parent.pack_propagate(False)
+
+        shell = ttk.Frame(parent)
+        shell.pack(fill=tk.BOTH, expand=True, padx=6, pady=6)
+
+        summary_frame = ttk.LabelFrame(shell, text="Model Summary")
+        summary_frame.pack(fill=tk.X, pady=(0, 6))
+        ttk.Label(summary_frame, textvariable=self.summary_model_var, style="SummaryName.TLabel").pack(
+            fill=tk.X, padx=8, pady=(6, 2)
+        )
+        ttk.Label(summary_frame, textvariable=self.summary_counts_var, style="SummaryValue.TLabel").pack(
+            fill=tk.X, padx=8, pady=1
+        )
+        self.dof_label = ttk.Label(summary_frame, textvariable=self.summary_dof_var, style="DOF.TLabel")
+        self.dof_label.pack(fill=tk.X, padx=8, pady=1)
+        ttk.Label(summary_frame, textvariable=self.summary_status_var, style="SummaryValue.TLabel").pack(
+            fill=tk.X, padx=8, pady=(1, 6)
+        )
+
+        browser_frame = ttk.LabelFrame(shell, text="Object Browser")
+        browser_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 6))
+        self.object_notebook = ttk.Notebook(browser_frame)
+        self.object_notebook.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+
+        rs_frame = ttk.Frame(self.object_notebook)
+        self.object_notebook.add(rs_frame, text="Rigid Sets")
+        self.rs_tree = ttk.Treeview(rs_frame, columns=("id", "geoms"), show="headings", height=8)
+        self.rs_tree.heading("id", text="ID")
+        self.rs_tree.heading("geoms", text="Geom IDs")
+        self.rs_tree.column("id", width=42, stretch=False)
+        self.rs_tree.column("geoms", width=210)
+        self.rs_tree.pack(fill=tk.BOTH, expand=True, padx=4, pady=(4, 2))
+        rs_tools = ttk.Frame(rs_frame)
+        rs_tools.pack(fill=tk.X, padx=4, pady=(0, 4))
+        ttk.Button(rs_tools, text="Add RS", style="Action.TButton", command=self._add_rigid_set).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
+        ttk.Button(rs_tools, text="Remove", style="Action.TButton", command=self._del_rigid_set).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
+
+        geom_frame = ttk.Frame(self.object_notebook)
+        self.object_notebook.add(geom_frame, text="Geometries")
+        self.geom_tree = ttk.Treeview(geom_frame, columns=("id", "type", "rs", "pos"), show="headings", height=8)
+        self.geom_tree.heading("id", text="ID")
+        self.geom_tree.heading("type", text="Type")
+        self.geom_tree.heading("rs", text="RS")
+        self.geom_tree.heading("pos", text="Position")
+        self.geom_tree.column("id", width=34, stretch=False)
+        self.geom_tree.column("type", width=58, stretch=False)
+        self.geom_tree.column("rs", width=34, stretch=False)
+        self.geom_tree.column("pos", width=150)
+        self.geom_tree.pack(fill=tk.BOTH, expand=True, padx=4, pady=(4, 2))
+        geom_tools = ttk.Frame(geom_frame)
+        geom_tools.pack(fill=tk.X, padx=4, pady=(0, 4))
+        ttk.Button(geom_tools, text="Add Geometry", style="Action.TButton", command=self._add_geometry).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
+        ttk.Button(geom_tools, text="Remove", style="Action.TButton", command=self._del_geometry).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
+
+        const_frame = ttk.Frame(self.object_notebook)
+        self.object_notebook.add(const_frame, text="Constraints")
+        self.const_tree = ttk.Treeview(const_frame, columns=("id", "type", "geoms", "val"), show="headings", height=8)
+        self.const_tree.heading("id", text="ID")
+        self.const_tree.heading("type", text="Type")
+        self.const_tree.heading("geoms", text="Geoms")
+        self.const_tree.heading("val", text="Value")
+        self.const_tree.column("id", width=34, stretch=False)
+        self.const_tree.column("type", width=86)
+        self.const_tree.column("geoms", width=62, stretch=False)
+        self.const_tree.column("val", width=62, stretch=False)
+        self.const_tree.pack(fill=tk.BOTH, expand=True, padx=4, pady=(4, 2))
+        self.const_tree.bind("<Double-1>", self._on_const_double_click)
+        const_tools = ttk.Frame(const_frame)
+        const_tools.pack(fill=tk.X, padx=4, pady=(0, 4))
+        ttk.Button(const_tools, text="Add Constraint", style="Action.TButton", command=self._add_constraint).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
+        ttk.Button(const_tools, text="Edit", style="Action.TButton", command=self._edit_constraint).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
+        ttk.Button(const_tools, text="Remove", style="Action.TButton", command=self._del_constraint).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
+
+        command_frame = ttk.LabelFrame(shell, text="Commands")
+        command_frame.pack(fill=tk.X)
+        ttk.Button(command_frame, text="Solve", style="Primary.TButton", command=self._solve).pack(fill=tk.X, padx=4, pady=(6, 2))
+        ttk.Button(command_frame, text="Replay History", style="Action.TButton", command=self._replay_history).pack(fill=tk.X, padx=4, pady=2)
+
+        speed_frame = ttk.Frame(command_frame)
+        speed_frame.pack(fill=tk.X, padx=4, pady=(2, 4))
+        ttk.Label(speed_frame, textvariable=self.replay_speed_label_var).pack(anchor=tk.W)
+        ttk.Scale(
+            speed_frame,
+            from_=0.25,
+            to=4.0,
+            variable=self.replay_speed_var,
+            command=self._on_replay_speed_change,
+        ).pack(fill=tk.X, pady=(2, 0))
+
+        ttk.Separator(command_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, padx=4, pady=4)
+        file_tools = ttk.Frame(command_frame)
+        file_tools.pack(fill=tk.X, padx=4, pady=(1, 6))
+        ttk.Button(file_tools, text="Save", command=self._save).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
+        ttk.Button(file_tools, text="Load", command=self._load).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
 
     def _build_left_panel(self, parent):
         canvas = tk.Canvas(parent, width=290, highlightthickness=0, bg=GCS_THEME["bg_panel"])
@@ -231,6 +332,18 @@ class GCSPlatformGUI:
         font_ui = ("Segoe UI", 9)
         style.configure(".", background=GCS_THEME["bg_window"], foreground=GCS_THEME["text_primary"], font=font_ui)
         style.configure("TFrame", background=GCS_THEME["bg_window"])
+        style.configure("TNotebook", background=GCS_THEME["bg_panel"], bordercolor=GCS_THEME["border"])
+        style.configure(
+            "TNotebook.Tab",
+            background=GCS_THEME["bg_panel_alt"],
+            foreground=GCS_THEME["text_secondary"],
+            padding=(8, 4),
+        )
+        style.map(
+            "TNotebook.Tab",
+            background=[("selected", GCS_THEME["bg_table"])],
+            foreground=[("selected", GCS_THEME["text_primary"]), ("active", GCS_THEME["accent_active"])],
+        )
         style.configure("TLabelframe", background=GCS_THEME["bg_panel"], bordercolor=GCS_THEME["border"], relief=tk.SOLID)
         style.configure(
             "TLabelframe.Label",
@@ -240,6 +353,8 @@ class GCSPlatformGUI:
         )
         style.configure("TLabel", background=GCS_THEME["bg_window"], foreground=GCS_THEME["text_primary"])
         style.configure("DOF.TLabel", font=("Segoe UI", 11, "bold"), background=GCS_THEME["bg_panel"])
+        style.configure("SummaryName.TLabel", font=("Segoe UI", 10, "bold"), background=GCS_THEME["bg_panel"], foreground=GCS_THEME["text_primary"])
+        style.configure("SummaryValue.TLabel", font=("Consolas", 9), background=GCS_THEME["bg_panel"], foreground=GCS_THEME["text_secondary"])
         style.configure("Section.TLabel", font=("Segoe UI", 9, "bold"), foreground=GCS_THEME["text_secondary"])
         style.configure("Status.TLabel", font=("Consolas", 9), background=GCS_THEME["bg_panel_alt"], foreground=GCS_THEME["text_secondary"])
         style.configure("Log.TLabel", font=("Consolas", 9))
@@ -255,6 +370,19 @@ class GCSPlatformGUI:
             "Action.TButton",
             background=[("active", GCS_THEME["bg_table_selected"]), ("pressed", GCS_THEME["accent"])],
             foreground=[("pressed", GCS_THEME["text_on_accent"])],
+        )
+        style.configure(
+            "Primary.TButton",
+            padding=5,
+            background=GCS_THEME["accent"],
+            foreground=GCS_THEME["text_on_accent"],
+            bordercolor=GCS_THEME["accent_active"],
+            focuscolor=GCS_THEME["accent_active"],
+        )
+        style.map(
+            "Primary.TButton",
+            background=[("active", GCS_THEME["accent_active"]), ("pressed", GCS_THEME["accent_active"])],
+            foreground=[("active", GCS_THEME["text_on_accent"]), ("pressed", GCS_THEME["text_on_accent"])],
         )
         style.configure(
             "TButton",
@@ -358,6 +486,11 @@ class GCSPlatformGUI:
 
     def _update_status_info(self):
         summary = graph_summary(self.graph)
+        self.summary_counts_var.set(
+            f"RS {summary['rigid_sets']}   G {summary['geometries']}   C {summary['constraints']}"
+        )
+        self.summary_dof_var.set(f"Net DOF: {summary['dof']}")
+        self.summary_status_var.set(f"Status: {summary['status']}")
         self.status_label.config(
             text=(
                 f"  RS:{summary['rigid_sets']}  G:{summary['geometries']}  "
@@ -375,6 +508,7 @@ class GCSPlatformGUI:
     def _set_current_model(self, filepath):
         self.current_model_name = os.path.basename(filepath) if filepath else "Untitled"
         self.model_name_var.set(f"Model: {self.current_model_name}")
+        self.summary_model_var.set(self.current_model_name)
 
     def _draw_graph_on_canvas(self, graph: GCSGraph, view: str, use_welcome: bool = False, title=None, focus=None):
         if not graph.geometries:
