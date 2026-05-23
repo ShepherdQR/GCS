@@ -116,6 +116,7 @@ For each commit-level step:
   - `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp`
   - `tests/contracts/diagnostics/diagnostics_contract_tests.cpp`
   - `tests/contracts/session_runtime/session_runtime_contract_tests.cpp`
+  - `tests/contracts/io_adapters/io_adapters_contract_tests.cpp`
 
 ## Commit-Level Step Queue
 
@@ -139,9 +140,9 @@ Status legend: `done`, `in_progress`, `pending`.
    conflict/redundancy diagnostics.
 9. `done` - harden session runtime transaction, rollback, stage trace, and
    replay contracts.
-10. `in_progress` - add IO schema registry, canonical text/JSON path, parse
+10. `done` - add IO schema registry, canonical text/JSON path, parse
     reports, round-trip diff, and fixture tests.
-11. `pending` - add viewer projection, diagnostic overlay, interaction draft,
+11. `in_progress` - add viewer projection, diagnostic overlay, interaction draft,
     and history projection contracts.
 12. `pending` - split and harden contract tools: fixture provenance,
     invariant checks, dependency audits, golden reports.
@@ -421,6 +422,58 @@ Implement the IO schema registry and canonical round-trip milestone:
 - Add round-trip diff reports for load-write-load fixture checks.
 - Add IO adapter contract tests under
   `tests/contracts/io_adapters/io_adapters_contract_tests.cpp`.
+
+## IO Adapter Schema Step Plan
+
+Current commit-level scope:
+
+- Extend `gcs.io_adapters` with scene format metadata, schema registry
+  descriptors, typed parse issues, validation reports, migration reports,
+  canonical digests, and round-trip diff reports.
+- Preserve the legacy text scene format and route the writer through one
+  deterministic canonical text serializer.
+- Add a deterministic canonical JSON serializer path without adding a JSON
+  dependency; JSON loading can remain explicitly unsupported until the migration
+  parser milestone.
+- Report unsupported JSON loading through typed parse issues instead of
+  string-only errors.
+- Add contract tests under
+  `tests/contracts/io_adapters/io_adapters_contract_tests.cpp` for current text
+  fixture loading, JSON rejection evidence, byte determinism, digest stability,
+  and load-write-load equivalence.
+
+## IO Adapter Schema Milestone
+
+Implemented scope for the IO schema registry and canonical round-trip
+milestone:
+
+- Add `SceneFormat`, `CompatibilityMode`, `SceneSchemaDescriptor`,
+  `SceneSchemaRegistry`, `ParseIssue`, `SceneValidationReport`,
+  `SceneMigrationReport`, `CanonicalDigest`, and `RoundTripDiffReport` to
+  `gcs.io_adapters`.
+- Preserve legacy text scene loading while reporting parse and schema failures
+  through typed `ParseIssue` records.
+- Route text writing through deterministic `canonical_text` serialization and
+  expose deterministic `canonical_json` serialization without adding a C++ JSON
+  dependency.
+- Add stable FNV-1a canonical digests for serialized scene bytes.
+- Add in-memory text round-trip diff checks that preserve stable entity and
+  constraint IDs.
+- Add `tests/contracts/io_adapters/io_adapters_contract_tests.cpp` and the
+  `gcs_io_adapters_contract_tests` CTest target.
+
+## Next Milestone
+
+Implement the viewer bridge projection and interaction contract milestone:
+
+- Add read-only scene projection contracts with state version, entity,
+  constraint, and context summaries.
+- Project diagnostic overlays from command results, including obstruction,
+  residual, boundary, and status evidence.
+- Add interaction command draft validation against runtime command contracts.
+- Add history frame projection from runtime history and replay traces.
+- Add viewer bridge contract tests under
+  `tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp`.
 
 ## Decomposition Planner Step Plan
 

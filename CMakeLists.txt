@@ -160,6 +160,23 @@ if(GCS_BUILD_TESTS)
                 PROPERTIES LABELS "contract;session_runtime"
             )
 
+            add_executable(gcs_io_adapters_contract_tests
+                tests/contracts/io_adapters/io_adapters_contract_tests.cpp
+            )
+            target_link_libraries(gcs_io_adapters_contract_tests
+                PRIVATE
+                    gcs_solver
+                    GTest::gtest_main
+            )
+            target_compile_definitions(gcs_io_adapters_contract_tests
+                PRIVATE
+                    GCS_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+            )
+            target_compile_features(gcs_io_adapters_contract_tests PRIVATE cxx_std_23)
+            gtest_discover_tests(gcs_io_adapters_contract_tests
+                PROPERTIES LABELS "contract;io_adapters"
+            )
+
             add_executable(gcs_pipeline_contract_tests
                 tests/contracts/pipeline/pipeline_contract_tests.cpp
             )
