@@ -82,6 +82,19 @@ if(GCS_BUILD_TESTS)
                 PROPERTIES LABELS "contract;kernel"
             )
 
+            add_executable(gcs_constraint_catalog_contract_tests
+                tests/contracts/constraint_catalog/constraint_catalog_contract_tests.cpp
+            )
+            target_link_libraries(gcs_constraint_catalog_contract_tests
+                PRIVATE
+                    gcs_solver
+                    GTest::gtest_main
+            )
+            target_compile_features(gcs_constraint_catalog_contract_tests PRIVATE cxx_std_23)
+            gtest_discover_tests(gcs_constraint_catalog_contract_tests
+                PROPERTIES LABELS "contract;constraint_catalog"
+            )
+
             add_executable(gcs_pipeline_contract_tests
                 tests/contracts/pipeline/pipeline_contract_tests.cpp
             )
