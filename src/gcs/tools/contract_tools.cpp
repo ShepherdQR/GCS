@@ -45,6 +45,12 @@ ModelSnapshot make_two_point_distance_model() {
     return model;
 }
 
+ModelSnapshot make_unsatisfied_two_point_distance_model() {
+    ModelSnapshot model = make_two_point_distance_model();
+    model.entities[1].parameters.values[0] = 2.0;
+    return model;
+}
+
 ModelSnapshot make_two_component_distance_model() {
     ModelSnapshot model = make_two_point_distance_model();
 

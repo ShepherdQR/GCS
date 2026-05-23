@@ -9,8 +9,7 @@ namespace {
 namespace kernel = gcs::kernel;
 namespace numeric = gcs::numeric;
 
-numeric::NumericTask make_task() {
-    auto model = gcs::tools::make_two_point_distance_model();
+numeric::NumericTask make_task_for_model(kernel::ModelSnapshot model) {
     auto context = gcs::tools::make_whole_context_for(model);
     return numeric::make_numeric_task(
         model,
@@ -18,6 +17,10 @@ numeric::NumericTask make_task() {
         context.entity_ids,
         context.constraint_ids,
         kernel::GaugePolicy{});
+}
+
+numeric::NumericTask make_task() {
+    return make_task_for_model(gcs::tools::make_two_point_distance_model());
 }
 
 bool has_code(const kernel::StageReport& report, const char* code) {
@@ -89,6 +92,28 @@ TEST(NumericEngineContract, AssemblesResidualsThroughCatalog) {
     EXPECT_NEAR(assembly.payload.residual_vector.front(), 0.0, 1.0e-12);
 }
 
+TEST(NumericEngineContract, AssemblesJacobianInActiveVariableOrder) {
+    auto task = make_task();
+
+    auto assembly = numeric::assemble_equations(task);
+
+    ASSERT_TRUE(assembly.payload.valid);
+    EXPECT_TRUE(assembly.payload.jacobian_report.valid);
+    EXPECT_EQ(assembly.payload.jacobian_report.row_count, 1);
+    EXPECT_EQ(assembly.payload.jacobian_report.column_count, 6);
+    ASSERT_EQ(assembly.payload.jacobian_report.blocks.size(), 1U);
+    const auto& block = assembly.payload.jacobian_report.blocks.front();
+    EXPECT_EQ(block.row_offset, 0);
+    EXPECT_EQ(block.row_count, 1);
+    EXPECT_EQ(block.column_count, 6);
+    ASSERT_EQ(block.entity_column_offsets.size(), 2U);
+    EXPECT_EQ(block.entity_column_offsets[0], 0);
+    EXPECT_EQ(block.entity_column_offsets[1], 3);
+    ASSERT_EQ(assembly.payload.jacobian_report.values.size(), 6U);
+    EXPECT_NEAR(assembly.payload.jacobian_report.values[0], -1.0, 1.0e-6);
+    EXPECT_NEAR(assembly.payload.jacobian_report.values[3], 1.0, 1.0e-6);
+}
+
 TEST(NumericEngineContract, SolveLocalConsumesAssemblyEvidence) {
     auto task = make_task();
 
@@ -100,4 +125,64 @@ TEST(NumericEngineContract, SolveLocalConsumesAssemblyEvidence) {
     EXPECT_EQ(report.rank_estimate, 1);
     EXPECT_NEAR(report.initial_residual, 0.0, 1.0e-12);
     EXPECT_TRUE(has_code(report.stage_report, "numeric.local_section.placeholder"));
+}
+
+TEST(NumericEngineContract, ReportsResidualMetricsForUnsatisfiedFixture) {
+    auto task = make_task_for_model(gcs::tools::make_unsatisfied_two_point_distance_model());
+
+    auto report = numeric::solve_local(task);
+
+    EXPECT_EQ(report.result_code, kernel::SolveStatus::solved);
+    EXPECT_EQ(report.residual_report.dimension, 1);
+    EXPECT_NEAR(report.initial_residual, 1.0, 1.0e-12);
+    EXPECT_NEAR(report.final_residual, 1.0, 1.0e-12);
+    EXPECT_NEAR(report.residual_report.norm, 1.0, 1.0e-12);
+    EXPECT_NEAR(report.residual_report.max_abs_value, 1.0, 1.0e-12);
+    ASSERT_EQ(report.residual_report.blocks.size(), 1U);
+    EXPECT_NEAR(report.residual_report.blocks.front().norm, 1.0, 1.0e-12);
+}
+
+TEST(NumericEngineContract, ReportsRankConditionEvidence) {
+    auto task = make_task();
+
+    auto report = numeric::solve_local(task);
+
+    EXPECT_EQ(report.rank_condition_report.variable_dimension, 6);
+    EXPECT_EQ(report.rank_condition_report.residual_dimension, 1);
+    EXPECT_EQ(report.rank_condition_report.rank_estimate, 1);
+    EXPECT_EQ(report.rank_condition_report.nullity_estimate, 5);
+    EXPECT_TRUE(report.rank_condition_report.under_constrained);
+    EXPECT_FALSE(report.rank_condition_report.over_constrained);
+    EXPECT_TRUE(report.rank_condition_report.condition_estimate_available);
+    EXPECT_NEAR(report.rank_condition_report.condition_estimate, 1.0, 1.0e-6);
+}
+
+TEST(NumericEngineContract, ReportsBoundaryVariablesWithoutMutation) {
+    auto task = make_task();
+    task.boundary_variables.push_back(kernel::EntityId{0});
+
+    auto report = numeric::solve_local(task);
+
+    ASSERT_EQ(report.boundary_variables.size(), 1U);
+    EXPECT_TRUE(report.boundary_variables.front().active);
+    EXPECT_TRUE(report.boundary_variables.front().unchanged);
+    EXPECT_EQ(report.boundary_variables.front().before.dimension, 3);
+    EXPECT_EQ(report.boundary_variables.front().after.dimension, 3);
+}
+
+TEST(NumericEngineContract, TraceIsReplayableForBaselineSolve) {
+    auto task = make_task();
+
+    auto report = numeric::solve_local(task);
+
+    EXPECT_EQ(report.iteration_trace.base_version.value, task.problem_snapshot.state_version.value);
+    ASSERT_EQ(report.iteration_trace.entries.size(), 2U);
+    EXPECT_EQ(report.iteration_trace.entries.front().phase, "initial");
+    EXPECT_FALSE(report.iteration_trace.entries.front().accepted);
+    EXPECT_EQ(report.iteration_trace.entries.back().phase, "baseline_identity");
+    EXPECT_TRUE(report.iteration_trace.entries.back().accepted);
+    EXPECT_NEAR(report.iteration_trace.entries.back().residual_norm,
+                report.final_residual,
+                1.0e-12);
+    EXPECT_NEAR(report.iteration_trace.entries.back().step_norm, report.step_norm, 1.0e-12);
 }

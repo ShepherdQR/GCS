@@ -129,9 +129,10 @@ Status legend: `done`, `in_progress`, `pending`.
    tests.
 5. `done` - add numeric task validation and equation assembly through the
    constraint catalog.
-6. `in_progress` - add numeric residual/Jacobian/rank reports and baseline local
+6. `done` - add numeric residual/Jacobian/rank reports and baseline local
    solve tests.
-7. `pending` - add diagnostics DOF/rank/residual/status precedence contracts.
+7. `in_progress` - add diagnostics DOF/rank/residual/status precedence
+   contracts.
 8. `pending` - add projection-aware gluing obstruction and conflict/redundancy
    diagnostics.
 9. `pending` - harden session runtime transaction, rollback, stage trace, and
@@ -212,7 +213,7 @@ milestone:
   valid assembly, missing entity, missing constraint, boundary-variable, and
   identity-solve evidence tests.
 
-## Next Milestone
+## Numeric Report Milestone Target
 
 Implement the numeric report and baseline local solve milestone:
 
@@ -221,6 +222,57 @@ Implement the numeric report and baseline local solve milestone:
 - Rank and condition report fields with deterministic estimates.
 - Boundary variable non-mutation evidence.
 - Replayable iteration trace summary for the baseline solve.
+
+## Numeric Report Step Plan
+
+Current commit-level scope:
+
+- Extend `gcs.numeric_engine` public contracts with residual, Jacobian,
+  rank/condition, boundary, and iteration trace report structures.
+- Assemble Jacobian blocks through `gcs.constraint_catalog` and map them into
+  the active-variable column order declared by `NumericTask`.
+- Estimate rank and conditioning deterministically from the assembled Jacobian
+  without introducing a solver backend dependency.
+- Keep the baseline local solve non-iterating, but make its report replayable:
+  initial residual, final residual, step norm, accepted flag, and local section
+  provenance must be visible in structured output.
+- Add contract tests for Jacobian dimensions, rank/condition evidence,
+  boundary non-mutation, and trace replayability under
+  `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp`.
+
+## Numeric Report Milestone
+
+Implemented scope for the numeric report and baseline local solve milestone:
+
+- Add structured `ResidualReport`, `JacobianReport`, `RankConditionReport`,
+  `BoundaryVariableReport`, and `IterationTrace` carriers to
+  `gcs.numeric_engine`.
+- Assemble finite-difference Jacobian blocks through `gcs.constraint_catalog`
+  and scatter them into the active-variable column order declared by
+  `NumericTask`.
+- Estimate rank, nullity, under-constrained evidence, singular evidence, and
+  condition evidence deterministically from the assembled Jacobian.
+- Preserve the baseline identity local section while reporting initial/final
+  residuals, per-constraint residual metrics, boundary non-mutation, and a
+  replayable trace.
+- Add `make_unsatisfied_two_point_distance_model` to `gcs.contract_tools` as a
+  reusable negative residual fixture.
+- Extend `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp`
+  with Jacobian shape, nonzero residual metric, rank/condition, boundary, and
+  trace assertions.
+
+## Next Milestone
+
+Implement the diagnostics DOF/rank/residual/status precedence milestone:
+
+- Promote numeric residual blocks into diagnostic residual analysis.
+- Keep structural DOF, structural rank, and numeric rank as distinct evidence.
+- Add deterministic status precedence across invalid, inconsistent,
+  singular, under-constrained, over-constrained, warning, and solved states.
+- Add conflict/redundancy placeholders that are typed now and algorithmically
+  deepened in the following diagnostics step.
+- Add diagnostics contract tests under
+  `tests/contracts/diagnostics/diagnostics_contract_tests.cpp`.
 
 ## Decomposition Planner Step Plan
 

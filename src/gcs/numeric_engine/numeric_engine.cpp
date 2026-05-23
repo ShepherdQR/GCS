@@ -2,6 +2,7 @@ module;
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <string>
 #include <utility>
 #include <vector>
@@ -16,6 +17,18 @@ namespace gcs::numeric {
 namespace kernel = gcs::kernel;
 
 namespace {
+
+struct VariableColumn {
+    EntityId entity_id;
+    int offset = 0;
+    int dimension = 0;
+};
+
+struct RankComputation {
+    int rank = 0;
+    double max_pivot = 0.0;
+    double min_pivot = 0.0;
+};
 
 kernel::ReportMessage make_message(kernel::ReportSeverity severity,
                                    const char* code,
@@ -51,6 +64,182 @@ double residual_norm(const std::vector<double>& residuals) {
         sum += residual * residual;
     }
     return std::sqrt(sum);
+}
+
+double max_abs_value(const std::vector<double>& values) {
+    double maximum = 0.0;
+    for (double value : values) {
+        maximum = std::max(maximum, std::abs(value));
+    }
+    return maximum;
+}
+
+std::vector<VariableColumn> build_variable_columns(const NumericTask& task,
+                                                   int& variable_dimension) {
+    std::vector<VariableColumn> columns;
+    variable_dimension = 0;
+    for (EntityId entity_id : task.active_variables) {
+        const auto* entity = kernel::find_entity(task.problem_snapshot, entity_id);
+        if (entity == nullptr) continue;
+        const int dimension = kernel::geometry_dof(entity->kind);
+        columns.push_back(VariableColumn{entity_id, variable_dimension, dimension});
+        variable_dimension += dimension;
+    }
+    return columns;
+}
+
+const VariableColumn* find_variable_column(const std::vector<VariableColumn>& columns,
+                                           EntityId entity_id) {
+    for (const auto& column : columns) {
+        if (column.entity_id == entity_id) return &column;
+    }
+    return nullptr;
+}
+
+const kernel::EntityState* find_state(const std::vector<kernel::EntityState>& states,
+                                      EntityId entity_id) {
+    for (const auto& state : states) {
+        if (state.entity_id == entity_id) return &state;
+    }
+    return nullptr;
+}
+
+bool same_parameters(const kernel::ParameterVector& lhs,
+                     const kernel::ParameterVector& rhs,
+                     double tolerance) {
+    if (lhs.dimension != rhs.dimension) return false;
+    for (int index = 0; index < lhs.dimension; ++index) {
+        if (std::abs(lhs.values[static_cast<std::size_t>(index)] -
+                     rhs.values[static_cast<std::size_t>(index)]) > tolerance) {
+            return false;
+        }
+    }
+    return true;
+}
+
+RankComputation estimate_rank(std::vector<double> matrix,
+                              int row_count,
+                              int column_count,
+                              double tolerance) {
+    RankComputation result;
+    int pivot_row = 0;
+
+    for (int column = 0; column < column_count && pivot_row < row_count; ++column) {
+        int best_row = pivot_row;
+        double best_abs = 0.0;
+        for (int row = pivot_row; row < row_count; ++row) {
+            const double value = std::abs(
+                matrix[static_cast<std::size_t>(row * column_count + column)]);
+            if (value > best_abs) {
+                best_abs = value;
+                best_row = row;
+            }
+        }
+
+        if (best_abs <= tolerance) continue;
+
+        if (best_row != pivot_row) {
+            for (int swap_column = column; swap_column < column_count; ++swap_column) {
+                std::swap(
+                    matrix[static_cast<std::size_t>(pivot_row * column_count + swap_column)],
+                    matrix[static_cast<std::size_t>(best_row * column_count + swap_column)]);
+            }
+        }
+
+        const double pivot = matrix[static_cast<std::size_t>(
+            pivot_row * column_count + column)];
+        const double pivot_abs = std::abs(pivot);
+        result.max_pivot = std::max(result.max_pivot, pivot_abs);
+        result.min_pivot =
+            result.rank == 0 ? pivot_abs : std::min(result.min_pivot, pivot_abs);
+
+        for (int row = pivot_row + 1; row < row_count; ++row) {
+            const double factor =
+                matrix[static_cast<std::size_t>(row * column_count + column)] / pivot;
+            if (std::abs(factor) <= tolerance) continue;
+            for (int reduce_column = column; reduce_column < column_count; ++reduce_column) {
+                matrix[static_cast<std::size_t>(row * column_count + reduce_column)] -=
+                    factor * matrix[static_cast<std::size_t>(
+                                 pivot_row * column_count + reduce_column)];
+            }
+        }
+
+        ++result.rank;
+        ++pivot_row;
+    }
+
+    return result;
+}
+
+ResidualReport make_residual_report(const EquationAssembly& assembly) {
+    ResidualReport report;
+    report.dimension = assembly.residual_dimension;
+    report.norm = residual_norm(assembly.residual_vector);
+    report.max_abs_value = max_abs_value(assembly.residual_vector);
+    report.blocks = assembly.residual_blocks;
+    return report;
+}
+
+RankConditionReport make_rank_condition_report(const EquationAssembly& assembly,
+                                               const GaugePolicy& gauge_policy,
+                                               double rank_tolerance) {
+    RankConditionReport report;
+    report.variable_dimension = assembly.variable_dimension;
+    report.residual_dimension = assembly.residual_dimension;
+
+    const auto rank = estimate_rank(
+        assembly.jacobian_report.values,
+        assembly.jacobian_report.row_count,
+        assembly.jacobian_report.column_count,
+        rank_tolerance);
+    report.rank_estimate = rank.rank;
+
+    const int effective_variables = std::max(
+        0,
+        assembly.variable_dimension - gauge_policy.removed_dof);
+    report.nullity_estimate = std::max(0, effective_variables - report.rank_estimate);
+    report.under_constrained = report.nullity_estimate > 0;
+    report.over_constrained = assembly.residual_dimension > effective_variables;
+    report.numerically_singular =
+        report.rank_estimate < std::min(assembly.residual_dimension, effective_variables);
+    if (rank.rank > 0 && rank.min_pivot > 0.0) {
+        report.condition_estimate_available = true;
+        report.condition_estimate = rank.max_pivot / rank.min_pivot;
+    }
+    return report;
+}
+
+std::vector<BoundaryVariableReport> make_boundary_report(
+    const NumericTask& task,
+    const LocalSection& local_section) {
+    std::vector<BoundaryVariableReport> reports;
+    for (EntityId entity_id : task.boundary_variables) {
+        BoundaryVariableReport report;
+        report.entity_id = entity_id;
+        report.active = kernel::contains_entity(task.active_variables, entity_id);
+        if (const auto* before = kernel::find_entity(task.problem_snapshot, entity_id)) {
+            report.before = before->parameters;
+        }
+        if (const auto* after = find_state(local_section.entity_states, entity_id)) {
+            report.after = after->parameters;
+        }
+        report.unchanged = same_parameters(report.before, report.after, task.tolerances.boundary);
+        reports.push_back(report);
+    }
+    return reports;
+}
+
+IterationTrace make_baseline_trace(kernel::StateVersionId base_version,
+                                   double initial_residual,
+                                   double final_residual,
+                                   double step_norm) {
+    IterationTrace trace;
+    trace.base_version = base_version;
+    trace.entries.push_back(
+        IterationTraceEntry{0, "initial", initial_residual, 0.0, false});
+    trace.entries.push_back(
+        IterationTraceEntry{0, "baseline_identity", final_residual, step_norm, true});
+    return trace;
 }
 
 }  // namespace
@@ -141,7 +330,8 @@ gcs::kernel::ContractResult<NumericTaskValidationReport> validate_task(
     }
 
     for (ConstraintId constraint_id : task.active_equations) {
-        if (kernel::find_constraint(task.problem_snapshot, constraint_id) == nullptr) {
+        const auto* constraint = kernel::find_constraint(task.problem_snapshot, constraint_id);
+        if (constraint == nullptr) {
             result.payload.valid = false;
             result.payload.active_equations_exist = false;
             append_message(
@@ -165,6 +355,23 @@ gcs::kernel::ContractResult<NumericTaskValidationReport> validate_task(
                     "Numeric task active constraint is not part of the task context.",
                     {kernel::StableId{"context", task.context_snapshot.id.value},
                      kernel::StableId{"constraint", constraint_id.value}}));
+        }
+        if (constraint != nullptr) {
+            for (EntityId entity_id : constraint->entity_ids) {
+                if (!kernel::contains_entity(task.active_variables, entity_id)) {
+                    result.payload.valid = false;
+                    result.payload.active_equation_entities_are_active = false;
+                    append_message(
+                        result.report,
+                        result.payload.messages,
+                        make_message(
+                            kernel::ReportSeverity::error,
+                            "numeric.constraint_entity_not_active",
+                            "Numeric task equation references an entity outside the active variable set.",
+                            {kernel::StableId{"constraint", constraint_id.value},
+                             kernel::StableId{"entity", entity_id.value}}));
+                }
+            }
         }
     }
 
@@ -200,12 +407,9 @@ gcs::kernel::ContractResult<EquationAssembly> assemble_equations(
 
     result.payload.variable_order = task.active_variables;
     result.payload.equation_order = task.active_equations;
-    for (EntityId entity_id : task.active_variables) {
-        const auto* entity = kernel::find_entity(task.problem_snapshot, entity_id);
-        if (entity != nullptr) {
-            result.payload.variable_dimension += kernel::geometry_dof(entity->kind);
-        }
-    }
+    int variable_dimension = 0;
+    const auto variable_columns = build_variable_columns(task, variable_dimension);
+    result.payload.variable_dimension = variable_dimension;
 
     int residual_offset = 0;
     for (ConstraintId constraint_id : task.active_equations) {
@@ -231,12 +435,98 @@ gcs::kernel::ContractResult<EquationAssembly> assemble_equations(
         block.offset = residual_offset;
         block.dimension = static_cast<int>(residual.payload.residuals.size());
         block.residuals = residual.payload.residuals;
+        block.norm = residual_norm(block.residuals);
+        block.max_abs_value = max_abs_value(block.residuals);
+
+        auto jacobian = constraints::evaluate_jacobian(
+            catalog,
+            constraints::JacobianEvaluationRequest{task.problem_snapshot, constraint_id});
+        for (auto message : jacobian.report.messages) {
+            kernel::append_report_message(result.report, std::move(message));
+        }
+        if (!jacobian.payload.valid) {
+            kernel::append_report_message(
+                result.report,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "numeric.jacobian_assembly_failed",
+                    "Constraint Jacobian evaluation failed during numeric assembly.",
+                    {kernel::StableId{"constraint", constraint_id.value}}));
+            return result;
+        }
+
+        JacobianBlock jacobian_block;
+        jacobian_block.constraint_id = constraint_id;
+        jacobian_block.row_offset = residual_offset;
+        jacobian_block.row_count = jacobian.payload.row_count;
+        jacobian_block.column_count = jacobian.payload.column_count;
+        jacobian_block.entity_ids = jacobian.payload.entity_ids;
+        jacobian_block.entity_parameter_dimensions =
+            jacobian.payload.entity_parameter_dimensions;
+        jacobian_block.values = jacobian.payload.values;
+
+        int minimum_column_offset = result.payload.variable_dimension;
+        for (EntityId entity_id : jacobian_block.entity_ids) {
+            const auto* column = find_variable_column(variable_columns, entity_id);
+            if (column == nullptr) {
+                kernel::append_report_message(
+                    result.report,
+                    make_message(
+                        kernel::ReportSeverity::error,
+                        "numeric.jacobian_variable_not_active",
+                        "Jacobian references an entity outside the active variable order.",
+                        {kernel::StableId{"constraint", constraint_id.value},
+                         kernel::StableId{"entity", entity_id.value}}));
+                return result;
+            }
+            jacobian_block.entity_column_offsets.push_back(column->offset);
+            minimum_column_offset = std::min(minimum_column_offset, column->offset);
+        }
+        jacobian_block.column_offset =
+            jacobian_block.entity_column_offsets.empty() ? 0 : minimum_column_offset;
+
         residual_offset += block.dimension;
         result.payload.residual_dimension += block.dimension;
         for (double value : block.residuals) {
             result.payload.residual_vector.push_back(value);
         }
         result.payload.residual_blocks.push_back(std::move(block));
+        result.payload.jacobian_report.blocks.push_back(std::move(jacobian_block));
+    }
+
+    result.payload.jacobian_report.valid = true;
+    result.payload.jacobian_report.row_count = result.payload.residual_dimension;
+    result.payload.jacobian_report.column_count = result.payload.variable_dimension;
+    result.payload.jacobian_report.values.assign(
+        static_cast<std::size_t>(result.payload.residual_dimension *
+                                 result.payload.variable_dimension),
+        0.0);
+
+    for (const auto& block : result.payload.jacobian_report.blocks) {
+        int local_column_offset = 0;
+        for (std::size_t entity_index = 0;
+             entity_index < block.entity_ids.size() &&
+             entity_index < block.entity_parameter_dimensions.size() &&
+             entity_index < block.entity_column_offsets.size();
+             ++entity_index) {
+            const int entity_dimension =
+                block.entity_parameter_dimensions[entity_index];
+            const int target_column_offset =
+                block.entity_column_offsets[entity_index];
+            for (int row = 0; row < block.row_count; ++row) {
+                for (int column = 0; column < entity_dimension; ++column) {
+                    const auto source_index = static_cast<std::size_t>(
+                        row * block.column_count + local_column_offset + column);
+                    const auto target_index = static_cast<std::size_t>(
+                        (block.row_offset + row) *
+                            result.payload.jacobian_report.column_count +
+                        target_column_offset + column);
+                    result.payload.jacobian_report.values[target_index] =
+                        block.values[source_index];
+                }
+            }
+            local_column_offset += entity_dimension;
+        }
     }
 
     result.payload.valid = true;
@@ -263,6 +553,7 @@ NumericReport solve_local(const NumericTask& task) {
         report.failure_cause = "Numeric task validation or equation assembly failed.";
         return report;
     }
+    report.equation_assembly = assembly.payload;
 
     report.local_section.entity_states = kernel::capture_entity_states(
         task.problem_snapshot,
@@ -270,14 +561,23 @@ NumericReport solve_local(const NumericTask& task) {
     report.local_section.valid = true;
     report.proposed_state.entity_states = report.local_section.entity_states;
 
-    report.rank_estimate = std::min(
-        assembly.payload.residual_dimension,
-        std::max(0, assembly.payload.variable_dimension - task.gauge_policy.removed_dof));
-    report.initial_residual = residual_norm(assembly.payload.residual_vector);
+    report.residual_report = make_residual_report(report.equation_assembly);
+    report.rank_condition_report = make_rank_condition_report(
+        report.equation_assembly,
+        task.gauge_policy,
+        task.tolerances.rank);
+    report.rank_estimate = report.rank_condition_report.rank_estimate;
+    report.condition_estimate = report.rank_condition_report.condition_estimate;
+    report.initial_residual = report.residual_report.norm;
     report.final_residual = report.initial_residual;
     report.step_norm = 0.0;
-    report.condition_estimate = 1.0;
     report.iteration_count = 0;
+    report.boundary_variables = make_boundary_report(task, report.local_section);
+    report.iteration_trace = make_baseline_trace(
+        task.problem_snapshot.state_version,
+        report.initial_residual,
+        report.final_residual,
+        report.step_norm);
     report.result_code = SolveStatus::solved;
 
     kernel::append_report_message(

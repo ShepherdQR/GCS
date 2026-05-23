@@ -16,10 +16,12 @@ using gcs::kernel::EntityId;
 using gcs::kernel::GaugePolicy;
 using gcs::kernel::LocalSection;
 using gcs::kernel::ModelSnapshot;
+using gcs::kernel::ParameterVector;
 using gcs::kernel::ProposedState;
 using gcs::kernel::ReportMessage;
 using gcs::kernel::SolveStatus;
 using gcs::kernel::StageReport;
+using gcs::kernel::StateVersionId;
 using gcs::kernel::TolerancePolicy;
 
 struct SolveLimits {
@@ -46,6 +48,7 @@ struct NumericTaskValidationReport {
     bool active_equations_exist = true;
     bool active_variables_within_context = true;
     bool active_equations_within_context = true;
+    bool active_equation_entities_are_active = true;
     bool boundary_variables_are_active = true;
     bool tolerances_valid = true;
     bool solve_limits_valid = true;
@@ -57,6 +60,35 @@ struct ResidualBlock {
     int offset = 0;
     int dimension = 0;
     std::vector<double> residuals;
+    double norm = 0.0;
+    double max_abs_value = 0.0;
+};
+
+struct ResidualReport {
+    int dimension = 0;
+    double norm = 0.0;
+    double max_abs_value = 0.0;
+    std::vector<ResidualBlock> blocks;
+};
+
+struct JacobianBlock {
+    ConstraintId constraint_id;
+    int row_offset = 0;
+    int row_count = 0;
+    int column_offset = 0;
+    int column_count = 0;
+    std::vector<EntityId> entity_ids;
+    std::vector<int> entity_column_offsets;
+    std::vector<int> entity_parameter_dimensions;
+    std::vector<double> values;
+};
+
+struct JacobianReport {
+    bool valid = false;
+    int row_count = 0;
+    int column_count = 0;
+    std::vector<JacobianBlock> blocks;
+    std::vector<double> values;
 };
 
 struct EquationAssembly {
@@ -67,12 +99,51 @@ struct EquationAssembly {
     std::vector<ConstraintId> equation_order;
     std::vector<double> residual_vector;
     std::vector<ResidualBlock> residual_blocks;
+    JacobianReport jacobian_report;
+};
+
+struct RankConditionReport {
+    int variable_dimension = 0;
+    int residual_dimension = 0;
+    int rank_estimate = 0;
+    int nullity_estimate = 0;
+    bool under_constrained = false;
+    bool over_constrained = false;
+    bool numerically_singular = false;
+    bool condition_estimate_available = false;
+    double condition_estimate = 0.0;
+};
+
+struct BoundaryVariableReport {
+    EntityId entity_id;
+    bool active = false;
+    bool unchanged = true;
+    ParameterVector before;
+    ParameterVector after;
+};
+
+struct IterationTraceEntry {
+    int iteration = 0;
+    std::string phase;
+    double residual_norm = 0.0;
+    double step_norm = 0.0;
+    bool accepted = false;
+};
+
+struct IterationTrace {
+    StateVersionId base_version;
+    std::vector<IterationTraceEntry> entries;
 };
 
 struct NumericReport {
     SolveStatus result_code = SolveStatus::not_run;
     LocalSection local_section;
     ProposedState proposed_state;
+    EquationAssembly equation_assembly;
+    ResidualReport residual_report;
+    RankConditionReport rank_condition_report;
+    std::vector<BoundaryVariableReport> boundary_variables;
+    IterationTrace iteration_trace;
     double initial_residual = 0.0;
     double final_residual = 0.0;
     double step_norm = 0.0;
