@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Constraint Semantics Steward"
+  short_description: "Design constraint residual and Jacobian contracts."
+  default_prompt: "Use $gcs-constraint-semantics-steward to design or review constraint semantics."

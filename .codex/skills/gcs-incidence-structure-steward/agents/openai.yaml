@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Incidence Structure Steward"
+  short_description: "Design incidence hypergraph contracts."
+  default_prompt: "Use $gcs-incidence-structure-steward to design or review structural graph contracts."

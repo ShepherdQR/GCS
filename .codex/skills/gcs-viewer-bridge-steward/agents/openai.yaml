@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Viewer Bridge Steward"
+  short_description: "Design read-only viewer projections."
+  default_prompt: "Use $gcs-viewer-bridge-steward to design or review viewer bridge contracts."

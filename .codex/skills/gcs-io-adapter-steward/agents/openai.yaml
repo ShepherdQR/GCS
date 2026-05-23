@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS IO Adapter Steward"
+  short_description: "Design scene schema and round trips."
+  default_prompt: "Use $gcs-io-adapter-steward to design or review IO adapter contracts."

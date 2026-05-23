@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Diagnostics Certification Steward"
+  short_description: "Design diagnostics and obstruction reports."
+  default_prompt: "Use $gcs-diagnostics-certification-steward to design or review diagnostics contracts."

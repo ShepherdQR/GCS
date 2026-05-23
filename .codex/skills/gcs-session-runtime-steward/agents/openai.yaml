@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Session Runtime Steward"
+  short_description: "Design runtime transactions and replay."
+  default_prompt: "Use $gcs-session-runtime-steward to design or review session runtime contracts."

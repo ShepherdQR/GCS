@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Kernel Contract Steward"
+  short_description: "Design kernel identity and snapshot contracts."
+  default_prompt: "Use $gcs-kernel-contract-steward to design or review GCS kernel contracts."

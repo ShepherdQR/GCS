@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Third-Party Governance Steward"
+  short_description: "Design dependency governance and audits."
+  default_prompt: "Use $gcs-third-party-governance-steward to design or review dependency governance."

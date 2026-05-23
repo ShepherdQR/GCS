@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Contract Tools Steward"
+  short_description: "Design fixtures and invariant tools."
+  default_prompt: "Use $gcs-contract-tools-steward to design or review contract tooling."

@@ -40,6 +40,8 @@ order, not by historical source order. Background research notes live under
    - `63-target-contract-interface-implementation-test-design.md`: target
      C++23 module interfaces, implementation boundaries, and contract-test
      suites derived from the detailed design rather than current scaffolding.
+   - `64-physical-agent-skill-catalog.md`: physical `.codex/skills` mapping
+     for module-specific agent/skill operating procedures.
 8. `90-references/`
    - Commercial and research notes used as background material.
 

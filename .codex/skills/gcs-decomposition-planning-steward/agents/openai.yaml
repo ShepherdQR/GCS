@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Decomposition Planning Steward"
+  short_description: "Design covers, gauges, and solve DAGs."
+  default_prompt: "Use $gcs-decomposition-planning-steward to design or review decomposition planning."

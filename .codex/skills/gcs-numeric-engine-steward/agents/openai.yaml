@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Numeric Engine Steward"
+  short_description: "Design local solving and numeric reports."
+  default_prompt: "Use $gcs-numeric-engine-steward to design or review numeric engine contracts."

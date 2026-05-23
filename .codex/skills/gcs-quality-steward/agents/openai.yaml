@@ -1,0 +1,4 @@
+interface:
+  display_name: "GCS Quality Steward"
+  short_description: "Design contract tests and quality gates."
+  default_prompt: "Use $gcs-quality-steward to design or review GCS quality gates."
