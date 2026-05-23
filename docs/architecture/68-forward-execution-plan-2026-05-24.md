@@ -14,9 +14,12 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 24:
+- Completed through Step 25:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
+  - scene-generation exploration and promotion-package orchestration have been
+    extracted into `gcs_scene_generation.explorer` and
+    `gcs_scene_generation.promotion_package`;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
@@ -24,29 +27,33 @@ implementation step they describe.
 
 ## Registered Next Steps
 
-### Step 25: Explorer And Promotion Orchestration Split
+### Completed Step 25: Explorer And Promotion Orchestration Split
 
-Goal:
+Delivered:
 
 - Extract exploration request normalization, candidate building, coverage
-  accounting, gate orchestration, trace writing, promotion-package writing, and
-  promotion blocking rules from `tools.py`.
-
-Expected shape:
-
-- Add `gcs_scene_generation.explorer` for exploration request/result,
-  candidate provenance, coverage scoring, negative evidence, and trace
-  orchestration.
-- Add a package-level promotion orchestration helper when it can be split
-  cleanly without changing the command surface.
+  accounting, candidate gate orchestration, trace writing, negative evidence,
+  and result assembly into `gcs_scene_generation.explorer`.
+- Extract promotion-package writing, public adapter gate reports, provenance
+  loading, and promotion blocking rules into
+  `gcs_scene_generation.promotion_package`.
 - Keep `tools.py` as the compatibility dispatcher and storage-bound facade.
 
 Tests:
 
-- Stable `ExploreRequest -> ExploreResult` output for a fixed seed.
-- Candidate provenance and artifact IDs remain stable.
-- Negative evidence preserves typed rejection reason codes.
-- Promotion package replay/blocking remains deterministic.
+- Direct module tests cover `ExploreRequest` normalization, coverage evidence,
+  and promotion-package blocking contracts.
+- Existing deterministic explorer, negative evidence, promotion gate, and flat
+  command compatibility tests still pass.
+
+Reassessment after Step 25:
+
+- Step 26 remains the highest-leverage next move because `tools.py` still owns
+  the mutable `STORE_DIR` binding and flat graph-store compatibility wrappers.
+- Step 27 should remain after Step 26: hardening public gates will be cleaner
+  once store/path ownership is contained.
+- Step 28 and Step 29 remain registered; no new evidence requires reordering
+  them before store containment.
 
 ### Step 26: Store Adapter Containment
 
@@ -143,6 +150,6 @@ After each step:
 
 ## Registration Confirmation
 
-As of this document, the active planned steps are registered as Step 25 through
-Step 29. Step 25 is the next implementation step.
+As of the Step 25 completion update, the active planned steps are registered
+as Step 26 through Step 29. Step 26 is the next implementation step.
 

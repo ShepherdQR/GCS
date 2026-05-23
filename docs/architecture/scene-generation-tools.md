@@ -471,6 +471,12 @@ Current v1 status:
 - `gcs_scene_generation.parameterization` and
   `gcs_scene_generation.reporting` are implemented behind the same facade.
 - `gcs_scene_generation.repair` is implemented behind the same facade.
+- `gcs_scene_generation.explorer` now owns exploration request normalization,
+  candidate construction, coverage scoring, negative evidence, trace writing,
+  and result assembly behind the same facade.
+- `gcs_scene_generation.promotion_package` now owns promotion package
+  assembly, public adapter gate reports, promotion blocking rules, and
+  promotion artifact writing behind the same facade.
 - Structured exploration artifacts are written under
   `.store/explorations/<exploration_id>/`.
 - Promotion packages are written under `.store/promotions/<promotion_id>/`.
@@ -479,11 +485,9 @@ Current v1 status:
 
 Remaining migration path:
 
-1. Continue extracting orchestration helpers from `tools.py` into package
-   modules: `explorer.py` and promotion orchestration helpers.
-2. Keep `tools.py` as the CLI dispatcher and compatibility facade.
-3. Move flat `.store` compatibility reads behind a store adapter.
-4. Harden public gates from executable smoke checks into direct IO, contract
+1. Keep `tools.py` as the CLI dispatcher and compatibility facade.
+2. Move flat `.store` compatibility reads behind a store adapter.
+3. Harden public gates from executable smoke checks into direct IO, contract
    tools, runtime, diagnostics, and viewer adapters as those APIs stabilize.
 
 This is a rewrite of structure, not a rewrite of all algorithms.

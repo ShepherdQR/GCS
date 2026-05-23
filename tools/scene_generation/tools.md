@@ -166,6 +166,11 @@ Keep these pieces when rewriting the explorer structure:
   `gcs_scene_generation.parameterization`;
 - graph reporting in `gcs_scene_generation.reporting`;
 - repair policy in `gcs_scene_generation.repair`;
+- exploration request/result orchestration, candidate construction, coverage
+  accounting, negative evidence, and trace writing in
+  `gcs_scene_generation.explorer`;
+- promotion package writing, public gate reports, and blocking rules in
+  `gcs_scene_generation.promotion_package`;
 - canonical JSON and custom text serialization;
 - public scene conversion and solver smoke adapters in
   `gcs_scene_generation.promotion`.
@@ -187,6 +192,8 @@ The v1 explorer now provides:
   gate behavior;
 - package-boundary coverage for contracts, storage safety, and public scene
   conversion.
+- direct package-boundary coverage for explorer request normalization,
+  coverage evidence, and promotion package blocking contracts.
 
 ## Rewrite Direction
 
@@ -206,16 +213,17 @@ tools/scene_generation/
     parameterization.py # implemented
     reporting.py        # implemented
     repair.py           # implemented
-    explorer.py
+    explorer.py         # implemented
+    promotion_package.py # implemented
 ```
 
 The current v1 keeps command compatibility inside `tools.py`. Step 20 moved
 contracts/storage/promotion helpers, Step 21 moved topology plus GCS model
 helpers, Step 22 moved validation plus projection helpers, Step 23 moved
-parameterization plus reporting helpers, and Step 24 moved repair policy.
-Explorer orchestration remains behind the existing facade until its tests are
-split. Do not move generation policy into the solver, GUI, or scene IO
-modules.
+parameterization plus reporting helpers, Step 24 moved repair policy, and
+Step 25 moved explorer plus promotion-package orchestration. Store adapter
+containment remains the next structural split. Do not move generation policy
+into the solver, GUI, or scene IO modules.
 
 ## Tests
 

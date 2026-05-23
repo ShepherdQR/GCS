@@ -33,6 +33,13 @@
 - `tools/scene_generation/gcs_scene_generation/repair.py`: generated-candidate
   repair policy, deterministic rigid-set recoloring, constraint-signature
   replacement, biconnectivity repair, and structured edit lists.
+- `tools/scene_generation/gcs_scene_generation/explorer.py`: structured
+  exploration request normalization, candidate construction, local/public gate
+  orchestration, deterministic coverage scoring, negative evidence, trace
+  writing, and `ExploreResult` assembly.
+- `tools/scene_generation/gcs_scene_generation/promotion_package.py`:
+  promotion-package assembly, blocking status rules, public adapter gate
+  reports, promotion artifact writing, and candidate provenance loading.
 - `tools/scene_generation/tools.md`: design notes for the tool family.
 - `tools/scene_generation/.store`: local generated JSON graph store used by
   the tools. Treat this as scratch state unless a generated graph is promoted.
@@ -85,6 +92,10 @@ generate_graph_report
   promotion.
 - `generate_graph_report`: prefer this machine-readable report as the basis for
   human summaries.
+- `explore_scene_space`: use the package-level explorer orchestration behind
+  the CLI facade for deterministic candidate search and coverage evidence.
+- `promote_candidate`: use package-level promotion-package helpers behind the
+  CLI facade for deterministic gate/blocking reports.
 
 ## Fixture Promotion
 

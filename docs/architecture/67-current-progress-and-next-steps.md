@@ -170,13 +170,31 @@ Delivered:
 - Extend tests with direct repair-module input/output checks and post-repair
   validation.
 
-## Next Step 25
+## Completed Step 25
 
-The next step is to split explorer and promotion orchestration from `tools.py`,
-leaving the file as a command dispatcher over package modules.
+Step 25 split explorer and promotion orchestration from `tools.py`.
+
+Delivered:
+
+- Add `gcs_scene_generation.explorer` for structured exploration request
+  normalization, candidate construction, candidate gates, coverage scoring,
+  negative evidence, trace writing, and `ExploreResult` assembly.
+- Add `gcs_scene_generation.promotion_package` for public adapter gate
+  reports, promotion-package assembly, blocking status rules, promotion
+  artifact writing, and candidate provenance loading.
+- Keep `tools.py` as the CLI dispatcher and compatibility facade over package
+  modules.
+- Extend unittest coverage with direct package-boundary checks for explorer
+  request/coverage contracts and promotion blocking contracts.
+
+## Next Step 26
+
+The next step is store adapter containment: reduce remaining direct `.store`
+path knowledge in `tools.py` and package helpers while preserving flat command
+compatibility.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 25 through
-29 are registered there and in the implementation roadmap. After each completed
-step, the remaining steps must be reconsidered and updated before or with the
-next implementation commit.
+29 were registered there and in the implementation roadmap. After Step 25, the
+remaining steps were reconsidered; Steps 26 through 29 remain registered, with
+Step 26 still the next highest-leverage move.

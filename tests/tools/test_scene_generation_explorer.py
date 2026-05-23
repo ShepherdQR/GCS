@@ -15,7 +15,20 @@ PACKAGE_ROOT = REPO_ROOT / "tools" / "scene_generation"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from gcs_scene_generation import contracts, gcs_model, parameterization, projection, promotion, repair, reporting, storage, topology, validation
+from gcs_scene_generation import (
+    contracts,
+    explorer,
+    gcs_model,
+    parameterization,
+    projection,
+    promotion,
+    promotion_package,
+    repair,
+    reporting,
+    storage,
+    topology,
+    validation,
+)
 
 
 def load_tools(store_dir: Path):
@@ -174,6 +187,73 @@ class SceneGenerationExplorerTests(unittest.TestCase):
         self.assertEqual(result["edits"][0]["operation"], "replace_constraint_type")
         self.assertEqual(repaired["constraints"][0]["type"], "Distance")
         self.assertTrue(validation.validate_gcs_schema(repaired)["valid"])
+
+    def test_explorer_module_normalizes_request_and_coverage(self):
+        request = explorer.default_exploration_request(
+            {
+                "exploration_id": "unit_explorer_module",
+                "seed": 17,
+                "budget": {"max_candidates": 2, "max_accepts": 1},
+                "topology_policy": {"vertex_counts": 4, "extra_edge_range": [1, 2]},
+                "gcs_policy": {"geometry_types": ["Point", "Plane"], "constraint_types": "Distance"},
+            }
+        )
+
+        self.assertEqual(request["exploration_id"], "unit_explorer_module")
+        self.assertEqual(request["topology_policy"]["vertex_counts"], [4])
+        self.assertEqual(request["topology_policy"]["extra_edge_values"], [1, 2])
+        self.assertEqual(request["gcs_policy"]["constraint_types"], ["Distance"])
+
+        with self.assertRaises(ValueError):
+            explorer.default_exploration_request({"gcs_policy": {"geometry_types": ["Spline"]}})
+
+        accepted_record = {
+            "num_rigid_sets": 2,
+            "num_geometries": 4,
+            "geometry_types": {"Point": 1, "Plane": 1},
+            "constraint_types": {"Distance": 1},
+            "endpoint_signatures": {"Plane-Point": 1},
+            "geometry_primal_biconnected": True,
+            "gates": [promotion_package.make_gate("scene_io_round_trip", "passed")],
+        }
+        rejected_records = [
+            {"reason_code": "invalid_constraint_signature"},
+            {"reason_code": "constraint_same_rigid_set"},
+        ]
+        coverage = explorer.coverage_from_records([accepted_record], rejected_records, request)
+
+        self.assertEqual(coverage["missing_goals"], [])
+        self.assertEqual(coverage["histograms"]["rejection_reasons"]["constraint_same_rigid_set"], 1)
+
+    def test_promotion_package_builds_blocking_contract(self):
+        gates = [
+            promotion_package.make_gate("local_schema_validation", "passed"),
+            promotion_package.make_gate("runtime_smoke", "unsupported", "runtime_smoke_failed"),
+        ]
+        public_scene = {
+            "format_version": "gcs-0.3",
+            "state_version": 0,
+            "rigid_sets": [],
+            "geometries": [],
+            "constraints": [],
+        }
+        package = promotion_package.build_promotion_package(
+            "promo_unit",
+            "explore_unit",
+            "candidate_unit",
+            "candidate_unit_gcs",
+            {"candidate_id": "candidate_unit", "artifacts": {"gcs_graph_id": "candidate_unit_gcs"}},
+            {"schema_valid": True},
+            gates,
+            {"checksum": "json16", "serialization": "{}\n"},
+            {"checksum": "text16", "serialization": "scene\n"},
+            public_scene,
+        )
+
+        self.assertEqual(package["status"], "promotion_blocked")
+        self.assertEqual(package["reason_code"], "runtime_smoke_failed")
+        self.assertEqual(package["known_unsupported_gates"], ["runtime_smoke"])
+        self.assertTrue(package["canonical_serialization"]["public_scene_digest"].startswith("sha256:"))
 
     def test_explorer_is_deterministic_and_keeps_negative_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:

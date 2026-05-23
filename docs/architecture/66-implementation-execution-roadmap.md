@@ -842,8 +842,34 @@ Implemented scope for Step 24:
 - Repair policy no longer lives directly in the CLI facade.
 - Repair outputs carry a structured `edits` list and a repaired graph payload
   consumed by the facade for storage.
-- The remaining split target is explorer orchestration and promotion
-  orchestration.
+- This left explorer orchestration and promotion orchestration as the next
+  split target, which was addressed in Step 25.
+
+## Scene Generation Explorer And Promotion Split Milestone
+
+Implemented scope for Step 25:
+
+- `gcs_scene_generation.explorer` now owns structured exploration request
+  normalization, candidate construction, candidate gate orchestration,
+  deterministic coverage scoring, negative evidence, trace writing, and
+  `ExploreResult` assembly.
+- `gcs_scene_generation.promotion_package` now owns public adapter gate
+  reports, candidate provenance loading, promotion-package assembly, blocking
+  status rules, and promotion artifact writing.
+- `tools.py` remains the CLI dispatcher and compatibility facade over package
+  modules instead of being the owner of explorer or promotion-package policy.
+- Direct package-boundary tests now cover explorer request/coverage contracts
+  and promotion blocking contracts, while existing deterministic explorer and
+  promotion command tests continue to pass.
+
+Reassessment after Step 25:
+
+- Step 26 remains store adapter containment because `tools.py` still carries
+  flat graph-store wrappers and the mutable `STORE_DIR` compatibility binding.
+- Step 27 remains promotion gate hardening, intentionally after store
+  containment so direct public adapters do not inherit scattered path policy.
+- Steps 28 and 29 remain registered after Step 26 and Step 27 unless the store
+  adapter work exposes a higher-priority solver or atlas gap.
 
 ## Damped Numeric Local Solve Step Plan
 
