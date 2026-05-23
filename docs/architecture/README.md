@@ -45,6 +45,10 @@ order, not by historical source order. Background research notes live under
    - `65-agentic-implementation-tooling.md`: shared agent-callable scripts for
      validating module designs, skills, dependency boundaries, and scaffolding
      C++23 modules or contract tests.
+   - `68-agentic-se-lifecycle-self-evolution.md`: full-lifecycle agentic
+     software-engineering operating model, including task intake, planning,
+     implementation, verification, review, CI, learning, and GCS
+     self-evolution.
 8. Visualization atlas
    - `70-visualization/gcs-architecture-atlas.md`: architecture diagrams and
      visual grammar for the target GCS shape.
