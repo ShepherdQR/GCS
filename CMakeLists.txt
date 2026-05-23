@@ -190,6 +190,32 @@ if(GCS_BUILD_TESTS)
                 PROPERTIES LABELS "contract;viewer_bridge"
             )
 
+            add_executable(gcs_contract_tools_contract_tests
+                tests/contracts/contract_tools/contract_tools_contract_tests.cpp
+            )
+            target_link_libraries(gcs_contract_tools_contract_tests
+                PRIVATE
+                    gcs_solver
+                    GTest::gtest_main
+            )
+            target_compile_features(gcs_contract_tools_contract_tests PRIVATE cxx_std_23)
+            gtest_discover_tests(gcs_contract_tools_contract_tests
+                PROPERTIES LABELS "contract;contract_tools"
+            )
+
+            add_executable(gcs_module_dependency_contract_tests
+                tests/contracts/module_dependency/module_dependency_contract_tests.cpp
+            )
+            target_link_libraries(gcs_module_dependency_contract_tests
+                PRIVATE
+                    gcs_solver
+                    GTest::gtest_main
+            )
+            target_compile_features(gcs_module_dependency_contract_tests PRIVATE cxx_std_23)
+            gtest_discover_tests(gcs_module_dependency_contract_tests
+                PROPERTIES LABELS "contract;module_dependency"
+            )
+
             add_executable(gcs_pipeline_contract_tests
                 tests/contracts/pipeline/pipeline_contract_tests.cpp
             )

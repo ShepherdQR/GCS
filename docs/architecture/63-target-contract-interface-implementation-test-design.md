@@ -755,6 +755,8 @@ tests/contracts/diagnostics/diagnostics_contract_tests.cpp
 tests/contracts/session_runtime/session_runtime_contract_tests.cpp
 tests/contracts/io_adapters/io_adapters_contract_tests.cpp
 tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp
+tests/contracts/contract_tools/contract_tools_contract_tests.cpp
+tests/contracts/module_dependency/module_dependency_contract_tests.cpp
 tests/contracts/pipeline/pipeline_contract_tests.cpp
 ```
 

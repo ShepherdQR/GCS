@@ -118,6 +118,8 @@ For each commit-level step:
   - `tests/contracts/session_runtime/session_runtime_contract_tests.cpp`
   - `tests/contracts/io_adapters/io_adapters_contract_tests.cpp`
   - `tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp`
+  - `tests/contracts/contract_tools/contract_tools_contract_tests.cpp`
+  - `tests/contracts/module_dependency/module_dependency_contract_tests.cpp`
 
 ## Commit-Level Step Queue
 
@@ -145,9 +147,9 @@ Status legend: `done`, `in_progress`, `pending`.
     reports, round-trip diff, and fixture tests.
 11. `done` - add viewer projection, diagnostic overlay, interaction draft,
     and history projection contracts.
-12. `in_progress` - split and harden contract tools: fixture provenance,
+12. `done` - split and harden contract tools: fixture provenance,
     invariant checks, dependency audits, golden reports.
-13. `pending` - add cross-module quality gates and broader negative fixture
+13. `in_progress` - add cross-module quality gates and broader negative fixture
     corpus.
 
 ## Constraint Catalog Milestone
@@ -524,6 +526,55 @@ Implement the contract tools and quality gate milestone:
   `tests/contracts/contract_tools/contract_tools_contract_tests.cpp` and
   module dependency tests under
   `tests/contracts/module_dependency/module_dependency_contract_tests.cpp`.
+
+## Contract Tools Quality Gate Step Plan
+
+Current commit-level scope:
+
+- Extend `gcs.contract_tools` with typed fixture build, invariant check,
+  golden report, and dependency audit request/report structures.
+- Attach deterministic fixture provenance to reusable model builders, including
+  fixture ID, generator name, seed, and schema version.
+- Check invariants through public `kernel` validation and context contracts
+  only.
+- Produce deterministic golden report digests for fixture bundles without
+  adding production solver policy.
+- Add C++ contract tests for fixture determinism, generated fixture validation,
+  invariant failure reports, and forbidden dependency detection.
+
+## Contract Tools Quality Gate Milestone
+
+Implemented scope for the contract tools and module dependency milestone:
+
+- Add `FixtureBuildRequest`, `FixtureProvenance`, `FixtureBundle`,
+  `InvariantCheckRequest`, `InvariantReport`, `GoldenReportRequest`,
+  `GoldenReport`, `DependencyAuditRequest`, and `DependencyAuditReport` to
+  `gcs.contract_tools`.
+- Attach fixture ID, generator name, deterministic seed, and schema version to
+  reusable fixture bundles.
+- Check model/context invariants through public `kernel` contracts.
+- Produce deterministic golden report digests from fixture provenance and
+  structural counts.
+- Add dependency audit rules that reject lower solver modules importing
+  runtime, IO, or viewer boundaries.
+- Add `tests/contracts/contract_tools/contract_tools_contract_tests.cpp`,
+  `tests/contracts/module_dependency/module_dependency_contract_tests.cpp`,
+  and their CTest targets.
+
+## Next Milestone
+
+Implement the cross-module quality gate and negative corpus milestone:
+
+- Promote broader negative fixtures for invalid schema, missing IDs,
+  unsupported IO, gluing obstruction, and invalid runtime commands.
+- Add cross-module contract tests that assert end-to-end report codes and
+  state-version behavior across kernel, IO, runtime, diagnostics, and viewer.
+- Add golden digest checks for representative command results and scene
+  round-trips.
+- Keep all scenario data in reusable fixture builders or `fixtures/scene`
+  rather than ad hoc test-local models.
+- Close the first implementation roadmap batch with a quality summary in this
+  document.
 
 ## Decomposition Planner Step Plan
 
