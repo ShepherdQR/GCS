@@ -750,6 +750,7 @@ tests/contracts/kernel/kernel_contract_tests.cpp
 tests/contracts/constraint_catalog/constraint_catalog_contract_tests.cpp
 tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp
 tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp
+tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp
 tests/contracts/pipeline/pipeline_contract_tests.cpp
 ```
 

@@ -113,6 +113,7 @@ For each commit-level step:
   - `tests/contracts/pipeline/pipeline_contract_tests.cpp`
   - `tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp`
   - `tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp`
+  - `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp`
 
 ## Commit-Level Step Queue
 
@@ -126,9 +127,9 @@ Status legend: `done`, `in_progress`, `pending`.
 4. `done` - validate and enrich `gcs.decomposition_planner` cover plans,
    boundary projections, coverage proof, solve order, and planner contract
    tests.
-5. `in_progress` - add numeric task validation and equation assembly through the
+5. `done` - add numeric task validation and equation assembly through the
    constraint catalog.
-6. `pending` - add numeric residual/Jacobian/rank reports and baseline local
+6. `in_progress` - add numeric residual/Jacobian/rank reports and baseline local
    solve tests.
 7. `pending` - add diagnostics DOF/rank/residual/status precedence contracts.
 8. `pending` - add projection-aware gluing obstruction and conflict/redundancy
@@ -192,6 +193,34 @@ Implement the numeric task validation and equation assembly milestone:
 - Boundary-variable immutability checks.
 - Numeric contract tests under
   `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp`.
+
+## Numeric Assembly Milestone
+
+Implemented scope for the numeric task validation and equation assembly
+milestone:
+
+- Add `NumericTaskValidationReport` and validate active variables, active
+  equations, context membership, boundary variables, solve limits, tolerances,
+  and state-version alignment.
+- Add `EquationAssembly` with variable ordering, residual ordering, residual
+  vector, per-constraint residual blocks, and dimension totals.
+- Assemble residuals through `gcs.constraint_catalog`, preserving typed report
+  evidence from the catalog.
+- Keep `solve_local` as a non-iterating baseline local-section producer, but
+  make it consume task validation and equation assembly evidence.
+- Add `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp` with
+  valid assembly, missing entity, missing constraint, boundary-variable, and
+  identity-solve evidence tests.
+
+## Next Milestone
+
+Implement the numeric report and baseline local solve milestone:
+
+- Per-constraint residual reports in `NumericReport`.
+- Jacobian block-shape report in `EquationAssembly`.
+- Rank and condition report fields with deterministic estimates.
+- Boundary variable non-mutation evidence.
+- Replayable iteration trace summary for the baseline solve.
 
 ## Decomposition Planner Step Plan
 
