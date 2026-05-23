@@ -117,6 +117,7 @@ For each commit-level step:
   - `tests/contracts/diagnostics/diagnostics_contract_tests.cpp`
   - `tests/contracts/session_runtime/session_runtime_contract_tests.cpp`
   - `tests/contracts/io_adapters/io_adapters_contract_tests.cpp`
+  - `tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp`
 
 ## Commit-Level Step Queue
 
@@ -142,9 +143,9 @@ Status legend: `done`, `in_progress`, `pending`.
    replay contracts.
 10. `done` - add IO schema registry, canonical text/JSON path, parse
     reports, round-trip diff, and fixture tests.
-11. `in_progress` - add viewer projection, diagnostic overlay, interaction draft,
+11. `done` - add viewer projection, diagnostic overlay, interaction draft,
     and history projection contracts.
-12. `pending` - split and harden contract tools: fixture provenance,
+12. `in_progress` - split and harden contract tools: fixture provenance,
     invariant checks, dependency audits, golden reports.
 13. `pending` - add cross-module quality gates and broader negative fixture
     corpus.
@@ -474,6 +475,55 @@ Implement the viewer bridge projection and interaction contract milestone:
 - Add history frame projection from runtime history and replay traces.
 - Add viewer bridge contract tests under
   `tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp`.
+
+## Viewer Bridge Projection Step Plan
+
+Current commit-level scope:
+
+- Extend `gcs.viewer_bridge` with read-only scene projection, diagnostic
+  overlay, interaction command draft, and history frame projection contracts.
+- Project stable IDs, state version, entity parameters, constraints, selected
+  IDs, and status without mutating solver state.
+- Derive overlay status and messages from `CommandResult`, stage reports, and
+  obstruction reports only.
+- Draft solve interactions as `runtime::Command` values and validate them
+  through `runtime::validate_command`.
+- Add contract tests under
+  `tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp` for
+  deterministic projection, state version, overlay mapping, command draft
+  validity, and history frame stage resolution.
+
+## Viewer Bridge Projection Milestone
+
+Implemented scope for the viewer bridge projection and interaction milestone:
+
+- Add `ViewerProjectionRequest`, `ViewerSceneProjection`,
+  `DiagnosticOverlayRequest`, `DiagnosticOverlay`, `InteractionDraftRequest`,
+  `InteractionCommandDraft`, `HistoryFrameRequest`, and
+  `HistoryFrameProjection` to `gcs.viewer_bridge`.
+- Project model schema, state version, stable entity IDs, constraint IDs,
+  selected IDs, parameters, and counts without mutating solver state.
+- Derive diagnostic overlays from `CommandResult`, stage reports, and
+  obstruction reports.
+- Draft solve interactions as `runtime::Command` values and validate them
+  through `runtime::validate_command`.
+- Project runtime history events into read-only history frames.
+- Add `tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp` and the
+  `gcs_viewer_bridge_contract_tests` CTest target.
+
+## Next Milestone
+
+Implement the contract tools and quality gate milestone:
+
+- Add fixture provenance metadata to reusable fixture builders.
+- Add invariant check reports over model validity, context coverage, dependency
+  boundaries, and deterministic serialization.
+- Add golden report or digest writer contracts for stable test artifacts.
+- Promote module dependency audit outputs into C++/script quality gates.
+- Add contract tools tests under
+  `tests/contracts/contract_tools/contract_tools_contract_tests.cpp` and
+  module dependency tests under
+  `tests/contracts/module_dependency/module_dependency_contract_tests.cpp`.
 
 ## Decomposition Planner Step Plan
 
