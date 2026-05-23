@@ -1,0 +1,261 @@
+﻿{
+    "schema":  "gcs-model-library-manifest-v1",
+    "library_id":  "generated_complex_constraints_20260524",
+    "description":  "Generated complex constraint-graph models promoted from scene-space exploration.",
+    "source_tool":  "tools/scene_generation/tools.py explore_scene_space + promote_candidate",
+    "source_store":  ".codex_scene_generation_store",
+    "created_at":  "2026-05-24T02:29:18+08:00",
+    "entry_count":  10,
+    "entries":  [
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run00_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run00_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run00_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run00_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run00",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run00_c0000_gcs",
+                        "public_scene_digest":  "sha256:830659ba3226a3fd1fadad39002252d1e0f71a096b98027c9e6cb9bbd97e2992",
+                        "json_digest":  "sha256:dc5dc2583c19268dc122b6e6ca882bfb174516ec7aa242349087f0d157fd09d4",
+                        "num_geometries":  14,
+                        "num_constraints":  32,
+                        "num_rigid_sets":  4,
+                        "topology":  {
+                                         "method":  "ear_decomposition",
+                                         "num_vertices":  14,
+                                         "extra_edges":  7,
+                                         "layout":  "circular"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run01_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run01_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run01_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run01_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run01",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run01_c0000_gcs",
+                        "public_scene_digest":  "sha256:6b9c284ee947f9f969027a7059367060d96f2a6c29c9ccecc3e902b876bf5471",
+                        "json_digest":  "sha256:bf7f1909616cbbdba49fcbd93cbe0b6eac59a51381341dbb565712550a69fc79",
+                        "num_geometries":  14,
+                        "num_constraints":  31,
+                        "num_rigid_sets":  4,
+                        "topology":  {
+                                         "method":  "ear_decomposition",
+                                         "num_vertices":  14,
+                                         "extra_edges":  6,
+                                         "layout":  "circular"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run02_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run02_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run02_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run02_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run02",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run02_c0000_gcs",
+                        "public_scene_digest":  "sha256:661c431a19181fe0b3f4dcbc677e9e34b8f826c31d3c634b918a976de04b18d1",
+                        "json_digest":  "sha256:b7728e72c7f23d36ffc10d938ea10bb4ed4599eea197cbb1e11b6229e5ae094d",
+                        "num_geometries":  14,
+                        "num_constraints":  32,
+                        "num_rigid_sets":  5,
+                        "topology":  {
+                                         "method":  "ear_decomposition",
+                                         "num_vertices":  14,
+                                         "extra_edges":  7,
+                                         "layout":  "circular"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run03_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run03_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run03_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run03_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run03",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run03_c0000_gcs",
+                        "public_scene_digest":  "sha256:590f497ca69ebdd77597735eea9caea09018e87edfd5ffd88f16934251da0632",
+                        "json_digest":  "sha256:cd171515fcc5461b94aa64630f0a475f5eca8529f12652653316d553565837b4",
+                        "num_geometries":  14,
+                        "num_constraints":  33,
+                        "num_rigid_sets":  4,
+                        "topology":  {
+                                         "method":  "ear_decomposition",
+                                         "num_vertices":  14,
+                                         "extra_edges":  8,
+                                         "layout":  "grid"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run04_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run04_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run04_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run04_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run04",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run04_c0000_gcs",
+                        "public_scene_digest":  "sha256:5f582aa0a6eb13e05376019cb06650ff5006bdf8ad40cedadb1f839c9442e02b",
+                        "json_digest":  "sha256:85037dbc8381a8f974453ff23001e4d2bd3b2cb3ac8d4db3d5080855abe0bca9",
+                        "num_geometries":  14,
+                        "num_constraints":  21,
+                        "num_rigid_sets":  5,
+                        "topology":  {
+                                         "method":  "cycle_plus_chords",
+                                         "num_vertices":  14,
+                                         "extra_edges":  7,
+                                         "layout":  "circular"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run05_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run05_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run05_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run05_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run05",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run05_c0000_gcs",
+                        "public_scene_digest":  "sha256:b1f45d5d08ffcd42c0a7640197d8f2bbbb74433f4035a10705d1065b81bfbcfd",
+                        "json_digest":  "sha256:c0d081ef23bcbae35f96d3b0c92aa4be93843c7816b1228b679d8beec5c56dbc",
+                        "num_geometries":  14,
+                        "num_constraints":  33,
+                        "num_rigid_sets":  4,
+                        "topology":  {
+                                         "method":  "ear_decomposition",
+                                         "num_vertices":  14,
+                                         "extra_edges":  8,
+                                         "layout":  "grid"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run06_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run06_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run06_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run06_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run06",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run06_c0000_gcs",
+                        "public_scene_digest":  "sha256:d8be7fe65aa9ee6ce7a211b34c8d2aeffe754c145a6b65a247dcaa1444ef0b72",
+                        "json_digest":  "sha256:47e20b682d8f064ca05cd7d9a7a1e3972bc331ed7284b3786dbe2989c3307270",
+                        "num_geometries":  14,
+                        "num_constraints":  20,
+                        "num_rigid_sets":  5,
+                        "topology":  {
+                                         "method":  "cycle_plus_chords",
+                                         "num_vertices":  14,
+                                         "extra_edges":  6,
+                                         "layout":  "random"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run07_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run07_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run07_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run07_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run07",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run07_c0000_gcs",
+                        "public_scene_digest":  "sha256:dc20ec6b224dff22a63a875cd2a4596c082fa61b8f70940f2231433dbd131772",
+                        "json_digest":  "sha256:d875f829e5ea9ec07618940c98c217bd50ade42eb38467a42afc4f65640dc961",
+                        "num_geometries":  10,
+                        "num_constraints":  18,
+                        "num_rigid_sets":  4,
+                        "topology":  {
+                                         "method":  "cycle_plus_chords",
+                                         "num_vertices":  10,
+                                         "extra_edges":  8,
+                                         "layout":  "random"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run08_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run08_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run08_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run08_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run08",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run08_c0000_gcs",
+                        "public_scene_digest":  "sha256:812e52e1877c1143eac1c4e6acfba2e35f70090a0d735a61bddc247a716a89d8",
+                        "json_digest":  "sha256:b01c44626a3f25acb94880b6835f42d845d95e9425d1c512f22fa6638cb1593c",
+                        "num_geometries":  10,
+                        "num_constraints":  18,
+                        "num_rigid_sets":  5,
+                        "topology":  {
+                                         "method":  "cycle_plus_chords",
+                                         "num_vertices":  10,
+                                         "extra_edges":  8,
+                                         "layout":  "circular"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    },
+                    {
+                        "fixture_id":  "codex_complex10_20260524_run09_c0000",
+                        "model_path":  "fixtures/scene/generated/codex_complex10_20260524_run09_c0000.gcs.json",
+                        "metadata_path":  "fixtures/scene/generated/metadata/codex_complex10_20260524_run09_c0000.metadata.json",
+                        "promotion_id":  "library_codex_complex10_20260524_run09_c0000",
+                        "source_exploration_id":  "codex_complex10_20260524_run09",
+                        "source_gcs_graph_id":  "codex_complex10_20260524_run09_c0000_gcs",
+                        "public_scene_digest":  "sha256:09b8727fe80ae072cd1706d2cd6b8f7ca2a9dae68307093a1c7789e18893848e",
+                        "json_digest":  "sha256:350d585e6936a30ebfb0c3dcddba3c0fc8c85de51fd5fadbbc69c62fd34b1450",
+                        "num_geometries":  14,
+                        "num_constraints":  20,
+                        "num_rigid_sets":  5,
+                        "topology":  {
+                                         "method":  "cycle_plus_chords",
+                                         "num_vertices":  14,
+                                         "extra_edges":  6,
+                                         "layout":  "grid"
+                                     },
+                        "gates":  {
+                                      "local_schema_validation":  "passed",
+                                      "geometry_primal_projection":  "passed",
+                                      "geometry_primal_biconnectivity":  "passed",
+                                      "canonical_serialization":  "passed"
+                                  }
+                    }
+                ]
+}

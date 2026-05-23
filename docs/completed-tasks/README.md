@@ -32,3 +32,4 @@ evidence, and links to project files.
 | Date | Task | Status |
 | --- | --- | --- |
 | 2026-05-24 | [GCS architecture visualization and SVG editing workflow](2026-05-24-gcs-architecture-visualization-svg-workflow/README.md) | done |
+| 2026-05-24 | [Generated constraint model library](2026-05-24-generated-constraint-model-library/README.md) | done |

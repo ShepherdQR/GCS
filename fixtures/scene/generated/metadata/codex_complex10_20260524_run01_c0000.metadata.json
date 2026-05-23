@@ -1,0 +1,334 @@
+﻿{
+    "candidate_provenance":  {
+                                 "artifacts":  {
+                                                   "gcs_graph_id":  "codex_complex10_20260524_run01_c0000_gcs",
+                                                   "projection_ids":  [
+                                                                          "codex_complex10_20260524_run01_c0000_geom_primal"
+                                                                      ],
+                                                   "skeleton_graph_id":  "codex_complex10_20260524_run01_c0000_skel"
+                                               },
+                                 "candidate_id":  "codex_complex10_20260524_run01_c0000",
+                                 "digest":  "sha256:bf7f1909616cbbdba49fcbd93cbe0b6eac59a51381341dbb565712550a69fc79",
+                                 "parent_exploration_id":  "codex_complex10_20260524_run01",
+                                 "policies":  {
+                                                  "gcs_policy":  {
+                                                                     "constraint_types":  [
+                                                                                              "Coincident",
+                                                                                              "Parallel",
+                                                                                              "Perpendicular",
+                                                                                              "Distance",
+                                                                                              "Angle"
+                                                                                          ],
+                                                                     "geometry_types":  [
+                                                                                            "Point",
+                                                                                            "Line",
+                                                                                            "Plane"
+                                                                                        ],
+                                                                     "require_cross_rigid_set_constraints":  true,
+                                                                     "rigid_set_counts":  [
+                                                                                              3,
+                                                                                              4,
+                                                                                              5
+                                                                                          ]
+                                                                 },
+                                                  "parameter_policy":  {
+                                                                           "layout":  "circular"
+                                                                       },
+                                                  "topology":  {
+                                                                   "extra_edges":  6,
+                                                                   "layout":  "circular",
+                                                                   "method":  "ear_decomposition",
+                                                                   "num_rigid_sets":  3,
+                                                                   "num_vertices":  14
+                                                               }
+                                              },
+                                 "reports":  {
+                                                 "gates":  [
+                                                               {
+                                                                   "artifact_ids":  [
+                                                                                        "codex_complex10_20260524_run01_c0000_gcs"
+                                                                                    ],
+                                                                   "duration_ms":  0,
+                                                                   "evidence":  {
+                                                                                    "violations":  [
+
+                                                                                                   ]
+                                                                                },
+                                                                   "gate_id":  "local_schema_validation",
+                                                                   "reason_code":  null,
+                                                                   "status":  "passed"
+                                                               },
+                                                               {
+                                                                   "artifact_ids":  [
+                                                                                        "codex_complex10_20260524_run01_c0000_geom_primal"
+                                                                                    ],
+                                                                   "duration_ms":  0,
+                                                                   "evidence":  {
+                                                                                    "num_edges":  31,
+                                                                                    "num_vertices":  14
+                                                                                },
+                                                                   "gate_id":  "geometry_primal_projection",
+                                                                   "reason_code":  null,
+                                                                   "status":  "passed"
+                                                               },
+                                                               {
+                                                                   "artifact_ids":  [
+                                                                                        "codex_complex10_20260524_run01_c0000_geom_primal"
+                                                                                    ],
+                                                                   "duration_ms":  0,
+                                                                   "evidence":  {
+                                                                                    "articulation_points":  [
+
+                                                                                                            ],
+                                                                                    "num_connected_components":  1
+                                                                                },
+                                                                   "gate_id":  "geometry_primal_biconnectivity",
+                                                                   "reason_code":  null,
+                                                                   "status":  "passed"
+                                                               },
+                                                               {
+                                                                   "artifact_ids":  [
+                                                                                        "codex_complex10_20260524_run01_c0000_gcs"
+                                                                                    ],
+                                                                   "duration_ms":  0,
+                                                                   "evidence":  {
+                                                                                    "checksum":  "bf7f1909616cbbdb",
+                                                                                    "format":  "json"
+                                                                                },
+                                                                   "gate_id":  "canonical_serialization",
+                                                                   "reason_code":  null,
+                                                                   "status":  "passed"
+                                                               }
+                                                           ],
+                                                 "graph_report":  {
+                                                                      "articulation_points":  [
+
+                                                                                              ],
+                                                                      "constraint_type_histogram":  {
+                                                                                                        "Angle":  5,
+                                                                                                        "Coincident":  6,
+                                                                                                        "Distance":  11,
+                                                                                                        "Parallel":  5,
+                                                                                                        "Perpendicular":  4
+                                                                                                    },
+                                                                      "geometry_primal_biconnected":  true,
+                                                                      "graph_id":  "codex_complex10_20260524_run01_c0000_gcs",
+                                                                      "num_biconnected_components":  1,
+                                                                      "num_connected_components":  1,
+                                                                      "projection_statistics":  {
+                                                                                                    "num_edges":  31,
+                                                                                                    "num_vertices":  14,
+                                                                                                    "projection":  "geometry_primal"
+                                                                                                },
+                                                                      "rigid_set_invariant_valid":  true,
+                                                                      "rigidset_summary":  [
+                                                                                               {
+                                                                                                   "geometry_ids":  [
+                                                                                                                        2,
+                                                                                                                        9,
+                                                                                                                        12
+                                                                                                                    ],
+                                                                                                   "id":  0,
+                                                                                                   "num_geometries":  3
+                                                                                               },
+                                                                                               {
+                                                                                                   "geometry_ids":  [
+                                                                                                                        1,
+                                                                                                                        3,
+                                                                                                                        6,
+                                                                                                                        8
+                                                                                                                    ],
+                                                                                                   "id":  1,
+                                                                                                   "num_geometries":  4
+                                                                                               },
+                                                                                               {
+                                                                                                   "geometry_ids":  [
+                                                                                                                        0,
+                                                                                                                        5,
+                                                                                                                        7,
+                                                                                                                        11
+                                                                                                                    ],
+                                                                                                   "id":  2,
+                                                                                                   "num_geometries":  4
+                                                                                               },
+                                                                                               {
+                                                                                                   "geometry_ids":  [
+                                                                                                                        4,
+                                                                                                                        10,
+                                                                                                                        13
+                                                                                                                    ],
+                                                                                                   "id":  3,
+                                                                                                   "num_geometries":  3
+                                                                                               }
+                                                                                           ],
+                                                                      "schema_valid":  true,
+                                                                      "schema_violations":  [
+
+                                                                                            ],
+                                                                      "summary":  {
+                                                                                      "num_constraints":  31,
+                                                                                      "num_geometries":  14,
+                                                                                      "num_rigid_sets":  4
+                                                                                  }
+                                                                  }
+                                             },
+                                 "seed_path":  {
+                                                   "exploration_seed":  6202401,
+                                                   "lift_seed":  1783416869,
+                                                   "parameter_seed":  1783416870,
+                                                   "topology_seed":  1783416868
+                                               },
+                                 "variant":  "positive"
+                             },
+    "canonical_serialization":  {
+                                    "json_checksum":  "bf7f1909616cbbdb",
+                                    "json_digest":  "sha256:bf7f1909616cbbdba49fcbd93cbe0b6eac59a51381341dbb565712550a69fc79",
+                                    "public_scene_digest":  "sha256:6b9c284ee947f9f969027a7059367060d96f2a6c29c9ccecc3e902b876bf5471",
+                                    "text_checksum":  "3fae84acdc2bc836",
+                                    "text_digest":  "sha256:3fae84acdc2bc836cd2a9d64fbc080b48ff3f7984620ac8035a08b212982829a"
+                                },
+    "fixture_metadata_proposal":  {
+                                      "fixture_id":  "codex_complex10_20260524_run01_c0000",
+                                      "generator":  "tools.scene_generation.explore_scene_space",
+                                      "schema":  "scene-generation-promotion-v1"
+                                  },
+    "gate_reports":  [
+                         {
+                             "artifact_ids":  [
+                                                  "codex_complex10_20260524_run01_c0000_gcs"
+                                              ],
+                             "duration_ms":  0,
+                             "evidence":  {
+                                              "violations":  [
+
+                                                             ]
+                                          },
+                             "gate_id":  "local_schema_validation",
+                             "reason_code":  null,
+                             "status":  "passed"
+                         },
+                         {
+                             "artifact_ids":  [
+                                                  "codex_complex10_20260524_run01_c0000_promotion_geom_primal"
+                                              ],
+                             "duration_ms":  0,
+                             "evidence":  {
+                                              "num_edges":  31,
+                                              "num_vertices":  14
+                                          },
+                             "gate_id":  "geometry_primal_projection",
+                             "reason_code":  null,
+                             "status":  "passed"
+                         },
+                         {
+                             "artifact_ids":  [
+                                                  "codex_complex10_20260524_run01_c0000_promotion_geom_primal"
+                                              ],
+                             "duration_ms":  0,
+                             "evidence":  {
+                                              "articulation_points":  [
+
+                                                                      ],
+                                              "num_connected_components":  1
+                                          },
+                             "gate_id":  "geometry_primal_biconnectivity",
+                             "reason_code":  null,
+                             "status":  "passed"
+                         },
+                         {
+                             "artifact_ids":  [
+                                                  "codex_complex10_20260524_run01_c0000_gcs"
+                                              ],
+                             "duration_ms":  0,
+                             "evidence":  {
+                                              "checksum":  "bf7f1909616cbbdb",
+                                              "format":  "json"
+                                          },
+                             "gate_id":  "canonical_serialization",
+                             "reason_code":  null,
+                             "status":  "passed"
+                         }
+                     ],
+    "known_unsupported_gates":  [
+
+                                ],
+    "local_validation_report":  {
+                                    "articulation_points":  [
+
+                                                            ],
+                                    "constraint_type_histogram":  {
+                                                                      "Angle":  5,
+                                                                      "Coincident":  6,
+                                                                      "Distance":  11,
+                                                                      "Parallel":  5,
+                                                                      "Perpendicular":  4
+                                                                  },
+                                    "geometry_primal_biconnected":  true,
+                                    "graph_id":  "codex_complex10_20260524_run01_c0000_gcs",
+                                    "num_biconnected_components":  1,
+                                    "num_connected_components":  1,
+                                    "projection_statistics":  {
+                                                                  "num_edges":  31,
+                                                                  "num_vertices":  14,
+                                                                  "projection":  "geometry_primal"
+                                                              },
+                                    "rigid_set_invariant_valid":  true,
+                                    "rigidset_summary":  [
+                                                             {
+                                                                 "geometry_ids":  [
+                                                                                      2,
+                                                                                      9,
+                                                                                      12
+                                                                                  ],
+                                                                 "id":  0,
+                                                                 "num_geometries":  3
+                                                             },
+                                                             {
+                                                                 "geometry_ids":  [
+                                                                                      1,
+                                                                                      3,
+                                                                                      6,
+                                                                                      8
+                                                                                  ],
+                                                                 "id":  1,
+                                                                 "num_geometries":  4
+                                                             },
+                                                             {
+                                                                 "geometry_ids":  [
+                                                                                      0,
+                                                                                      5,
+                                                                                      7,
+                                                                                      11
+                                                                                  ],
+                                                                 "id":  2,
+                                                                 "num_geometries":  4
+                                                             },
+                                                             {
+                                                                 "geometry_ids":  [
+                                                                                      4,
+                                                                                      10,
+                                                                                      13
+                                                                                  ],
+                                                                 "id":  3,
+                                                                 "num_geometries":  3
+                                                             }
+                                                         ],
+                                    "schema_valid":  true,
+                                    "schema_violations":  [
+
+                                                          ],
+                                    "summary":  {
+                                                    "num_constraints":  31,
+                                                    "num_geometries":  14,
+                                                    "num_rigid_sets":  4
+                                                }
+                                },
+    "promotion_id":  "library_codex_complex10_20260524_run01_c0000",
+    "reason_code":  null,
+    "source":  {
+                   "candidate_id":  "codex_complex10_20260524_run01_c0000",
+                   "exploration_id":  "codex_complex10_20260524_run01",
+                   "gcs_graph_id":  "codex_complex10_20260524_run01_c0000_gcs"
+               },
+    "status":  "promotion_package_written"
+}
