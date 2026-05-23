@@ -498,6 +498,8 @@ export namespace gcs::diagnostics {
 ContractResult<DofReport> analyze_dof(DofAnalysisRequest request);
 ContractResult<ResidualReport> analyze_residuals(ResidualAnalysisRequest request);
 ContractResult<GluingReport> glue_sections(GluingRequest request);
+ContractResult<std::vector<ConflictSet>> find_conflicts(ConflictSearchRequest request);
+ContractResult<std::vector<RedundancySet>> find_redundancies(RedundancySearchRequest request);
 ContractResult<DiagnosticReport> diagnose(DiagnosticRequest request);
 ContractResult<StatusPrecedenceTrace> resolve_status(
     std::span<const StageReport> reports,
@@ -513,6 +515,7 @@ Implementation responsibilities:
 - Projection-aware boundary comparison.
 - Gauge consistency checks.
 - Conflict and redundancy search.
+- Residual conflict and over-constrained redundancy candidate generation.
 - Obstruction classification and minimization.
 - Deterministic status precedence.
 

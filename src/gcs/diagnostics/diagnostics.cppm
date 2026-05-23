@@ -107,6 +107,16 @@ struct RedundancySet {
     std::vector<ConstraintId> constraint_ids;
 };
 
+struct ConflictSearchRequest {
+    ResidualReport residual_report;
+};
+
+struct RedundancySearchRequest {
+    ContextSnapshot context;
+    DofReport dof_report;
+    RankReport rank_report;
+};
+
 struct OverlapStatus {
     ProjectionId projection_id;
     ContextId source_context_id;
@@ -191,6 +201,10 @@ DofReport analyze_dof(const ModelSnapshot& model,
                       const GaugePolicy& gauge_policy);
 gcs::kernel::ContractResult<ResidualReport> analyze_residuals(
     ResidualAnalysisRequest request);
+gcs::kernel::ContractResult<std::vector<ConflictSet>> find_conflicts(
+    ConflictSearchRequest request);
+gcs::kernel::ContractResult<std::vector<RedundancySet>> find_redundancies(
+    RedundancySearchRequest request);
 gcs::kernel::ContractResult<StatusPrecedenceTrace> resolve_status(
     StatusPrecedenceInput input);
 DiagnosticOutput diagnose(const DiagnosticInput& input);

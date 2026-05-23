@@ -156,6 +156,8 @@ Status legend: `done`, `in_progress`, `pending`.
     Gauss-Newton baseline while preserving numeric report contracts.
 15. `done` - add JSON scene reader, schema migration report, JSON round-trip,
     and malformed JSON negative corpus.
+16. `done` - promote diagnostics conflict and redundancy candidates from typed
+    placeholders into public contract tools.
 
 ## Constraint Catalog Milestone
 
@@ -632,7 +634,7 @@ Second algorithm-deepening batch queue:
   preserving residual, Jacobian, rank, boundary, and trace contracts.
 - `done` - Add a real JSON parser and migration pipeline behind the existing IO schema
   and parse-report contracts.
-- `pending` - Deepen diagnostics conflict/redundancy minimization behind the existing
+- `done` - Deepen diagnostics conflict/redundancy minimization behind the existing
   typed conflict, redundancy, obstruction, and status-precedence contracts.
 - `pending` - Expand reusable negative, singular, redundant, inconsistent, and migration
   fixture corpora with golden report digests.
@@ -711,6 +713,38 @@ Implemented scope for the JSON schema and migration milestone:
   digests.
 - Contract test count increased to 79, covering current JSON load, legacy
   migration, malformed JSON, JSON round-trip, and cross-module parse evidence.
+
+## Diagnostics Conflict And Redundancy Step Plan
+
+Implemented commit-level scope:
+
+- Add public `ConflictSearchRequest` and `RedundancySearchRequest` contracts
+  to `gcs.diagnostics`.
+- Add `find_conflicts` to promote residual out-of-tolerance evidence into
+  constraint-level `ConflictSet` candidates with stable report codes.
+- Add `find_redundancies` to promote structural or numeric
+  over-constrained evidence into context-level `RedundancySet` candidates.
+- Wire conflict and redundancy candidates into `diagnose` output without
+  changing status precedence ownership.
+- Keep failed gluing obstruction conflict evidence intact and separate from
+  post-local-solve residual conflicts.
+- Extend diagnostics contract tests for residual conflict candidates and
+  over-constrained redundancy candidates.
+
+## Diagnostics Conflict And Redundancy Milestone
+
+Implemented scope for the first diagnostics-certification deepening milestone:
+
+- Residual diagnostics now produce `diagnostics.residual_conflict` candidate
+  sets naming the unsatisfied constraint IDs.
+- Over-constrained structural/rank evidence now produces
+  `diagnostics.overconstrained_redundancy_candidate` sets naming the
+  context's constraint IDs.
+- `DiagnosticOutput.conflict_sets` and `DiagnosticOutput.redundancy_sets` are
+  populated from public diagnostic tools rather than remaining passive
+  placeholders.
+- Contract test count increased to 80, covering residual conflicts,
+  redundancy candidates, and prior gluing obstruction conflicts.
 
 ## Decomposition Planner Step Plan
 

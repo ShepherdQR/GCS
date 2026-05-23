@@ -173,6 +173,64 @@ gcs::kernel::ContractResult<ResidualReport> analyze_residuals(
     return result;
 }
 
+gcs::kernel::ContractResult<std::vector<ConflictSet>> find_conflicts(
+    ConflictSearchRequest request) {
+    kernel::ContractResult<std::vector<ConflictSet>> result;
+    result.report = kernel::make_stage_report("diagnostics.find_conflicts");
+
+    if (!request.residual_report.from_numeric_report ||
+        request.residual_report.within_tolerance) {
+        return result;
+    }
+
+    for (const auto& residual : request.residual_report.constraints) {
+        if (!residual.satisfied) {
+            result.payload.push_back(
+                ConflictSet{
+                    "diagnostics.residual_conflict",
+                    {},
+                    {residual.constraint_id}});
+        }
+    }
+
+    if (!result.payload.empty()) {
+        kernel::append_report_message(
+            result.report,
+            kernel::make_report_message(
+                kernel::ReportSeverity::warning,
+                kernel::ReportCode{"diagnostics.conflict.residual"},
+                "Residual analysis produced constraint-level conflict candidates."));
+    }
+    return result;
+}
+
+gcs::kernel::ContractResult<std::vector<RedundancySet>> find_redundancies(
+    RedundancySearchRequest request) {
+    kernel::ContractResult<std::vector<RedundancySet>> result;
+    result.report = kernel::make_stage_report("diagnostics.find_redundancies");
+
+    const bool structurally_over_constrained = request.dof_report.free_dof < 0;
+    const bool numerically_over_constrained = request.rank_report.numeric_over_constrained;
+    if (!structurally_over_constrained && !numerically_over_constrained) {
+        return result;
+    }
+    if (request.context.constraint_ids.empty()) {
+        return result;
+    }
+
+    result.payload.push_back(
+        RedundancySet{
+            "diagnostics.overconstrained_redundancy_candidate",
+            request.context.constraint_ids});
+    kernel::append_report_message(
+        result.report,
+        kernel::make_report_message(
+            kernel::ReportSeverity::warning,
+            kernel::ReportCode{"diagnostics.redundancy.overconstrained_candidate"},
+            "Over-constrained evidence produced a context-level redundancy candidate."));
+    return result;
+}
+
 gcs::kernel::ContractResult<StatusPrecedenceTrace> resolve_status(
     StatusPrecedenceInput input) {
     kernel::ContractResult<StatusPrecedenceTrace> result;
@@ -244,6 +302,8 @@ DiagnosticOutput diagnose(const DiagnosticInput& input) {
                 input.numeric_report,
                 input.model.tolerances});
         output.residual_report = residuals.payload;
+        auto conflicts = find_conflicts(ConflictSearchRequest{output.residual_report});
+        output.conflict_sets = std::move(conflicts.payload);
 
         if (input.numeric_report->result_code != SolveStatus::solved) {
             evidence.push_back(make_evidence(
@@ -277,6 +337,10 @@ DiagnosticOutput diagnose(const DiagnosticInput& input) {
                 "diagnostics.residual_out_of_tolerance"));
         }
     }
+
+    auto redundancies = find_redundancies(
+        RedundancySearchRequest{context, output.dof_report, output.rank_report});
+    output.redundancy_sets = std::move(redundancies.payload);
 
     auto precedence = resolve_status(StatusPrecedenceInput{std::move(evidence)});
     output.status_precedence_trace = precedence.payload;

@@ -50,6 +50,13 @@ bool has_conflict_code(const diagnostics::GluingReport& report, const char* code
     return false;
 }
 
+bool has_conflict_code(const diagnostics::DiagnosticOutput& output, const char* code) {
+    for (const auto& conflict : output.conflict_sets) {
+        if (conflict.code == code) return true;
+    }
+    return false;
+}
+
 kernel::LocalSection make_section(const kernel::ModelSnapshot& model,
                                   kernel::ContextId context_id,
                                   std::vector<kernel::EntityId> entity_ids) {
@@ -125,6 +132,10 @@ TEST(DiagnosticsContract, PromotesNumericResidualBlocks) {
                                   "diagnostics.numeric_result_status"));
     EXPECT_TRUE(has_evidence_code(output.status_precedence_trace,
                                   "diagnostics.residual_out_of_tolerance"));
+    ASSERT_EQ(output.conflict_sets.size(), 1U);
+    EXPECT_TRUE(has_conflict_code(output, "diagnostics.residual_conflict"));
+    ASSERT_EQ(output.conflict_sets.front().constraint_ids.size(), 1U);
+    EXPECT_EQ(output.conflict_sets.front().constraint_ids.front().value, 0U);
 }
 
 TEST(DiagnosticsContract, StatusPrecedenceIsDeterministic) {
@@ -161,6 +172,23 @@ TEST(DiagnosticsContract, ConflictAndRedundancyPlaceholdersAreStructured) {
     EXPECT_TRUE(output.conflict_sets.empty());
     EXPECT_TRUE(output.redundancy_sets.empty());
     EXPECT_FALSE(output.status_precedence_trace.considered.empty());
+}
+
+TEST(DiagnosticsContract, RedundancyCandidatesNameContextConstraints) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    auto context = gcs::tools::make_whole_context_for(model);
+
+    auto result = diagnostics::find_redundancies(
+        diagnostics::RedundancySearchRequest{
+            context,
+            diagnostics::DofReport{6, 7, 0, -1, kernel::SolveStatus::over_constrained},
+            diagnostics::RankReport{}});
+
+    ASSERT_EQ(result.payload.size(), 1U);
+    EXPECT_EQ(result.payload.front().code,
+              "diagnostics.overconstrained_redundancy_candidate");
+    ASSERT_EQ(result.payload.front().constraint_ids.size(), 1U);
+    EXPECT_EQ(result.payload.front().constraint_ids.front().value, 0U);
 }
 
 TEST(DiagnosticsContract, AcceptsCompatibleProjectedOverlap) {
