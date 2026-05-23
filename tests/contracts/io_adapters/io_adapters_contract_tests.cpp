@@ -37,12 +37,47 @@ TEST(IoAdaptersContract, LoadsCurrentTextSchemaFixture) {
     EXPECT_EQ(result.snapshot.constraints.size(), 2U);
 }
 
-TEST(IoAdaptersContract, RejectsJsonLoadWithTypedIssue) {
-    auto result = io::load_scene(io::SceneLoadRequest{"fixtures/scene/basic/unknown.json"});
+TEST(IoAdaptersContract, LoadsCurrentJsonSchemaFixture) {
+    auto result = io::load_scene(
+        io::SceneLoadRequest{source_path("fixtures/scene/json/current_two_point.gcs.json")});
+
+    ASSERT_TRUE(result.ok);
+    EXPECT_EQ(result.format, io::SceneFormat::json);
+    EXPECT_EQ(result.schema_version, "gcs-0.3");
+    EXPECT_TRUE(result.validation_report.valid);
+    EXPECT_FALSE(result.canonical_digest.value.empty());
+    EXPECT_EQ(result.snapshot.entities.size(), 2U);
+    EXPECT_EQ(result.snapshot.constraints.size(), 1U);
+    EXPECT_EQ(result.snapshot.constraints.front().entity_ids.front().value, 0U);
+}
+
+TEST(IoAdaptersContract, MigratesLegacyJsonSchemaFixture) {
+    io::SceneLoadRequest request{
+        source_path("fixtures/scene/json/legacy_two_point_v02.gcs.json")};
+    request.compatibility = io::CompatibilityMode::migration_allowed;
+
+    auto result = io::load_scene(request);
+
+    ASSERT_TRUE(result.ok);
+    EXPECT_EQ(result.schema_version, "gcs-0.3");
+    EXPECT_TRUE(result.migration_report.migrated);
+    EXPECT_EQ(result.migration_report.from_schema_version, "gcs-0.2");
+    EXPECT_EQ(result.migration_report.to_schema_version, "gcs-0.3");
+    ASSERT_FALSE(result.migration_report.issues.empty());
+    EXPECT_EQ(result.migration_report.issues.front().code, "io.migration.gcs_0_2_to_0_3");
+    EXPECT_EQ(result.snapshot.entities.size(), 2U);
+    EXPECT_EQ(result.snapshot.constraints.front().entity_ids.back().value, 1U);
+}
+
+TEST(IoAdaptersContract, RejectsMalformedJsonWithTypedIssue) {
+    auto result = io::load_scene(
+        io::SceneLoadRequest{source_path("fixtures/scene/json/malformed.gcs.json")});
 
     EXPECT_FALSE(result.ok);
     EXPECT_EQ(result.format, io::SceneFormat::json);
-    EXPECT_TRUE(has_issue_code(result.parse_issues, "io.schema.unsupported_read"));
+    EXPECT_TRUE(has_issue_code(result.parse_issues, "io.json.parse_error") ||
+                has_issue_code(result.parse_issues, "io.json.object") ||
+                has_issue_code(result.parse_issues, "io.json.array"));
     ASSERT_FALSE(result.errors.empty());
 }
 
@@ -85,6 +120,20 @@ TEST(IoAdaptersContract, RoundTripPreservesStableIds) {
               model.entities.front().id.value);
 }
 
+TEST(IoAdaptersContract, JsonRoundTripPreservesStableIds) {
+    auto model = gcs::tools::make_two_point_distance_model();
+
+    auto result = io::round_trip(io::SceneRoundTripRequest{model, io::SceneFormat::json});
+
+    EXPECT_TRUE(result.payload.equivalent);
+    EXPECT_EQ(result.payload.before_digest.value, result.payload.after_digest.value);
+    EXPECT_TRUE(result.payload.changed_entities.empty());
+    EXPECT_TRUE(result.payload.changed_constraints.empty());
+    ASSERT_EQ(result.payload.loaded_snapshot.entities.size(), model.entities.size());
+    EXPECT_EQ(result.payload.loaded_snapshot.constraints.front().value,
+              model.constraints.front().value);
+}
+
 TEST(IoAdaptersContract, SchemaRegistryNamesTextAndJsonPaths) {
     const auto& registry = io::builtin_schema_registry();
 
@@ -95,6 +144,6 @@ TEST(IoAdaptersContract, SchemaRegistryNamesTextAndJsonPaths) {
     ASSERT_NE(json, nullptr);
     EXPECT_TRUE(text->can_read);
     EXPECT_TRUE(text->can_write);
-    EXPECT_FALSE(json->can_read);
+    EXPECT_TRUE(json->can_read);
     EXPECT_TRUE(json->can_write);
 }

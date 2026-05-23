@@ -1,0 +1,12 @@
+{
+  "schema_version": "gcs-0.2",
+  "state_version": 0,
+  "rigid_sets": [{"id": 0}, {"id": 1}],
+  "geometries": [
+    {"id": 0, "type": 0, "rigid_set_id": 0, "parameters": [0, 0, 0, 0, 0, 0]},
+    {"id": 1, "type": 0, "rigid_set_id": 1, "parameters": [1, 0, 0, 0, 0, 0]}
+  ],
+  "constraints": [
+    {"id": 0, "type": 3, "entity_ids": [0, 1], "value": 1}
+  ]
+}

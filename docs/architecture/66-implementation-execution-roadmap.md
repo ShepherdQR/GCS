@@ -154,6 +154,8 @@ Status legend: `done`, `in_progress`, `pending`.
     corpus.
 14. `done` - replace numeric identity local solve with a dense damped
     Gauss-Newton baseline while preserving numeric report contracts.
+15. `done` - add JSON scene reader, schema migration report, JSON round-trip,
+    and malformed JSON negative corpus.
 
 ## Constraint Catalog Milestone
 
@@ -628,7 +630,7 @@ Second algorithm-deepening batch queue:
 
 - `done` - Replace baseline numeric local solve with an iterative damped solve while
   preserving residual, Jacobian, rank, boundary, and trace contracts.
-- `pending` - Add a real JSON parser and migration pipeline behind the existing IO schema
+- `done` - Add a real JSON parser and migration pipeline behind the existing IO schema
   and parse-report contracts.
 - `pending` - Deepen diagnostics conflict/redundancy minimization behind the existing
   typed conflict, redundancy, obstruction, and status-precedence contracts.
@@ -674,6 +676,41 @@ Implemented scope for the first algorithm-deepening milestone:
   from a nonzero residual fixture.
 - Diagnostics coverage now separates numeric residual-promotion behavior from
   successful convergence by using an explicit zero-iteration numeric task.
+
+## JSON Scene IO Step Plan
+
+Implemented commit-level scope:
+
+- Promote JSON scene loading from an unsupported placeholder into a readable
+  schema path for canonical `gcs-0.3` JSON scenes.
+- Add a bounded in-repo JSON parser for the canonical scene subset:
+  objects, arrays, strings, numbers, and `null`, with typed parse issues and
+  source positions.
+- Add explicit `gcs-0.2` to `gcs-0.3` migration behavior under
+  `CompatibilityMode::migration_allowed`.
+- Preserve deterministic `canonical_json`, stable IDs, state version,
+  geometry parameters, constraint entity references, and constraint values
+  across JSON load and JSON round-trip.
+- Add current, legacy, and malformed JSON fixtures under `fixtures/scene/json`.
+- Update cross-module quality gates to assert malformed JSON parse evidence
+  now that JSON is a supported readable format.
+
+## JSON Scene IO Milestone
+
+Implemented scope for the JSON schema and migration milestone:
+
+- `gcs.io_adapters` now reads canonical JSON scenes and validates them through
+  kernel model validation before accepting the load.
+- The schema registry marks `gcs-0.3` JSON as readable and writable.
+- Legacy `gcs-0.2` fixtures using `schema_version`, `parameters`, and
+  `entity_ids` migrate to `gcs-0.3` only when migration compatibility is
+  explicitly requested.
+- Malformed JSON reports typed parser issues such as `io.json.parse_error`,
+  `io.json.object`, or `io.json.array`.
+- `io::round_trip` supports both text and JSON formats with stable canonical
+  digests.
+- Contract test count increased to 79, covering current JSON load, legacy
+  migration, malformed JSON, JSON round-trip, and cross-module parse evidence.
 
 ## Decomposition Planner Step Plan
 

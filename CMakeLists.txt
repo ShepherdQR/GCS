@@ -225,6 +225,9 @@ if(GCS_BUILD_TESTS)
                     GTest::gtest_main
             )
             target_compile_features(gcs_cross_module_quality_contract_tests PRIVATE cxx_std_23)
+            target_compile_definitions(gcs_cross_module_quality_contract_tests
+                PRIVATE GCS_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+            )
             gtest_discover_tests(gcs_cross_module_quality_contract_tests
                 PROPERTIES LABELS "contract;quality"
             )

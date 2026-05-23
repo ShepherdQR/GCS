@@ -2,6 +2,7 @@ module;
 
 #include <cstdint>
 #include <cstddef>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -65,6 +66,384 @@ kernel::ConstraintDraft* find_constraint(ModelSnapshot& snapshot, kernel::Constr
         if (constraint.id == id) return &constraint;
     }
     return nullptr;
+}
+
+struct JsonValue {
+    enum class Kind {
+        null_value,
+        number,
+        string,
+        object,
+        array,
+    };
+
+    Kind kind = Kind::null_value;
+    double number = 0.0;
+    std::string string;
+    std::vector<std::pair<std::string, JsonValue>> object;
+    std::vector<JsonValue> array;
+};
+
+class JsonParser {
+public:
+    JsonParser(const std::string& text, SceneLoadResult& result)
+        : text_(text), result_(result) {}
+
+    bool parse(JsonValue& value) {
+        skip_whitespace();
+        if (!parse_value(value)) return false;
+        skip_whitespace();
+        if (position_ != text_.size()) {
+            fail("io.json.trailing_content", "JSON document has trailing content.");
+            return false;
+        }
+        return true;
+    }
+
+private:
+    const std::string& text_;
+    SceneLoadResult& result_;
+    std::size_t position_ = 0;
+    int line_ = 1;
+    int column_ = 1;
+
+    bool at_end() const {
+        return position_ >= text_.size();
+    }
+
+    char peek() const {
+        return at_end() ? '\0' : text_[position_];
+    }
+
+    char advance() {
+        const char value = peek();
+        if (!at_end()) {
+            ++position_;
+            if (value == '\n') {
+                ++line_;
+                column_ = 1;
+            } else {
+                ++column_;
+            }
+        }
+        return value;
+    }
+
+    void skip_whitespace() {
+        while (!at_end()) {
+            const char value = peek();
+            if (value != ' ' && value != '\n' && value != '\r' && value != '\t') {
+                break;
+            }
+            advance();
+        }
+    }
+
+    void fail(const char* code, const std::string& message) {
+        append_issue(
+            result_,
+            make_issue(
+                ReportSeverity::error,
+                code,
+                message,
+                line_,
+                column_));
+    }
+
+    bool consume(char expected, const char* code, const char* message) {
+        if (peek() != expected) {
+            fail(code, message);
+            return false;
+        }
+        advance();
+        return true;
+    }
+
+    bool parse_value(JsonValue& value) {
+        skip_whitespace();
+        if (at_end()) {
+            fail("io.json.unexpected_end", "Unexpected end of JSON document.");
+            return false;
+        }
+
+        switch (peek()) {
+            case '{': return parse_object(value);
+            case '[': return parse_array(value);
+            case '"': return parse_string_value(value);
+            case 'n': return parse_literal("null", JsonValue::Kind::null_value, value);
+            default:
+                if (peek() == '-' || (peek() >= '0' && peek() <= '9')) {
+                    return parse_number(value);
+                }
+                fail("io.json.parse_error", "Unexpected token while parsing JSON value.");
+                return false;
+        }
+    }
+
+    bool parse_literal(const char* literal, JsonValue::Kind kind, JsonValue& value) {
+        for (const char* current = literal; *current != '\0'; ++current) {
+            if (peek() != *current) {
+                fail("io.json.parse_error", "Invalid JSON literal.");
+                return false;
+            }
+            advance();
+        }
+        value.kind = kind;
+        return true;
+    }
+
+    bool parse_string(std::string& output) {
+        if (!consume('"', "io.json.string", "Expected JSON string.")) return false;
+        output.clear();
+        while (!at_end()) {
+            const char value = advance();
+            if (value == '"') return true;
+            if (value == '\\') {
+                if (at_end()) {
+                    fail("io.json.string_escape", "Unterminated JSON string escape.");
+                    return false;
+                }
+                const char escaped = advance();
+                switch (escaped) {
+                    case '"': output.push_back('"'); break;
+                    case '\\': output.push_back('\\'); break;
+                    case '/': output.push_back('/'); break;
+                    case 'b': output.push_back('\b'); break;
+                    case 'f': output.push_back('\f'); break;
+                    case 'n': output.push_back('\n'); break;
+                    case 'r': output.push_back('\r'); break;
+                    case 't': output.push_back('\t'); break;
+                    default:
+                        fail("io.json.string_escape", "Unsupported JSON string escape.");
+                        return false;
+                }
+            } else {
+                output.push_back(value);
+            }
+        }
+        fail("io.json.string", "Unterminated JSON string.");
+        return false;
+    }
+
+    bool parse_string_value(JsonValue& value) {
+        value.kind = JsonValue::Kind::string;
+        return parse_string(value.string);
+    }
+
+    bool parse_number(JsonValue& value) {
+        const std::size_t start = position_;
+        if (peek() == '-') advance();
+        if (peek() < '0' || peek() > '9') {
+            fail("io.json.number", "Invalid JSON number.");
+            return false;
+        }
+        while (peek() >= '0' && peek() <= '9') advance();
+        if (peek() == '.') {
+            advance();
+            if (peek() < '0' || peek() > '9') {
+                fail("io.json.number", "Invalid JSON number fraction.");
+                return false;
+            }
+            while (peek() >= '0' && peek() <= '9') advance();
+        }
+        if (peek() == 'e' || peek() == 'E') {
+            advance();
+            if (peek() == '+' || peek() == '-') advance();
+            if (peek() < '0' || peek() > '9') {
+                fail("io.json.number", "Invalid JSON number exponent.");
+                return false;
+            }
+            while (peek() >= '0' && peek() <= '9') advance();
+        }
+
+        value.kind = JsonValue::Kind::number;
+        value.number = std::stod(text_.substr(start, position_ - start));
+        return true;
+    }
+
+    bool parse_array(JsonValue& value) {
+        if (!consume('[', "io.json.array", "Expected JSON array.")) return false;
+        value.kind = JsonValue::Kind::array;
+        value.array.clear();
+        skip_whitespace();
+        if (peek() == ']') {
+            advance();
+            return true;
+        }
+        while (!at_end()) {
+            JsonValue element;
+            if (!parse_value(element)) return false;
+            value.array.push_back(std::move(element));
+            skip_whitespace();
+            if (peek() == ']') {
+                advance();
+                return true;
+            }
+            if (!consume(',', "io.json.array", "Expected comma in JSON array.")) {
+                return false;
+            }
+        }
+        fail("io.json.array", "Unterminated JSON array.");
+        return false;
+    }
+
+    bool parse_object(JsonValue& value) {
+        if (!consume('{', "io.json.object", "Expected JSON object.")) return false;
+        value.kind = JsonValue::Kind::object;
+        value.object.clear();
+        skip_whitespace();
+        if (peek() == '}') {
+            advance();
+            return true;
+        }
+        while (!at_end()) {
+            std::string key;
+            if (!parse_string(key)) return false;
+            skip_whitespace();
+            if (!consume(':', "io.json.object", "Expected ':' after JSON object key.")) {
+                return false;
+            }
+            JsonValue element;
+            if (!parse_value(element)) return false;
+            value.object.push_back({std::move(key), std::move(element)});
+            skip_whitespace();
+            if (peek() == '}') {
+                advance();
+                return true;
+            }
+            if (!consume(',', "io.json.object", "Expected comma in JSON object.")) {
+                return false;
+            }
+            skip_whitespace();
+        }
+        fail("io.json.object", "Unterminated JSON object.");
+        return false;
+    }
+};
+
+const JsonValue* object_field(const JsonValue& value, const char* name) {
+    if (value.kind != JsonValue::Kind::object) return nullptr;
+    for (const auto& field : value.object) {
+        if (field.first == name) return &field.second;
+    }
+    return nullptr;
+}
+
+bool require_object(const JsonValue& value,
+                    SceneLoadResult& result,
+                    const char* code,
+                    const char* message) {
+    if (value.kind == JsonValue::Kind::object) return true;
+    append_issue(result, make_issue(ReportSeverity::error, code, message));
+    return false;
+}
+
+bool read_string_field(const JsonValue& object,
+                       const char* name,
+                       std::string& output,
+                       SceneLoadResult& result,
+                       bool required = true) {
+    const auto* field = object_field(object, name);
+    if (field == nullptr) {
+        if (required) {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.missing_field",
+                    std::string("Missing JSON string field: ") + name));
+        }
+        return false;
+    }
+    if (field->kind != JsonValue::Kind::string) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.invalid_field_type",
+                std::string("JSON field must be a string: ") + name));
+        return false;
+    }
+    output = field->string;
+    return true;
+}
+
+bool read_number_field(const JsonValue& object,
+                       const char* name,
+                       double& output,
+                       SceneLoadResult& result,
+                       bool required = true) {
+    const auto* field = object_field(object, name);
+    if (field == nullptr) {
+        if (required) {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.missing_field",
+                    std::string("Missing JSON number field: ") + name));
+        }
+        return false;
+    }
+    if (field->kind != JsonValue::Kind::number) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.invalid_field_type",
+                std::string("JSON field must be a number: ") + name));
+        return false;
+    }
+    output = field->number;
+    return true;
+}
+
+bool read_uint_field(const JsonValue& object,
+                     const char* name,
+                     std::uint64_t& output,
+                     SceneLoadResult& result,
+                     bool required = true) {
+    double value = 0.0;
+    if (!read_number_field(object, name, value, result, required)) return !required;
+    if (value < 0.0 || std::floor(value) != value) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.invalid_integer",
+                std::string("JSON field must be a non-negative integer: ") + name));
+        return false;
+    }
+    output = static_cast<std::uint64_t>(value);
+    return true;
+}
+
+const JsonValue* read_array_field(const JsonValue& object,
+                                  const char* name,
+                                  SceneLoadResult& result,
+                                  bool required = true) {
+    const auto* field = object_field(object, name);
+    if (field == nullptr) {
+        if (required) {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.missing_field",
+                    std::string("Missing JSON array field: ") + name));
+        }
+        return nullptr;
+    }
+    if (field->kind != JsonValue::Kind::array) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.invalid_field_type",
+                std::string("JSON field must be an array: ") + name));
+        return nullptr;
+    }
+    return field;
 }
 
 bool parse_text_scene(std::istream& input, SceneLoadResult& result) {
@@ -240,6 +619,282 @@ bool parse_text_scene(std::istream& input, SceneLoadResult& result) {
     return true;
 }
 
+bool parse_entity_ids_array(const JsonValue& array,
+                            std::vector<kernel::EntityId>& entity_ids,
+                            SceneLoadResult& result,
+                            const char* field_name) {
+    if (array.kind != JsonValue::Kind::array) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.invalid_field_type",
+                std::string("JSON field must be an array: ") + field_name));
+        return false;
+    }
+
+    for (const auto& element : array.array) {
+        if (element.kind != JsonValue::Kind::number ||
+            element.number < 0.0 ||
+            std::floor(element.number) != element.number) {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.invalid_integer",
+                    std::string("JSON ID array contains a non-integer value: ") +
+                        field_name));
+            return false;
+        }
+        entity_ids.push_back(kernel::EntityId{
+            static_cast<std::uint64_t>(element.number)});
+    }
+    return true;
+}
+
+bool parse_parameter_array(const JsonValue& object,
+                           kernel::EntityDraft& entity,
+                           SceneLoadResult& result,
+                           CompatibilityMode compatibility) {
+    const JsonValue* parameters = object_field(object, "v");
+    if (parameters == nullptr && compatibility == CompatibilityMode::migration_allowed) {
+        parameters = object_field(object, "parameters");
+    }
+    if (parameters == nullptr) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.missing_field",
+                "Geometry JSON object is missing parameter array field: v."));
+        return false;
+    }
+    if (parameters->kind != JsonValue::Kind::array) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.invalid_field_type",
+                "Geometry parameter field must be an array."));
+        return false;
+    }
+    if (parameters->array.size() < static_cast<std::size_t>(entity.parameters.dimension)) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.parameter_dimension",
+                "Geometry parameter array is shorter than the geometry DOF."));
+        return false;
+    }
+    for (std::size_t index = 0; index < parameters->array.size() &&
+                                index < entity.parameters.values.size();
+         ++index) {
+        const auto& value = parameters->array[index];
+        if (value.kind != JsonValue::Kind::number) {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.invalid_field_type",
+                    "Geometry parameter value must be numeric."));
+            return false;
+        }
+        entity.parameters.values[index] = value.number;
+    }
+    return true;
+}
+
+void populate_rigid_set_memberships(ModelSnapshot& snapshot) {
+    for (auto& rigid_set : snapshot.rigid_sets) {
+        rigid_set.entity_ids.clear();
+    }
+    for (const auto& entity : snapshot.entities) {
+        for (auto& rigid_set : snapshot.rigid_sets) {
+            if (rigid_set.id == entity.rigid_set_id) {
+                rigid_set.entity_ids.push_back(entity.id);
+                break;
+            }
+        }
+    }
+}
+
+bool parse_json_scene_bytes(const std::string& bytes,
+                            SceneLoadResult& result,
+                            CompatibilityMode compatibility) {
+    JsonValue root;
+    JsonParser parser(bytes, result);
+    if (!parser.parse(root)) return false;
+    if (!require_object(
+            root,
+            result,
+            "io.json.root",
+            "JSON scene root must be an object.")) {
+        return false;
+    }
+
+    std::string schema_version;
+    bool used_legacy_schema_field = false;
+    if (!read_string_field(root, "format_version", schema_version, result, false)) {
+        used_legacy_schema_field =
+            read_string_field(root, "schema_version", schema_version, result, false);
+    }
+    if (schema_version.empty()) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.schema.missing_format_version",
+                "JSON scene must declare format_version."));
+        return false;
+    }
+
+    result.schema_version = schema_version;
+    result.snapshot.schema_version = schema_version;
+    if (schema_version != "gcs-0.3") {
+        if (compatibility != CompatibilityMode::migration_allowed ||
+            schema_version != "gcs-0.2") {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.schema.unsupported_version",
+                    "JSON scene schema is not supported: " + schema_version));
+            return false;
+        }
+        result.migration_report.migrated = true;
+        result.migration_report.from_schema_version = schema_version;
+        result.migration_report.to_schema_version = "gcs-0.3";
+        result.snapshot.schema_version = "gcs-0.3";
+        result.schema_version = "gcs-0.3";
+        result.migration_report.issues.push_back(
+            make_issue(
+                ReportSeverity::warning,
+                "io.migration.gcs_0_2_to_0_3",
+                "Migrated JSON scene from gcs-0.2 to gcs-0.3."));
+    } else if (used_legacy_schema_field &&
+               compatibility == CompatibilityMode::migration_allowed) {
+        result.migration_report.migrated = true;
+        result.migration_report.from_schema_version = "gcs-0.3";
+        result.migration_report.to_schema_version = "gcs-0.3";
+        result.migration_report.issues.push_back(
+            make_issue(
+                ReportSeverity::warning,
+                "io.migration.schema_version_field",
+                "Migrated legacy schema_version field to format_version."));
+    }
+
+    double state_version = 0.0;
+    if (read_number_field(root, "state_version", state_version, result, false)) {
+        if (state_version < 0.0 || std::floor(state_version) != state_version) {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.invalid_integer",
+                    "state_version must be a non-negative integer."));
+            return false;
+        }
+        result.snapshot.state_version = kernel::StateVersionId{
+            static_cast<std::uint64_t>(state_version)};
+    }
+
+    const auto* rigid_sets = read_array_field(root, "rigid_sets", result);
+    const auto* geometries = read_array_field(root, "geometries", result);
+    const auto* constraints = read_array_field(root, "constraints", result);
+    if (rigid_sets == nullptr || geometries == nullptr || constraints == nullptr) {
+        return false;
+    }
+
+    for (const auto& value : rigid_sets->array) {
+        if (!require_object(
+                value,
+                result,
+                "io.json.rigid_set",
+                "Rigid set entry must be an object.")) {
+            return false;
+        }
+        std::uint64_t id = 0;
+        if (!read_uint_field(value, "id", id, result)) return false;
+        result.snapshot.rigid_sets.push_back(
+            kernel::RigidSetDraft{kernel::RigidSetId{id}, {}});
+    }
+
+    for (const auto& value : geometries->array) {
+        if (!require_object(
+                value,
+                result,
+                "io.json.geometry",
+                "Geometry entry must be an object.")) {
+            return false;
+        }
+        std::uint64_t id = 0;
+        std::uint64_t type = 0;
+        std::uint64_t rigid_set_id = 0;
+        if (!read_uint_field(value, "id", id, result) ||
+            !read_uint_field(value, "type", type, result) ||
+            !read_uint_field(value, "rigid_set_id", rigid_set_id, result)) {
+            return false;
+        }
+
+        kernel::EntityDraft entity;
+        entity.id = kernel::EntityId{id};
+        entity.kind = static_cast<kernel::GeometryKind>(type);
+        entity.rigid_set_id = kernel::RigidSetId{rigid_set_id};
+        entity.parameters.dimension = kernel::geometry_dof(entity.kind);
+        if (!parse_parameter_array(value, entity, result, compatibility)) return false;
+        result.snapshot.entities.push_back(entity);
+    }
+
+    for (const auto& value : constraints->array) {
+        if (!require_object(
+                value,
+                result,
+                "io.json.constraint",
+                "Constraint entry must be an object.")) {
+            return false;
+        }
+        std::uint64_t id = 0;
+        std::uint64_t type = 0;
+        double constraint_value = 0.0;
+        if (!read_uint_field(value, "id", id, result) ||
+            !read_uint_field(value, "type", type, result)) {
+            return false;
+        }
+        if (!read_number_field(value, "value", constraint_value, result)) return false;
+
+        const JsonValue* entity_ids = object_field(value, "geometry_ids");
+        if (entity_ids == nullptr && compatibility == CompatibilityMode::migration_allowed) {
+            entity_ids = object_field(value, "entity_ids");
+        }
+        if (entity_ids == nullptr) {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.missing_field",
+                    "Constraint JSON object is missing geometry_ids."));
+            return false;
+        }
+
+        kernel::ConstraintDraft constraint;
+        constraint.id = kernel::ConstraintId{id};
+        constraint.kind = static_cast<kernel::ConstraintKind>(type);
+        constraint.value = constraint_value;
+        if (!parse_entity_ids_array(
+                *entity_ids,
+                constraint.entity_ids,
+                result,
+                "geometry_ids")) {
+            return false;
+        }
+        result.snapshot.constraints.push_back(std::move(constraint));
+    }
+
+    populate_rigid_set_memberships(result.snapshot);
+    return true;
+}
+
 }  // namespace
 
 const SceneSchemaRegistry& builtin_schema_registry() {
@@ -254,7 +909,7 @@ const SceneSchemaRegistry& builtin_schema_registry() {
         value.schemas.push_back(SceneSchemaDescriptor{
             "gcs-0.3",
             SceneFormat::json,
-            false,
+            true,
             true,
             true});
         return value;
@@ -311,7 +966,13 @@ SceneLoadResult load_scene(const SceneLoadRequest& request) {
         return result;
     }
 
-    if (!parse_text_scene(input, result)) {
+    if (result.format == SceneFormat::json) {
+        std::ostringstream bytes;
+        bytes << input.rdbuf();
+        if (!parse_json_scene_bytes(bytes.str(), result, request.compatibility)) {
+            return result;
+        }
+    } else if (!parse_text_scene(input, result)) {
         return result;
     }
 
@@ -330,7 +991,10 @@ SceneLoadResult load_scene(const SceneLoadRequest& request) {
         return result;
     }
 
-    result.canonical_digest = canonical_digest(canonical_text(result.snapshot));
+    result.canonical_digest = canonical_digest(
+        result.format == SceneFormat::json
+            ? canonical_json(result.snapshot)
+            : canonical_text(result.snapshot));
     result.ok = true;
     return result;
 }
@@ -496,19 +1160,16 @@ gcs::kernel::ContractResult<RoundTripDiffReport> round_trip(
     }
     result.payload.before_digest = canonical_digest(bytes);
 
-    if (request.format != SceneFormat::text) {
-        kernel::append_report_message(
-            result.report,
-            kernel::make_report_message(
-                ReportSeverity::error,
-                kernel::ReportCode{"io.round_trip.unsupported_format"},
-                "Round-trip parsing currently supports text scenes only."));
-        return result;
-    }
-
     SceneLoadResult loaded;
-    std::istringstream input(bytes);
-    if (!parse_text_scene(input, loaded)) {
+    bool parsed = false;
+    if (request.format == SceneFormat::json) {
+        loaded.format = SceneFormat::json;
+        parsed = parse_json_scene_bytes(bytes, loaded, CompatibilityMode::strict);
+    } else {
+        std::istringstream input(bytes);
+        parsed = parse_text_scene(input, loaded);
+    }
+    if (!parsed) {
         for (const auto& issue : loaded.parse_issues) {
             kernel::append_report_message(
                 result.report,
@@ -521,7 +1182,10 @@ gcs::kernel::ContractResult<RoundTripDiffReport> round_trip(
     }
 
     result.payload.loaded_snapshot = loaded.snapshot;
-    result.payload.after_digest = canonical_digest(canonical_text(loaded.snapshot));
+    result.payload.after_digest = canonical_digest(
+        request.format == SceneFormat::json
+            ? canonical_json(loaded.snapshot)
+            : canonical_text(loaded.snapshot));
     auto diff = kernel::diff_snapshots(request.snapshot, loaded.snapshot);
     result.payload.changed_entities = diff.payload.changed_entities;
     result.payload.changed_constraints = diff.payload.added_constraints;

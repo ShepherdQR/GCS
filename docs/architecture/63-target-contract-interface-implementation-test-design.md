@@ -635,6 +635,8 @@ Implementation responsibilities:
 
 - Schema registry.
 - Canonical text and JSON serializer.
+- Bounded JSON reader for the canonical scene subset, with typed parse errors
+  and no mandatory third-party JSON dependency.
 - Explicit migration pipeline.
 - Typed parse errors.
 - Deterministic digest.

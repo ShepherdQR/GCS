@@ -8,6 +8,7 @@ import gcs.viewer_bridge;
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <string>
 
 namespace {
 
@@ -34,6 +35,10 @@ bool parse_issues_have_code(const std::vector<io::ParseIssue>& issues,
         if (issue.code == code) return true;
     }
     return false;
+}
+
+std::string source_path(const char* path) {
+    return std::string(GCS_SOURCE_DIR) + "/" + path;
 }
 
 bool overlay_has_code(const viewer::DiagnosticOverlay& overlay, const char* code) {
@@ -71,12 +76,15 @@ TEST(CrossModuleQualityContract, InvalidModelRollbackNamesStableKernelFailure) {
     EXPECT_EQ(fixture.payload.provenance.fixture_id, "missing_entity_reference");
 }
 
-TEST(CrossModuleQualityContract, UnsupportedJsonSceneReportsTypedParseIssue) {
-    auto result = io::load_scene(io::SceneLoadRequest{"negative_corpus/unsupported.json"});
+TEST(CrossModuleQualityContract, MalformedJsonSceneReportsTypedParseIssue) {
+    auto result = io::load_scene(
+        io::SceneLoadRequest{source_path("fixtures/scene/json/malformed.gcs.json")});
 
     EXPECT_FALSE(result.ok);
     EXPECT_EQ(result.format, io::SceneFormat::json);
-    EXPECT_TRUE(parse_issues_have_code(result.parse_issues, "io.schema.unsupported_read"));
+    EXPECT_TRUE(parse_issues_have_code(result.parse_issues, "io.json.parse_error") ||
+                parse_issues_have_code(result.parse_issues, "io.json.object") ||
+                parse_issues_have_code(result.parse_issues, "io.json.array"));
 }
 
 TEST(CrossModuleQualityContract, GluingObstructionPropagatesToViewerOverlay) {
