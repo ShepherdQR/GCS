@@ -115,6 +115,7 @@ For each commit-level step:
   - `tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp`
   - `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp`
   - `tests/contracts/diagnostics/diagnostics_contract_tests.cpp`
+  - `tests/contracts/session_runtime/session_runtime_contract_tests.cpp`
 
 ## Commit-Level Step Queue
 
@@ -136,9 +137,9 @@ Status legend: `done`, `in_progress`, `pending`.
    contracts.
 8. `done` - add projection-aware gluing obstruction and
    conflict/redundancy diagnostics.
-9. `in_progress` - harden session runtime transaction, rollback, stage trace, and
+9. `done` - harden session runtime transaction, rollback, stage trace, and
    replay contracts.
-10. `pending` - add IO schema registry, canonical text/JSON path, parse
+10. `in_progress` - add IO schema registry, canonical text/JSON path, parse
     reports, round-trip diff, and fixture tests.
 11. `pending` - add viewer projection, diagnostic overlay, interaction draft,
     and history projection contracts.
@@ -371,6 +372,55 @@ Implement the session runtime transaction and replay milestone:
 - Add history and replay skeletons based on public command/result contracts.
 - Add session runtime contract tests under
   `tests/contracts/session_runtime/session_runtime_contract_tests.cpp`.
+
+## Session Runtime Transaction Step Plan
+
+Current commit-level scope:
+
+- Extend `gcs.session_runtime` with command validation, transaction trace,
+  rollback report, history event, and replay report structures.
+- Run commands against an isolated transaction snapshot; mutate durable
+  `current_snapshot_` only at the commit gate after numeric solving and gluing
+  have accepted.
+- Record a deterministic stage trace for command validation, model validation,
+  incidence indexing, planning, pre-solve diagnostics, numeric solves, gluing,
+  commit, and rollback.
+- Preserve command history as public replay data and provide a replay query by
+  `CommandId`.
+- Add contract tests under
+  `tests/contracts/session_runtime/session_runtime_contract_tests.cpp` for
+  invalid command rollback, accepted command version advancement, stage trace
+  completeness, and replay.
+
+## Session Runtime Transaction Milestone
+
+Implemented scope for the session runtime transaction and replay milestone:
+
+- Add `CommandValidationReport`, `StageTraceEntry`, `TransactionTrace`,
+  `RollbackReport`, `HistoryEvent`, `ReplayRequest`, and `ReplayReport` to
+  `gcs.session_runtime`.
+- Refactor command execution to use an isolated transaction snapshot and commit
+  to durable `current_snapshot_` only after validated planning, numeric
+  solving, diagnostics, and gluing acceptance.
+- Record deterministic stage trace entries for command validation, model
+  validation, incidence indexing, planning, pre-solve diagnostics, numeric
+  solves, gluing, commit, and rollback.
+- Preserve command history with transaction traces and expose replay by
+  `CommandId`.
+- Add `tests/contracts/session_runtime/session_runtime_contract_tests.cpp` and
+  the `gcs_session_runtime_contract_tests` CTest target.
+
+## Next Milestone
+
+Implement the IO schema registry and canonical round-trip milestone:
+
+- Add explicit scene schema registry and format/version metadata.
+- Return structured parse and validation reports rather than string-only load
+  failures.
+- Provide canonical text and JSON write paths with deterministic digests.
+- Add round-trip diff reports for load-write-load fixture checks.
+- Add IO adapter contract tests under
+  `tests/contracts/io_adapters/io_adapters_contract_tests.cpp`.
 
 ## Decomposition Planner Step Plan
 

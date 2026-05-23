@@ -752,6 +752,7 @@ tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp
 tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp
 tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp
 tests/contracts/diagnostics/diagnostics_contract_tests.cpp
+tests/contracts/session_runtime/session_runtime_contract_tests.cpp
 tests/contracts/pipeline/pipeline_contract_tests.cpp
 ```
 
