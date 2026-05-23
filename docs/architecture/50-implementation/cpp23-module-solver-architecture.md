@@ -61,6 +61,19 @@ tests
 | `viewer_bridge` | `ModelSnapshot`, `CommandResult`. | `SnapshotSummary`. | Read-only reporting projections. |
 | `tools` | Test/developer requests. | Deterministic sample snapshots. | Minimal scene builders. |
 
+The table above records the first implementation skeleton. The detailed design
+standard is now governed by:
+
+- `docs/architecture/60-agentic-submodule-design-analysis.md`;
+- `docs/architecture/61-agentic-module-framework.md`;
+- `docs/architecture/62-module-agents.md`.
+
+Before expanding a module beyond the skeleton, define or update its structured
+input contracts, structured output contracts, module tools, core agent, core
+skill, guardrails, trace events, and eval gates. The implementation remains
+C++23-module-first: public interfaces stay in `.cppm`, implementation units
+stay in `.cpp`, and CMake tracks module interfaces through `CXX_MODULES`.
+
 ## Required Implementation Order
 
 1. Define `kernel` immutable model, IDs, state versions, contexts, boundaries,

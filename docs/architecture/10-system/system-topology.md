@@ -107,6 +107,35 @@ It refines the contracts passed between existing modules:
 - `diagnostics` checks overlap compatibility and reports obstructions.
 - `session_runtime` commits only a globally verified proposal.
 
+## Agentic Design Overlay
+
+The agentic design layer is a maintenance and review overlay above the solver
+architecture. It does not add imports to the C++ solver modules.
+
+```text
+architecture docs and fixtures
+  -> architecture_steward_agent
+  -> specialist module agents
+  -> typed module tools, skills, guardrails, traces, and evals
+  -> accepted architecture or implementation tasks
+```
+
+Every module should eventually have:
+
+- strong structured input contracts;
+- strong structured output contracts;
+- typed status and diagnostic reports;
+- deterministic module tools;
+- a core module agent;
+- a core module skill;
+- guardrails and handoff rules;
+- GTest/CTest or agent-eval gates.
+
+This overlay uses manager-style orchestration by default: the architecture
+steward or session runtime agent coordinates specialist module agents while
+retaining final acceptance responsibility. Handoffs are reserved for narrow
+decisions wholly owned by a specialist module.
+
 ## Non-Goals For The Solver Core
 
 The solver core should not contain:

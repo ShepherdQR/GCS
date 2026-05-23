@@ -30,7 +30,14 @@ order, not by historical source order. Background research notes live under
      layout, contracts, rollout order, and minimal gtest strategy.
    - `third-party-policy.md`: dependency governance, vendoring layout,
      binary/DLL rules, and GoogleTest integration policy.
-7. `90-references/`
+7. Agentic detailed design overlay
+   - `60-agentic-submodule-design-analysis.md`: current module maturity,
+     detailed-design requirements, and missing module obligations.
+   - `61-agentic-module-framework.md`: architecture-level agent/skill/tool
+     framework and optimized implementation order.
+   - `62-module-agents.md`: specialist module agents, skills, tools,
+     guardrails, handoffs, and deep-design backlogs.
+8. `90-references/`
    - Commercial and research notes used as background material.
 
 ## Target Thesis
@@ -54,6 +61,12 @@ global state, and diagnostics explain obstructions when gluing fails. A solver
 run should produce not only coordinates, but also a certificate-like report
 that explains what was solved, what remains free, what is inconsistent, and how
 reliable the result is.
+
+The agentic design overlay turns this architecture into repeatable work:
+each module owns strong structured inputs and outputs, typed tools, a core
+agent, a core skill, guardrails, traces, and eval gates. The overlay is a
+design and maintenance system; it is not a runtime dependency of the solver
+core.
 
 ## Target Directory Vocabulary
 
