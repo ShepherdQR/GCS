@@ -27,8 +27,10 @@ if TOOL_DIR not in sys.path:
     sys.path.insert(0, TOOL_DIR)
 
 from gcs_scene_generation import contracts as scene_contracts
+from gcs_scene_generation import gcs_model
 from gcs_scene_generation import promotion as promotion_adapters
 from gcs_scene_generation import storage as scene_storage
+from gcs_scene_generation import topology
 
 REPO_ROOT = os.path.abspath(os.path.join(TOOL_DIR, "..", ".."))
 STORE_DIR = os.environ.get(
@@ -120,137 +122,31 @@ def _sha256_text(text: str) -> str:
 
 
 def _sort_key(value):
-    return (type(value).__name__, str(value))
+    return topology.sort_key(value)
 
 
 def _canonical_edge(u, v):
-    return tuple(sorted((u, v), key=_sort_key))
+    return topology.canonical_edge(u, v)
 
 
 def _unique_edges(edges) -> list[list]:
-    seen = set()
-    result = []
-    for edge in edges:
-        if len(edge) != 2:
-            continue
-        u, v = edge
-        if u == v:
-            continue
-        key = _canonical_edge(u, v)
-        if key in seen:
-            continue
-        seen.add(key)
-        result.append([key[0], key[1]])
-    return sorted(result, key=lambda e: (_sort_key(e[0]), _sort_key(e[1])))
+    return topology.unique_edges(edges)
 
 
 def build_adjacency(vertices, edges) -> dict:
-    adj = {v: set() for v in vertices}
-    for u, v in edges:
-        if u not in adj:
-            adj[u] = set()
-        if v not in adj:
-            adj[v] = set()
-        adj[u].add(v)
-        adj[v].add(u)
-    return adj
+    return topology.build_adjacency(vertices, edges)
 
 
 def connected_components(vertices, edges) -> list[list]:
-    adj = build_adjacency(vertices, edges)
-    visited = set()
-    components = []
-    for start in sorted(vertices, key=_sort_key):
-        if start in visited:
-            continue
-        stack = [start]
-        component = []
-        while stack:
-            node = stack.pop()
-            if node in visited:
-                continue
-            visited.add(node)
-            component.append(node)
-            for neighbor in sorted(adj[node], key=_sort_key, reverse=True):
-                if neighbor not in visited:
-                    stack.append(neighbor)
-        components.append(sorted(component, key=_sort_key))
-    return components
+    return topology.connected_components(vertices, edges)
 
 
 def tarjan_articulation_bcc(vertices, edges) -> tuple[list, list[dict], int]:
-    adj = build_adjacency(vertices, edges)
-    disc = {}
-    low = {}
-    parent = {}
-    timer = 0
-    edge_stack = []
-    bcc_list = []
-    articulation_points = set()
-
-    def pop_bcc(stop_edge):
-        bcc_edges = []
-        while edge_stack:
-            edge = edge_stack.pop()
-            bcc_edges.append(edge)
-            if edge == stop_edge:
-                break
-        bcc_vertices = set()
-        for a, b in bcc_edges:
-            bcc_vertices.add(a)
-            bcc_vertices.add(b)
-        bcc_list.append(
-            {
-                "id": len(bcc_list),
-                "vertices": sorted(bcc_vertices, key=_sort_key),
-                "edges": [list(e) for e in sorted(bcc_edges, key=lambda x: (_sort_key(x[0]), _sort_key(x[1])))],
-            }
-        )
-
-    def dfs(u):
-        nonlocal timer
-        children = 0
-        disc[u] = low[u] = timer
-        timer += 1
-
-        for v in sorted(adj[u], key=_sort_key):
-            edge = _canonical_edge(u, v)
-            if v not in disc:
-                children += 1
-                parent[v] = u
-                edge_stack.append(edge)
-                dfs(v)
-                low[u] = min(low[u], low[v])
-
-                is_root_cut = parent.get(u) is None and children > 1
-                is_child_cut = parent.get(u) is not None and low[v] >= disc[u]
-                if is_root_cut or is_child_cut:
-                    articulation_points.add(u)
-                if low[v] >= disc[u]:
-                    pop_bcc(edge)
-            elif v != parent.get(u) and disc[v] < disc[u]:
-                low[u] = min(low[u], disc[v])
-                edge_stack.append(edge)
-
-    for vertex in sorted(vertices, key=_sort_key):
-        if vertex in disc:
-            continue
-        parent[vertex] = None
-        dfs(vertex)
-        if edge_stack:
-            pop_bcc(edge_stack[0])
-
-    return sorted(articulation_points, key=_sort_key), bcc_list, len(connected_components(vertices, edges))
+    return topology.tarjan_articulation_bcc(vertices, edges)
 
 
 def _geometry_primal_edges(gcs: dict) -> list[list[int]]:
-    edges = []
-    for constraint in gcs.get("constraints", []):
-        gids = constraint.get("geometry_ids", [])
-        for i in range(len(gids)):
-            for j in range(i + 1, len(gids)):
-                edges.append([gids[i], gids[j]])
-    return _unique_edges(edges)
+    return gcs_model.geometry_primal_edges(gcs)
 
 
 def _generated_id(prefix: str, rng: random.Random) -> str:
@@ -297,92 +193,19 @@ def _choose_weighted(rng: random.Random, weighted: list[tuple[str, float]]) -> s
 
 
 def _rebuild_rigid_sets(gcs: dict, num_rigid_sets: int | None = None) -> None:
-    if num_rigid_sets is None:
-        existing = [rs.get("id") for rs in gcs.get("rigid_sets", []) if "id" in rs]
-        geom_rs = [g.get("rigid_set_id") for g in gcs.get("geometries", []) if "rigid_set_id" in g]
-        ids = sorted(set(existing + geom_rs))
-    else:
-        ids = list(range(num_rigid_sets))
-
-    rigid_sets = [{"id": rs_id, "geometry_ids": []} for rs_id in ids]
-    rs_by_id = {rs["id"]: rs for rs in rigid_sets}
-    for geometry in sorted(gcs.get("geometries", []), key=lambda g: g["id"]):
-        rs_id = geometry["rigid_set_id"]
-        if rs_id not in rs_by_id:
-            rs_by_id[rs_id] = {"id": rs_id, "geometry_ids": []}
-            rigid_sets.append(rs_by_id[rs_id])
-        rs_by_id[rs_id]["geometry_ids"].append(geometry["id"])
-    gcs["rigid_sets"] = sorted(rigid_sets, key=lambda rs: rs["id"])
-    gcs["num_rigid_sets"] = len(gcs["rigid_sets"])
+    gcs_model.rebuild_rigid_sets(gcs, num_rigid_sets)
 
 
 def _geometry_map(gcs: dict) -> dict:
-    return {g["id"]: g for g in gcs.get("geometries", [])}
+    return gcs_model.geometry_map(gcs)
 
 
 def _constraint_has_distinct_rigid_sets(constraint: dict, geom_by_id: dict) -> bool:
-    rigid_set_ids = []
-    for gid in constraint.get("geometry_ids", []):
-        geometry = geom_by_id.get(gid)
-        if geometry is None:
-            continue
-        rigid_set_ids.append(geometry.get("rigid_set_id"))
-    return len(rigid_set_ids) == len(set(rigid_set_ids))
+    return gcs_model.constraint_has_distinct_rigid_sets(constraint, geom_by_id)
 
 
 def _graph_coloring(vertices, edges, requested_colors: int, rng: random.Random, randomize: bool = False) -> dict | None:
-    adj = build_adjacency(vertices, edges)
-    color_counts = Counter()
-    colors = {}
-
-    def uncolored_order():
-        remaining = [v for v in vertices if v not in colors]
-        if randomize:
-            buckets = defaultdict(list)
-            for vertex in remaining:
-                saturation = len({colors[n] for n in adj[vertex] if n in colors})
-                buckets[(saturation, len(adj[vertex]))].append(vertex)
-            best_key = max(buckets)
-            bucket = sorted(buckets[best_key], key=_sort_key)
-            rng.shuffle(bucket)
-            return bucket + [v for v in sorted(remaining, key=_sort_key) if v not in bucket]
-        return sorted(
-            remaining,
-            key=lambda v: (-len({colors[n] for n in adj[v] if n in colors}), -len(adj[v]), _sort_key(v)),
-        )
-
-    def search() -> bool:
-        if len(colors) == len(vertices):
-            return True
-        vertex = uncolored_order()[0]
-        forbidden = {colors[n] for n in adj[vertex] if n in colors}
-        choices = [c for c in range(requested_colors) if c not in forbidden]
-        choices.sort(key=lambda c: (color_counts[c], c))
-        for color in choices:
-            colors[vertex] = color
-            color_counts[color] += 1
-            if search():
-                return True
-            color_counts[color] -= 1
-            del colors[vertex]
-        return False
-
-    if len(vertices) > 32:
-        order = sorted(vertices, key=lambda v: (-len(adj[v]), _sort_key(v)))
-        if randomize:
-            rng.shuffle(order)
-            order.sort(key=lambda v: -len(adj[v]))
-        for vertex in order:
-            forbidden = {colors[n] for n in adj[vertex] if n in colors}
-            choices = [c for c in range(requested_colors) if c not in forbidden]
-            if not choices:
-                return None
-            choices.sort(key=lambda c: (color_counts[c], c))
-            colors[vertex] = choices[0]
-            color_counts[choices[0]] += 1
-        return colors
-
-    return colors if search() else None
+    return gcs_model.graph_coloring(vertices, edges, requested_colors, rng, randomize)
 
 
 def _assign_rigid_sets_for_edges(
@@ -393,21 +216,13 @@ def _assign_rigid_sets_for_edges(
     assignment: str,
     allow_new_rigid_sets: bool,
 ) -> tuple[dict, int, bool]:
-    if requested_count < 1:
-        raise ValueError("num_rigid_sets must be >= 1")
-    if edges and requested_count < 2 and not allow_new_rigid_sets:
-        raise ValueError("At least 2 rigid sets are required for constrained graphs")
-
-    start = max(1, requested_count)
-    stop = len(vertices) if allow_new_rigid_sets else requested_count
-    randomize = assignment == "random_balanced"
-    for color_count in range(start, stop + 1):
-        colors = _graph_coloring(vertices, edges, color_count, rng, randomize=randomize)
-        if colors is not None:
-            return colors, color_count, color_count != requested_count
-    raise ValueError(
-        f"Could not assign rigid sets for {len(vertices)} vertices and {len(edges)} edges "
-        f"with requested num_rigid_sets={requested_count}"
+    return gcs_model.assign_rigid_sets_for_edges(
+        vertices,
+        edges,
+        requested_count,
+        rng,
+        assignment,
+        allow_new_rigid_sets,
     )
 
 

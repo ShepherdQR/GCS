@@ -14,7 +14,7 @@ PACKAGE_ROOT = REPO_ROOT / "tools" / "scene_generation"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from gcs_scene_generation import contracts, promotion, storage
+from gcs_scene_generation import contracts, gcs_model, promotion, storage, topology
 
 
 def load_tools(store_dir: Path):
@@ -99,6 +99,8 @@ class SceneGenerationExplorerTests(unittest.TestCase):
         self.assertEqual(len(scene["geometries"][0]["v"]), 6)
         self.assertEqual(scene["constraints"][0]["type"], contracts.CONSTRAINT_TYPE_MAP["Distance"])
         self.assertTrue(promotion.canonical_public_scene_text(scene).endswith("\n"))
+        self.assertEqual(topology.unique_edges([[2, 1], [1, 2], [2, 2]]), [[1, 2]])
+        gcs_model.rebuild_rigid_sets({"geometries": [], "rigid_sets": []}, 0)
 
     def test_explorer_is_deterministic_and_keeps_negative_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -115,6 +117,40 @@ class SceneGenerationExplorerTests(unittest.TestCase):
             rejection_reasons = first["coverage"]["histograms"]["rejection_reasons"]
             self.assertEqual(rejection_reasons["invalid_constraint_signature"], 1)
             self.assertEqual(rejection_reasons["constraint_same_rigid_set"], 1)
+
+    def test_manual_generation_path_survives_package_split(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = load_tools(Path(tmp))
+
+            skeleton = tools.tool_generate_skeleton_graph(
+                {
+                    "graph_id": "manual_skeleton",
+                    "num_vertices": 5,
+                    "method": "cycle_plus_chords",
+                    "extra_edges": 1,
+                    "seed": 11,
+                }
+            )
+            lift = tools.tool_lift_skeleton_to_gcs(
+                {
+                    "skeleton_graph_id": skeleton["graph_id"],
+                    "gcs_graph_id": "manual_gcs",
+                    "seed": 12,
+                }
+            )
+            assigned = tools.tool_assign_geometry_parameters({"gcs_graph_id": lift["gcs_graph_id"], "seed": 13})
+            validation = tools.tool_validate_gcs_schema({"gcs_graph_id": assigned["gcs_graph_id"]})
+            projection = tools.tool_project_gcs_graph(
+                {
+                    "gcs_graph_id": assigned["gcs_graph_id"],
+                    "projected_graph_id": "manual_geometry_primal",
+                }
+            )
+            biconnectivity = tools.tool_check_vertex_biconnected({"projected_graph_id": projection["projected_graph_id"]})
+
+            self.assertEqual(assigned["status"], "parameters_assigned")
+            self.assertTrue(validation["valid"])
+            self.assertTrue(biconnectivity["is_vertex_biconnected"])
 
     def test_promotion_package_blocks_when_solver_command_is_missing(self):
         with tempfile.TemporaryDirectory() as tmp:

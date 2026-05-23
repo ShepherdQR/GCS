@@ -24,6 +24,8 @@ Completed algorithm-deepening steps:
   kernel, runtime, diagnostics, and viewer gate adapters.
 - Step 20: started the scene-generation package split by extracting
   contracts, storage, and public promotion adapters from the CLI facade.
+- Step 21: continued the scene-generation package split by extracting
+  topology and GCS model helpers while preserving manual generation flow.
 
 Current validation baseline:
 
@@ -103,8 +105,24 @@ Delivered:
 - Keep `tools.py` as the compatibility CLI facade.
 - Extend scene-generation unit tests with package-boundary coverage.
 
-## Next Step 21
+## Completed Step 21
 
-The next step is to continue the package split by extracting topology and GCS
-lift/model construction helpers from `tools.py`, with tests that keep the
-manual generate -> lift -> parameterize -> validate path stable.
+Step 21 moves the next pure helper layer out of the scene-generation CLI
+facade.
+
+Delivered:
+
+- Add `gcs_scene_generation.topology` for edge canonicalization, adjacency,
+  connected components, and Tarjan biconnected-component evidence.
+- Add `gcs_scene_generation.gcs_model` for geometry-primal edges, rigid-set
+  rebuilding, geometry maps, invariant checks, graph coloring, and rigid-set
+  assignment.
+- Keep `tools.py` as the CLI facade through compatibility wrappers.
+- Extend tests with a manual generate -> lift -> parameterize -> validate ->
+  project -> biconnectivity path.
+
+## Next Step 22
+
+The next step is to extract validation and projection helpers from `tools.py`
+into package modules, then add focused tests over invalid signatures,
+rigid-set violations, and projection shape contracts.

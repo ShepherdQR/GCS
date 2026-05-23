@@ -23,6 +23,10 @@ facade, while stable helper boundaries now live under
   and digests.
 - `promotion.py`: public `gcs-0.3` scene conversion, kernel-shape validation,
   solver command normalization, and runtime smoke execution.
+- `topology.py`: edge canonicalization, adjacency, connected components, and
+  Tarjan biconnected-component evidence.
+- `gcs_model.py`: geometry-primal edges, rigid-set rebuilding, geometry maps,
+  rigid-set invariant checks, graph coloring, and rigid-set assignment.
 
 ## Compatibility Flow
 
@@ -136,11 +140,13 @@ Set `GCS_EXE` or pass `public_gate_config.solver_command` when the default
 Keep these pieces when rewriting the explorer structure:
 
 - deterministic JSON save/load helpers;
-- edge canonicalization and sorted graph traversal;
-- connected-component and Tarjan biconnectivity checks;
+- edge canonicalization and sorted graph traversal in
+  `gcs_scene_generation.topology`;
+- connected-component and Tarjan biconnectivity checks in
+  `gcs_scene_generation.topology`;
 - skeleton generators for `cycle_plus_chords` and `ear_decomposition`;
 - geometry and constraint signature tables in `gcs_scene_generation.contracts`;
-- rigid-set coloring and repair helpers;
+- rigid-set coloring and GCS model helpers in `gcs_scene_generation.gcs_model`;
 - local schema validation;
 - geometry-primal, incidence-bipartite, and rigid-set quotient projections;
 - parameter assignment for non-degenerate point, line, and plane data;
@@ -177,8 +183,8 @@ tools/scene_generation/
     contracts.py        # implemented
     storage.py          # implemented
     promotion.py        # implemented
-    topology.py
-    gcs_model.py
+    topology.py         # implemented
+    gcs_model.py        # implemented
     validation.py
     projection.py
     parameterization.py
@@ -186,11 +192,12 @@ tools/scene_generation/
     explorer.py
 ```
 
-The current v1 keeps command compatibility inside `tools.py`. Step 20 begins
-moving stable pure helpers into the package while leaving topology/lift/
-validation/explorer algorithms behind the existing facade until their tests are
-split. Do not move generation or repair policy into the solver, GUI, or scene
-IO modules.
+The current v1 keeps command compatibility inside `tools.py`. Step 20 moved
+contracts/storage/promotion helpers, and Step 21 moved topology plus GCS model
+helpers. Validation, projection, parameterization, reporting, and explorer
+orchestration remain behind the existing facade until their tests are split.
+Do not move generation or repair policy into the solver, GUI, or scene IO
+modules.
 
 ## Tests
 

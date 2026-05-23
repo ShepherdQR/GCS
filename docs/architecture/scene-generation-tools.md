@@ -72,10 +72,10 @@ Remaining limits:
 - The runtime and diagnostics public gates require a local solver command.
   Without `GCS_EXE` or `public_gate_config.solver_command`, promotion remains
   blocked by explicit runtime/diagnostic gate evidence.
-- The implementation still keeps topology, lift, validation, projection,
-  parameterization, reporting, and exploration algorithms in `tools.py`, but
-  Step 20 has extracted contracts, storage rules, and promotion adapters into
-  `gcs_scene_generation/`.
+- The implementation still keeps validation, projection, parameterization,
+  reporting, and exploration orchestration in `tools.py`, but Steps 20-21 have
+  extracted contracts, storage rules, promotion adapters, topology helpers, and
+  GCS model helpers into `gcs_scene_generation/`.
 - Repair is still candidate-level and explicit. It is not a semantic minimal
   repair planner.
 
@@ -463,6 +463,8 @@ Current v1 status:
 - `gcs_scene_generation.contracts`, `gcs_scene_generation.storage`, and
   `gcs_scene_generation.promotion` are implemented behind the `tools.py` CLI
   facade.
+- `gcs_scene_generation.topology` and `gcs_scene_generation.gcs_model` are
+  implemented behind the same facade.
 - Structured exploration artifacts are written under
   `.store/explorations/<exploration_id>/`.
 - Promotion packages are written under `.store/promotions/<promotion_id>/`.
@@ -472,8 +474,8 @@ Current v1 status:
 Remaining migration path:
 
 1. Continue extracting pure algorithm helpers from `tools.py` into package
-   modules: `topology.py`, `gcs_model.py`, `validation.py`, `projection.py`,
-   `parameterization.py`, `reporting.py`, and `explorer.py`.
+   modules: `validation.py`, `projection.py`, `parameterization.py`,
+   `reporting.py`, and `explorer.py`.
 2. Keep `tools.py` as the CLI dispatcher and compatibility facade.
 3. Move flat `.store` compatibility reads behind a store adapter.
 4. Harden public gates from executable smoke checks into direct IO, contract

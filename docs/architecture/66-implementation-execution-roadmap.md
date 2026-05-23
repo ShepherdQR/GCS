@@ -165,6 +165,8 @@ Status legend: `done`, `in_progress`, `pending`.
     kernel, runtime, diagnostics, and viewer gate adapters.
 20. `done` - start the scene-generation package split by extracting
     contracts, storage, and public promotion adapters from the CLI facade.
+21. `done` - continue the scene-generation package split by extracting
+    topology and GCS model helpers while preserving manual generation flow.
 
 ## Constraint Catalog Milestone
 
@@ -731,6 +733,30 @@ Implemented scope for Step 20:
 - Existing CLI commands and tests remain compatible through facade wrappers.
 - The remaining split target is now narrower: topology, GCS lift, validation,
   projection, parameterization, reporting, and explorer orchestration.
+
+## Scene Generation Topology/Model Split Step Plan
+
+Implemented commit-level scope:
+
+- Add `gcs_scene_generation.topology` for deterministic edge
+  canonicalization, adjacency, connected components, and Tarjan
+  articulation/biconnected-component evidence.
+- Add `gcs_scene_generation.gcs_model` for geometry-primal edge derivation,
+  rigid-set rebuilding, geometry maps, rigid-set invariant checks, graph
+  coloring, and rigid-set assignment.
+- Keep `tools.py` as the CLI facade with compatibility wrappers for the moved
+  helpers.
+- Add a manual generation-path test covering generate, lift, parameterize,
+  validate, project, and biconnectivity after the split.
+
+## Scene Generation Topology/Model Split Milestone
+
+Implemented scope for Step 21:
+
+- Topology algorithms no longer live directly in the CLI facade.
+- GCS rigid-set/model helper logic no longer lives directly in the CLI facade.
+- The remaining split target is validation, projection, parameterization,
+  reporting, and explorer orchestration.
 
 ## Damped Numeric Local Solve Step Plan
 

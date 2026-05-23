@@ -12,6 +12,12 @@
 - `tools/scene_generation/gcs_scene_generation/promotion.py`: public
   `gcs-0.3` scene conversion, kernel-shape validation, solver command
   normalization, and runtime smoke execution.
+- `tools/scene_generation/gcs_scene_generation/topology.py`: deterministic
+  graph canonicalization, adjacency, connected components, and Tarjan
+  articulation/biconnected-component evidence.
+- `tools/scene_generation/gcs_scene_generation/gcs_model.py`: geometry-primal
+  edge derivation, rigid-set rebuilding, geometry maps, rigid-set invariant
+  checks, graph coloring, and rigid-set assignment.
 - `tools/scene_generation/tools.md`: design notes for the tool family.
 - `tools/scene_generation/.store`: local generated JSON graph store used by
   the tools. Treat this as scratch state unless a generated graph is promoted.
