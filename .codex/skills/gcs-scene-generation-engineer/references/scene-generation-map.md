@@ -24,6 +24,12 @@
 - `tools/scene_generation/gcs_scene_generation/projection.py`: projection
   builders for `geometry_primal`, `incidence_bipartite`, and
   `rigidset_quotient`.
+- `tools/scene_generation/gcs_scene_generation/parameterization.py`:
+  deterministic geometry vector assignment, layout positions, metric values,
+  and angle values.
+- `tools/scene_generation/gcs_scene_generation/reporting.py`:
+  machine-readable graph summaries, validation summaries, projection
+  statistics, biconnectivity evidence, histograms, and rigid-set summaries.
 - `tools/scene_generation/tools.md`: design notes for the tool family.
 - `tools/scene_generation/.store`: local generated JSON graph store used by
   the tools. Treat this as scratch state unless a generated graph is promoted.

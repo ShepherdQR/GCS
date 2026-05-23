@@ -31,6 +31,11 @@ facade, while stable helper boundaries now live under
   signatures, arity, degeneracy, scalar ranges, and rigid-set memberships.
 - `projection.py`: geometry-primal, incidence-bipartite, and rigid-set
   quotient projection builders.
+- `parameterization.py`: deterministic layout positions, geometry vectors,
+  distance values, and angle values.
+- `reporting.py`: machine-readable summaries, validation summaries,
+  projection statistics, biconnectivity evidence, histograms, and rigid-set
+  summaries.
 
 ## Compatibility Flow
 
@@ -154,7 +159,9 @@ Keep these pieces when rewriting the explorer structure:
 - local schema validation in `gcs_scene_generation.validation`;
 - geometry-primal, incidence-bipartite, and rigid-set quotient projections in
   `gcs_scene_generation.projection`;
-- parameter assignment for non-degenerate point, line, and plane data;
+- parameter assignment for non-degenerate point, line, and plane data in
+  `gcs_scene_generation.parameterization`;
+- graph reporting in `gcs_scene_generation.reporting`;
 - canonical JSON and custom text serialization;
 - public scene conversion and solver smoke adapters in
   `gcs_scene_generation.promotion`.
@@ -192,16 +199,16 @@ tools/scene_generation/
     gcs_model.py        # implemented
     validation.py       # implemented
     projection.py       # implemented
-    parameterization.py
-    reporting.py
+    parameterization.py # implemented
+    reporting.py        # implemented
     explorer.py
 ```
 
 The current v1 keeps command compatibility inside `tools.py`. Step 20 moved
 contracts/storage/promotion helpers, Step 21 moved topology plus GCS model
-helpers, and Step 22 moved validation plus projection helpers.
-Parameterization, reporting, and explorer orchestration remain behind the
-existing facade until their tests are split. Do not move generation or repair
+helpers, Step 22 moved validation plus projection helpers, and Step 23 moved
+parameterization plus reporting helpers. Explorer orchestration remains behind
+the existing facade until its tests are split. Do not move generation or repair
 policy into the solver, GUI, or scene IO modules.
 
 ## Tests

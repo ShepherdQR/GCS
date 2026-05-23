@@ -15,7 +15,6 @@ import argparse
 import copy
 import hashlib
 import json
-import math
 import os
 import random
 import sys
@@ -28,8 +27,10 @@ if TOOL_DIR not in sys.path:
 
 from gcs_scene_generation import contracts as scene_contracts
 from gcs_scene_generation import gcs_model
+from gcs_scene_generation import parameterization
 from gcs_scene_generation import projection as projection_adapters
 from gcs_scene_generation import promotion as promotion_adapters
+from gcs_scene_generation import reporting
 from gcs_scene_generation import storage as scene_storage
 from gcs_scene_generation import topology
 from gcs_scene_generation import validation as validation_adapters
@@ -707,126 +708,7 @@ def tool_generate_graph_report(params: dict) -> dict:
     except FileNotFoundError as exc:
         return {"error": str(exc)}
 
-    vertices = sorted([g["id"] for g in gcs.get("geometries", [])], key=_sort_key)
-    edges = _geometry_primal_edges(gcs)
-    report = {
-        "graph_id": gcs_graph_id,
-        "summary": {
-            "num_rigid_sets": len(gcs.get("rigid_sets", [])),
-            "num_geometries": len(gcs.get("geometries", [])),
-            "num_constraints": len(gcs.get("constraints", [])),
-        },
-    }
-
-    if "schema_validation" in include:
-        validation = tool_validate_gcs_schema({"gcs_graph_id": gcs_graph_id})
-        report["schema_valid"] = validation.get("valid", False)
-        report["schema_violations"] = validation.get("violations", [])
-        report["rigid_set_invariant_valid"] = not any(v.get("type") == "constraint_same_rigid_set" for v in validation.get("violations", []))
-
-    if "projection_statistics" in include:
-        report["projection_statistics"] = {"num_vertices": len(vertices), "num_edges": len(edges), "projection": "geometry_primal"}
-
-    if "biconnectivity_certificate" in include:
-        articulation_points, bcc_list, num_components = tarjan_articulation_bcc(vertices, edges)
-        report["geometry_primal_biconnected"] = len(vertices) >= 3 and num_components == 1 and not articulation_points
-        report["num_connected_components"] = num_components
-        report["articulation_points"] = articulation_points
-        report["num_biconnected_components"] = len(bcc_list)
-
-    if "constraint_type_histogram" in include:
-        report["constraint_type_histogram"] = dict(sorted(Counter(c["type"] for c in gcs.get("constraints", [])).items()))
-
-    if "rigidset_summary" in include:
-        report["rigidset_summary"] = [
-            {"id": rs["id"], "num_geometries": len(rs.get("geometry_ids", [])), "geometry_ids": rs.get("geometry_ids", [])}
-            for rs in sorted(gcs.get("rigid_sets", []), key=lambda rs: rs["id"])
-        ]
-
-    return report
-
-
-# ---------------------------------------------------------------------------
-# Command: assign_geometry_parameters
-# ---------------------------------------------------------------------------
-
-
-def _vec_sub(a, b):
-    return [a[i] - b[i] for i in range(3)]
-
-
-def _vec_add(a, b):
-    return [a[i] + b[i] for i in range(3)]
-
-
-def _vec_scale(a, scale):
-    return [a[i] * scale for i in range(3)]
-
-
-def _vec_len(a):
-    return math.sqrt(sum(a[i] * a[i] for i in range(3)))
-
-
-def _vec_normalize(a):
-    length = _vec_len(a)
-    if length < 1e-12:
-        return [0.0, 0.0, 1.0]
-    return [a[i] / length for i in range(3)]
-
-
-def _vec_dot(a, b):
-    return sum(a[i] * b[i] for i in range(3))
-
-
-def _angle_between_vectors(a, b):
-    na = _vec_normalize(a)
-    nb = _vec_normalize(b)
-    cos_value = max(-1.0, min(1.0, _vec_dot(na, nb)))
-    return math.degrees(math.acos(cos_value))
-
-
-def _line_direction(line_v):
-    return _vec_sub(line_v[3:6], line_v[:3])
-
-
-def _plane_normal(plane_v):
-    return plane_v[3:6]
-
-
-def _layout_positions(geometries, layout: str, layout_params: dict, rng: random.Random) -> dict:
-    center = layout_params.get("center", [0.0, 0.0, 0.0])
-    positions = {}
-    if layout == "circular":
-        radius = float(layout_params.get("radius", 2.0))
-        plane = layout_params.get("plane", "xy")
-        n = max(1, len(geometries))
-        for index, geometry in enumerate(sorted(geometries, key=lambda g: g["id"])):
-            angle = 2.0 * math.pi * index / n
-            if plane == "xz":
-                pos = [center[0] + radius * math.cos(angle), center[1], center[2] + radius * math.sin(angle)]
-            elif plane == "yz":
-                pos = [center[0], center[1] + radius * math.cos(angle), center[2] + radius * math.sin(angle)]
-            else:
-                pos = [center[0] + radius * math.cos(angle), center[1] + radius * math.sin(angle), center[2]]
-            positions[geometry["id"]] = pos
-    elif layout == "random":
-        radius = float(layout_params.get("radius", 3.0))
-        for geometry in sorted(geometries, key=lambda g: g["id"]):
-            positions[geometry["id"]] = [
-                center[0] + rng.uniform(-radius, radius),
-                center[1] + rng.uniform(-radius, radius),
-                center[2] + rng.uniform(-radius, radius),
-            ]
-    elif layout == "grid":
-        spacing = float(layout_params.get("spacing", 2.0))
-        cols = max(1, int(math.ceil(math.sqrt(len(geometries)))))
-        for index, geometry in enumerate(sorted(geometries, key=lambda g: g["id"])):
-            row = index // cols
-            col = index % cols
-            positions[geometry["id"]] = [center[0] + col * spacing, center[1] - row * spacing, center[2]]
-    else:
-        raise ValueError(f"Unknown layout: {layout}")
-    return positions
+    return reporting.generate_graph_report(gcs_graph_id, gcs, include)
 
 
 def tool_assign_geometry_parameters(params: dict) -> dict:
@@ -840,51 +722,11 @@ def tool_assign_geometry_parameters(params: dict) -> dict:
     except FileNotFoundError as exc:
         return {"error": str(exc)}
 
-    gcs = copy.deepcopy(gcs)
     try:
-        positions = _layout_positions(gcs.get("geometries", []), layout, layout_params, rng)
+        gcs = parameterization.assign_geometry_parameters(gcs, layout, layout_params, rng)
     except ValueError as exc:
         return {"error": str(exc)}
 
-    for geometry in sorted(gcs.get("geometries", []), key=lambda g: g["id"]):
-        pos = positions[geometry["id"]]
-        if geometry["type"] == "Point":
-            geometry["v"] = [pos[0], pos[1], pos[2], 0.0, 0.0, 0.0]
-        elif geometry["type"] == "Line":
-            direction = _vec_normalize([rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0)])
-            half_len = rng.uniform(0.5, 1.5)
-            start = _vec_sub(pos, _vec_scale(direction, half_len))
-            end = _vec_add(pos, _vec_scale(direction, half_len))
-            geometry["v"] = [*start, *end]
-        elif geometry["type"] == "Plane":
-            normal = _vec_normalize([rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), rng.uniform(0.3, 1.0)])
-            geometry["v"] = [pos[0], pos[1], pos[2], *normal]
-
-    geom_by_id = _geometry_map(gcs)
-    for constraint in sorted(gcs.get("constraints", []), key=lambda c: c["id"]):
-        gids = constraint.get("geometry_ids", [])
-        if len(gids) < 2 or gids[0] not in geom_by_id or gids[1] not in geom_by_id:
-            continue
-        g1 = geom_by_id[gids[0]]
-        g2 = geom_by_id[gids[1]]
-        if constraint["type"] == "Distance":
-            constraint["value"] = round(_vec_len(_vec_sub(g1["v"][:3], g2["v"][:3])), 6)
-        elif constraint["type"] == "Angle":
-            if g1["type"] == "Line" and g2["type"] == "Line":
-                value = _angle_between_vectors(_line_direction(g1["v"]), _line_direction(g2["v"]))
-            elif g1["type"] == "Line" and g2["type"] == "Plane":
-                value = abs(90.0 - _angle_between_vectors(_line_direction(g1["v"]), _plane_normal(g2["v"])))
-            elif g1["type"] == "Plane" and g2["type"] == "Line":
-                value = abs(90.0 - _angle_between_vectors(_plane_normal(g1["v"]), _line_direction(g2["v"])))
-            elif g1["type"] == "Plane" and g2["type"] == "Plane":
-                value = _angle_between_vectors(_plane_normal(g1["v"]), _plane_normal(g2["v"]))
-            else:
-                value = rng.uniform(15.0, 75.0)
-            constraint["value"] = round(max(0.0, min(180.0, value)), 6)
-        else:
-            constraint["value"] = 0.0
-
-    gcs["status"] = "parameters_assigned"
     save_graph(gcs_graph_id, gcs)
     return {
         "gcs_graph_id": gcs_graph_id,

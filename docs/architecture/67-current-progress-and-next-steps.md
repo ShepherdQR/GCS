@@ -28,6 +28,8 @@ Completed algorithm-deepening steps:
   topology and GCS model helpers while preserving manual generation flow.
 - Step 22: extracted validation and projection helpers with focused structured
   contract tests.
+- Step 23: extracted parameterization and reporting helpers with deterministic
+  structured tests.
 
 Current validation baseline:
 
@@ -137,8 +139,23 @@ Delivered:
 - Keep `tools.py` as the CLI facade through compatibility wrappers.
 - Extend tests with invalid-signature evidence and projection shape checks.
 
-## Next Step 23
+## Completed Step 23
 
-The next step is to extract parameterization and reporting helpers from
-`tools.py`, then split tests around deterministic layout/value assignment and
-graph report summaries.
+Step 23 moves parameterization and reporting helpers out of the
+scene-generation CLI facade.
+
+Delivered:
+
+- Add `gcs_scene_generation.parameterization` for deterministic layout
+  positions, geometry vectors, distance values, and angle values.
+- Add `gcs_scene_generation.reporting` for graph summaries, validation
+  summaries, projection statistics, biconnectivity evidence, histograms, and
+  rigid-set summaries.
+- Keep `tools.py` as the CLI facade through compatibility wrappers.
+- Extend tests with deterministic parameter assignment and report summary
+  checks.
+
+## Next Step 24
+
+The next step is to split explorer orchestration and repair policy from
+`tools.py`, leaving the file as a command dispatcher over package modules.

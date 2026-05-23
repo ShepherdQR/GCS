@@ -169,6 +169,8 @@ Status legend: `done`, `in_progress`, `pending`.
     topology and GCS model helpers while preserving manual generation flow.
 22. `done` - extract scene-generation validation and projection helpers with
     focused structured contract tests.
+23. `done` - extract scene-generation parameterization and reporting helpers
+    with deterministic structured tests.
 
 ## Constraint Catalog Milestone
 
@@ -784,6 +786,28 @@ Implemented scope for Step 22:
   facade paths.
 - The remaining split target is parameterization, reporting, and explorer
   orchestration.
+
+## Scene Generation Parameterization/Reporting Split Step Plan
+
+Implemented commit-level scope:
+
+- Add `gcs_scene_generation.parameterization` for deterministic layout
+  positions, geometry vectors, distance values, and angle values.
+- Add `gcs_scene_generation.reporting` for graph summaries, validation
+  summaries, projection statistics, biconnectivity evidence, histograms, and
+  rigid-set summaries.
+- Keep `tools.py` as the CLI facade with compatibility wrappers around the
+  moved parameterization and reporting helpers.
+- Add deterministic tests for parameter assignment and report summaries.
+
+## Scene Generation Parameterization/Reporting Split Milestone
+
+Implemented scope for Step 23:
+
+- Parameterization and reporting algorithms no longer live directly in the CLI
+  facade.
+- Direct module tests cover deterministic structured input/output behavior.
+- The remaining split target is explorer orchestration and repair policy.
 
 ## Damped Numeric Local Solve Step Plan
 

@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import random
 import sys
 import tempfile
 import unittest
@@ -14,7 +15,7 @@ PACKAGE_ROOT = REPO_ROOT / "tools" / "scene_generation"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from gcs_scene_generation import contracts, gcs_model, projection, promotion, storage, topology, validation
+from gcs_scene_generation import contracts, gcs_model, parameterization, projection, promotion, reporting, storage, topology, validation
 
 
 def load_tools(store_dir: Path):
@@ -123,6 +124,31 @@ class SceneGenerationExplorerTests(unittest.TestCase):
             projection.project_gcs_graph("invalid_gcs", gcs, "unknown", "bad_projection")["error"],
             "Unknown projection: unknown",
         )
+
+    def test_parameterization_and_reporting_modules_are_deterministic(self):
+        gcs = {
+            "rigid_sets": [{"id": 0, "geometry_ids": [1]}, {"id": 1, "geometry_ids": [2]}],
+            "geometries": [
+                {"id": 1, "type": "Point", "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
+                {"id": 2, "type": "Point", "rigid_set_id": 1, "v": [0, 0, 0, 0, 0, 0]},
+            ],
+            "constraints": [{"id": 7, "type": "Distance", "geometry_ids": [1, 2], "value": 0.0}],
+        }
+
+        first = parameterization.assign_geometry_parameters(gcs, "grid", {"spacing": 3.0}, random.Random(99))
+        second = parameterization.assign_geometry_parameters(gcs, "grid", {"spacing": 3.0}, random.Random(99))
+        self.assertEqual(first, second)
+        self.assertEqual(first["status"], "parameters_assigned")
+        self.assertEqual(first["constraints"][0]["value"], 3.0)
+
+        report = reporting.generate_graph_report(
+            "param_gcs",
+            first,
+            ["schema_validation", "projection_statistics", "constraint_type_histogram"],
+        )
+        self.assertTrue(report["schema_valid"])
+        self.assertEqual(report["projection_statistics"]["num_edges"], 1)
+        self.assertEqual(report["constraint_type_histogram"], {"Distance": 1})
 
     def test_explorer_is_deterministic_and_keeps_negative_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
