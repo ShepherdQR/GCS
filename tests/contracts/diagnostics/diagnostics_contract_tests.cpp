@@ -106,11 +106,14 @@ TEST(DiagnosticsContract, DistinguishesStructuralDofFromNumericRank) {
 
 TEST(DiagnosticsContract, PromotesNumericResidualBlocks) {
     auto model = gcs::tools::make_unsatisfied_two_point_distance_model();
-    auto report = numeric::solve_local(make_task_for_model(model));
+    auto task = make_task_for_model(model);
+    task.solve_limits.max_iterations = 0;
+    auto report = numeric::solve_local(task);
 
     auto output = diagnose_after_local_solve(model, report);
 
-    EXPECT_EQ(output.status_code, kernel::SolveStatus::inconsistent);
+    EXPECT_EQ(report.result_code, kernel::SolveStatus::failed);
+    EXPECT_EQ(output.status_code, kernel::SolveStatus::failed);
     EXPECT_TRUE(output.residual_report.from_numeric_report);
     EXPECT_FALSE(output.residual_report.within_tolerance);
     EXPECT_EQ(output.residual_report.residual_dimension, 1);
@@ -118,6 +121,8 @@ TEST(DiagnosticsContract, PromotesNumericResidualBlocks) {
     ASSERT_EQ(output.residual_report.constraints.size(), 1U);
     EXPECT_FALSE(output.residual_report.constraints.front().satisfied);
     EXPECT_EQ(output.residual_report.constraints.front().constraint_id.value, 0U);
+    EXPECT_TRUE(has_evidence_code(output.status_precedence_trace,
+                                  "diagnostics.numeric_result_status"));
     EXPECT_TRUE(has_evidence_code(output.status_precedence_trace,
                                   "diagnostics.residual_out_of_tolerance"));
 }

@@ -27,6 +27,7 @@ using gcs::kernel::TolerancePolicy;
 struct SolveLimits {
     int max_iterations = 25;
     double trust_region_radius = 1.0;
+    double damping = 1.0e-6;
 };
 
 struct NumericTask {

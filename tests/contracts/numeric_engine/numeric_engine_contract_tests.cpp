@@ -124,7 +124,8 @@ TEST(NumericEngineContract, SolveLocalConsumesAssemblyEvidence) {
     EXPECT_EQ(report.local_section.entity_states.size(), task.active_variables.size());
     EXPECT_EQ(report.rank_estimate, 1);
     EXPECT_NEAR(report.initial_residual, 0.0, 1.0e-12);
-    EXPECT_TRUE(has_code(report.stage_report, "numeric.local_section.placeholder"));
+    EXPECT_NEAR(report.final_residual, 0.0, 1.0e-12);
+    EXPECT_TRUE(has_code(report.stage_report, "numeric.local_section.converged"));
 }
 
 TEST(NumericEngineContract, ReportsResidualMetricsForUnsatisfiedFixture) {
@@ -135,11 +136,14 @@ TEST(NumericEngineContract, ReportsResidualMetricsForUnsatisfiedFixture) {
     EXPECT_EQ(report.result_code, kernel::SolveStatus::solved);
     EXPECT_EQ(report.residual_report.dimension, 1);
     EXPECT_NEAR(report.initial_residual, 1.0, 1.0e-12);
-    EXPECT_NEAR(report.final_residual, 1.0, 1.0e-12);
-    EXPECT_NEAR(report.residual_report.norm, 1.0, 1.0e-12);
-    EXPECT_NEAR(report.residual_report.max_abs_value, 1.0, 1.0e-12);
+    EXPECT_LT(report.final_residual, report.initial_residual);
+    EXPECT_LE(report.final_residual, task.tolerances.residual);
+    EXPECT_NEAR(report.residual_report.norm, report.final_residual, 1.0e-12);
+    EXPECT_NEAR(report.residual_report.max_abs_value, report.final_residual, 1.0e-12);
+    EXPECT_GT(report.iteration_count, 0);
+    EXPECT_GT(report.step_norm, 0.0);
     ASSERT_EQ(report.residual_report.blocks.size(), 1U);
-    EXPECT_NEAR(report.residual_report.blocks.front().norm, 1.0, 1.0e-12);
+    EXPECT_NEAR(report.residual_report.blocks.front().norm, report.final_residual, 1.0e-12);
 }
 
 TEST(NumericEngineContract, ReportsRankConditionEvidence) {
@@ -170,7 +174,7 @@ TEST(NumericEngineContract, ReportsBoundaryVariablesWithoutMutation) {
     EXPECT_EQ(report.boundary_variables.front().after.dimension, 3);
 }
 
-TEST(NumericEngineContract, TraceIsReplayableForBaselineSolve) {
+TEST(NumericEngineContract, TraceIsReplayableForIterativeSolve) {
     auto task = make_task();
 
     auto report = numeric::solve_local(task);
@@ -179,10 +183,24 @@ TEST(NumericEngineContract, TraceIsReplayableForBaselineSolve) {
     ASSERT_EQ(report.iteration_trace.entries.size(), 2U);
     EXPECT_EQ(report.iteration_trace.entries.front().phase, "initial");
     EXPECT_FALSE(report.iteration_trace.entries.front().accepted);
-    EXPECT_EQ(report.iteration_trace.entries.back().phase, "baseline_identity");
+    EXPECT_EQ(report.iteration_trace.entries.back().phase, "converged");
     EXPECT_TRUE(report.iteration_trace.entries.back().accepted);
     EXPECT_NEAR(report.iteration_trace.entries.back().residual_norm,
                 report.final_residual,
                 1.0e-12);
-    EXPECT_NEAR(report.iteration_trace.entries.back().step_norm, report.step_norm, 1.0e-12);
+    EXPECT_NEAR(report.iteration_trace.entries.back().step_norm, 0.0, 1.0e-12);
+}
+
+TEST(NumericEngineContract, TraceRecordsAcceptedDampedSteps) {
+    auto task = make_task_for_model(gcs::tools::make_unsatisfied_two_point_distance_model());
+
+    auto report = numeric::solve_local(task);
+
+    ASSERT_GE(report.iteration_trace.entries.size(), 3U);
+    EXPECT_EQ(report.iteration_trace.entries[1].phase, "damped_gauss_newton");
+    EXPECT_TRUE(report.iteration_trace.entries[1].accepted);
+    EXPECT_LT(report.iteration_trace.entries[1].residual_norm,
+              report.iteration_trace.entries.front().residual_norm);
+    EXPECT_GT(report.iteration_trace.entries[1].step_norm, 0.0);
+    EXPECT_EQ(report.iteration_trace.entries.back().phase, "converged");
 }

@@ -39,6 +39,17 @@ The numeric engine owns:
 - iteration trace;
 - proposal generation.
 
+Current C++23 baseline:
+
+- assembles residuals and Jacobians through `gcs.constraint_catalog`;
+- solves dense damped normal equations without an external linear algebra
+  dependency;
+- freezes declared boundary variables during updates;
+- clamps steps to the task trust radius and accepts only residual-reducing
+  trial states;
+- reports convergence, non-convergence, residuals, rank, boundary evidence,
+  and replayable iteration trace through `NumericReport`.
+
 It does not own:
 
 - model identity;

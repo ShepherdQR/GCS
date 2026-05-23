@@ -55,7 +55,9 @@ bool positive_tolerances(const TolerancePolicy& tolerances) {
 }
 
 bool valid_solve_limits(const SolveLimits& limits) {
-    return limits.max_iterations >= 0 && limits.trust_region_radius > 0.0;
+    return limits.max_iterations >= 0 &&
+           limits.trust_region_radius > 0.0 &&
+           limits.damping > 0.0;
 }
 
 double residual_norm(const std::vector<double>& residuals) {
@@ -72,6 +74,14 @@ double max_abs_value(const std::vector<double>& values) {
         maximum = std::max(maximum, std::abs(value));
     }
     return maximum;
+}
+
+double vector_norm(const std::vector<double>& values) {
+    double sum = 0.0;
+    for (double value : values) {
+        sum += value * value;
+    }
+    return std::sqrt(sum);
 }
 
 std::vector<VariableColumn> build_variable_columns(const NumericTask& task,
@@ -100,6 +110,13 @@ const kernel::EntityState* find_state(const std::vector<kernel::EntityState>& st
                                       EntityId entity_id) {
     for (const auto& state : states) {
         if (state.entity_id == entity_id) return &state;
+    }
+    return nullptr;
+}
+
+kernel::EntityDraft* find_mutable_entity(ModelSnapshot& snapshot, EntityId id) {
+    for (auto& entity : snapshot.entities) {
+        if (entity.id == id) return &entity;
     }
     return nullptr;
 }
@@ -171,6 +188,173 @@ RankComputation estimate_rank(std::vector<double> matrix,
     return result;
 }
 
+std::vector<int> build_free_columns(const NumericTask& task,
+                                    const EquationAssembly& assembly) {
+    std::vector<int> columns;
+    int offset = 0;
+    for (EntityId entity_id : assembly.variable_order) {
+        const auto* entity = kernel::find_entity(task.problem_snapshot, entity_id);
+        if (entity == nullptr) continue;
+        const int dimension = kernel::geometry_dof(entity->kind);
+        const bool boundary = kernel::contains_entity(task.boundary_variables, entity_id);
+        if (!boundary) {
+            for (int index = 0; index < dimension; ++index) {
+                columns.push_back(offset + index);
+            }
+        }
+        offset += dimension;
+    }
+    return columns;
+}
+
+bool solve_dense_linear_system(std::vector<double> matrix,
+                               std::vector<double> rhs,
+                               int dimension,
+                               double tolerance,
+                               std::vector<double>& solution) {
+    if (dimension <= 0) return false;
+
+    for (int column = 0; column < dimension; ++column) {
+        int pivot_row = column;
+        double pivot_abs = 0.0;
+        for (int row = column; row < dimension; ++row) {
+            const double value = std::abs(
+                matrix[static_cast<std::size_t>(row * dimension + column)]);
+            if (value > pivot_abs) {
+                pivot_abs = value;
+                pivot_row = row;
+            }
+        }
+        if (pivot_abs <= tolerance) return false;
+
+        if (pivot_row != column) {
+            for (int swap_column = column; swap_column < dimension; ++swap_column) {
+                std::swap(
+                    matrix[static_cast<std::size_t>(column * dimension + swap_column)],
+                    matrix[static_cast<std::size_t>(pivot_row * dimension + swap_column)]);
+            }
+            std::swap(rhs[static_cast<std::size_t>(column)],
+                      rhs[static_cast<std::size_t>(pivot_row)]);
+        }
+
+        const double pivot =
+            matrix[static_cast<std::size_t>(column * dimension + column)];
+        for (int row = column + 1; row < dimension; ++row) {
+            const double factor =
+                matrix[static_cast<std::size_t>(row * dimension + column)] / pivot;
+            if (std::abs(factor) <= tolerance) continue;
+            for (int reduce_column = column; reduce_column < dimension; ++reduce_column) {
+                matrix[static_cast<std::size_t>(row * dimension + reduce_column)] -=
+                    factor * matrix[static_cast<std::size_t>(
+                                 column * dimension + reduce_column)];
+            }
+            rhs[static_cast<std::size_t>(row)] -=
+                factor * rhs[static_cast<std::size_t>(column)];
+        }
+    }
+
+    solution.assign(static_cast<std::size_t>(dimension), 0.0);
+    for (int row = dimension - 1; row >= 0; --row) {
+        double value = rhs[static_cast<std::size_t>(row)];
+        for (int column = row + 1; column < dimension; ++column) {
+            value -= matrix[static_cast<std::size_t>(row * dimension + column)] *
+                     solution[static_cast<std::size_t>(column)];
+        }
+        const double diagonal =
+            matrix[static_cast<std::size_t>(row * dimension + row)];
+        if (std::abs(diagonal) <= tolerance) return false;
+        solution[static_cast<std::size_t>(row)] = value / diagonal;
+    }
+    return true;
+}
+
+bool compute_damped_gauss_newton_step(const EquationAssembly& assembly,
+                                      const std::vector<int>& free_columns,
+                                      double damping,
+                                      double tolerance,
+                                      std::vector<double>& full_step) {
+    const int free_dimension = static_cast<int>(free_columns.size());
+    const int row_count = assembly.jacobian_report.row_count;
+    const int column_count = assembly.jacobian_report.column_count;
+    if (free_dimension <= 0 || row_count <= 0 || column_count <= 0) return false;
+
+    std::vector<double> normal_matrix(
+        static_cast<std::size_t>(free_dimension * free_dimension),
+        0.0);
+    std::vector<double> rhs(static_cast<std::size_t>(free_dimension), 0.0);
+
+    for (int lhs = 0; lhs < free_dimension; ++lhs) {
+        const int lhs_column = free_columns[static_cast<std::size_t>(lhs)];
+        for (int row = 0; row < row_count; ++row) {
+            const double lhs_value = assembly.jacobian_report.values[
+                static_cast<std::size_t>(row * column_count + lhs_column)];
+            rhs[static_cast<std::size_t>(lhs)] -=
+                lhs_value * assembly.residual_vector[static_cast<std::size_t>(row)];
+            for (int rhs_index = 0; rhs_index < free_dimension; ++rhs_index) {
+                const int rhs_column = free_columns[static_cast<std::size_t>(rhs_index)];
+                const double rhs_value = assembly.jacobian_report.values[
+                    static_cast<std::size_t>(row * column_count + rhs_column)];
+                normal_matrix[static_cast<std::size_t>(
+                    lhs * free_dimension + rhs_index)] += lhs_value * rhs_value;
+            }
+        }
+        normal_matrix[static_cast<std::size_t>(lhs * free_dimension + lhs)] += damping;
+    }
+
+    std::vector<double> reduced_step;
+    if (!solve_dense_linear_system(
+            std::move(normal_matrix),
+            std::move(rhs),
+            free_dimension,
+            tolerance,
+            reduced_step)) {
+        return false;
+    }
+
+    full_step.assign(static_cast<std::size_t>(column_count), 0.0);
+    for (int index = 0; index < free_dimension; ++index) {
+        full_step[static_cast<std::size_t>(free_columns[static_cast<std::size_t>(index)])] =
+            reduced_step[static_cast<std::size_t>(index)];
+    }
+    return true;
+}
+
+void apply_step(ModelSnapshot& snapshot,
+                const NumericTask& task,
+                const std::vector<double>& step,
+                double scale) {
+    int offset = 0;
+    for (EntityId entity_id : task.active_variables) {
+        const auto* original = kernel::find_entity(task.problem_snapshot, entity_id);
+        if (original == nullptr) continue;
+        const int dimension = kernel::geometry_dof(original->kind);
+        const bool boundary = kernel::contains_entity(task.boundary_variables, entity_id);
+        auto* entity = find_mutable_entity(snapshot, entity_id);
+        if (entity != nullptr && !boundary) {
+            for (int index = 0; index < dimension; ++index) {
+                entity->parameters.values[static_cast<std::size_t>(index)] +=
+                    scale * step[static_cast<std::size_t>(offset + index)];
+            }
+        }
+        offset += dimension;
+    }
+}
+
+NumericTask task_with_snapshot(const NumericTask& task, ModelSnapshot snapshot) {
+    NumericTask next = task;
+    next.problem_snapshot = std::move(snapshot);
+    return next;
+}
+
+double scaled_step_norm(const std::vector<double>& step, double scale) {
+    double sum = 0.0;
+    for (double value : step) {
+        const double scaled = scale * value;
+        sum += scaled * scaled;
+    }
+    return std::sqrt(sum);
+}
+
 ResidualReport make_residual_report(const EquationAssembly& assembly) {
     ResidualReport report;
     report.dimension = assembly.residual_dimension;
@@ -229,16 +413,12 @@ std::vector<BoundaryVariableReport> make_boundary_report(
     return reports;
 }
 
-IterationTrace make_baseline_trace(kernel::StateVersionId base_version,
-                                   double initial_residual,
-                                   double final_residual,
-                                   double step_norm) {
+IterationTrace make_initial_trace(kernel::StateVersionId base_version,
+                                  double initial_residual) {
     IterationTrace trace;
     trace.base_version = base_version;
     trace.entries.push_back(
         IterationTraceEntry{0, "initial", initial_residual, 0.0, false});
-    trace.entries.push_back(
-        IterationTraceEntry{0, "baseline_identity", final_residual, step_norm, true});
     return trace;
 }
 
@@ -553,10 +733,135 @@ NumericReport solve_local(const NumericTask& task) {
         report.failure_cause = "Numeric task validation or equation assembly failed.";
         return report;
     }
-    report.equation_assembly = assembly.payload;
+
+    ModelSnapshot working_snapshot = task.problem_snapshot;
+    NumericTask working_task = task_with_snapshot(task, working_snapshot);
+    EquationAssembly current_assembly = std::move(assembly.payload);
+    double current_residual = residual_norm(current_assembly.residual_vector);
+
+    report.initial_residual = current_residual;
+    report.final_residual = current_residual;
+    report.iteration_trace = make_initial_trace(
+        task.problem_snapshot.state_version,
+        report.initial_residual);
+
+    bool converged = current_residual <= task.tolerances.residual;
+    bool failed = false;
+    double last_step_norm = 0.0;
+
+    if (converged) {
+        report.iteration_trace.entries.push_back(
+            IterationTraceEntry{0, "converged", current_residual, 0.0, true});
+    }
+
+    for (int iteration = 1;
+         !converged && !failed && iteration <= task.solve_limits.max_iterations;
+         ++iteration) {
+        const auto free_columns = build_free_columns(working_task, current_assembly);
+        std::vector<double> step;
+        if (!compute_damped_gauss_newton_step(
+                current_assembly,
+                free_columns,
+                task.solve_limits.damping,
+                task.tolerances.rank,
+                step)) {
+            failed = true;
+            report.failure_cause =
+                "Damped Gauss-Newton step could not be computed for the active task.";
+            break;
+        }
+
+        double base_scale = 1.0;
+        const double raw_step_norm = vector_norm(step);
+        if (raw_step_norm > task.solve_limits.trust_region_radius) {
+            base_scale = task.solve_limits.trust_region_radius / raw_step_norm;
+        }
+
+        bool accepted = false;
+        EquationAssembly accepted_assembly;
+        ModelSnapshot accepted_snapshot;
+        double accepted_residual = current_residual;
+        double accepted_step_norm = 0.0;
+
+        for (int attempt = 0; attempt < 8 && !accepted; ++attempt) {
+            const double scale = base_scale / static_cast<double>(1 << attempt);
+            ModelSnapshot trial_snapshot = working_snapshot;
+            apply_step(trial_snapshot, working_task, step, scale);
+            NumericTask trial_task = task_with_snapshot(task, trial_snapshot);
+            auto trial_assembly = assemble_equations(trial_task);
+            for (auto message : trial_assembly.report.messages) {
+                kernel::append_report_message(report.stage_report, std::move(message));
+            }
+            if (!trial_assembly.payload.valid) {
+                failed = true;
+                report.failure_cause = "Trial equation assembly failed during numeric solve.";
+                break;
+            }
+
+            const double trial_residual =
+                residual_norm(trial_assembly.payload.residual_vector);
+            if (trial_residual < current_residual ||
+                trial_residual <= task.tolerances.residual) {
+                accepted = true;
+                accepted_snapshot = std::move(trial_snapshot);
+                accepted_assembly = std::move(trial_assembly.payload);
+                accepted_residual = trial_residual;
+                accepted_step_norm = scaled_step_norm(step, scale);
+            }
+        }
+
+        if (failed) break;
+        if (!accepted) {
+            failed = true;
+            report.failure_cause =
+                "Damped Gauss-Newton step failed to reduce the residual.";
+            report.iteration_trace.entries.push_back(
+                IterationTraceEntry{
+                    iteration,
+                    "damped_gauss_newton_rejected",
+                    current_residual,
+                    0.0,
+                    false});
+            break;
+        }
+
+        working_snapshot = std::move(accepted_snapshot);
+        working_task = task_with_snapshot(task, working_snapshot);
+        current_assembly = std::move(accepted_assembly);
+        current_residual = accepted_residual;
+        last_step_norm = accepted_step_norm;
+        report.iteration_count = iteration;
+        report.iteration_trace.entries.push_back(
+            IterationTraceEntry{
+                iteration,
+                "damped_gauss_newton",
+                current_residual,
+                accepted_step_norm,
+                true});
+        converged = current_residual <= task.tolerances.residual;
+    }
+
+    if (!converged && !failed) {
+        failed = true;
+        report.failure_cause = "Numeric solve reached the iteration limit before convergence.";
+    }
+
+    if (converged &&
+        (report.iteration_trace.entries.empty() ||
+         report.iteration_trace.entries.back().phase != "converged")) {
+        report.iteration_trace.entries.push_back(
+            IterationTraceEntry{
+                report.iteration_count,
+                "converged",
+                current_residual,
+                0.0,
+                true});
+    }
+
+    report.equation_assembly = std::move(current_assembly);
 
     report.local_section.entity_states = kernel::capture_entity_states(
-        task.problem_snapshot,
+        working_snapshot,
         task.active_variables);
     report.local_section.valid = true;
     report.proposed_state.entity_states = report.local_section.entity_states;
@@ -568,25 +873,30 @@ NumericReport solve_local(const NumericTask& task) {
         task.tolerances.rank);
     report.rank_estimate = report.rank_condition_report.rank_estimate;
     report.condition_estimate = report.rank_condition_report.condition_estimate;
-    report.initial_residual = report.residual_report.norm;
-    report.final_residual = report.initial_residual;
-    report.step_norm = 0.0;
-    report.iteration_count = 0;
+    report.final_residual = report.residual_report.norm;
+    report.step_norm = last_step_norm;
     report.boundary_variables = make_boundary_report(task, report.local_section);
-    report.iteration_trace = make_baseline_trace(
-        task.problem_snapshot.state_version,
-        report.initial_residual,
-        report.final_residual,
-        report.step_norm);
-    report.result_code = SolveStatus::solved;
+    report.result_code = failed ? SolveStatus::failed : SolveStatus::solved;
 
-    kernel::append_report_message(
-        report.stage_report,
-        kernel::make_report_message(
-            kernel::ReportSeverity::info,
-            kernel::ReportCode{"numeric.local_section.placeholder"},
-            "Baseline numeric engine assembled equations and produced an identity local section.",
-            {kernel::StableId{"context", task.context_snapshot.id.value}}));
+    if (failed) {
+        report.local_section.valid = false;
+        report.stage_report.status = kernel::StageStatus::error;
+        kernel::append_report_message(
+            report.stage_report,
+            kernel::make_report_message(
+                kernel::ReportSeverity::error,
+                kernel::ReportCode{"numeric.local_section.failed"},
+                report.failure_cause,
+                {kernel::StableId{"context", task.context_snapshot.id.value}}));
+    } else {
+        kernel::append_report_message(
+            report.stage_report,
+            kernel::make_report_message(
+                kernel::ReportSeverity::info,
+                kernel::ReportCode{"numeric.local_section.converged"},
+                "Damped Gauss-Newton numeric engine produced a converged local section.",
+                {kernel::StableId{"context", task.context_snapshot.id.value}}));
+    }
 
     return report;
 }

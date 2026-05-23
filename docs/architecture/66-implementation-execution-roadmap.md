@@ -152,6 +152,8 @@ Status legend: `done`, `in_progress`, `pending`.
     invariant checks, dependency audits, golden reports.
 13. `done` - add cross-module quality gates and broader negative fixture
     corpus.
+14. `done` - replace numeric identity local solve with a dense damped
+    Gauss-Newton baseline while preserving numeric report contracts.
 
 ## Constraint Catalog Milestone
 
@@ -622,18 +624,56 @@ incidence graph, decomposition planner, numeric engine, diagnostics, session
 runtime, IO adapters, viewer bridge, contract tools, dependency audits, and
 cross-module quality gates.
 
-Next algorithm-deepening batch candidates:
+Second algorithm-deepening batch queue:
 
-- Replace baseline numeric local solve with an iterative damped solve while
+- `done` - Replace baseline numeric local solve with an iterative damped solve while
   preserving residual, Jacobian, rank, boundary, and trace contracts.
-- Add a real JSON parser and migration pipeline behind the existing IO schema
+- `pending` - Add a real JSON parser and migration pipeline behind the existing IO schema
   and parse-report contracts.
-- Deepen diagnostics conflict/redundancy minimization behind the existing
+- `pending` - Deepen diagnostics conflict/redundancy minimization behind the existing
   typed conflict, redundancy, obstruction, and status-precedence contracts.
-- Expand reusable negative, singular, redundant, inconsistent, and migration
+- `pending` - Expand reusable negative, singular, redundant, inconsistent, and migration
   fixture corpora with golden report digests.
-- Promote contract, dependency, fixture, and scene checks into CI-ready quality
+- `pending` - Promote contract, dependency, fixture, and scene checks into CI-ready quality
   gates.
+
+## Damped Numeric Local Solve Step Plan
+
+Implemented commit-level scope:
+
+- Replace the identity local-section placeholder with a dense damped
+  Gauss-Newton baseline that uses residuals and Jacobians assembled through
+  `gcs.constraint_catalog`.
+- Add a damping parameter to `SolveLimits` and validate it through the numeric
+  task contract.
+- Freeze declared boundary variables during local updates while still reporting
+  before/after boundary evidence.
+- Apply a trust-region clamp and short damping line search without adding an
+  external linear algebra dependency.
+- Preserve `NumericReport`, `ResidualReport`, `RankConditionReport`,
+  `BoundaryVariableReport`, and `IterationTrace` as the structured output
+  surface.
+- Update diagnostics residual-promotion tests to use an explicit zero-iteration
+  non-converged numeric report rather than relying on a solver that should now
+  converge the reusable unsatisfied fixture.
+
+## Damped Numeric Local Solve Milestone
+
+Implemented scope for the first algorithm-deepening milestone:
+
+- `numeric::solve_local` now iterates on a transaction-local model snapshot,
+  computes damped normal-equation steps, clamps the step to the declared trust
+  radius, and accepts only residual-reducing trial states.
+- The reusable unsatisfied two-point distance fixture now converges to residual
+  tolerance and records accepted `damped_gauss_newton` trace entries.
+- Zero-residual fixtures still return a replayable two-entry trace:
+  `initial` then `converged`.
+- Non-converged tasks return `numeric.local_section.failed` with preserved
+  residual evidence for diagnostics.
+- Numeric contract coverage now includes accepted damped steps and convergence
+  from a nonzero residual fixture.
+- Diagnostics coverage now separates numeric residual-promotion behavior from
+  successful convergence by using an explicit zero-iteration numeric task.
 
 ## Decomposition Planner Step Plan
 

@@ -445,6 +445,8 @@ Implementation responsibilities:
 - Residual assembly through the constraint catalog.
 - Analytic or finite-difference Jacobian assembly.
 - Scaling and damping.
+- Dense damped Gauss-Newton baseline with trust-region step clamp until a
+  sparse or external backend is introduced through the same contracts.
 - Manifold retraction and update.
 - Rank and conditioning estimation.
 - Boundary variable handling.
