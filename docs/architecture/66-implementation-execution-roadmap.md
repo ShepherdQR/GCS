@@ -111,6 +111,8 @@ For each commit-level step:
   - `tests/contracts/kernel/kernel_contract_tests.cpp`
   - `tests/contracts/constraint_catalog/constraint_catalog_contract_tests.cpp`
   - `tests/contracts/pipeline/pipeline_contract_tests.cpp`
+  - `tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp`
+  - `tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp`
 
 ## Commit-Level Step Queue
 
@@ -121,10 +123,10 @@ Status legend: `done`, `in_progress`, `pending`.
 3. `done` - upgrade `gcs.incidence_graph` to hypergraph, reverse
    indices, rigid-body graph, malformed-edge reports, canonical graph dumps,
    reusable fixture builders, and incidence contract tests.
-4. `in_progress` - validate and enrich `gcs.decomposition_planner` cover plans,
+4. `done` - validate and enrich `gcs.decomposition_planner` cover plans,
    boundary projections, coverage proof, solve order, and planner contract
    tests.
-5. `pending` - add numeric task validation and equation assembly through the
+5. `in_progress` - add numeric task validation and equation assembly through the
    constraint catalog.
 6. `pending` - add numeric residual/Jacobian/rank reports and baseline local
    solve tests.
@@ -168,13 +170,41 @@ Implemented scope for the incidence graph structure milestone:
 - Reusable graph fixture builders in the model/test support surface.
 - `tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp`.
 
-## Next Milestone
+## Decomposition Planner Milestone
 
-Implement the decomposition planner milestone:
+Implemented scope for the decomposition planner milestone:
 
 - `CoverValidationReport` and cover coverage proof.
-- Boundary projection construction for shared contexts.
+- Component-to-root boundary projection construction.
 - Explicit solve-order validation.
-- Planner unsupported-case reports.
+- Planner unsupported-case report carrier.
 - Planner contract tests under
+  `tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp`.
+
+## Next Milestone
+
+Implement the numeric task validation and equation assembly milestone:
+
+- `NumericTaskValidationReport`.
+- `EquationAssembly` built through `gcs.constraint_catalog`.
+- Per-constraint residual blocks and Jacobian shape reports.
+- Missing active entity/constraint negative tests.
+- Boundary-variable immutability checks.
+- Numeric contract tests under
+  `tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp`.
+
+## Decomposition Planner Step Plan
+
+Current commit-level scope:
+
+- Extend `gcs.decomposition_planner` with `CoverValidationReport`,
+  `SolveOrderValidationReport`, and `UnsupportedPlanReport`.
+- Validate that cover contexts reference existing entities, constraints, and
+  rigid sets.
+- Validate that every model entity and constraint is covered by at least one
+  context.
+- Emit component-to-root boundary projections for connected-component covers.
+- Validate that solve-order entries are deterministic, strictly ordered, and
+  point at known subproblem contexts.
+- Add reusable assertions through
   `tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp`.

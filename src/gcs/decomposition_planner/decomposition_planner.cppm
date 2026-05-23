@@ -1,5 +1,6 @@
 module;
 
+#include <string>
 #include <vector>
 
 export module gcs.decomposition_planner;
@@ -17,6 +18,7 @@ using gcs::kernel::CoverPlan;
 using gcs::kernel::EntityId;
 using gcs::kernel::GaugePolicy;
 using gcs::kernel::ModelSnapshot;
+using gcs::kernel::ReportMessage;
 using gcs::kernel::SolveIntent;
 using gcs::kernel::StageReport;
 
@@ -41,6 +43,12 @@ struct SolveStep {
     ContextId context_id;
 };
 
+struct UnsupportedPlanReport {
+    bool unsupported = false;
+    std::string code;
+    std::string message;
+};
+
 struct PlannerOutput {
     CoverPlan cover_plan;
     std::vector<ContextSnapshot> overlap_contexts;
@@ -49,8 +57,34 @@ struct PlannerOutput {
     std::vector<SolveStep> solve_order;
     GaugePolicy gauge_policy;
     StageReport structural_report;
+    UnsupportedPlanReport unsupported_report;
+};
+
+struct CoverValidationReport {
+    bool valid = true;
+    bool covers_all_entities = true;
+    bool covers_all_constraints = true;
+    bool contexts_reference_known_ids = true;
+    bool boundary_projections_reference_known_contexts = true;
+    int context_count = 0;
+    int boundary_projection_count = 0;
+    std::vector<ReportMessage> messages;
+};
+
+struct SolveOrderValidationReport {
+    bool valid = true;
+    bool strictly_ordered = true;
+    bool every_step_has_context = true;
+    bool covers_all_subproblems = true;
+    int step_count = 0;
+    std::vector<ReportMessage> messages;
 };
 
 PlannerOutput plan_decomposition(const PlannerInput& input);
+gcs::kernel::ContractResult<CoverValidationReport> validate_cover(
+    const ModelSnapshot& model,
+    const CoverPlan& cover_plan);
+gcs::kernel::ContractResult<SolveOrderValidationReport> validate_solve_order(
+    const PlannerOutput& output);
 
 }

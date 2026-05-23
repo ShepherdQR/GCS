@@ -1,6 +1,8 @@
 module;
 
+#include <algorithm>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 module gcs.decomposition_planner;
@@ -35,6 +37,77 @@ int compute_expected_free_dof(const ModelSnapshot& model,
     return parameter_dof - equation_dof - gauge_dof;
 }
 
+kernel::ReportMessage make_message(kernel::ReportSeverity severity,
+                                   const char* code,
+                                   const char* summary,
+                                   std::vector<kernel::StableId> subjects = {}) {
+    return kernel::make_report_message(
+        severity,
+        kernel::ReportCode{code},
+        summary,
+        std::move(subjects));
+}
+
+void append_message(StageReport& report,
+                    std::vector<ReportMessage>& payload_messages,
+                    kernel::ReportMessage message) {
+    payload_messages.push_back(message);
+    kernel::append_report_message(report, std::move(message));
+}
+
+bool contains_context(const std::vector<ContextSnapshot>& contexts, ContextId context_id) {
+    for (const auto& context : contexts) {
+        if (context.id == context_id) return true;
+    }
+    return false;
+}
+
+bool contains_subproblem_context(const std::vector<Subproblem>& subproblems,
+                                 ContextId context_id) {
+    for (const auto& subproblem : subproblems) {
+        if (subproblem.context_id == context_id) return true;
+    }
+    return false;
+}
+
+bool contains_step_context(const std::vector<SolveStep>& solve_order,
+                           ContextId context_id) {
+    for (const auto& step : solve_order) {
+        if (step.context_id == context_id) return true;
+    }
+    return false;
+}
+
+BoundaryProjection make_component_projection(const ContextSnapshot& component_context,
+                                             ContextId root_context_id,
+                                             std::uint64_t projection_index) {
+    BoundaryProjection projection;
+    projection.id = kernel::ProjectionId{projection_index};
+    projection.source_context_id = component_context.id;
+    projection.target_context_id = root_context_id;
+    projection.entity_ids = component_context.entity_ids;
+    projection.constraint_ids = component_context.constraint_ids;
+    return projection;
+}
+
+void append_component_subproblem(PlannerOutput& output,
+                                 const ModelSnapshot& model,
+                                 const ContextSnapshot& context,
+                                 int subproblem_id) {
+    Subproblem subproblem;
+    subproblem.id = subproblem_id;
+    subproblem.context_id = context.id;
+    subproblem.active_variables = context.entity_ids;
+    subproblem.active_equations = context.constraint_ids;
+    subproblem.expected_free_dof = compute_expected_free_dof(
+        model,
+        subproblem.active_variables,
+        subproblem.active_equations,
+        output.gauge_policy.removed_dof);
+    output.subproblems.push_back(subproblem);
+    output.solve_order.push_back(SolveStep{subproblem_id, context.id});
+}
+
 }  // namespace
 
 PlannerOutput plan_decomposition(const PlannerInput& input) {
@@ -49,18 +122,15 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
 
     const bool split_into_components = input.incidence.connected_components.size() > 1;
     if (!split_into_components) {
-        Subproblem subproblem;
-        subproblem.id = 0;
-        subproblem.context_id = root.id;
-        subproblem.active_variables = root.entity_ids;
-        subproblem.active_equations = root.constraint_ids;
-        subproblem.expected_free_dof = compute_expected_free_dof(
-            input.model,
-            subproblem.active_variables,
-            subproblem.active_equations,
-            output.gauge_policy.removed_dof);
-        output.subproblems.push_back(subproblem);
-        output.solve_order.push_back(SolveStep{0, root.id});
+        append_component_subproblem(output, input.model, root, 0);
+        auto cover_validation = validate_cover(input.model, output.cover_plan);
+        auto order_validation = validate_solve_order(output);
+        for (auto message : cover_validation.report.messages) {
+            kernel::append_report_message(output.structural_report, std::move(message));
+        }
+        for (auto message : order_validation.report.messages) {
+            kernel::append_report_message(output.structural_report, std::move(message));
+        }
         return output;
     }
 
@@ -76,31 +146,251 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
         context.rigid_set_ids = component.rigid_set_ids;
         output.cover_plan.contexts.push_back(context);
 
-        Subproblem subproblem;
-        subproblem.id = subproblem_id;
-        subproblem.context_id = context.id;
-        subproblem.active_variables = context.entity_ids;
-        subproblem.active_equations = context.constraint_ids;
-        subproblem.expected_free_dof = compute_expected_free_dof(
-            input.model,
-            subproblem.active_variables,
-            subproblem.active_equations,
-            output.gauge_policy.removed_dof);
-        output.subproblems.push_back(subproblem);
-        output.solve_order.push_back(SolveStep{subproblem_id, context.id});
+        output.boundary_projections.push_back(make_component_projection(
+            context,
+            output.cover_plan.root_context_id,
+            static_cast<std::uint64_t>(output.boundary_projections.size() + 1)));
+        append_component_subproblem(output, input.model, context, subproblem_id);
         ++subproblem_id;
     }
+    output.cover_plan.boundary_projections = output.boundary_projections;
 
     if (output.subproblems.empty()) {
         kernel::append_report_message(
             output.structural_report,
-            kernel::make_report_message(
+            make_message(
                 kernel::ReportSeverity::warning,
-                kernel::ReportCode{"planner.empty_model"},
+                "planner.empty_model",
                 "No subproblems were produced for an empty model."));
     }
 
+    auto cover_validation = validate_cover(input.model, output.cover_plan);
+    auto order_validation = validate_solve_order(output);
+    for (auto message : cover_validation.report.messages) {
+        kernel::append_report_message(output.structural_report, std::move(message));
+    }
+    for (auto message : order_validation.report.messages) {
+        kernel::append_report_message(output.structural_report, std::move(message));
+    }
     return output;
+}
+
+gcs::kernel::ContractResult<CoverValidationReport> validate_cover(
+    const ModelSnapshot& model,
+    const CoverPlan& cover_plan) {
+    kernel::ContractResult<CoverValidationReport> result;
+    result.report = kernel::make_stage_report("decomposition_planner.validate_cover");
+    result.payload.context_count = static_cast<int>(cover_plan.contexts.size());
+    result.payload.boundary_projection_count =
+        static_cast<int>(cover_plan.boundary_projections.size());
+
+    std::vector<ContextId> context_ids;
+    for (const auto& context : cover_plan.contexts) {
+        if (std::find(context_ids.begin(), context_ids.end(), context.id) !=
+            context_ids.end()) {
+            result.payload.valid = false;
+            result.payload.contexts_reference_known_ids = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.cover_duplicate_context_id",
+                    "Cover plan contains a duplicate context ID.",
+                    {kernel::StableId{"context", context.id.value}}));
+        }
+        context_ids.push_back(context.id);
+
+        if (!(context.state_version == model.state_version)) {
+            result.payload.valid = false;
+            result.payload.contexts_reference_known_ids = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.cover_context_version_mismatch",
+                    "Cover context state version must match the model snapshot.",
+                    {kernel::StableId{"context", context.id.value}}));
+        }
+
+        for (EntityId entity_id : context.entity_ids) {
+            if (kernel::find_entity(model, entity_id) == nullptr) {
+                result.payload.valid = false;
+                result.payload.contexts_reference_known_ids = false;
+                append_message(
+                    result.report,
+                    result.payload.messages,
+                    make_message(
+                        kernel::ReportSeverity::error,
+                        "planner.cover_unknown_entity",
+                        "Cover context references an entity that is absent from the model.",
+                        {kernel::StableId{"context", context.id.value},
+                         kernel::StableId{"entity", entity_id.value}}));
+            }
+        }
+        for (ConstraintId constraint_id : context.constraint_ids) {
+            if (kernel::find_constraint(model, constraint_id) == nullptr) {
+                result.payload.valid = false;
+                result.payload.contexts_reference_known_ids = false;
+                append_message(
+                    result.report,
+                    result.payload.messages,
+                    make_message(
+                        kernel::ReportSeverity::error,
+                        "planner.cover_unknown_constraint",
+                        "Cover context references a constraint that is absent from the model.",
+                        {kernel::StableId{"context", context.id.value},
+                         kernel::StableId{"constraint", constraint_id.value}}));
+            }
+        }
+        for (kernel::RigidSetId rigid_set_id : context.rigid_set_ids) {
+            if (kernel::find_rigid_set(model, rigid_set_id) == nullptr) {
+                result.payload.valid = false;
+                result.payload.contexts_reference_known_ids = false;
+                append_message(
+                    result.report,
+                    result.payload.messages,
+                    make_message(
+                        kernel::ReportSeverity::error,
+                        "planner.cover_unknown_rigid_set",
+                        "Cover context references a rigid set that is absent from the model.",
+                        {kernel::StableId{"context", context.id.value},
+                         kernel::StableId{"rigid_set", rigid_set_id.value}}));
+            }
+        }
+    }
+
+    for (const auto& entity : model.entities) {
+        bool covered = false;
+        for (const auto& context : cover_plan.contexts) {
+            if (kernel::contains_entity(context.entity_ids, entity.id)) {
+                covered = true;
+                break;
+            }
+        }
+        if (!covered) {
+            result.payload.valid = false;
+            result.payload.covers_all_entities = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.cover_missing_entity",
+                    "Cover plan does not cover a model entity.",
+                    {kernel::StableId{"entity", entity.id.value}}));
+        }
+    }
+
+    for (const auto& constraint : model.constraints) {
+        bool covered = false;
+        for (const auto& context : cover_plan.contexts) {
+            if (kernel::contains_constraint(context.constraint_ids, constraint.id)) {
+                covered = true;
+                break;
+            }
+        }
+        if (!covered) {
+            result.payload.valid = false;
+            result.payload.covers_all_constraints = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.cover_missing_constraint",
+                    "Cover plan does not cover a model constraint.",
+                    {kernel::StableId{"constraint", constraint.id.value}}));
+        }
+    }
+
+    for (const auto& projection : cover_plan.boundary_projections) {
+        if (!contains_context(cover_plan.contexts, projection.source_context_id) ||
+            !contains_context(cover_plan.contexts, projection.target_context_id)) {
+            result.payload.valid = false;
+            result.payload.boundary_projections_reference_known_contexts = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.cover_projection_missing_context",
+                    "Boundary projection references a context absent from the cover.",
+                    {kernel::StableId{"projection", projection.id.value}}));
+        }
+
+        for (EntityId entity_id : projection.entity_ids) {
+            if (kernel::find_entity(model, entity_id) == nullptr) {
+                result.payload.valid = false;
+                append_message(
+                    result.report,
+                    result.payload.messages,
+                    make_message(
+                        kernel::ReportSeverity::error,
+                        "planner.cover_projection_unknown_entity",
+                        "Boundary projection references an entity absent from the model.",
+                        {kernel::StableId{"projection", projection.id.value},
+                         kernel::StableId{"entity", entity_id.value}}));
+            }
+        }
+    }
+
+    return result;
+}
+
+gcs::kernel::ContractResult<SolveOrderValidationReport> validate_solve_order(
+    const PlannerOutput& output) {
+    kernel::ContractResult<SolveOrderValidationReport> result;
+    result.report = kernel::make_stage_report("decomposition_planner.validate_solve_order");
+    result.payload.step_count = static_cast<int>(output.solve_order.size());
+
+    int expected_order = 0;
+    for (const auto& step : output.solve_order) {
+        if (step.order != expected_order) {
+            result.payload.valid = false;
+            result.payload.strictly_ordered = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.solve_order_not_strict",
+                    "Solve-order entries must be deterministic and strictly ordered.",
+                    {kernel::StableId{"context", step.context_id.value}}));
+        }
+        ++expected_order;
+
+        if (!contains_subproblem_context(output.subproblems, step.context_id)) {
+            result.payload.valid = false;
+            result.payload.every_step_has_context = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.solve_order_missing_subproblem_context",
+                    "Solve-order step references no known subproblem context.",
+                    {kernel::StableId{"context", step.context_id.value}}));
+        }
+    }
+
+    for (const auto& subproblem : output.subproblems) {
+        if (!contains_step_context(output.solve_order, subproblem.context_id)) {
+            result.payload.valid = false;
+            result.payload.covers_all_subproblems = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.solve_order_missing_subproblem",
+                    "Solve order does not contain a subproblem context.",
+                    {kernel::StableId{"context", subproblem.context_id.value}}));
+        }
+    }
+
+    return result;
 }
 
 }
