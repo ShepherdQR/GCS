@@ -5,6 +5,7 @@ module;
 #include <sstream>
 #include <string>
 #include <utility>
+#include <vector>
 
 module gcs.contract_tools;
 
@@ -23,8 +24,149 @@ std::string fixture_id(FixtureKind kind) {
             return "unsatisfied_two_point_distance";
         case FixtureKind::two_component_distance: return "two_component_distance";
         case FixtureKind::missing_entity_reference: return "missing_entity_reference";
+        case FixtureKind::under_constrained_free_point:
+            return "under_constrained_free_point";
+        case FixtureKind::over_constrained_duplicate_distance:
+            return "over_constrained_duplicate_distance";
+        case FixtureKind::redundant_distance_pair: return "redundant_distance_pair";
+        case FixtureKind::inconsistent_distance_pair: return "inconsistent_distance_pair";
+        case FixtureKind::singular_coincident_points: return "singular_coincident_points";
+        case FixtureKind::gluing_obstruction_pair: return "gluing_obstruction_pair";
     }
     return "unknown";
+}
+
+FixtureClass fixture_class(FixtureKind kind) {
+    switch (kind) {
+        case FixtureKind::two_point_distance:
+        case FixtureKind::unsatisfied_two_point_distance:
+        case FixtureKind::two_component_distance:
+            return FixtureClass::valid;
+        case FixtureKind::missing_entity_reference: return FixtureClass::invalid;
+        case FixtureKind::under_constrained_free_point:
+            return FixtureClass::under_constrained;
+        case FixtureKind::over_constrained_duplicate_distance:
+            return FixtureClass::over_constrained;
+        case FixtureKind::redundant_distance_pair: return FixtureClass::redundant;
+        case FixtureKind::inconsistent_distance_pair: return FixtureClass::inconsistent;
+        case FixtureKind::singular_coincident_points: return FixtureClass::singular;
+        case FixtureKind::gluing_obstruction_pair:
+            return FixtureClass::gluing_obstruction;
+    }
+    return FixtureClass::invalid;
+}
+
+FixtureExpectation fixture_expectation(FixtureKind kind) {
+    FixtureExpectation expectation;
+    switch (kind) {
+        case FixtureKind::two_point_distance:
+        case FixtureKind::two_component_distance:
+            expectation.expected_status = kernel::SolveStatus::solved;
+            expectation.evidence_phase = "kernel.validation";
+            break;
+        case FixtureKind::unsatisfied_two_point_distance:
+            expectation.expected_status = kernel::SolveStatus::inconsistent;
+            expectation.expected_report_codes = {"diagnostics.residual_conflict"};
+            expectation.evidence_phase = "diagnostics.residual_analysis";
+            break;
+        case FixtureKind::missing_entity_reference:
+            expectation.expected_status = kernel::SolveStatus::invalid_model;
+            expectation.expected_report_codes = {"kernel.missing_entity"};
+            expectation.evidence_phase = "kernel.validation";
+            break;
+        case FixtureKind::under_constrained_free_point:
+            expectation.expected_status = kernel::SolveStatus::under_constrained;
+            expectation.expected_report_codes = {"diagnostics.numeric_rank_under_constrained"};
+            expectation.evidence_phase = "diagnostics.rank";
+            break;
+        case FixtureKind::over_constrained_duplicate_distance:
+            expectation.expected_status = kernel::SolveStatus::over_constrained;
+            expectation.expected_report_codes = {
+                "diagnostics.overconstrained_redundancy_candidate"};
+            expectation.evidence_phase = "diagnostics.redundancy";
+            break;
+        case FixtureKind::redundant_distance_pair:
+            expectation.expected_status = kernel::SolveStatus::redundant;
+            expectation.expected_report_codes = {
+                "diagnostics.redundant_duplicate_distance"};
+            expectation.evidence_phase = "diagnostics.redundancy";
+            break;
+        case FixtureKind::inconsistent_distance_pair:
+            expectation.expected_status = kernel::SolveStatus::inconsistent;
+            expectation.expected_report_codes = {"diagnostics.residual_conflict"};
+            expectation.evidence_phase = "diagnostics.residual_analysis";
+            break;
+        case FixtureKind::singular_coincident_points:
+            expectation.expected_status = kernel::SolveStatus::numerically_singular;
+            expectation.expected_report_codes = {
+                "constraint.degenerate_zero_distance_direction"};
+            expectation.evidence_phase = "constraint_catalog.residual";
+            break;
+        case FixtureKind::gluing_obstruction_pair:
+            expectation.expected_status = kernel::SolveStatus::inconsistent;
+            expectation.expected_report_codes = {
+                "gluing.boundary_projection_mismatch"};
+            expectation.evidence_phase = "diagnostics.gluing";
+            break;
+    }
+    return expectation;
+}
+
+std::vector<FixtureKind> default_fixture_kinds(bool include_negative) {
+    std::vector<FixtureKind> kinds = {
+        FixtureKind::two_point_distance,
+        FixtureKind::two_component_distance,
+    };
+    if (!include_negative) return kinds;
+    kinds.push_back(FixtureKind::unsatisfied_two_point_distance);
+    kinds.push_back(FixtureKind::missing_entity_reference);
+    kinds.push_back(FixtureKind::under_constrained_free_point);
+    kinds.push_back(FixtureKind::over_constrained_duplicate_distance);
+    kinds.push_back(FixtureKind::redundant_distance_pair);
+    kinds.push_back(FixtureKind::inconsistent_distance_pair);
+    kinds.push_back(FixtureKind::singular_coincident_points);
+    kinds.push_back(FixtureKind::gluing_obstruction_pair);
+    return kinds;
+}
+
+kernel::EntityDraft make_point(std::uint64_t entity_id,
+                               std::uint64_t rigid_set_id,
+                               double x,
+                               double y,
+                               double z) {
+    kernel::EntityDraft point;
+    point.id = kernel::EntityId{entity_id};
+    point.kind = kernel::GeometryKind::point;
+    point.rigid_set_id = kernel::RigidSetId{rigid_set_id};
+    point.parameters.dimension = kernel::geometry_dof(point.kind);
+    point.parameters.values[0] = x;
+    point.parameters.values[1] = y;
+    point.parameters.values[2] = z;
+    return point;
+}
+
+kernel::ConstraintDraft make_distance(std::uint64_t constraint_id,
+                                      std::uint64_t first_entity_id,
+                                      std::uint64_t second_entity_id,
+                                      double value) {
+    kernel::ConstraintDraft distance;
+    distance.id = kernel::ConstraintId{constraint_id};
+    distance.kind = kernel::ConstraintKind::distance;
+    distance.entity_ids = {
+        kernel::EntityId{first_entity_id},
+        kernel::EntityId{second_entity_id},
+    };
+    distance.value = value;
+    return distance;
+}
+
+std::string join_report_codes(const std::vector<std::string>& codes) {
+    std::ostringstream output;
+    for (std::size_t index = 0; index < codes.size(); ++index) {
+        if (index != 0) output << ",";
+        output << codes[index];
+    }
+    return output.str();
 }
 
 std::uint64_t fnv1a64(const std::string& bytes) {
@@ -45,13 +187,27 @@ std::string digest_hex(const std::string& bytes) {
 std::string golden_summary(const FixtureBundle& fixture) {
     std::ostringstream output;
     output << fixture.provenance.fixture_id << "|"
+           << fixture.provenance.fixture_class << "|"
            << fixture.provenance.generator << "|"
            << fixture.provenance.deterministic_seed << "|"
            << fixture.model.schema_version << "|"
+           << kernel::to_string(fixture.expectation.expected_status) << "|"
+           << fixture.expectation.evidence_phase << "|"
+           << join_report_codes(fixture.expectation.expected_report_codes) << "|"
            << fixture.model.entities.size() << "|"
            << fixture.model.constraints.size() << "|"
            << fixture.whole_context.entity_ids.size() << "|"
            << fixture.whole_context.constraint_ids.size();
+    return output.str();
+}
+
+std::string corpus_summary(const std::vector<FixtureBundle>& fixtures, int seed) {
+    std::ostringstream output;
+    output << "fixture_corpus|gcs.contract_tools|" << seed << "|"
+           << fixtures.size();
+    for (const auto& fixture : fixtures) {
+        output << "\n" << golden_summary(fixture);
+    }
     return output.str();
 }
 
@@ -159,8 +315,65 @@ ModelSnapshot make_missing_entity_reference_model() {
     return model;
 }
 
+ModelSnapshot make_under_constrained_free_point_model() {
+    ModelSnapshot model;
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{0}, {kernel::EntityId{0}}});
+    model.entities.push_back(make_point(0, 0, 0.0, 0.0, 0.0));
+    return model;
+}
+
+ModelSnapshot make_over_constrained_duplicate_distance_model() {
+    ModelSnapshot model = make_two_point_distance_model();
+    for (std::uint64_t constraint_id = 1; constraint_id < 7; ++constraint_id) {
+        model.constraints.push_back(make_distance(constraint_id, 0, 1, 1.0));
+    }
+    return model;
+}
+
+ModelSnapshot make_redundant_distance_pair_model() {
+    ModelSnapshot model = make_two_point_distance_model();
+    model.constraints.push_back(make_distance(1, 0, 1, 1.0));
+    return model;
+}
+
+ModelSnapshot make_inconsistent_distance_pair_model() {
+    ModelSnapshot model = make_two_point_distance_model();
+    model.constraints.push_back(make_distance(1, 0, 1, 2.0));
+    return model;
+}
+
+ModelSnapshot make_singular_coincident_points_model() {
+    ModelSnapshot model = make_two_point_distance_model();
+    model.entities[1].parameters.values[0] = 0.0;
+    model.constraints[0].value = 0.0;
+    return model;
+}
+
+ModelSnapshot make_gluing_obstruction_pair_model() {
+    return make_two_point_distance_model();
+}
+
 ContextSnapshot make_whole_context_for(const ModelSnapshot& model) {
     return kernel::make_whole_model_context(model);
+}
+
+std::string to_string(FixtureKind kind) {
+    return fixture_id(kind);
+}
+
+std::string to_string(FixtureClass fixture_class) {
+    switch (fixture_class) {
+        case FixtureClass::valid: return "valid";
+        case FixtureClass::invalid: return "invalid";
+        case FixtureClass::under_constrained: return "under_constrained";
+        case FixtureClass::over_constrained: return "over_constrained";
+        case FixtureClass::redundant: return "redundant";
+        case FixtureClass::inconsistent: return "inconsistent";
+        case FixtureClass::singular: return "singular";
+        case FixtureClass::gluing_obstruction: return "gluing_obstruction";
+    }
+    return "unknown";
 }
 
 gcs::kernel::ContractResult<FixtureBundle> build_fixture(FixtureBuildRequest request) {
@@ -180,12 +393,60 @@ gcs::kernel::ContractResult<FixtureBundle> build_fixture(FixtureBuildRequest req
         case FixtureKind::missing_entity_reference:
             result.payload.model = make_missing_entity_reference_model();
             break;
+        case FixtureKind::under_constrained_free_point:
+            result.payload.model = make_under_constrained_free_point_model();
+            break;
+        case FixtureKind::over_constrained_duplicate_distance:
+            result.payload.model = make_over_constrained_duplicate_distance_model();
+            break;
+        case FixtureKind::redundant_distance_pair:
+            result.payload.model = make_redundant_distance_pair_model();
+            break;
+        case FixtureKind::inconsistent_distance_pair:
+            result.payload.model = make_inconsistent_distance_pair_model();
+            break;
+        case FixtureKind::singular_coincident_points:
+            result.payload.model = make_singular_coincident_points_model();
+            break;
+        case FixtureKind::gluing_obstruction_pair:
+            result.payload.model = make_gluing_obstruction_pair_model();
+            break;
     }
 
     result.payload.whole_context = make_whole_context_for(result.payload.model);
     result.payload.provenance.fixture_id = fixture_id(request.kind);
+    result.payload.provenance.fixture_class =
+        to_string(fixture_class(request.kind));
     result.payload.provenance.deterministic_seed = request.deterministic_seed;
     result.payload.provenance.schema_version = result.payload.model.schema_version;
+    result.payload.expectation = fixture_expectation(request.kind);
+    return result;
+}
+
+gcs::kernel::ContractResult<GeneratedCorpus> generate_corpus(
+    CorpusGenerationRequest request) {
+    kernel::ContractResult<GeneratedCorpus> result;
+    result.report = kernel::make_stage_report("contract_tools.generate_corpus");
+
+    std::vector<FixtureKind> kinds = request.fixture_kinds.empty()
+                                        ? default_fixture_kinds(request.include_negative)
+                                        : std::move(request.fixture_kinds);
+
+    for (std::size_t index = 0; index < kinds.size(); ++index) {
+        auto fixture = build_fixture(
+            FixtureBuildRequest{kinds[index],
+                                request.deterministic_seed + static_cast<int>(index)});
+        result.payload.fixtures.push_back(std::move(fixture.payload));
+        for (auto message : fixture.report.messages) {
+            kernel::append_report_message(result.report, std::move(message));
+        }
+    }
+
+    result.payload.golden_report.report_name = "fixture_corpus";
+    result.payload.golden_report.canonical_summary =
+        corpus_summary(result.payload.fixtures, request.deterministic_seed);
+    result.payload.golden_report.digest =
+        digest_hex(result.payload.golden_report.canonical_summary);
     return result;
 }
 

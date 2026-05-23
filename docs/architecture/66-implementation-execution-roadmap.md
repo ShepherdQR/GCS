@@ -158,6 +158,7 @@ Status legend: `done`, `in_progress`, `pending`.
     and malformed JSON negative corpus.
 16. `done` - promote diagnostics conflict and redundancy candidates from typed
     placeholders into public contract tools.
+17. `done` - expand reusable fixture corpus and golden report digests.
 
 ## Constraint Catalog Milestone
 
@@ -636,7 +637,7 @@ Second algorithm-deepening batch queue:
   and parse-report contracts.
 - `done` - Deepen diagnostics conflict/redundancy minimization behind the existing
   typed conflict, redundancy, obstruction, and status-precedence contracts.
-- `pending` - Expand reusable negative, singular, redundant, inconsistent, and migration
+- `done` - Expand reusable negative, singular, redundant, inconsistent, and migration
   fixture corpora with golden report digests.
 - `pending` - Promote contract, dependency, fixture, and scene checks into CI-ready quality
   gates.
