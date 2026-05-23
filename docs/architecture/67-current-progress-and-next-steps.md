@@ -18,6 +18,8 @@ Completed algorithm-deepening steps:
   placeholders into public diagnostic tools.
 - Step 17: expanded reusable fixture corpus and golden report digests with
   typed fixture expectations and cross-module evidence checks.
+- Step 18: promoted contract, dependency, fixture, scene, and CLI checks into
+  a single CI-ready quality gate command.
 
 Current validation baseline:
 
@@ -26,6 +28,8 @@ Current validation baseline:
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
+- Default quality gate entry point:
+  `python tools\agentic_design\agentic_toolkit.py run-quality-gates`.
 
 ## Completed Step 17
 
@@ -49,9 +53,25 @@ Delivered:
 - Add contract tests that verify each fixture class produces the expected
   structured status/report evidence through public module APIs.
 
-## Next Step 18
+## Completed Step 18
 
-After Step 17, promote contract, dependency, fixture, and scene checks into
-CI-ready quality gates. This should wire existing build, CTest, documentation,
-inventory, dependency, and fixture corpus checks into deterministic scripts or
-targets that can run locally and in CI without private environment assumptions.
+Step 18 promotes contract, dependency, fixture, scene, and CLI checks into
+CI-ready quality gates.
+
+Delivered:
+
+- Add `run-quality-gates` to `tools/agentic_design/agentic_toolkit.py`.
+- Add Windows wrappers under `scripts/`.
+- Run agentic docs, inventory, skill, and dependency validation by default.
+- Run scene-generation Python tests by default.
+- Run CMake configure/build, full CTest, explicit `ContractToolsContract`
+  fixture corpus tests, and a representative CLI smoke fixture by default.
+- Document the gate contract in
+  `docs/architecture/69-ci-ready-quality-gates.md`.
+
+## Next Step 19
+
+The next practical step is to replace scene-generation promotion gate
+placeholders with public adapters for IO round-trip, kernel validation, runtime
+smoke, diagnostics evidence, and viewer projection. That connects the new
+scene auto explorer to the same quality surface as the C++23 solver contracts.

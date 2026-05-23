@@ -49,6 +49,8 @@ order, not by historical source order. Background research notes live under
      software-engineering operating model, including task intake, planning,
      implementation, verification, review, CI, learning, and GCS
      self-evolution.
+   - `69-ci-ready-quality-gates.md`: Step 18 quality-gate contract for local
+     pre-push and CI execution.
 8. Visualization atlas
    - `70-visualization/gcs-architecture-atlas.md`: architecture diagrams and
      visual grammar for the target GCS shape.

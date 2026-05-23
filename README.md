@@ -64,7 +64,16 @@ default CMake preset output path.
 
 ## Testing
 
-The previous handwritten C++ unit tests were removed during the architecture
-reset. New tests should be designed around the target contracts in
+Run the full local quality gate before pushing solver or architecture changes:
+
+```bat
+scripts\run_quality_gates.cmd
+```
+
+The gate wraps agentic design validation, dependency checks, Python scene tool
+tests, CMake build, CTest contract suites, fixture-corpus checks, and a
+representative CLI smoke run.
+
+New tests should be designed around the target contracts in
 `docs/architecture/30-contracts` and the verification scenes in
 `fixtures/scene/verification`.

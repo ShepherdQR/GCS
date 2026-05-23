@@ -46,6 +46,12 @@ Check C++23 module import boundaries:
 python tools\agentic_design\agentic_toolkit.py check-dependencies
 ```
 
+Run the full local/CI quality gate:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py run-quality-gates
+```
+
 Emit a JSON design card for a module:
 
 ```bat
@@ -121,3 +127,13 @@ the infrastructure needed to implement modules safely:
 Deeper tools such as residual/Jacobian checkers, fixture corpus generators,
 schema migration runners, and golden report writers should be added as the
 owning modules reach implementation.
+
+## CI-Ready Quality Gate
+
+`run-quality-gates` is the Step 18 pre-push and CI entry point. By default it
+runs agentic design checks, scene-generation Python tests, CMake configure and
+build, full CTest, the explicit `ContractToolsContract` fixture-corpus
+selection, and a representative CLI smoke fixture.
+
+Use `--continue-on-failure` when collecting a complete failure report. Use
+skip flags only for narrow debugging or split CI jobs.

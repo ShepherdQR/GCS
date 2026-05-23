@@ -159,6 +159,8 @@ Status legend: `done`, `in_progress`, `pending`.
 16. `done` - promote diagnostics conflict and redundancy candidates from typed
     placeholders into public contract tools.
 17. `done` - expand reusable fixture corpus and golden report digests.
+18. `done` - promote contract, dependency, fixture, scene, and CLI checks into
+    CI-ready quality gates.
 
 ## Constraint Catalog Milestone
 
@@ -639,8 +641,38 @@ Second algorithm-deepening batch queue:
   typed conflict, redundancy, obstruction, and status-precedence contracts.
 - `done` - Expand reusable negative, singular, redundant, inconsistent, and migration
   fixture corpora with golden report digests.
-- `pending` - Promote contract, dependency, fixture, and scene checks into CI-ready quality
+- `done` - Promote contract, dependency, fixture, and scene checks into CI-ready quality
   gates.
+
+## CI-Ready Quality Gate Step Plan
+
+Implemented commit-level scope:
+
+- Add `run-quality-gates` to `tools/agentic_design/agentic_toolkit.py` as the
+  single pre-push and CI entry point.
+- Include agentic documentation validation, inventory validation, skill
+  validation, and C++23 module dependency checks in the default gate.
+- Include Python scene-generation explorer tests in the default gate so scene
+  search and promotion evidence do not drift outside CTest.
+- Include CMake configure/build, full CTest, explicit `ContractToolsContract`
+  fixture-corpus tests, and a representative CLI smoke fixture.
+- Add `scripts/run_quality_gates.cmd` and `scripts/run_quality_gates.ps1`
+  wrappers for local Windows use.
+- Document the quality gate contract in
+  `docs/architecture/69-ci-ready-quality-gates.md`.
+
+## CI-Ready Quality Gate Milestone
+
+Implemented scope for Step 18:
+
+- The repository now has one deterministic quality-gate command:
+  `python tools\agentic_design\agentic_toolkit.py run-quality-gates`.
+- The command reports each gate with stable IDs, durations, exit codes, and a
+  final pass/fail summary.
+- The gate stops on first failure by default and supports
+  `--continue-on-failure` for CI diagnostics.
+- Split-job and debug usage can skip agentic, Python, build, CTest, or CLI
+  gates explicitly, while the default remains the merge-quality path.
 
 ## Damped Numeric Local Solve Step Plan
 

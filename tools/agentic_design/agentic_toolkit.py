@@ -9,8 +9,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -24,6 +27,15 @@ DEFAULT_INVENTORY = ROOT / "tools" / "agentic_design" / "module_inventory.json"
 class CheckResult:
     ok: bool
     message: str
+
+
+@dataclass(frozen=True)
+class GateResult:
+    gate_id: str
+    ok: bool
+    duration_seconds: float
+    command: str
+    exit_code: int
 
 
 def load_inventory(path: Path) -> dict[str, Any]:
@@ -361,6 +373,103 @@ def run_checks(checks: list[CheckResult]) -> int:
     return 1 if failed else 0
 
 
+def command_text(command: list[str | os.PathLike[str]]) -> str:
+    return " ".join(str(part) for part in command)
+
+
+def run_process_gate(gate_id: str,
+                     command: list[str | os.PathLike[str]]) -> GateResult:
+    print(f"[RUN] {gate_id}: {command_text(command)}", flush=True)
+    start = time.monotonic()
+    completed = subprocess.run(command, cwd=ROOT)
+    duration = time.monotonic() - start
+    ok = completed.returncode == 0
+    prefix = "OK" if ok else "FAIL"
+    print(f"[{prefix}] {gate_id}: exit={completed.returncode} duration={duration:.2f}s", flush=True)
+    return GateResult(
+        gate_id=gate_id,
+        ok=ok,
+        duration_seconds=duration,
+        command=command_text(command),
+        exit_code=completed.returncode,
+    )
+
+
+def run_quality_gates(args: argparse.Namespace) -> int:
+    script = Path(__file__).resolve()
+    python = sys.executable
+    build_dir = repo_path(args.build_dir)
+    exe_name = "GCS.exe" if os.name == "nt" else "GCS"
+    cli_exe = build_dir / exe_name
+    results: list[GateResult] = []
+
+    commands: list[tuple[str, list[str | os.PathLike[str]]]] = []
+    if not args.skip_agentic:
+        for command in [
+            "validate-docs",
+            "validate-inventory",
+            "validate-skills",
+            "check-dependencies",
+        ]:
+            commands.append((f"agentic.{command}", [python, script, command]))
+
+    if not args.skip_python_tools:
+        commands.append((
+            "python.scene_generation_explorer",
+            [python, "-m", "unittest", "tests.tools.test_scene_generation_explorer"],
+        ))
+
+    if not args.skip_build:
+        commands.append(("cmake.configure", ["cmake", "--preset", args.preset]))
+        commands.append(("cmake.build", ["cmake", "--build", "--preset", args.preset]))
+
+    if not args.skip_ctest:
+        commands.append((
+            "ctest.contracts",
+            ["ctest", "--test-dir", build_dir, "--output-on-failure", "--no-tests=error"],
+        ))
+        commands.append((
+            "ctest.fixture_corpus",
+            [
+                "ctest",
+                "--test-dir",
+                build_dir,
+                "-R",
+                "ContractToolsContract",
+                "--output-on-failure",
+                "--no-tests=error",
+            ],
+        ))
+
+    if not args.skip_cli:
+        commands.append((
+            "cli.basic_scene",
+            [cli_exe, repo_path("fixtures/scene/basic/g1.txt")],
+        ))
+
+    for gate_id, command in commands:
+        result = run_process_gate(gate_id, command)
+        results.append(result)
+        if not result.ok and not args.continue_on_failure:
+            break
+
+    failed = [result for result in results if not result.ok]
+    print("\nQuality gate summary")
+    print("====================")
+    for result in results:
+        prefix = "OK" if result.ok else "FAIL"
+        print(f"[{prefix}] {result.gate_id} ({result.duration_seconds:.2f}s)")
+
+    if failed:
+        print("\nFailed gates:")
+        for result in failed:
+            print(f"- {result.gate_id}: exit={result.exit_code}; command={result.command}")
+        return 1
+
+    print("\nAll requested quality gates passed.")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="GCS agentic design toolkit")
     parser.add_argument(
@@ -375,6 +484,19 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("validate-inventory", help="Validate structured module inventory")
     subparsers.add_parser("validate-docs", help="Validate architecture design coverage")
     subparsers.add_parser("check-dependencies", help="Check C++23 module import boundaries")
+
+    gates = subparsers.add_parser(
+        "run-quality-gates",
+        help="Run CI-ready build, test, scene, and architecture quality gates",
+    )
+    gates.add_argument("--preset", default="clang-ninja")
+    gates.add_argument("--build-dir", default="out/build/clang-ninja")
+    gates.add_argument("--skip-agentic", action="store_true")
+    gates.add_argument("--skip-python-tools", action="store_true")
+    gates.add_argument("--skip-build", action="store_true")
+    gates.add_argument("--skip-ctest", action="store_true")
+    gates.add_argument("--skip-cli", action="store_true")
+    gates.add_argument("--continue-on-failure", action="store_true")
 
     card = subparsers.add_parser("emit-design-card", help="Emit JSON design card for a module")
     card.add_argument("--module", required=True)
@@ -405,6 +527,8 @@ def main(argv: list[str]) -> int:
         return run_checks(validate_docs(inventory))
     if args.command == "check-dependencies":
         return run_checks(check_dependencies(inventory))
+    if args.command == "run-quality-gates":
+        return run_quality_gates(args)
     if args.command == "emit-design-card":
         return emit_design_card(args, inventory)
     if args.command == "scaffold-contract-test":
