@@ -72,6 +72,8 @@ Acceptance:
 
 Reshape the left column from stacked debug panels into a model inspector.
 
+Detailed design: `docs/architecture/72-ui-aesthetic-phase-3-inspector-layout.md`.
+
 Deliverables:
 
 - top model summary section with model name, RS/G/C counts, DOF, and status;
@@ -89,6 +91,8 @@ Acceptance:
 
 Make temporal workflows feel intentional.
 
+Detailed design: `docs/architecture/72-ui-aesthetic-phase-4-replay-solve-polish.md`.
+
 Deliverables:
 
 - replay rail near the viewport with step, action, and speed controls;
@@ -104,6 +108,8 @@ Acceptance:
 ## Phase 5: Design QA And Accessibility
 
 Codify visual quality gates.
+
+Detailed design: `docs/architecture/72-ui-aesthetic-phase-5-design-qa-accessibility.md`.
 
 Deliverables:
 
