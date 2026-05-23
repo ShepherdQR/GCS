@@ -569,6 +569,10 @@ private:
 Implementation responsibilities:
 
 - Command validation.
+- Kernel model validation before any constraint, planning, numeric, or viewer
+  boundary work.
+- Constraint catalog validation as its own recorded transaction stage after
+  kernel validation succeeds.
 - Dependency-injected planner, numeric, diagnostics, IO, and viewer adapters.
 - Transaction snapshot and journal.
 - Stage trace collection.
@@ -757,6 +761,7 @@ tests/contracts/io_adapters/io_adapters_contract_tests.cpp
 tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp
 tests/contracts/contract_tools/contract_tools_contract_tests.cpp
 tests/contracts/module_dependency/module_dependency_contract_tests.cpp
+tests/contracts/quality/cross_module_quality_contract_tests.cpp
 tests/contracts/pipeline/pipeline_contract_tests.cpp
 ```
 
@@ -774,12 +779,15 @@ tests/contracts/io_adapters/io_adapters_contract_tests.cpp
 tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp
 tests/contracts/contract_tools/contract_tools_contract_tests.cpp
 tests/contracts/module_dependency/module_dependency_contract_tests.cpp
+tests/contracts/quality/cross_module_quality_contract_tests.cpp
 ```
 
 Test principles:
 
 - Tests import public C++23 modules only.
 - Tests assert structured contracts, not private implementation details.
+- Cross-module suites assert report-code propagation, state-version behavior,
+  and boundary projection evidence across public modules only.
 - Negative cases are first-class.
 - Every failure test asserts a stable report code and stable subject IDs.
 - Numeric tests use tolerance policies and report evidence, not exact incidental

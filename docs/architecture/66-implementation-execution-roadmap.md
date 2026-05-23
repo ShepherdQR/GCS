@@ -120,6 +120,7 @@ For each commit-level step:
   - `tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp`
   - `tests/contracts/contract_tools/contract_tools_contract_tests.cpp`
   - `tests/contracts/module_dependency/module_dependency_contract_tests.cpp`
+  - `tests/contracts/quality/cross_module_quality_contract_tests.cpp`
 
 ## Commit-Level Step Queue
 
@@ -149,7 +150,7 @@ Status legend: `done`, `in_progress`, `pending`.
     and history projection contracts.
 12. `done` - split and harden contract tools: fixture provenance,
     invariant checks, dependency audits, golden reports.
-13. `in_progress` - add cross-module quality gates and broader negative fixture
+13. `done` - add cross-module quality gates and broader negative fixture
     corpus.
 
 ## Constraint Catalog Milestone
@@ -575,6 +576,64 @@ Implement the cross-module quality gate and negative corpus milestone:
   rather than ad hoc test-local models.
 - Close the first implementation roadmap batch with a quality summary in this
   document.
+
+## Cross-Module Quality Gate Step Plan
+
+Implemented commit-level scope:
+
+- Add a dedicated cross-module contract suite that exercises reusable negative
+  fixtures through public IO, runtime, diagnostics, viewer, and contract-tool
+  APIs.
+- Assert stable report codes and state-version behavior for invalid models,
+  unsupported scene formats, gluing obstructions, and accepted round trips.
+- Use `gcs.contract_tools` fixture provenance instead of test-local ad hoc
+  model construction wherever possible.
+- Register the suite as a CTest quality gate and record it in the bootstrap
+  contract suite inventory.
+- Close the first roadmap batch with a concise implementation quality summary.
+
+## Cross-Module Quality Gate Milestone
+
+Implemented scope for the cross-module quality gate and negative corpus
+milestone:
+
+- Add `tests/contracts/quality/cross_module_quality_contract_tests.cpp` and
+  the `gcs_cross_module_quality_contract_tests` CTest target.
+- Verify invalid model rollback propagates the stable
+  `kernel.missing_entity` report code from kernel validation through session
+  runtime stage reports without advancing state version.
+- Strengthen `gcs.session_runtime` so execution runs kernel model validation
+  before constraint catalog validation, then records a separate
+  `constraint_validation` stage for catalog-specific failures.
+- Verify unsupported JSON scene loading reports typed
+  `io.schema.unsupported_read` parse evidence.
+- Verify projection-aware gluing obstruction evidence flows into viewer
+  diagnostic overlays as `gluing.boundary_projection_mismatch`.
+- Verify canonical text round-trip, accepted runtime solve, and viewer
+  projection all agree on stable IDs and state version.
+- Verify negative fixture provenance is attached to invariant reports through
+  `gcs.contract_tools`.
+
+## First Implementation Batch Summary
+
+The first commit-level implementation batch is complete. It established
+contract-tested C++23 module skeletons from kernel through constraint catalog,
+incidence graph, decomposition planner, numeric engine, diagnostics, session
+runtime, IO adapters, viewer bridge, contract tools, dependency audits, and
+cross-module quality gates.
+
+Next algorithm-deepening batch candidates:
+
+- Replace baseline numeric local solve with an iterative damped solve while
+  preserving residual, Jacobian, rank, boundary, and trace contracts.
+- Add a real JSON parser and migration pipeline behind the existing IO schema
+  and parse-report contracts.
+- Deepen diagnostics conflict/redundancy minimization behind the existing
+  typed conflict, redundancy, obstruction, and status-precedence contracts.
+- Expand reusable negative, singular, redundant, inconsistent, and migration
+  fixture corpora with golden report digests.
+- Promote contract, dependency, fixture, and scene checks into CI-ready quality
+  gates.
 
 ## Decomposition Planner Step Plan
 

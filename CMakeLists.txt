@@ -216,6 +216,19 @@ if(GCS_BUILD_TESTS)
                 PROPERTIES LABELS "contract;module_dependency"
             )
 
+            add_executable(gcs_cross_module_quality_contract_tests
+                tests/contracts/quality/cross_module_quality_contract_tests.cpp
+            )
+            target_link_libraries(gcs_cross_module_quality_contract_tests
+                PRIVATE
+                    gcs_solver
+                    GTest::gtest_main
+            )
+            target_compile_features(gcs_cross_module_quality_contract_tests PRIVATE cxx_std_23)
+            gtest_discover_tests(gcs_cross_module_quality_contract_tests
+                PROPERTIES LABELS "contract;quality"
+            )
+
             add_executable(gcs_pipeline_contract_tests
                 tests/contracts/pipeline/pipeline_contract_tests.cpp
             )

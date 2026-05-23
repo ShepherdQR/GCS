@@ -165,19 +165,36 @@ CommandResult SessionRuntime::execute(const Command& command) {
     ModelSnapshot transaction_snapshot = current_snapshot_;
     transaction_snapshot.solve_intent = command.solve_intent;
 
-    StageReport validation_report = constraints::validate_model_constraints(transaction_snapshot);
+    auto kernel_validation = kernel::validate_model(transaction_snapshot);
     record_stage(
         result,
         "model_validation",
+        kernel_validation.report,
+        transaction_snapshot.state_version,
+        transaction_snapshot.state_version);
+    if (kernel_validation.report.status == kernel::StageStatus::error) {
+        result.user_visible_status = SolveStatus::invalid_model;
+        result.obstruction_report = diagnostics::make_obstruction(
+            "runtime.invalid_model",
+            "Kernel model validation failed before planning.");
+        rollback(result, "Model validation failed.", current_snapshot_.state_version);
+        history_.push_back(make_history_event(result));
+        return result;
+    }
+
+    StageReport validation_report = constraints::validate_model_constraints(transaction_snapshot);
+    record_stage(
+        result,
+        "constraint_validation",
         validation_report,
         transaction_snapshot.state_version,
         transaction_snapshot.state_version);
     if (validation_report.status == kernel::StageStatus::error) {
         result.user_visible_status = SolveStatus::invalid_model;
         result.obstruction_report = diagnostics::make_obstruction(
-            "runtime.invalid_model",
+            "runtime.invalid_constraints",
             "Constraint catalog validation failed before planning.");
-        rollback(result, "Model validation failed.", current_snapshot_.state_version);
+        rollback(result, "Constraint validation failed.", current_snapshot_.state_version);
         history_.push_back(make_history_event(result));
         return result;
     }

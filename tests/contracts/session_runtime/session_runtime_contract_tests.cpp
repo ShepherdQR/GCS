@@ -101,6 +101,7 @@ TEST(SessionRuntimeContract, StageTraceIsCompleteForAcceptedSolve) {
 
     EXPECT_TRUE(has_stage(result.transaction_trace, "command_validation"));
     EXPECT_TRUE(has_stage(result.transaction_trace, "model_validation"));
+    EXPECT_TRUE(has_stage(result.transaction_trace, "constraint_validation"));
     EXPECT_TRUE(has_stage(result.transaction_trace, "incidence_index"));
     EXPECT_TRUE(has_stage(result.transaction_trace, "planning"));
     EXPECT_TRUE(has_stage(result.transaction_trace, "pre_solve_diagnostics"));
