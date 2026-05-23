@@ -27,6 +27,10 @@ facade, while stable helper boundaries now live under
   Tarjan biconnected-component evidence.
 - `gcs_model.py`: geometry-primal edges, rigid-set rebuilding, geometry maps,
   rigid-set invariant checks, graph coloring, and rigid-set assignment.
+- `validation.py`: generator-local schema validation for IDs, references,
+  signatures, arity, degeneracy, scalar ranges, and rigid-set memberships.
+- `projection.py`: geometry-primal, incidence-bipartite, and rigid-set
+  quotient projection builders.
 
 ## Compatibility Flow
 
@@ -147,8 +151,9 @@ Keep these pieces when rewriting the explorer structure:
 - skeleton generators for `cycle_plus_chords` and `ear_decomposition`;
 - geometry and constraint signature tables in `gcs_scene_generation.contracts`;
 - rigid-set coloring and GCS model helpers in `gcs_scene_generation.gcs_model`;
-- local schema validation;
-- geometry-primal, incidence-bipartite, and rigid-set quotient projections;
+- local schema validation in `gcs_scene_generation.validation`;
+- geometry-primal, incidence-bipartite, and rigid-set quotient projections in
+  `gcs_scene_generation.projection`;
 - parameter assignment for non-degenerate point, line, and plane data;
 - canonical JSON and custom text serialization;
 - public scene conversion and solver smoke adapters in
@@ -185,19 +190,19 @@ tools/scene_generation/
     promotion.py        # implemented
     topology.py         # implemented
     gcs_model.py        # implemented
-    validation.py
-    projection.py
+    validation.py       # implemented
+    projection.py       # implemented
     parameterization.py
     reporting.py
     explorer.py
 ```
 
 The current v1 keeps command compatibility inside `tools.py`. Step 20 moved
-contracts/storage/promotion helpers, and Step 21 moved topology plus GCS model
-helpers. Validation, projection, parameterization, reporting, and explorer
-orchestration remain behind the existing facade until their tests are split.
-Do not move generation or repair policy into the solver, GUI, or scene IO
-modules.
+contracts/storage/promotion helpers, Step 21 moved topology plus GCS model
+helpers, and Step 22 moved validation plus projection helpers.
+Parameterization, reporting, and explorer orchestration remain behind the
+existing facade until their tests are split. Do not move generation or repair
+policy into the solver, GUI, or scene IO modules.
 
 ## Tests
 

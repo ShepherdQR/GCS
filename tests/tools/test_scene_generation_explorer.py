@@ -14,7 +14,7 @@ PACKAGE_ROOT = REPO_ROOT / "tools" / "scene_generation"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from gcs_scene_generation import contracts, gcs_model, promotion, storage, topology
+from gcs_scene_generation import contracts, gcs_model, projection, promotion, storage, topology, validation
 
 
 def load_tools(store_dir: Path):
@@ -101,6 +101,28 @@ class SceneGenerationExplorerTests(unittest.TestCase):
         self.assertTrue(promotion.canonical_public_scene_text(scene).endswith("\n"))
         self.assertEqual(topology.unique_edges([[2, 1], [1, 2], [2, 2]]), [[1, 2]])
         gcs_model.rebuild_rigid_sets({"geometries": [], "rigid_sets": []}, 0)
+
+    def test_validation_and_projection_modules_report_structured_contracts(self):
+        gcs = {
+            "rigid_sets": [{"id": 0, "geometry_ids": [1]}, {"id": 1, "geometry_ids": [2]}],
+            "geometries": [
+                {"id": 1, "type": "Point", "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
+                {"id": 2, "type": "Plane", "rigid_set_id": 1, "v": [0, 0, 0, 0, 0, 1]},
+            ],
+            "constraints": [{"id": 7, "type": "Parallel", "geometry_ids": [1, 2], "value": 0.0}],
+        }
+
+        report = validation.validate_gcs_schema(gcs)
+        self.assertFalse(report["valid"])
+        self.assertEqual(report["violations"][0]["type"], "invalid_constraint_signature")
+
+        incidence = projection.project_gcs_graph("invalid_gcs", gcs, "incidence_bipartite", "invalid_incidence")
+        self.assertEqual(incidence["vertices"], ["G1", "G2", "C7"])
+        self.assertEqual(incidence["edges"], [["G1", "C7"], ["G2", "C7"]])
+        self.assertEqual(
+            projection.project_gcs_graph("invalid_gcs", gcs, "unknown", "bad_projection")["error"],
+            "Unknown projection: unknown",
+        )
 
     def test_explorer_is_deterministic_and_keeps_negative_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:

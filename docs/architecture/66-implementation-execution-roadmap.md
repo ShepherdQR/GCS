@@ -167,6 +167,8 @@ Status legend: `done`, `in_progress`, `pending`.
     contracts, storage, and public promotion adapters from the CLI facade.
 21. `done` - continue the scene-generation package split by extracting
     topology and GCS model helpers while preserving manual generation flow.
+22. `done` - extract scene-generation validation and projection helpers with
+    focused structured contract tests.
 
 ## Constraint Catalog Milestone
 
@@ -757,6 +759,31 @@ Implemented scope for Step 21:
 - GCS rigid-set/model helper logic no longer lives directly in the CLI facade.
 - The remaining split target is validation, projection, parameterization,
   reporting, and explorer orchestration.
+
+## Scene Generation Validation/Projection Split Step Plan
+
+Implemented commit-level scope:
+
+- Add `gcs_scene_generation.validation` for generator-local schema validation:
+  IDs, references, signatures, arity, degeneracy, scalar ranges, and rigid-set
+  memberships.
+- Add `gcs_scene_generation.projection` for geometry-primal,
+  incidence-bipartite, and rigid-set quotient projection builders.
+- Keep `tools.py` as the CLI facade with compatibility wrappers around the
+  moved validation and projection helpers.
+- Add focused tests for invalid signature evidence and projection shape
+  contracts.
+
+## Scene Generation Validation/Projection Split Milestone
+
+Implemented scope for Step 22:
+
+- Validation and projection algorithms no longer live directly in the CLI
+  facade.
+- Tests cover direct structured module input/output plus the existing command
+  facade paths.
+- The remaining split target is parameterization, reporting, and explorer
+  orchestration.
 
 ## Damped Numeric Local Solve Step Plan
 

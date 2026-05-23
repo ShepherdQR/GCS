@@ -18,6 +18,12 @@
 - `tools/scene_generation/gcs_scene_generation/gcs_model.py`: geometry-primal
   edge derivation, rigid-set rebuilding, geometry maps, rigid-set invariant
   checks, graph coloring, and rigid-set assignment.
+- `tools/scene_generation/gcs_scene_generation/validation.py`: generator-local
+  schema validation for IDs, references, signatures, arity, degeneracy,
+  scalar ranges, and rigid-set memberships.
+- `tools/scene_generation/gcs_scene_generation/projection.py`: projection
+  builders for `geometry_primal`, `incidence_bipartite`, and
+  `rigidset_quotient`.
 - `tools/scene_generation/tools.md`: design notes for the tool family.
 - `tools/scene_generation/.store`: local generated JSON graph store used by
   the tools. Treat this as scratch state unless a generated graph is promoted.

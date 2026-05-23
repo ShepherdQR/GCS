@@ -26,6 +26,8 @@ Completed algorithm-deepening steps:
   contracts, storage, and public promotion adapters from the CLI facade.
 - Step 21: continued the scene-generation package split by extracting
   topology and GCS model helpers while preserving manual generation flow.
+- Step 22: extracted validation and projection helpers with focused structured
+  contract tests.
 
 Current validation baseline:
 
@@ -121,8 +123,22 @@ Delivered:
 - Extend tests with a manual generate -> lift -> parameterize -> validate ->
   project -> biconnectivity path.
 
-## Next Step 22
+## Completed Step 22
 
-The next step is to extract validation and projection helpers from `tools.py`
-into package modules, then add focused tests over invalid signatures,
-rigid-set violations, and projection shape contracts.
+Step 22 moves validation and projection helpers out of the scene-generation
+CLI facade.
+
+Delivered:
+
+- Add `gcs_scene_generation.validation` for IDs, references, signatures,
+  arity, degeneracy, scalar ranges, and rigid-set membership validation.
+- Add `gcs_scene_generation.projection` for geometry-primal,
+  incidence-bipartite, and rigid-set quotient projection builders.
+- Keep `tools.py` as the CLI facade through compatibility wrappers.
+- Extend tests with invalid-signature evidence and projection shape checks.
+
+## Next Step 23
+
+The next step is to extract parameterization and reporting helpers from
+`tools.py`, then split tests around deterministic layout/value assignment and
+graph report summaries.
