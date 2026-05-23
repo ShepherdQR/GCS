@@ -54,6 +54,13 @@ class GCSPlatformGUI:
         self.summary_counts_var = tk.StringVar(value="RS 0   G 0   C 0")
         self.summary_dof_var = tk.StringVar(value="Net DOF: 0")
         self.summary_status_var = tk.StringVar(value="Status: Empty")
+        self.replay_state_var = tk.StringVar(value="Replay ready")
+        self.replay_step_var = tk.StringVar(value="Step 0 / 0")
+        self.replay_action_var = tk.StringVar(value="No active replay")
+        self.replay_progress_var = tk.DoubleVar(value=0.0)
+        self.solve_summary_var = tk.StringVar(value="Solve idle")
+        self.solve_state_var = tk.StringVar(value="idle")
+        self._last_solve_report = None
 
         style = ttk.Style()
         self._configure_theme(style)
@@ -284,6 +291,18 @@ class GCSPlatformGUI:
         ttk.Separator(toolbar_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=8)
         ttk.Label(toolbar_frame, textvariable=self.model_name_var, style="Section.TLabel").pack(side=tk.LEFT, padx=4)
 
+        replay_frame = ttk.Frame(parent)
+        replay_frame.pack(fill=tk.X, padx=2, pady=(0, 2))
+        ttk.Label(replay_frame, textvariable=self.replay_state_var, style="RailTitle.TLabel").pack(side=tk.LEFT, padx=(4, 8))
+        ttk.Label(replay_frame, textvariable=self.replay_step_var, style="Rail.TLabel").pack(side=tk.LEFT, padx=(0, 8))
+        ttk.Label(replay_frame, textvariable=self.replay_action_var, style="Rail.TLabel").pack(side=tk.LEFT, fill=tk.X, expand=True)
+        ttk.Progressbar(replay_frame, variable=self.replay_progress_var, maximum=100, length=140).pack(side=tk.LEFT, padx=8)
+        ttk.Button(replay_frame, text="Stop", command=self._stop_history_replay).pack(side=tk.LEFT, padx=(0, 4))
+
+        solve_frame = ttk.Frame(parent)
+        solve_frame.pack(fill=tk.X, padx=2, pady=(0, 2))
+        ttk.Label(solve_frame, textvariable=self.solve_summary_var, style="Rail.TLabel").pack(fill=tk.X, padx=4)
+
         self.fig = plt.figure(figsize=(8, 6), dpi=100)
         self.canvas_widget = FigureCanvasTkAgg(self.fig, master=parent)
         self.toolbar = NavigationToolbar2Tk(self.canvas_widget, parent)
@@ -356,6 +375,8 @@ class GCSPlatformGUI:
         style.configure("SummaryName.TLabel", font=("Segoe UI", 10, "bold"), background=GCS_THEME["bg_panel"], foreground=GCS_THEME["text_primary"])
         style.configure("SummaryValue.TLabel", font=("Consolas", 9), background=GCS_THEME["bg_panel"], foreground=GCS_THEME["text_secondary"])
         style.configure("Section.TLabel", font=("Segoe UI", 9, "bold"), foreground=GCS_THEME["text_secondary"])
+        style.configure("RailTitle.TLabel", font=("Segoe UI", 9, "bold"), background=GCS_THEME["bg_window"], foreground=GCS_THEME["text_primary"])
+        style.configure("Rail.TLabel", font=("Consolas", 9), background=GCS_THEME["bg_window"], foreground=GCS_THEME["text_secondary"])
         style.configure("Status.TLabel", font=("Consolas", 9), background=GCS_THEME["bg_panel_alt"], foreground=GCS_THEME["text_secondary"])
         style.configure("Log.TLabel", font=("Consolas", 9))
         style.configure(
@@ -649,6 +670,49 @@ class GCSPlatformGUI:
             self._log_info(f"Updated C{cid} value={new_value:.3f}, solving...")
             self._solve()
 
+    def _set_solve_summary(self, state: str, message: str):
+        self.solve_state_var.set(state)
+        self.solve_summary_var.set(f"Solve {state}: {message}")
+
+    def _parse_solve_report(self, output: str) -> dict:
+        satisfied = 0
+        violated = 0
+        for line in output.split("\n"):
+            stripped = line.strip()
+            if stripped.endswith("SATISFIED"):
+                satisfied += 1
+            elif stripped.endswith("VIOLATED"):
+                violated += 1
+
+        total = satisfied + violated
+        if "Global status: WellConstrained" in output:
+            global_status = "Well-constrained"
+        elif "Global status: UnderConstrained" in output:
+            global_status = "Under-constrained"
+        elif "Global status: OverConstrained" in output:
+            global_status = "Over-constrained"
+        else:
+            global_status = "Unknown"
+
+        if total == 0:
+            state = "unknown"
+            message = f"{global_status}; no constraint report"
+        elif violated == 0:
+            state = "success"
+            message = f"{satisfied}/{total} constraints satisfied; {global_status}"
+        else:
+            state = "warning"
+            message = f"{satisfied}/{total} satisfied, {violated} violated; {global_status}"
+
+        return {
+            "state": state,
+            "message": message,
+            "satisfied": satisfied,
+            "violated": violated,
+            "total": total,
+            "global_status": global_status,
+        }
+
     def _solve(self):
         if not self.graph.geometries:
             self._log_warning("Nothing to solve — add geometries first")
@@ -662,6 +726,7 @@ class GCSPlatformGUI:
         self.graph.history.append({"action": "Solve", "payload": {}})
 
         if self.engine.is_available():
+            self._set_solve_summary("running", "Solving current model...")
             self._log_info("Solving...")
             self.root.update_idletasks()
 
@@ -671,14 +736,18 @@ class GCSPlatformGUI:
 
             threading.Thread(target=run_solve, daemon=True).start()
         else:
+            self._set_solve_summary("error", f"GCS.exe not found at {self.engine.exe_path}")
             self._log_error(f"GCS.exe not found at {self.engine.exe_path}")
 
     def _on_solve_done(self, result, temp_path):
         if "error" in result:
+            self._set_solve_summary("error", result["error"])
             self._log_error(f"Solve error: {result['error']}")
             return
 
         output = result.get("output", "")
+        report = self._parse_solve_report(output)
+        self._last_solve_report = report
         self.event_store.append(self.scene_id, "SolveCompleted", {"input": temp_path})
 
         is_well = "Global status: WellConstrained" in output
@@ -705,6 +774,7 @@ class GCSPlatformGUI:
         else:
             self._refresh_canvas()
 
+        self._set_solve_summary(report["state"], report["message"])
         constraint_info = self._parse_satisfaction(output)
 
         if all_satisfied:
@@ -772,6 +842,21 @@ class GCSPlatformGUI:
             except Exception as e:
                 self._log_error(f"Load error: {e}")
 
+    def _set_replay_state(self, state: str, step: str, action: str, progress: float):
+        self.replay_state_var.set(state)
+        self.replay_step_var.set(step)
+        self.replay_action_var.set(action)
+        self.replay_progress_var.set(max(0.0, min(100.0, progress)))
+
+    def _stop_history_replay(self):
+        if self._history_replay_job is None and not self._history_replay_history:
+            return
+        restore_view = self._history_replay_view or self.view_var.get()
+        self._cancel_history_replay()
+        self.view_var.set(restore_view)
+        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True)
+        self._log_info("Replay stopped; restored current view")
+
     def _replay_history(self):
         if not self.graph.history:
             self._log_warning("No history to replay")
@@ -784,6 +869,8 @@ class GCSPlatformGUI:
         self.fig.clear()
         self.canvas_widget.draw()
         speed = self._history_replay_speed()
+        total = len(self._history_replay_history)
+        self._set_replay_state("Replay running", f"Step 0 / {total}", "Clearing viewport", 0.0)
         self._log_info(f"Replay history: clearing view (0/{len(self._history_replay_history)}, {speed:.2f}x)")
         self._history_replay_job = self.root.after(self._history_replay_delay_ms(350), self._advance_history_replay)
 
@@ -804,6 +891,13 @@ class GCSPlatformGUI:
         replay_graph = build_history_graph(history, next_index)
         focus = self._history_focus_from_entry(entry, replay_graph)
         title = f"Replay History - Step {next_index + 1}/{len(history)}: {action}"
+        progress = ((next_index + 1) / len(history)) * 100.0
+        self._set_replay_state(
+            "Replay running",
+            f"Step {next_index + 1} / {len(history)}",
+            action,
+            progress,
+        )
 
         try:
             self._draw_graph_on_canvas(
@@ -817,6 +911,7 @@ class GCSPlatformGUI:
         except Exception as exc:
             render_message(self.fig, f"Replay error:\n{exc}", title="Replay History")
             self.canvas_widget.draw()
+            self._set_replay_state("Replay error", f"Step {next_index + 1} / {len(history)}", action, progress)
             self._log_error(f"Replay error: {exc}")
             self._history_replay_job = self.root.after(800, self._finish_history_replay)
             return
@@ -883,6 +978,7 @@ class GCSPlatformGUI:
         self._history_replay_index = -1
         self._history_replay_view = None
         self.view_var.set(restore_view)
+        self._set_replay_state("Replay complete", "Step 0 / 0", "Current model restored", 100.0)
         self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True)
         self._log_success("Replay history complete; restored current view")
 
@@ -896,6 +992,7 @@ class GCSPlatformGUI:
         self._history_replay_history = []
         self._history_replay_index = -1
         self._history_replay_view = None
+        self._set_replay_state("Replay ready", "Step 0 / 0", "No active replay", 0.0)
 
     def _on_replay_speed_change(self, value=None):
         speed = self._history_replay_speed()
