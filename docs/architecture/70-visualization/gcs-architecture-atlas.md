@@ -33,9 +33,13 @@ module metadata.
 
 The Mermaid diagrams in this atlas remain the structural source of truth. The
 SVG below is the editorial artifact intended for high-signal architecture
-communication: it combines a real fixture-derived geometry panel, an incidence
-panel, residual/rank evidence, the runtime pipeline, and local-to-global
-semantics on one Nature-style multi-panel canvas.
+communication. Rather than creating a separate abstract mathematics figure,
+Figure 1 upgrades the main architecture diagram so the engineering pipeline and
+the finite-site/sheaf-gluing interpretation are visible on the same canvas. It
+combines a real fixture-derived geometry panel, an incidence matrix and site
+base, residual/rank/gauge evidence, the runtime pipeline, and a topos semantics
+panel mapping site objects, covers, sections, restrictions, gluing,
+obstructions, and gauge quotients to concrete GCS contracts.
 
 ![Figure 1 - GCS Local-To-Global Constraint Solving](assets/figure1-gcs-local-to-global.svg)
 
