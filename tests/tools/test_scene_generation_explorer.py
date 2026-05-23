@@ -10,6 +10,11 @@ sys.dont_write_bytecode = True
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS_PATH = REPO_ROOT / "tools" / "scene_generation" / "tools.py"
+PACKAGE_ROOT = REPO_ROOT / "tools" / "scene_generation"
+if str(PACKAGE_ROOT) not in sys.path:
+    sys.path.insert(0, str(PACKAGE_ROOT))
+
+from gcs_scene_generation import contracts, promotion, storage
 
 
 def load_tools(store_dir: Path):
@@ -70,6 +75,31 @@ def gate_by_id(package: dict, gate_id: str) -> dict:
 
 
 class SceneGenerationExplorerTests(unittest.TestCase):
+    def test_package_contract_modules_are_structured_boundaries(self):
+        self.assertTrue(contracts.is_valid_constraint_signature("Distance", "Point", "Plane"))
+        self.assertFalse(contracts.is_valid_constraint_signature("Parallel", "Point", "Plane"))
+        with self.assertRaises(ValueError):
+            storage.safe_store_id("../escape", "candidate_id")
+
+        scene = promotion.solver_scene_from_gcs(
+            {
+                "rigid_sets": [{"id": 1}],
+                "geometries": [
+                    {"id": 10, "type": "Point", "rigid_set_id": 1, "v": [1, 2]},
+                    {"id": 20, "type": "Plane", "rigid_set_id": 1, "v": [0, 0, 1, 0, 0, 0]},
+                ],
+                "constraints": [
+                    {"id": 100, "type": "Distance", "geometry_ids": [10, 20], "value": 3.5},
+                ],
+            }
+        )
+
+        self.assertEqual(scene["format_version"], "gcs-0.3")
+        self.assertEqual(scene["geometries"][0]["type"], contracts.GEOMETRY_TYPE_MAP["Point"])
+        self.assertEqual(len(scene["geometries"][0]["v"]), 6)
+        self.assertEqual(scene["constraints"][0]["type"], contracts.CONSTRAINT_TYPE_MAP["Distance"])
+        self.assertTrue(promotion.canonical_public_scene_text(scene).endswith("\n"))
+
     def test_explorer_is_deterministic_and_keeps_negative_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
             tools = load_tools(Path(tmp))

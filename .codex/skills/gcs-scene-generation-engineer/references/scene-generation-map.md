@@ -2,9 +2,16 @@
 
 ## Current Layout
 
-- `tools/scene_generation/tools.py`: command dispatcher and implementations
-  for graph generation, GCS lifting, validation, repair, serialization, and
-  reports.
+- `tools/scene_generation/tools.py`: CLI facade and compatibility command
+  dispatcher for graph generation, GCS lifting, validation, repair,
+  serialization, exploration, and promotion.
+- `tools/scene_generation/gcs_scene_generation/contracts.py`: generated graph
+  constants, public type maps, signature validation, and failure taxonomy.
+- `tools/scene_generation/gcs_scene_generation/storage.py`: scratch-store
+  paths, safe IDs, deterministic JSON IO, trace append, and digests.
+- `tools/scene_generation/gcs_scene_generation/promotion.py`: public
+  `gcs-0.3` scene conversion, kernel-shape validation, solver command
+  normalization, and runtime smoke execution.
 - `tools/scene_generation/tools.md`: design notes for the tool family.
 - `tools/scene_generation/.store`: local generated JSON graph store used by
   the tools. Treat this as scratch state unless a generated graph is promoted.

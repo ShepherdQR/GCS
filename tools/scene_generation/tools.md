@@ -10,9 +10,19 @@ docs/architecture/scene-generation-tools.md
 The current implementation includes the compatibility command set plus a
 complete local v1 scene auto explorer. The explorer is complete for local
 generation, coverage, local validation, negative evidence, deterministic trace,
-and promotion-package creation. Public IO/kernel/runtime/viewer gate adapters
-are represented as explicit `unsupported` or `skipped` gate reports until those
-module-specific adapters are wired in.
+promotion-package creation, and public promotion smoke gates. Runtime and
+diagnostics gates require a configured solver executable.
+
+Step 20 starts the package split. `tools.py` remains the compatibility CLI
+facade, while stable helper boundaries now live under
+`gcs_scene_generation/`:
+
+- `contracts.py`: generated graph constants, type maps, failure taxonomy, and
+  signature validation.
+- `storage.py`: deterministic store paths, JSON IO, trace append, safe IDs,
+  and digests.
+- `promotion.py`: public `gcs-0.3` scene conversion, kernel-shape validation,
+  solver command normalization, and runtime smoke execution.
 
 ## Compatibility Flow
 
@@ -129,12 +139,14 @@ Keep these pieces when rewriting the explorer structure:
 - edge canonicalization and sorted graph traversal;
 - connected-component and Tarjan biconnectivity checks;
 - skeleton generators for `cycle_plus_chords` and `ear_decomposition`;
-- geometry and constraint signature tables;
+- geometry and constraint signature tables in `gcs_scene_generation.contracts`;
 - rigid-set coloring and repair helpers;
 - local schema validation;
 - geometry-primal, incidence-bipartite, and rigid-set quotient projections;
 - parameter assignment for non-degenerate point, line, and plane data;
-- canonical JSON and custom text serialization.
+- canonical JSON and custom text serialization;
+- public scene conversion and solver smoke adapters in
+  `gcs_scene_generation.promotion`.
 
 ## Implemented Explorer Pieces
 
@@ -147,10 +159,12 @@ The v1 explorer now provides:
 - explicit budgets and stop reasons;
 - rejected-candidate evidence;
 - deterministic `trace.jsonl`;
-- local validation gates and explicit unsupported public gates;
+- local validation gates and public promotion smoke gates;
 - `promote_candidate` package generation separate from fixture copying;
 - Python unittest coverage for determinism, negative evidence, and promotion
-  gate behavior.
+  gate behavior;
+- package-boundary coverage for contracts, storage safety, and public scene
+  conversion.
 
 ## Rewrite Direction
 
@@ -159,8 +173,10 @@ Recommended package split:
 ```text
 tools/scene_generation/
   tools.py              # CLI facade and compatibility commands
-  scene_generation/
-    store.py
+  gcs_scene_generation/
+    contracts.py        # implemented
+    storage.py          # implemented
+    promotion.py        # implemented
     topology.py
     gcs_model.py
     validation.py
@@ -170,10 +186,11 @@ tools/scene_generation/
     explorer.py
 ```
 
-The current v1 keeps command compatibility inside `tools.py`. A future cleanup
-may move the helpers into the package split above once the public gate adapters
-are ready. Do not move generation or repair policy into the solver, GUI, or
-scene IO modules.
+The current v1 keeps command compatibility inside `tools.py`. Step 20 begins
+moving stable pure helpers into the package while leaving topology/lift/
+validation/explorer algorithms behind the existing facade until their tests are
+split. Do not move generation or repair policy into the solver, GUI, or scene
+IO modules.
 
 ## Tests
 

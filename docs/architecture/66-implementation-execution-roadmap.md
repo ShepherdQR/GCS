@@ -163,6 +163,8 @@ Status legend: `done`, `in_progress`, `pending`.
     CI-ready quality gates.
 19. `done` - connect scene auto explorer promotion packages to public IO,
     kernel, runtime, diagnostics, and viewer gate adapters.
+20. `done` - start the scene-generation package split by extracting
+    contracts, storage, and public promotion adapters from the CLI facade.
 
 ## Constraint Catalog Milestone
 
@@ -703,6 +705,32 @@ Implemented scope for Step 19:
   of generic unsupported placeholders.
 - Promotion packages now carry both the generator-native `scene.json` and the
   solver-facing `public_scene.gcs.json`.
+
+## Scene Generation Package Split Step Plan
+
+Implemented commit-level scope:
+
+- Keep `tools/scene_generation/tools.py` as the CLI facade and compatibility
+  command registry.
+- Add `gcs_scene_generation.contracts` for generated graph constants, public
+  type maps, signature validation, and shared failure taxonomy.
+- Add `gcs_scene_generation.storage` for safe IDs, deterministic JSON IO,
+  scratch-store paths, trace append, and digest helpers.
+- Add `gcs_scene_generation.promotion` for public `gcs-0.3` scene conversion,
+  public kernel-shape validation, solver command normalization, and runtime
+  smoke execution.
+- Add package-boundary unit coverage so the split is validated through
+  structured inputs and outputs rather than only through file placement.
+
+## Scene Generation Package Split Milestone
+
+Implemented scope for Step 20:
+
+- The monolithic scene-generation file no longer owns the stable contracts,
+  storage, or public promotion adapter logic directly.
+- Existing CLI commands and tests remain compatible through facade wrappers.
+- The remaining split target is now narrower: topology, GCS lift, validation,
+  projection, parameterization, reporting, and explorer orchestration.
 
 ## Damped Numeric Local Solve Step Plan
 

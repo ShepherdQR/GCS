@@ -72,9 +72,10 @@ Remaining limits:
 - The runtime and diagnostics public gates require a local solver command.
   Without `GCS_EXE` or `public_gate_config.solver_command`, promotion remains
   blocked by explicit runtime/diagnostic gate evidence.
-- The implementation is still physically monolithic in `tools.py`; a later
-  cleanup may split it into package modules after the public gate adapters are
-  ready.
+- The implementation still keeps topology, lift, validation, projection,
+  parameterization, reporting, and exploration algorithms in `tools.py`, but
+  Step 20 has extracted contracts, storage rules, and promotion adapters into
+  `gcs_scene_generation/`.
 - Repair is still candidate-level and explicit. It is not a semantic minimal
   repair planner.
 
@@ -99,9 +100,9 @@ of the following:
 
 Current maturity is L3-L4 for the local explorer: structured contracts,
 scratch corpus management, coverage accounting, local gates, traces, promotion
-packages, and tests exist. It remains below full L4 for cross-module promotion
-until public IO, kernel, runtime, diagnostics, and viewer gate adapters are
-implemented.
+packages, public smoke gates, and tests exist. It remains below full L4 for
+cross-module promotion because runtime/diagnostic proof depends on an external
+solver command rather than a fully in-process contract adapter.
 
 ## Ownership Boundary
 
@@ -358,6 +359,7 @@ The explorer should use typed reason codes:
 - `io_round_trip_failed`;
 - `kernel_validation_failed`;
 - `runtime_smoke_failed`;
+- `diagnostics_evidence_failed`;
 - `viewer_projection_failed`;
 - `promotion_gate_unsupported`.
 
@@ -458,21 +460,24 @@ Current v1 status:
 
 - `explore_scene_space` and `promote_candidate` are implemented.
 - Flat compatibility commands still work.
+- `gcs_scene_generation.contracts`, `gcs_scene_generation.storage`, and
+  `gcs_scene_generation.promotion` are implemented behind the `tools.py` CLI
+  facade.
 - Structured exploration artifacts are written under
   `.store/explorations/<exploration_id>/`.
 - Promotion packages are written under `.store/promotions/<promotion_id>/`.
-- Deterministic unittest coverage exists for the local explorer.
+- Deterministic unittest coverage exists for the local explorer and package
+  boundaries.
 
 Remaining migration path:
 
-1. Extract pure data helpers from `tools.py` into package modules:
-   `store.py`, `topology.py`, `gcs_model.py`, `validation.py`,
-   `projection.py`, `parameterization.py`, `reporting.py`, and
-   `explorer.py`.
+1. Continue extracting pure algorithm helpers from `tools.py` into package
+   modules: `topology.py`, `gcs_model.py`, `validation.py`, `projection.py`,
+   `parameterization.py`, `reporting.py`, and `explorer.py`.
 2. Keep `tools.py` as the CLI dispatcher and compatibility facade.
 3. Move flat `.store` compatibility reads behind a store adapter.
-4. Add public gate adapters incrementally as IO, contract tools, runtime, and
-   viewer checks stabilize.
+4. Harden public gates from executable smoke checks into direct IO, contract
+   tools, runtime, diagnostics, and viewer adapters as those APIs stabilize.
 
 This is a rewrite of structure, not a rewrite of all algorithms.
 
@@ -527,7 +532,7 @@ explorer. It preserves the verified local algorithms, keeps the existing CLI
 commands compatible, and adds an explicit exploration contract with coverage,
 provenance, gates, traces, negative evidence, and promotion packages.
 
-The next design step is not another rewrite; it is adapter hardening: connect
-promotion gates to public scene IO, kernel validation, runtime smoke checks,
-diagnostics reports, and viewer projection, then split the monolithic CLI file
-into package modules once those adapters stabilize.
+The next design step is structural: continue the Step 20 package split by
+moving topology, lift, validation, projection, parameterization, reporting, and
+explorer orchestration behind tested modules while preserving the current CLI
+facade.

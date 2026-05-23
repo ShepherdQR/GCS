@@ -22,6 +22,8 @@ Completed algorithm-deepening steps:
   a single CI-ready quality gate command.
 - Step 19: connected scene auto explorer promotion packages to public IO,
   kernel, runtime, diagnostics, and viewer gate adapters.
+- Step 20: started the scene-generation package split by extracting
+  contracts, storage, and public promotion adapters from the CLI facade.
 
 Current validation baseline:
 
@@ -85,8 +87,24 @@ Delivered:
 - Write `public_scene.gcs.json` into promotion packages.
 - Extend scene-generation tests with fake-solver public promotion coverage.
 
-## Next Step 20
+## Completed Step 20
 
-The next step is to split the monolithic scene-generation tool into a small
-package structure once the public gate adapters are stable: contracts,
-storage, topology, lifting, validation, promotion, and CLI facade.
+Step 20 starts the scene-generation package split while preserving the existing
+CLI command surface.
+
+Delivered:
+
+- Add `gcs_scene_generation.contracts` for type maps, signature validation,
+  and stable failure taxonomy.
+- Add `gcs_scene_generation.storage` for safe IDs, deterministic JSON IO,
+  scratch-store layout, trace append, and digests.
+- Add `gcs_scene_generation.promotion` for public `gcs-0.3` scene conversion,
+  public kernel-shape validation, solver command resolution, and runtime smoke.
+- Keep `tools.py` as the compatibility CLI facade.
+- Extend scene-generation unit tests with package-boundary coverage.
+
+## Next Step 21
+
+The next step is to continue the package split by extracting topology and GCS
+lift/model construction helpers from `tools.py`, with tests that keep the
+manual generate -> lift -> parameterize -> validate path stable.

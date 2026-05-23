@@ -4,8 +4,9 @@
 Entry point:
     python tools.py <command> --input '<json>'
 
-The commands intentionally live in one dependency-free file so they can be used
-from local scripts, Codex tasks, and CI-style smoke checks without packaging.
+`tools.py` is the compatibility CLI facade. Stable contracts, storage rules,
+and promotion adapters live under `gcs_scene_generation/` so later modules can
+be split without changing command names.
 """
 
 from __future__ import annotations
@@ -17,17 +18,22 @@ import json
 import math
 import os
 import random
-import shutil
-import subprocess
 import sys
 import time
 from collections import Counter, defaultdict
 
+TOOL_DIR = os.path.dirname(os.path.abspath(__file__))
+if TOOL_DIR not in sys.path:
+    sys.path.insert(0, TOOL_DIR)
 
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+from gcs_scene_generation import contracts as scene_contracts
+from gcs_scene_generation import promotion as promotion_adapters
+from gcs_scene_generation import storage as scene_storage
+
+REPO_ROOT = os.path.abspath(os.path.join(TOOL_DIR, "..", ".."))
 STORE_DIR = os.environ.get(
     "GCS_SCENE_GENERATION_STORE_DIR",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), ".store"),
+    os.path.join(TOOL_DIR, ".store"),
 )
 DEFAULT_GCS_EXE = os.path.join(
     REPO_ROOT,
@@ -37,50 +43,14 @@ DEFAULT_GCS_EXE = os.path.join(
     "GCS.exe" if os.name == "nt" else "GCS",
 )
 
-GEOMETRY_TYPES = ("Point", "Line", "Plane")
-CONSTRAINT_TYPES = ("Coincident", "Parallel", "Perpendicular", "Distance", "Angle")
-CONSTRAINT_TYPE_PREFERENCE = ("Distance", "Coincident", "Parallel", "Perpendicular", "Angle")
-
-VALID_CONSTRAINT_SIGNATURES = {
-    "Coincident": {("Point", "Point"), ("Point", "Line"), ("Point", "Plane")},
-    "Parallel": {("Line", "Line"), ("Line", "Plane"), ("Plane", "Plane")},
-    "Perpendicular": {("Line", "Line"), ("Line", "Plane"), ("Plane", "Plane")},
-    "Distance": {
-        ("Point", "Point"),
-        ("Point", "Line"),
-        ("Point", "Plane"),
-        ("Line", "Line"),
-        ("Line", "Plane"),
-        ("Plane", "Plane"),
-    },
-    "Angle": {("Line", "Line"), ("Line", "Plane"), ("Plane", "Plane")},
-}
-
-GEOMETRY_TYPE_MAP = {"Point": 0, "Line": 1, "Plane": 2}
-CONSTRAINT_TYPE_MAP = {"Coincident": 0, "Parallel": 1, "Perpendicular": 2, "Distance": 3, "Angle": 4}
-
-FAILURE_REASON_CODES = {
-    "invalid_request",
-    "budget_exhausted",
-    "unknown_geometry_type",
-    "unknown_constraint_type",
-    "invalid_constraint_signature",
-    "constraint_same_rigid_set",
-    "degenerate_line",
-    "zero_plane_normal",
-    "negative_distance",
-    "invalid_angle_range",
-    "topology_not_connected",
-    "topology_has_articulation",
-    "io_round_trip_failed",
-    "kernel_validation_failed",
-    "runtime_smoke_failed",
-    "diagnostics_evidence_failed",
-    "viewer_projection_failed",
-    "promotion_gate_unsupported",
-    "no_coverage_gain",
-    "search_exhausted",
-}
+GEOMETRY_TYPES = scene_contracts.GEOMETRY_TYPES
+CONSTRAINT_TYPES = scene_contracts.CONSTRAINT_TYPES
+CONSTRAINT_TYPE_PREFERENCE = scene_contracts.CONSTRAINT_TYPE_PREFERENCE
+VALID_CONSTRAINT_SIGNATURES = scene_contracts.VALID_CONSTRAINT_SIGNATURES
+GEOMETRY_TYPE_MAP = scene_contracts.GEOMETRY_TYPE_MAP
+CONSTRAINT_TYPE_MAP = scene_contracts.CONSTRAINT_TYPE_MAP
+FAILURE_REASON_CODES = scene_contracts.FAILURE_REASON_CODES
+is_valid_constraint_signature = scene_contracts.is_valid_constraint_signature
 
 
 # ---------------------------------------------------------------------------
@@ -89,109 +59,59 @@ FAILURE_REASON_CODES = {
 
 
 def _store_path(graph_id: str) -> str:
-    os.makedirs(STORE_DIR, exist_ok=True)
-    return os.path.join(STORE_DIR, f"{graph_id}.json")
+    return scene_storage.store_path(STORE_DIR, graph_id)
 
 
 def save_graph(graph_id: str, data: dict) -> None:
-    with open(_store_path(graph_id), "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, sort_keys=True)
-        f.write("\n")
+    scene_storage.save_graph(STORE_DIR, graph_id, data)
 
 
 def load_graph(graph_id: str) -> dict:
-    path = _store_path(graph_id)
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Graph '{graph_id}' not found in store")
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return scene_storage.load_graph(STORE_DIR, graph_id)
 
 
 def list_graphs() -> list[dict]:
-    os.makedirs(STORE_DIR, exist_ok=True)
-    result = []
-    for fname in sorted(os.listdir(STORE_DIR)):
-        if not fname.endswith(".json"):
-            continue
-        graph_id = fname[:-5]
-        path = os.path.join(STORE_DIR, fname)
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            if "gcs_graph_id" in data:
-                graph_type = "gcs"
-            elif "projected_graph_id" in data:
-                graph_type = "projected"
-            elif "graph_id" in data:
-                graph_type = "skeleton"
-            else:
-                graph_type = "unknown"
-            result.append({"id": graph_id, "type": graph_type})
-        except Exception as exc:  # Keep list useful even with scratch corruption.
-            result.append({"id": graph_id, "type": "error", "error": str(exc)})
-    return result
+    return scene_storage.list_graphs(STORE_DIR)
 
 
 def delete_graph(graph_id: str) -> dict:
-    path = _store_path(graph_id)
-    if not os.path.exists(path):
-        return {"error": f"Graph '{graph_id}' not found"}
-    os.remove(path)
-    return {"deleted": graph_id}
+    return scene_storage.delete_graph(STORE_DIR, graph_id)
 
 
 def _safe_store_id(value: str, field_name: str = "id") -> str:
-    text = str(value)
-    if not text:
-        raise ValueError(f"{field_name} must not be empty")
-    allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-")
-    if any(ch not in allowed for ch in text):
-        raise ValueError(f"{field_name} may only contain letters, digits, '.', '_' and '-'")
-    if text in {".", ".."} or text.startswith(".") or ".." in text:
-        raise ValueError(f"{field_name} must not be a hidden or relative path segment")
-    return text
+    return scene_storage.safe_store_id(value, field_name)
 
 
 def _write_json_file(path: str, data: dict | list) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, sort_keys=True)
-        f.write("\n")
+    scene_storage.write_json_file(path, data)
 
 
 def _read_json_file(path: str) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return scene_storage.read_json_file(path)
 
 
 def _exploration_root(exploration_id: str) -> str:
-    return os.path.join(STORE_DIR, "explorations", _safe_store_id(exploration_id, "exploration_id"))
+    return scene_storage.exploration_root(STORE_DIR, exploration_id)
 
 
 def _promotion_root(promotion_id: str) -> str:
-    return os.path.join(STORE_DIR, "promotions", _safe_store_id(promotion_id, "promotion_id"))
+    return scene_storage.promotion_root(STORE_DIR, promotion_id)
 
 
 def _candidate_slot(candidate_id: str) -> str:
-    suffix = str(candidate_id).rsplit("_c", 1)[-1]
-    if suffix and suffix[0:4].isdigit():
-        return f"c{suffix[0:4]}"
-    return _safe_store_id(candidate_id, "candidate_id")
+    return scene_storage.candidate_slot(candidate_id)
 
 
 def _candidate_root(exploration_id: str, candidate_id: str) -> str:
-    return os.path.join(_exploration_root(exploration_id), "candidates", _candidate_slot(candidate_id))
+    return scene_storage.candidate_root(STORE_DIR, exploration_id, candidate_id)
 
 
 def _append_trace(trace_path: str, event: dict) -> None:
-    os.makedirs(os.path.dirname(trace_path), exist_ok=True)
-    with open(trace_path, "a", encoding="utf-8") as f:
-        json.dump(event, f, sort_keys=True)
-        f.write("\n")
+    scene_storage.append_trace(trace_path, event)
 
 
 def _sha256_text(text: str) -> str:
-    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return scene_storage.sha256_text(text)
 
 
 # ---------------------------------------------------------------------------
@@ -344,11 +264,6 @@ def _rng(seed) -> random.Random:
 # ---------------------------------------------------------------------------
 # GCS model helpers
 # ---------------------------------------------------------------------------
-
-
-def is_valid_constraint_signature(ctype: str, gtype1: str, gtype2: str) -> bool:
-    sigs = VALID_CONSTRAINT_SIGNATURES.get(ctype, set())
-    return (gtype1, gtype2) in sigs or (gtype2, gtype1) in sigs
 
 
 def _first_valid_constraint_type(g1: dict, g2: dict, allowed=None) -> str | None:
@@ -1462,157 +1377,44 @@ def _make_gate(gate_id: str, status: str, reason_code: str | None = None, eviden
 
 
 def _canonical_public_scene_text(scene: dict) -> str:
-    return json.dumps(scene, indent=2, sort_keys=True) + "\n"
+    return promotion_adapters.canonical_public_scene_text(scene)
 
 
 def _public_scene_root() -> str:
-    return os.path.join(STORE_DIR, "public_scenes")
+    return promotion_adapters.public_scene_root(STORE_DIR)
 
 
 def _public_scene_path(public_scene_id: str) -> str:
-    return os.path.join(_public_scene_root(), f"{_safe_store_id(public_scene_id, 'public_scene_id')}.gcs.json")
+    return promotion_adapters.public_scene_path(STORE_DIR, public_scene_id)
 
 
 def _solver_scene_from_gcs(gcs: dict) -> dict:
-    rigid_set_ids = sorted({int(rs["id"]) for rs in gcs.get("rigid_sets", [])})
-    scene = {
-        "format_version": "gcs-0.3",
-        "state_version": 0,
-        "rigid_sets": [{"id": rigid_set_id} for rigid_set_id in rigid_set_ids],
-        "geometries": [],
-        "constraints": [],
-    }
-    for geometry in sorted(gcs.get("geometries", []), key=lambda item: int(item["id"])):
-        values = list(geometry.get("v", []))
-        values = (values + [0.0] * 6)[:6]
-        scene["geometries"].append(
-            {
-                "id": int(geometry["id"]),
-                "type": GEOMETRY_TYPE_MAP[geometry["type"]],
-                "rigid_set_id": int(geometry.get("rigid_set_id", 0)),
-                "v": [float(value) for value in values],
-            }
-        )
-    for constraint in sorted(gcs.get("constraints", []), key=lambda item: int(item["id"])):
-        scene["constraints"].append(
-            {
-                "id": int(constraint["id"]),
-                "type": CONSTRAINT_TYPE_MAP[constraint["type"]],
-                "geometry_ids": [int(gid) for gid in constraint.get("geometry_ids", [])],
-                "value": float(constraint.get("value", 0.0)),
-            }
-        )
-    return scene
+    return promotion_adapters.solver_scene_from_gcs(gcs)
 
 
 def _write_public_scene(gcs_graph_id: str) -> dict:
     gcs = load_graph(gcs_graph_id)
-    scene = _solver_scene_from_gcs(gcs)
-    public_scene_id = f"{gcs_graph_id}_public_scene"
-    scene_path = _public_scene_path(public_scene_id)
-    _write_json_file(scene_path, scene)
-    canonical = _canonical_public_scene_text(scene)
-    return {
-        "public_scene_id": public_scene_id,
-        "path": scene_path,
-        "scene": scene,
-        "digest": _sha256_text(canonical),
-        "entity_count": len(scene["geometries"]),
-        "constraint_count": len(scene["constraints"]),
-    }
+    return promotion_adapters.write_public_scene(STORE_DIR, gcs_graph_id, gcs)
 
 
 def _validate_public_scene_kernel(scene: dict) -> tuple[bool, list[dict]]:
-    issues = []
-    rigid_set_ids = {item.get("id") for item in scene.get("rigid_sets", [])}
-    geometry_ids = set()
-    for geometry in scene.get("geometries", []):
-        geometry_id = geometry.get("id")
-        if geometry_id in geometry_ids:
-            issues.append({"code": "kernel.duplicate_entity", "entity_id": geometry_id})
-        geometry_ids.add(geometry_id)
-        if geometry.get("type") not in set(GEOMETRY_TYPE_MAP.values()):
-            issues.append({"code": "kernel.invalid_geometry_kind", "entity_id": geometry_id})
-        if geometry.get("rigid_set_id") not in rigid_set_ids:
-            issues.append({"code": "kernel.missing_rigid_set", "entity_id": geometry_id})
-        values = geometry.get("v", [])
-        if len(values) != 6 or not all(isinstance(value, (int, float)) for value in values):
-            issues.append({"code": "kernel.invalid_parameter_vector", "entity_id": geometry_id})
-
-    constraint_ids = set()
-    for constraint in scene.get("constraints", []):
-        constraint_id = constraint.get("id")
-        if constraint_id in constraint_ids:
-            issues.append({"code": "kernel.duplicate_constraint", "constraint_id": constraint_id})
-        constraint_ids.add(constraint_id)
-        if constraint.get("type") not in set(CONSTRAINT_TYPE_MAP.values()):
-            issues.append({"code": "kernel.invalid_constraint_kind", "constraint_id": constraint_id})
-        for geometry_id in constraint.get("geometry_ids", []):
-            if geometry_id not in geometry_ids:
-                issues.append(
-                    {
-                        "code": "kernel.missing_entity",
-                        "constraint_id": constraint_id,
-                        "entity_id": geometry_id,
-                    }
-                )
-        if not isinstance(constraint.get("value", 0.0), (int, float)):
-            issues.append({"code": "kernel.invalid_constraint_value", "constraint_id": constraint_id})
-    return not issues, issues
+    return promotion_adapters.validate_public_scene_kernel(scene)
 
 
 def _normalize_solver_command(public_gate_config: dict | None) -> list[str]:
-    config = public_gate_config or {}
-    command = config.get("solver_command")
-    if isinstance(command, list) and command:
-        return [str(part) for part in command]
-    if isinstance(command, str) and command:
-        return [command]
-    executable = config.get("gcs_exe") or os.environ.get("GCS_EXE") or DEFAULT_GCS_EXE
-    return [str(executable)]
+    return promotion_adapters.normalize_solver_command(public_gate_config, DEFAULT_GCS_EXE)
 
 
 def _command_available(command: list[str]) -> bool:
-    if not command:
-        return False
-    executable = command[0]
-    if os.path.isabs(executable) or os.path.sep in executable:
-        return os.path.exists(executable)
-    return shutil.which(executable) is not None
+    return promotion_adapters.command_available(command)
 
 
 def _trim_lines(text: str, limit: int = 40) -> list[str]:
-    lines = text.splitlines()
-    return lines[:limit]
+    return promotion_adapters.trim_lines(text, limit)
 
 
 def _run_solver_smoke(scene_path: str, public_gate_config: dict | None) -> dict:
-    command = _normalize_solver_command(public_gate_config)
-    if not _command_available(command):
-        return {
-            "available": False,
-            "command": command,
-            "exit_code": None,
-            "stdout_lines": [],
-            "stderr_lines": [f"Solver command is not available: {command[0]}"],
-        }
-    timeout_seconds = float((public_gate_config or {}).get("timeout_seconds", 20.0))
-    started = time.monotonic()
-    completed = subprocess.run(
-        [*command, scene_path],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        timeout=timeout_seconds,
-    )
-    return {
-        "available": True,
-        "command": command,
-        "exit_code": completed.returncode,
-        "duration_ms": int((time.monotonic() - started) * 1000),
-        "stdout_lines": _trim_lines(completed.stdout),
-        "stderr_lines": _trim_lines(completed.stderr),
-    }
+    return promotion_adapters.run_solver_smoke(scene_path, public_gate_config, REPO_ROOT, DEFAULT_GCS_EXE)
 
 
 def _runtime_public_gates(smoke: dict, unavailable_status: str) -> list[dict]:
