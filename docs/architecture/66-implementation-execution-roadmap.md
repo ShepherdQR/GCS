@@ -171,6 +171,8 @@ Status legend: `done`, `in_progress`, `pending`.
     focused structured contract tests.
 23. `done` - extract scene-generation parameterization and reporting helpers
     with deterministic structured tests.
+24. `done` - extract scene-generation repair policy with structured edit-list
+    tests.
 
 ## Constraint Catalog Milestone
 
@@ -808,6 +810,28 @@ Implemented scope for Step 23:
   facade.
 - Direct module tests cover deterministic structured input/output behavior.
 - The remaining split target is explorer orchestration and repair policy.
+
+## Scene Generation Repair Split Step Plan
+
+Implemented commit-level scope:
+
+- Add `gcs_scene_generation.repair` for generated-candidate repair policy:
+  constraint-signature replacement, deterministic rigid-set recoloring,
+  biconnectivity repair, and structured edit lists.
+- Keep `tools.py` as the CLI facade with a compatibility wrapper around
+  `repair_gcs_graph`.
+- Add focused tests for direct repair module input/output, including stable
+  edit evidence and post-repair validation.
+
+## Scene Generation Repair Split Milestone
+
+Implemented scope for Step 24:
+
+- Repair policy no longer lives directly in the CLI facade.
+- Repair outputs carry a structured `edits` list and a repaired graph payload
+  consumed by the facade for storage.
+- The remaining split target is explorer orchestration and promotion
+  orchestration.
 
 ## Damped Numeric Local Solve Step Plan
 

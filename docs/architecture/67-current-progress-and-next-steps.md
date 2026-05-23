@@ -30,6 +30,7 @@ Completed algorithm-deepening steps:
   contract tests.
 - Step 23: extracted parameterization and reporting helpers with deterministic
   structured tests.
+- Step 24: extracted repair policy with structured edit-list tests.
 
 Current validation baseline:
 
@@ -155,7 +156,21 @@ Delivered:
 - Extend tests with deterministic parameter assignment and report summary
   checks.
 
-## Next Step 24
+## Completed Step 24
 
-The next step is to split explorer orchestration and repair policy from
-`tools.py`, leaving the file as a command dispatcher over package modules.
+Step 24 moves repair policy out of the scene-generation CLI facade.
+
+Delivered:
+
+- Add `gcs_scene_generation.repair` for constraint-signature replacement,
+  deterministic rigid-set recoloring, biconnectivity repair, and structured
+  edit lists.
+- Keep `tools.py` as the CLI facade through a compatibility wrapper around
+  `repair_gcs_graph`.
+- Extend tests with direct repair-module input/output checks and post-repair
+  validation.
+
+## Next Step 25
+
+The next step is to split explorer and promotion orchestration from `tools.py`,
+leaving the file as a command dispatcher over package modules.

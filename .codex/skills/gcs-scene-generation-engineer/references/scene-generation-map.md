@@ -30,6 +30,9 @@
 - `tools/scene_generation/gcs_scene_generation/reporting.py`:
   machine-readable graph summaries, validation summaries, projection
   statistics, biconnectivity evidence, histograms, and rigid-set summaries.
+- `tools/scene_generation/gcs_scene_generation/repair.py`: generated-candidate
+  repair policy, deterministic rigid-set recoloring, constraint-signature
+  replacement, biconnectivity repair, and structured edit lists.
 - `tools/scene_generation/tools.md`: design notes for the tool family.
 - `tools/scene_generation/.store`: local generated JSON graph store used by
   the tools. Treat this as scratch state unless a generated graph is promoted.

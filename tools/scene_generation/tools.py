@@ -31,6 +31,7 @@ from gcs_scene_generation import parameterization
 from gcs_scene_generation import projection as projection_adapters
 from gcs_scene_generation import promotion as promotion_adapters
 from gcs_scene_generation import reporting
+from gcs_scene_generation import repair as repair_module
 from gcs_scene_generation import storage as scene_storage
 from gcs_scene_generation import topology
 from gcs_scene_generation import validation as validation_adapters
@@ -501,141 +502,26 @@ def tool_validate_gcs_schema(params: dict) -> dict:
 def tool_repair_gcs_graph(params: dict) -> dict:
     gcs_graph_id = params["gcs_graph_id"]
     target_repairs = params.get("target_repairs", [])
-    repair_policy = params.get("repair_policy", "minimal_change")
+    policy_name = params.get("repair_policy", "minimal_change")
 
     try:
         original = load_graph(gcs_graph_id)
     except FileNotFoundError as exc:
         return {"error": str(exc)}
 
-    gcs = copy.deepcopy(original)
-    edits = []
-
-    def recolor_for_edges(required_edges, reason: str):
-        vertices = sorted([g["id"] for g in gcs.get("geometries", [])], key=_sort_key)
-        current_count = max(1, len(gcs.get("rigid_sets", [])))
-        colors, actual_count, expanded = _assign_rigid_sets_for_edges(
-            vertices,
-            _unique_edges(required_edges),
-            current_count,
-            _rng(params.get("seed")),
-            assignment="deterministic_balanced",
-            allow_new_rigid_sets=True,
-        )
-        before = {g["id"]: g.get("rigid_set_id") for g in gcs.get("geometries", [])}
-        for geometry in gcs.get("geometries", []):
-            new_rs = colors[geometry["id"]]
-            if geometry.get("rigid_set_id") != new_rs:
-                edits.append(
-                    {
-                        "operation": "move_geometry_rigid_set",
-                        "geometry_id": geometry["id"],
-                        "old_rigid_set_id": geometry.get("rigid_set_id"),
-                        "new_rigid_set_id": new_rs,
-                        "reason": reason,
-                    }
-                )
-                geometry["rigid_set_id"] = new_rs
-        if expanded:
-            edits.append({"operation": "expand_rigid_sets", "old_count": current_count, "new_count": actual_count, "reason": reason})
-        _rebuild_rigid_sets(gcs, actual_count)
-        return before
-
-    if "fix_constraint_signature" in target_repairs:
-        geom_by_id = _geometry_map(gcs)
-        for constraint in gcs.get("constraints", []):
-            gids = constraint.get("geometry_ids", [])
-            if len(gids) < 2 or gids[0] not in geom_by_id or gids[1] not in geom_by_id:
-                continue
-            g1 = geom_by_id[gids[0]]
-            g2 = geom_by_id[gids[1]]
-            if not is_valid_constraint_signature(constraint.get("type"), g1.get("type"), g2.get("type")):
-                new_type = _first_valid_constraint_type(g1, g2)
-                if new_type:
-                    edits.append(
-                        {
-                            "operation": "replace_constraint_type",
-                            "constraint_id": constraint["id"],
-                            "old_type": constraint.get("type"),
-                            "new_type": new_type,
-                        }
-                    )
-                    constraint["type"] = new_type
-
-    if "separate_rigid_sets" in target_repairs or "fix_same_rigid_set_constraints" in target_repairs:
-        geom_by_id = _geometry_map(gcs)
-        needs_recolor = any(
-            not _constraint_has_distinct_rigid_sets(constraint, geom_by_id)
-            for constraint in gcs.get("constraints", [])
-            if len(constraint.get("geometry_ids", [])) >= 2
-        )
-        if needs_recolor:
-            try:
-                recolor_for_edges(_geometry_primal_edges(gcs), "constraints_connect_distinct_rigid_sets")
-            except ValueError as exc:
-                return {"error": str(exc)}
-
-    if "make_geometry_primal_vertex_biconnected" in target_repairs:
-        vertices = sorted([g["id"] for g in gcs.get("geometries", [])], key=_sort_key)
-        if len(vertices) < 3:
-            return {"error": "At least 3 geometries are required for vertex biconnectivity"}
-        existing_edges = _geometry_primal_edges(gcs)
-        articulation_points, _, num_components = tarjan_articulation_bcc(vertices, existing_edges)
-        if num_components == 1 and not articulation_points:
-            repaired_id = params.get("repaired_gcs_graph_id", f"{gcs_graph_id}_repaired")
-            gcs["gcs_graph_id"] = repaired_id
-            gcs["num_geometries"] = len(gcs.get("geometries", []))
-            gcs["num_constraints"] = len(gcs.get("constraints", []))
-            gcs["status"] = "repaired"
-            save_graph(repaired_id, gcs)
-            return {
-                "repaired_gcs_graph_id": repaired_id,
-                "edits": edits,
-                "repair_certificate": {"policy": repair_policy, "post_validation_required": True},
-            }
-        cycle_edges = [[vertices[i], vertices[(i + 1) % len(vertices)]] for i in range(len(vertices))]
-        required_edges = _unique_edges(existing_edges + cycle_edges)
-        try:
-            recolor_for_edges(required_edges, "make_geometry_primal_vertex_biconnected")
-        except ValueError as exc:
-            return {"error": str(exc)}
-        geom_by_id = _geometry_map(gcs)
-        existing = {_canonical_edge(u, v) for u, v in existing_edges}
-        next_id = max([c["id"] for c in gcs.get("constraints", [])], default=-1) + 1
-        for u, v in cycle_edges:
-            edge_key = _canonical_edge(u, v)
-            if edge_key in existing:
-                continue
-            g1 = geom_by_id[u]
-            g2 = geom_by_id[v]
-            ctype = _first_valid_constraint_type(g1, g2)
-            if ctype is None:
-                return {"error": f"No valid constraint type for added edge {u}-{v}"}
-            constraint = {"id": next_id, "type": ctype, "geometry_ids": [u, v], "value": 0.0}
-            gcs.setdefault("constraints", []).append(constraint)
-            edits.append(
-                {
-                    "operation": "add_constraint",
-                    "new_constraint_id": next_id,
-                    "geometry_ids": [u, v],
-                    "constraint_type": ctype,
-                    "reason": "add_hamiltonian_cycle_edge_for_biconnectivity",
-                }
-            )
-            existing.add(edge_key)
-            next_id += 1
-
     repaired_id = params.get("repaired_gcs_graph_id", f"{gcs_graph_id}_repaired")
-    gcs["gcs_graph_id"] = repaired_id
-    gcs["num_geometries"] = len(gcs.get("geometries", []))
-    gcs["num_constraints"] = len(gcs.get("constraints", []))
-    gcs["status"] = "repaired"
-    save_graph(repaired_id, gcs)
-    return {
-        "repaired_gcs_graph_id": repaired_id,
-        "edits": edits,
-        "repair_certificate": {"policy": repair_policy, "post_validation_required": True},
-    }
+    result = repair_module.repair_gcs_graph(
+        original,
+        list(target_repairs),
+        repair_policy=policy_name,
+        seed=params.get("seed"),
+        repaired_gcs_graph_id=repaired_id,
+    )
+    if "error" in result:
+        return result
+    repaired_graph = result.pop("_repaired_graph")
+    save_graph(repaired_id, repaired_graph)
+    return result
 
 
 # ---------------------------------------------------------------------------

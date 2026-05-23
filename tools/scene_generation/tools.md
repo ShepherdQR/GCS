@@ -36,6 +36,9 @@ facade, while stable helper boundaries now live under
 - `reporting.py`: machine-readable summaries, validation summaries,
   projection statistics, biconnectivity evidence, histograms, and rigid-set
   summaries.
+- `repair.py`: generated-candidate repair policy, deterministic rigid-set
+  recoloring, constraint-signature replacement, biconnectivity repair, and
+  structured edit lists.
 
 ## Compatibility Flow
 
@@ -162,6 +165,7 @@ Keep these pieces when rewriting the explorer structure:
 - parameter assignment for non-degenerate point, line, and plane data in
   `gcs_scene_generation.parameterization`;
 - graph reporting in `gcs_scene_generation.reporting`;
+- repair policy in `gcs_scene_generation.repair`;
 - canonical JSON and custom text serialization;
 - public scene conversion and solver smoke adapters in
   `gcs_scene_generation.promotion`.
@@ -201,15 +205,17 @@ tools/scene_generation/
     projection.py       # implemented
     parameterization.py # implemented
     reporting.py        # implemented
+    repair.py           # implemented
     explorer.py
 ```
 
 The current v1 keeps command compatibility inside `tools.py`. Step 20 moved
 contracts/storage/promotion helpers, Step 21 moved topology plus GCS model
-helpers, Step 22 moved validation plus projection helpers, and Step 23 moved
-parameterization plus reporting helpers. Explorer orchestration remains behind
-the existing facade until its tests are split. Do not move generation or repair
-policy into the solver, GUI, or scene IO modules.
+helpers, Step 22 moved validation plus projection helpers, Step 23 moved
+parameterization plus reporting helpers, and Step 24 moved repair policy.
+Explorer orchestration remains behind the existing facade until its tests are
+split. Do not move generation policy into the solver, GUI, or scene IO
+modules.
 
 ## Tests
 

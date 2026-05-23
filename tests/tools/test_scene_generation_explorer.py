@@ -15,7 +15,7 @@ PACKAGE_ROOT = REPO_ROOT / "tools" / "scene_generation"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from gcs_scene_generation import contracts, gcs_model, parameterization, projection, promotion, reporting, storage, topology, validation
+from gcs_scene_generation import contracts, gcs_model, parameterization, projection, promotion, repair, reporting, storage, topology, validation
 
 
 def load_tools(store_dir: Path):
@@ -149,6 +149,31 @@ class SceneGenerationExplorerTests(unittest.TestCase):
         self.assertTrue(report["schema_valid"])
         self.assertEqual(report["projection_statistics"]["num_edges"], 1)
         self.assertEqual(report["constraint_type_histogram"], {"Distance": 1})
+
+    def test_repair_module_returns_structured_edit_list(self):
+        gcs = {
+            "gcs_graph_id": "bad_signature",
+            "rigid_sets": [{"id": 0, "geometry_ids": [1]}, {"id": 1, "geometry_ids": [2]}],
+            "geometries": [
+                {"id": 1, "type": "Point", "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
+                {"id": 2, "type": "Plane", "rigid_set_id": 1, "v": [0, 0, 0, 0, 0, 1]},
+            ],
+            "constraints": [{"id": 7, "type": "Parallel", "geometry_ids": [1, 2], "value": 0.0}],
+        }
+
+        result = repair.repair_gcs_graph(
+            gcs,
+            ["fix_constraint_signature"],
+            "minimal_change",
+            seed=123,
+            repaired_gcs_graph_id="bad_signature_repaired",
+        )
+        repaired = result["_repaired_graph"]
+
+        self.assertEqual(result["repaired_gcs_graph_id"], "bad_signature_repaired")
+        self.assertEqual(result["edits"][0]["operation"], "replace_constraint_type")
+        self.assertEqual(repaired["constraints"][0]["type"], "Distance")
+        self.assertTrue(validation.validate_gcs_schema(repaired)["valid"])
 
     def test_explorer_is_deterministic_and_keeps_negative_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:

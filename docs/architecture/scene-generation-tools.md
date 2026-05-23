@@ -72,10 +72,11 @@ Remaining limits:
 - The runtime and diagnostics public gates require a local solver command.
   Without `GCS_EXE` or `public_gate_config.solver_command`, promotion remains
   blocked by explicit runtime/diagnostic gate evidence.
-- The implementation still keeps exploration orchestration and repair policy
-  in `tools.py`, but Steps 20-23 have extracted contracts, storage rules,
+- The implementation still keeps exploration and promotion orchestration in
+  `tools.py`, but Steps 20-24 have extracted contracts, storage rules,
   promotion adapters, topology helpers, GCS model helpers, validation,
-  projection, parameterization, and reporting into `gcs_scene_generation/`.
+  projection, parameterization, reporting, and repair policy into
+  `gcs_scene_generation/`.
 - Repair is still candidate-level and explicit. It is not a semantic minimal
   repair planner.
 
@@ -469,6 +470,7 @@ Current v1 status:
   implemented behind the same facade.
 - `gcs_scene_generation.parameterization` and
   `gcs_scene_generation.reporting` are implemented behind the same facade.
+- `gcs_scene_generation.repair` is implemented behind the same facade.
 - Structured exploration artifacts are written under
   `.store/explorations/<exploration_id>/`.
 - Promotion packages are written under `.store/promotions/<promotion_id>/`.
@@ -477,8 +479,8 @@ Current v1 status:
 
 Remaining migration path:
 
-1. Continue extracting orchestration and repair helpers from `tools.py` into
-   package modules: `repair.py` and `explorer.py`.
+1. Continue extracting orchestration helpers from `tools.py` into package
+   modules: `explorer.py` and promotion orchestration helpers.
 2. Keep `tools.py` as the CLI dispatcher and compatibility facade.
 3. Move flat `.store` compatibility reads behind a store adapter.
 4. Harden public gates from executable smoke checks into direct IO, contract
