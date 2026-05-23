@@ -67,18 +67,7 @@ if(GCS_BUILD_TESTS)
         endif()
 
         if(TARGET GTest::gtest_main)
-            add_executable(gcs_contract_tests
-                tests/gcs_contract_tests.cpp
-            )
-            target_link_libraries(gcs_contract_tests
-                PRIVATE
-                    gcs_solver
-                    GTest::gtest_main
-            )
-            target_compile_features(gcs_contract_tests PRIVATE cxx_std_23)
-
             include(GoogleTest)
-            gtest_discover_tests(gcs_contract_tests)
 
             add_executable(gcs_kernel_contract_tests
                 tests/contracts/kernel/kernel_contract_tests.cpp
@@ -92,8 +81,21 @@ if(GCS_BUILD_TESTS)
             gtest_discover_tests(gcs_kernel_contract_tests
                 PROPERTIES LABELS "contract;kernel"
             )
+
+            add_executable(gcs_pipeline_contract_tests
+                tests/contracts/pipeline/pipeline_contract_tests.cpp
+            )
+            target_link_libraries(gcs_pipeline_contract_tests
+                PRIVATE
+                    gcs_solver
+                    GTest::gtest_main
+            )
+            target_compile_features(gcs_pipeline_contract_tests PRIVATE cxx_std_23)
+            gtest_discover_tests(gcs_pipeline_contract_tests
+                PROPERTIES LABELS "contract;pipeline"
+            )
         else()
-            message(STATUS "GTest not found; skipping gcs_contract_tests. Set GCS_FETCH_GTEST=ON to fetch it.")
+            message(STATUS "GTest not found; skipping GCS contract tests. Set GCS_FETCH_GTEST=ON to fetch it.")
         endif()
     endif()
 endif()

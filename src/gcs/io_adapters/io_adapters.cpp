@@ -1,5 +1,6 @@
 module;
 
+#include <cstdint>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -11,18 +12,21 @@ import gcs.kernel;
 
 namespace gcs::io {
 
+namespace kernel = gcs::kernel;
+
 namespace {
 
-bool hasJsonExtension(const std::string& path) {
+bool has_json_extension(const std::string& path) {
     return path.size() >= 5 && path.substr(path.size() - 5) == ".json";
 }
 
-}
+}  // namespace
 
-SceneLoadResult loadScene(const SceneLoadRequest& request) {
+SceneLoadResult load_scene(const SceneLoadRequest& request) {
     SceneLoadResult result;
-    if (hasJsonExtension(request.path)) {
-        result.errors.push_back("JSON scene loading is intentionally not part of the first C++23 module skeleton.");
+    if (has_json_extension(request.path)) {
+        result.errors.push_back(
+            "JSON scene loading is intentionally not part of the first C++23 module skeleton.");
         return result;
     }
 
@@ -32,75 +36,77 @@ SceneLoadResult loadScene(const SceneLoadRequest& request) {
         return result;
     }
 
-    int rigidSetCount = 0;
-    if (!(input >> rigidSetCount)) {
+    int rigid_set_count = 0;
+    if (!(input >> rigid_set_count)) {
         result.errors.push_back("Failed to read rigid set count.");
         return result;
     }
 
-    for (int i = 0; i < rigidSetCount; ++i) {
-        int id = 0;
+    for (int i = 0; i < rigid_set_count; ++i) {
+        std::uint64_t id = 0;
         input >> id;
-        result.snapshot.rigidSets.push_back(RigidSet{RigidSetId{id}, {}});
+        result.snapshot.rigid_sets.push_back(
+            kernel::RigidSetDraft{kernel::RigidSetId{id}, {}});
     }
 
-    int entityCount = 0;
-    if (!(input >> entityCount)) {
+    int entity_count = 0;
+    if (!(input >> entity_count)) {
         result.errors.push_back("Failed to read entity count.");
         return result;
     }
 
-    for (int i = 0; i < entityCount; ++i) {
-        int id = 0;
+    for (int i = 0; i < entity_count; ++i) {
+        std::uint64_t id = 0;
         int kind = 0;
-        int rigidSetId = 0;
-        input >> id >> kind >> rigidSetId;
+        std::uint64_t rigid_set_id = 0;
+        input >> id >> kind >> rigid_set_id;
 
-        GeometricEntity entity;
-        entity.id = EntityId{id};
-        entity.kind = static_cast<GeometryKind>(kind);
-        entity.rigidSetId = RigidSetId{rigidSetId};
-        entity.parameters.dimension = geometryDof(entity.kind);
+        kernel::EntityDraft entity;
+        entity.id = kernel::EntityId{id};
+        entity.kind = static_cast<kernel::GeometryKind>(kind);
+        entity.rigid_set_id = kernel::RigidSetId{rigid_set_id};
+        entity.parameters.dimension = kernel::geometry_dof(entity.kind);
         result.snapshot.entities.push_back(entity);
 
-        for (auto& rigidSet : result.snapshot.rigidSets) {
-            if (rigidSet.id == entity.rigidSetId) {
-                rigidSet.entityIds.push_back(entity.id);
+        for (auto& rigid_set : result.snapshot.rigid_sets) {
+            if (rigid_set.id == entity.rigid_set_id) {
+                rigid_set.entity_ids.push_back(entity.id);
                 break;
             }
         }
     }
 
-    int constraintCount = 0;
-    if (!(input >> constraintCount)) {
+    int constraint_count = 0;
+    if (!(input >> constraint_count)) {
         result.errors.push_back("Failed to read constraint count.");
         return result;
     }
 
-    for (int i = 0; i < constraintCount; ++i) {
-        int id = 0;
+    for (int i = 0; i < constraint_count; ++i) {
+        std::uint64_t id = 0;
         int kind = 0;
         int arity = 0;
         input >> id >> kind >> arity;
 
-        ConstraintInstance constraint;
-        constraint.id = ConstraintId{id};
-        constraint.kind = static_cast<ConstraintKind>(kind);
+        kernel::ConstraintDraft constraint;
+        constraint.id = kernel::ConstraintId{id};
+        constraint.kind = static_cast<kernel::ConstraintKind>(kind);
         for (int j = 0; j < arity; ++j) {
-            int entityId = 0;
-            input >> entityId;
-            constraint.entityIds.push_back(EntityId{entityId});
+            std::uint64_t entity_id = 0;
+            input >> entity_id;
+            constraint.entity_ids.push_back(kernel::EntityId{entity_id});
         }
         result.snapshot.constraints.push_back(constraint);
     }
 
-    for (int i = 0; i < entityCount; ++i) {
-        int id = 0;
+    for (int i = 0; i < entity_count; ++i) {
+        std::uint64_t id = 0;
         if (!(input >> id)) {
             result.errors.push_back("Failed to read entity parameter block.");
             return result;
         }
-        auto* entity = const_cast<GeometricEntity*>(findEntity(result.snapshot, EntityId{id}));
+        auto* entity = const_cast<kernel::EntityDraft*>(
+            kernel::find_entity(result.snapshot, kernel::EntityId{id}));
         if (entity == nullptr) {
             result.errors.push_back("Entity parameter block references a missing entity.");
             return result;
@@ -110,14 +116,15 @@ SceneLoadResult loadScene(const SceneLoadRequest& request) {
         }
     }
 
-    for (int i = 0; i < constraintCount; ++i) {
-        int id = 0;
+    for (int i = 0; i < constraint_count; ++i) {
+        std::uint64_t id = 0;
         double value = 0.0;
         if (!(input >> id >> value)) {
             result.errors.push_back("Failed to read constraint parameter block.");
             return result;
         }
-        auto* constraint = const_cast<ConstraintInstance*>(findConstraint(result.snapshot, ConstraintId{id}));
+        auto* constraint = const_cast<kernel::ConstraintDraft*>(
+            kernel::find_constraint(result.snapshot, kernel::ConstraintId{id}));
         if (constraint == nullptr) {
             result.errors.push_back("Constraint parameter block references a missing constraint.");
             return result;
@@ -125,11 +132,19 @@ SceneLoadResult loadScene(const SceneLoadRequest& request) {
         constraint->value = value;
     }
 
+    auto validation = kernel::validate_model(result.snapshot);
+    if (validation.report.status == kernel::StageStatus::error) {
+        for (const auto& message : validation.report.messages) {
+            result.errors.push_back(message.code.value + ": " + message.summary);
+        }
+        return result;
+    }
+
     result.ok = true;
     return result;
 }
 
-SceneWriteResult writeSceneText(const SceneWriteRequest& request) {
+SceneWriteResult write_scene_text(const SceneWriteRequest& request) {
     SceneWriteResult result;
     std::ofstream output(request.path);
     if (!output) {
@@ -137,24 +152,24 @@ SceneWriteResult writeSceneText(const SceneWriteRequest& request) {
         return result;
     }
 
-    output << request.snapshot.rigidSets.size() << "\n";
-    for (const auto& rigidSet : request.snapshot.rigidSets) {
-        output << rigidSet.id.value << " ";
+    output << request.snapshot.rigid_sets.size() << "\n";
+    for (const auto& rigid_set : request.snapshot.rigid_sets) {
+        output << rigid_set.id.value << " ";
     }
     output << "\n";
 
     output << request.snapshot.entities.size() << "\n";
     for (const auto& entity : request.snapshot.entities) {
         output << entity.id.value << " " << static_cast<int>(entity.kind) << " "
-               << entity.rigidSetId.value << "\n";
+               << entity.rigid_set_id.value << "\n";
     }
 
     output << request.snapshot.constraints.size() << "\n";
     for (const auto& constraint : request.snapshot.constraints) {
         output << constraint.id.value << " " << static_cast<int>(constraint.kind) << " "
-               << constraint.entityIds.size();
-        for (EntityId entityId : constraint.entityIds) {
-            output << " " << entityId.value;
+               << constraint.entity_ids.size();
+        for (kernel::EntityId entity_id : constraint.entity_ids) {
+            output << " " << entity_id.value;
         }
         output << "\n";
     }
@@ -177,10 +192,10 @@ SceneWriteResult writeSceneText(const SceneWriteRequest& request) {
     return result;
 }
 
-std::string summarizeScene(const ModelSnapshot& snapshot) {
+std::string summarize_scene(const ModelSnapshot& snapshot) {
     std::ostringstream output;
-    output << "StateVersion=" << snapshot.stateVersion.value
-           << " RigidSets=" << snapshot.rigidSets.size()
+    output << "StateVersion=" << snapshot.state_version.value
+           << " RigidSets=" << snapshot.rigid_sets.size()
            << " Entities=" << snapshot.entities.size()
            << " Constraints=" << snapshot.constraints.size();
     return output.str();

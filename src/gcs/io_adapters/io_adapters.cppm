@@ -9,6 +9,8 @@ export import gcs.kernel;
 
 export namespace gcs::io {
 
+using gcs::kernel::ModelSnapshot;
+
 struct SceneLoadRequest {
     std::string path;
 };
@@ -29,8 +31,8 @@ struct SceneWriteResult {
     std::vector<std::string> errors;
 };
 
-SceneLoadResult loadScene(const SceneLoadRequest& request);
-SceneWriteResult writeSceneText(const SceneWriteRequest& request);
-std::string summarizeScene(const ModelSnapshot& snapshot);
+SceneLoadResult load_scene(const SceneLoadRequest& request);
+SceneWriteResult write_scene_text(const SceneWriteRequest& request);
+std::string summarize_scene(const ModelSnapshot& snapshot);
 
 }

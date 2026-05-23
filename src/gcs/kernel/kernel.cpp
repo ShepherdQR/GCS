@@ -17,57 +17,229 @@ constexpr const char* constraint_domain = "constraint";
 constexpr const char* rigid_set_domain = "rigid_set";
 constexpr const char* state_version_domain = "state_version";
 
-ReportCode code(std::string value) {
-    return ReportCode{std::move(value)};
-}
-
 StableId subject(const char* domain, std::uint64_t value) {
     return StableId{domain, value};
 }
 
-StageReport make_report(std::string stage) {
-    StageReport report;
-    report.stage = std::move(stage);
-    return report;
+template <class Id>
+bool already_seen(const std::vector<Id>& ids, Id id) {
+    return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
-void append_message(StageReport& report,
-                    ReportSeverity severity,
-                    ReportCode report_code,
-                    std::string summary,
-                    std::vector<StableId> subjects = {}) {
-    if (severity == ReportSeverity::error) {
-        report.status = StageStatus::error;
-    } else if (severity == ReportSeverity::warning && report.status == StageStatus::ok) {
-        report.status = StageStatus::warning;
+bool valid_parameter_dimension(const ParameterVector& parameters) {
+    return parameters.dimension >= 0 &&
+           parameters.dimension <= static_cast<int>(parameters.values.size());
+}
+
+bool parameter_dimension_matches(const EntityDraft& entity) {
+    return valid_parameter_dimension(entity.parameters) &&
+           entity.parameters.dimension == geometry_dof(entity.kind);
+}
+
+bool same_entity_payload(const EntityDraft& lhs, const EntityDraft& rhs) {
+    return lhs.id == rhs.id &&
+           lhs.kind == rhs.kind &&
+           lhs.rigid_set_id == rhs.rigid_set_id &&
+           lhs.parameters == rhs.parameters;
+}
+
+void append_validation_findings(const ModelSnapshot& snapshot, StageReport& report) {
+    if (snapshot.schema_version.empty()) {
+        append_report_message(report, make_report_message(
+            ReportSeverity::error,
+            ReportCode{"kernel.empty_schema_version"},
+            "Model schema version must be explicit."));
     }
 
-    ReportMessage message;
-    message.severity = severity;
-    message.code = std::move(report_code);
-    message.summary = std::move(summary);
-    message.subjects = std::move(subjects);
-    report.messages.push_back(std::move(message));
-}
-
-bool has_errors(const StageReport& report) {
-    if (report.status == StageStatus::error) return true;
-    for (const auto& message : report.messages) {
-        if (message.severity == ReportSeverity::error) return true;
+    if (snapshot.units.length_scale <= 0.0) {
+        append_report_message(report, make_report_message(
+            ReportSeverity::error,
+            ReportCode{"kernel.invalid_units"},
+            "Length scale must be positive."));
     }
-    return false;
+
+    if (snapshot.tolerances.residual <= 0.0 ||
+        snapshot.tolerances.rank <= 0.0 ||
+        snapshot.tolerances.boundary <= 0.0) {
+        append_report_message(report, make_report_message(
+            ReportSeverity::error,
+            ReportCode{"kernel.invalid_tolerance"},
+            "Tolerance values must be positive."));
+    }
+
+    std::vector<EntityId> entity_ids;
+    for (const auto& entity : snapshot.entities) {
+        if (already_seen(entity_ids, entity.id)) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.duplicate_entity_id"},
+                "Model contains a duplicate entity ID.",
+                {subject(entity_domain, entity.id.value)}));
+        }
+        entity_ids.push_back(entity.id);
+
+        if (!parameter_dimension_matches(entity)) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.invalid_parameter_dimension"},
+                "Entity parameter dimension does not match its geometry kind.",
+                {subject(entity_domain, entity.id.value)}));
+        }
+
+        if (find_rigid_set(snapshot, entity.rigid_set_id) == nullptr) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.missing_rigid_set"},
+                "Entity references a rigid set that is not present in the model.",
+                {subject(entity_domain, entity.id.value),
+                 subject(rigid_set_domain, entity.rigid_set_id.value)}));
+        }
+    }
+
+    std::vector<ConstraintId> constraint_ids;
+    for (const auto& constraint : snapshot.constraints) {
+        if (already_seen(constraint_ids, constraint.id)) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.duplicate_constraint_id"},
+                "Model contains a duplicate constraint ID.",
+                {subject(constraint_domain, constraint.id.value)}));
+        }
+        constraint_ids.push_back(constraint.id);
+
+        for (EntityId entity_id : constraint.entity_ids) {
+            if (find_entity(snapshot, entity_id) == nullptr) {
+                append_report_message(report, make_report_message(
+                    ReportSeverity::error,
+                    ReportCode{"kernel.missing_entity"},
+                    "Constraint references an entity that is not present in the model.",
+                    {subject(constraint_domain, constraint.id.value),
+                     subject(entity_domain, entity_id.value)}));
+            }
+        }
+    }
+
+    std::vector<RigidSetId> rigid_set_ids;
+    for (const auto& rigid_set : snapshot.rigid_sets) {
+        if (already_seen(rigid_set_ids, rigid_set.id)) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.duplicate_rigid_set_id"},
+                "Model contains a duplicate rigid set ID.",
+                {subject(rigid_set_domain, rigid_set.id.value)}));
+        }
+        rigid_set_ids.push_back(rigid_set.id);
+
+        for (EntityId entity_id : rigid_set.entity_ids) {
+            if (find_entity(snapshot, entity_id) == nullptr) {
+                append_report_message(report, make_report_message(
+                    ReportSeverity::error,
+                    ReportCode{"kernel.missing_entity"},
+                    "Rigid set references an entity that is not present in the model.",
+                    {subject(rigid_set_domain, rigid_set.id.value),
+                     subject(entity_domain, entity_id.value)}));
+            }
+        }
+    }
 }
 
-bool contains_entity_id(const std::vector<EntityId>& ids, EntityId id) {
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
-bool contains_constraint_id(const std::vector<ConstraintId>& ids, ConstraintId id) {
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
+std::string to_string(GeometryKind kind) {
+    switch (kind) {
+        case GeometryKind::point: return "Point";
+        case GeometryKind::line: return "Line";
+        case GeometryKind::plane: return "Plane";
+    }
+    return "UnknownGeometry";
 }
 
-bool contains_rigid_set_id(const std::vector<RigidSetId>& ids, RigidSetId id) {
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
+std::string to_string(ConstraintKind kind) {
+    switch (kind) {
+        case ConstraintKind::coincident: return "Coincident";
+        case ConstraintKind::parallel: return "Parallel";
+        case ConstraintKind::perpendicular: return "Perpendicular";
+        case ConstraintKind::distance: return "Distance";
+        case ConstraintKind::angle: return "Angle";
+    }
+    return "UnknownConstraint";
+}
+
+std::string to_string(SolveMode mode) {
+    switch (mode) {
+        case SolveMode::update: return "Update";
+        case SolveMode::drag: return "Drag";
+        case SolveMode::simulation: return "Simulation";
+    }
+    return "UnknownSolveMode";
+}
+
+std::string to_string(ContextKind kind) {
+    switch (kind) {
+        case ContextKind::whole_model: return "WholeModel";
+        case ContextKind::connected_component: return "ConnectedComponent";
+        case ContextKind::rigid_set: return "RigidSet";
+        case ContextKind::subproblem: return "Subproblem";
+        case ContextKind::overlap: return "Overlap";
+        case ContextKind::gauge: return "Gauge";
+    }
+    return "UnknownContext";
+}
+
+std::string to_string(GaugeKind kind) {
+    switch (kind) {
+        case GaugeKind::none: return "None";
+        case GaugeKind::anchor_entities: return "AnchorEntities";
+        case GaugeKind::quotient_rigid_motion: return "QuotientRigidMotion";
+    }
+    return "UnknownGauge";
+}
+
+std::string to_string(SolveStatus status) {
+    switch (status) {
+        case SolveStatus::not_run: return "NotRun";
+        case SolveStatus::solved: return "Solved";
+        case SolveStatus::accepted_with_warnings: return "AcceptedWithWarnings";
+        case SolveStatus::invalid_model: return "InvalidModel";
+        case SolveStatus::under_constrained: return "UnderConstrained";
+        case SolveStatus::over_constrained: return "OverConstrained";
+        case SolveStatus::redundant: return "Redundant";
+        case SolveStatus::inconsistent: return "Inconsistent";
+        case SolveStatus::numerically_singular: return "NumericallySingular";
+        case SolveStatus::unsupported: return "Unsupported";
+        case SolveStatus::failed: return "Failed";
+    }
+    return "UnknownSolveStatus";
+}
+
+std::string to_string(StageStatus status) {
+    switch (status) {
+        case StageStatus::ok: return "Ok";
+        case StageStatus::warning: return "Warning";
+        case StageStatus::error: return "Error";
+        case StageStatus::unsupported: return "Unsupported";
+    }
+    return "UnknownStageStatus";
+}
+
+int geometry_dof(GeometryKind kind) {
+    switch (kind) {
+        case GeometryKind::point: return 3;
+        case GeometryKind::line: return 6;
+        case GeometryKind::plane: return 6;
+    }
+    return 0;
+}
+
+int constraint_dof_effect(ConstraintKind kind) {
+    switch (kind) {
+        case ConstraintKind::coincident: return 3;
+        case ConstraintKind::parallel: return 2;
+        case ConstraintKind::perpendicular: return 1;
+        case ConstraintKind::distance: return 1;
+        case ConstraintKind::angle: return 1;
+    }
+    return 0;
 }
 
 const EntityDraft* find_entity(const ModelSnapshot& snapshot, EntityId id) {
@@ -91,141 +263,85 @@ const RigidSetDraft* find_rigid_set(const ModelSnapshot& snapshot, RigidSetId id
     return nullptr;
 }
 
-template <class Id>
-bool already_seen(const std::vector<Id>& ids, Id id) {
+bool contains_entity(const std::vector<EntityId>& ids, EntityId id) {
     return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
-bool valid_parameter_dimension(const ParameterVector& parameters) {
-    return parameters.dimension >= 0 &&
-           parameters.dimension <= static_cast<int>(parameters.values.size());
+bool contains_constraint(const std::vector<ConstraintId>& ids, ConstraintId id) {
+    return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
-bool parameter_dimension_matches(const EntityDraft& entity) {
-    return valid_parameter_dimension(entity.parameters) &&
-           entity.parameters.dimension == geometry_dof(entity.kind);
+bool contains_rigid_set(const std::vector<RigidSetId>& ids, RigidSetId id) {
+    return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
-void append_validation_findings(const ModelSnapshot& snapshot, StageReport& report) {
-    if (snapshot.schema_version.empty()) {
-        append_message(report,
-                       ReportSeverity::error,
-                       code("kernel.empty_schema_version"),
-                       "Model schema version must be explicit.");
+bool has_errors(const StageReport& report) {
+    if (report.status == StageStatus::error) return true;
+    for (const auto& message : report.messages) {
+        if (message.severity == ReportSeverity::error) return true;
     }
-
-    if (snapshot.units.length_scale <= 0.0) {
-        append_message(report,
-                       ReportSeverity::error,
-                       code("kernel.invalid_units"),
-                       "Length scale must be positive.");
-    }
-
-    if (snapshot.tolerances.residual <= 0.0 ||
-        snapshot.tolerances.rank <= 0.0 ||
-        snapshot.tolerances.boundary <= 0.0) {
-        append_message(report,
-                       ReportSeverity::error,
-                       code("kernel.invalid_tolerance"),
-                       "Tolerance values must be positive.");
-    }
-
-    std::vector<EntityId> entity_ids;
-    for (const auto& entity : snapshot.entities) {
-        if (already_seen(entity_ids, entity.id)) {
-            append_message(report,
-                           ReportSeverity::error,
-                           code("kernel.duplicate_entity_id"),
-                           "Model contains a duplicate entity ID.",
-                           {subject(entity_domain, entity.id.value)});
-        }
-        entity_ids.push_back(entity.id);
-
-        if (!parameter_dimension_matches(entity)) {
-            append_message(report,
-                           ReportSeverity::error,
-                           code("kernel.invalid_parameter_dimension"),
-                           "Entity parameter dimension does not match its geometry kind.",
-                           {subject(entity_domain, entity.id.value)});
-        }
-
-        if (find_rigid_set(snapshot, entity.rigid_set_id) == nullptr) {
-            append_message(report,
-                           ReportSeverity::error,
-                           code("kernel.missing_rigid_set"),
-                           "Entity references a rigid set that is not present in the model.",
-                           {subject(entity_domain, entity.id.value),
-                            subject(rigid_set_domain, entity.rigid_set_id.value)});
-        }
-    }
-
-    std::vector<ConstraintId> constraint_ids;
-    for (const auto& constraint : snapshot.constraints) {
-        if (already_seen(constraint_ids, constraint.id)) {
-            append_message(report,
-                           ReportSeverity::error,
-                           code("kernel.duplicate_constraint_id"),
-                           "Model contains a duplicate constraint ID.",
-                           {subject(constraint_domain, constraint.id.value)});
-        }
-        constraint_ids.push_back(constraint.id);
-
-        for (EntityId entity_id : constraint.entity_ids) {
-            if (find_entity(snapshot, entity_id) == nullptr) {
-                append_message(report,
-                               ReportSeverity::error,
-                               code("kernel.missing_entity"),
-                               "Constraint references an entity that is not present in the model.",
-                               {subject(constraint_domain, constraint.id.value),
-                                subject(entity_domain, entity_id.value)});
-            }
-        }
-    }
-
-    std::vector<RigidSetId> rigid_set_ids;
-    for (const auto& rigid_set : snapshot.rigid_sets) {
-        if (already_seen(rigid_set_ids, rigid_set.id)) {
-            append_message(report,
-                           ReportSeverity::error,
-                           code("kernel.duplicate_rigid_set_id"),
-                           "Model contains a duplicate rigid set ID.",
-                           {subject(rigid_set_domain, rigid_set.id.value)});
-        }
-        rigid_set_ids.push_back(rigid_set.id);
-
-        for (EntityId entity_id : rigid_set.entity_ids) {
-            if (find_entity(snapshot, entity_id) == nullptr) {
-                append_message(report,
-                               ReportSeverity::error,
-                               code("kernel.missing_entity"),
-                               "Rigid set references an entity that is not present in the model.",
-                               {subject(rigid_set_domain, rigid_set.id.value),
-                                subject(entity_domain, entity_id.value)});
-            }
-        }
-    }
+    return false;
 }
 
-bool same_entity_payload(const EntityDraft& lhs, const EntityDraft& rhs) {
-    return lhs.id == rhs.id &&
-           lhs.kind == rhs.kind &&
-           lhs.rigid_set_id == rhs.rigid_set_id &&
-           lhs.parameters == rhs.parameters;
+StageReport make_stage_report(std::string stage, StageStatus status) {
+    StageReport report;
+    report.stage = std::move(stage);
+    report.status = status;
+    return report;
 }
 
+ReportMessage make_report_message(ReportSeverity severity,
+                                  ReportCode code,
+                                  std::string summary,
+                                  std::vector<StableId> subjects) {
+    ReportMessage message;
+    message.severity = severity;
+    message.code = std::move(code);
+    message.summary = std::move(summary);
+    message.subjects = std::move(subjects);
+    return message;
 }
 
-int geometry_dof(GeometryKind kind) {
-    switch (kind) {
-        case GeometryKind::point: return 3;
-        case GeometryKind::line: return 6;
-        case GeometryKind::plane: return 6;
+void append_report_message(StageReport& report, ReportMessage message) {
+    if (message.severity == ReportSeverity::error) {
+        report.status = StageStatus::error;
+    } else if (message.severity == ReportSeverity::warning &&
+               report.status == StageStatus::ok) {
+        report.status = StageStatus::warning;
     }
-    return 0;
+    report.messages.push_back(std::move(message));
 }
 
 StateVersionId next_version(StateVersionId current) {
     return StateVersionId{current.value + 1};
+}
+
+ContextSnapshot make_whole_model_context(const ModelSnapshot& snapshot, ContextId id) {
+    ContextSnapshot context;
+    context.id = id;
+    context.kind = ContextKind::whole_model;
+    context.state_version = snapshot.state_version;
+    for (const auto& entity : snapshot.entities) {
+        context.entity_ids.push_back(entity.id);
+    }
+    for (const auto& constraint : snapshot.constraints) {
+        context.constraint_ids.push_back(constraint.id);
+    }
+    for (const auto& rigid_set : snapshot.rigid_sets) {
+        context.rigid_set_ids.push_back(rigid_set.id);
+    }
+    return context;
+}
+
+std::vector<EntityState> capture_entity_states(const ModelSnapshot& snapshot,
+                                               const std::vector<EntityId>& entity_ids) {
+    std::vector<EntityState> states;
+    for (EntityId id : entity_ids) {
+        if (const auto* entity = find_entity(snapshot, id)) {
+            states.push_back(EntityState{entity->id, entity->parameters});
+        }
+    }
+    return states;
 }
 
 ContractResult<ModelSnapshot> make_snapshot(ModelDraft draft) {
@@ -234,6 +350,7 @@ ContractResult<ModelSnapshot> make_snapshot(ModelDraft draft) {
     snapshot.state_version = draft.initial_state_version;
     snapshot.units = std::move(draft.units);
     snapshot.tolerances = draft.tolerances;
+    snapshot.solve_intent = std::move(draft.solve_intent);
     snapshot.rigid_sets = std::move(draft.rigid_sets);
     snapshot.entities = std::move(draft.entities);
     snapshot.constraints = std::move(draft.constraints);
@@ -244,7 +361,7 @@ ContractResult<ModelSnapshot> make_snapshot(ModelDraft draft) {
 
 ContractResult<ModelValidationReport> validate_model(const ModelSnapshot& snapshot) {
     ContractResult<ModelValidationReport> result;
-    result.report = make_report("kernel.validate_model");
+    result.report = make_stage_report("kernel.validate_model");
     append_validation_findings(snapshot, result.report);
 
     result.payload.valid = !has_errors(result.report);
@@ -262,15 +379,7 @@ ContractResult<ContextSnapshot> make_context(const ModelSnapshot& snapshot,
     context.state_version = snapshot.state_version;
 
     if (request.kind == ContextKind::whole_model) {
-        for (const auto& entity : snapshot.entities) {
-            context.entity_ids.push_back(entity.id);
-        }
-        for (const auto& constraint : snapshot.constraints) {
-            context.constraint_ids.push_back(constraint.id);
-        }
-        for (const auto& rigid_set : snapshot.rigid_sets) {
-            context.rigid_set_ids.push_back(rigid_set.id);
-        }
+        context = make_whole_model_context(snapshot, request.id);
     } else {
         context.entity_ids = std::move(request.entity_ids);
         context.constraint_ids = std::move(request.constraint_ids);
@@ -284,68 +393,68 @@ ContractResult<ContextSnapshot> make_context(const ModelSnapshot& snapshot,
 ContractResult<ContextValidationReport> validate_context(const ModelSnapshot& snapshot,
                                                          const ContextSnapshot& context) {
     ContractResult<ContextValidationReport> result;
-    result.report = make_report("kernel.validate_context");
+    result.report = make_stage_report("kernel.validate_context");
 
     for (EntityId entity_id : context.entity_ids) {
         if (find_entity(snapshot, entity_id) == nullptr) {
-            append_message(result.report,
-                           ReportSeverity::error,
-                           code("kernel.context_missing_entity"),
-                           "Context references an entity that is not present in the model.",
-                           {subject(entity_domain, entity_id.value)});
+            append_report_message(result.report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.context_missing_entity"},
+                "Context references an entity that is not present in the model.",
+                {subject(entity_domain, entity_id.value)}));
         }
     }
 
     for (ConstraintId constraint_id : context.constraint_ids) {
         if (find_constraint(snapshot, constraint_id) == nullptr) {
-            append_message(result.report,
-                           ReportSeverity::error,
-                           code("kernel.context_missing_constraint"),
-                           "Context references a constraint that is not present in the model.",
-                           {subject(constraint_domain, constraint_id.value)});
+            append_report_message(result.report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.context_missing_constraint"},
+                "Context references a constraint that is not present in the model.",
+                {subject(constraint_domain, constraint_id.value)}));
         }
     }
 
     for (RigidSetId rigid_set_id : context.rigid_set_ids) {
         if (find_rigid_set(snapshot, rigid_set_id) == nullptr) {
-            append_message(result.report,
-                           ReportSeverity::error,
-                           code("kernel.context_missing_rigid_set"),
-                           "Context references a rigid set that is not present in the model.",
-                           {subject(rigid_set_domain, rigid_set_id.value)});
+            append_report_message(result.report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.context_missing_rigid_set"},
+                "Context references a rigid set that is not present in the model.",
+                {subject(rigid_set_domain, rigid_set_id.value)}));
         }
     }
 
     if (context.kind == ContextKind::whole_model) {
         result.payload.covers_whole_model = true;
         for (const auto& entity : snapshot.entities) {
-            if (!contains_entity_id(context.entity_ids, entity.id)) {
+            if (!contains_entity(context.entity_ids, entity.id)) {
                 result.payload.covers_whole_model = false;
-                append_message(result.report,
-                               ReportSeverity::error,
-                               code("kernel.context_coverage_mismatch"),
-                               "Whole-model context does not include every model entity.",
-                               {subject(entity_domain, entity.id.value)});
+                append_report_message(result.report, make_report_message(
+                    ReportSeverity::error,
+                    ReportCode{"kernel.context_coverage_mismatch"},
+                    "Whole-model context does not include every model entity.",
+                    {subject(entity_domain, entity.id.value)}));
             }
         }
         for (const auto& constraint : snapshot.constraints) {
-            if (!contains_constraint_id(context.constraint_ids, constraint.id)) {
+            if (!contains_constraint(context.constraint_ids, constraint.id)) {
                 result.payload.covers_whole_model = false;
-                append_message(result.report,
-                               ReportSeverity::error,
-                               code("kernel.context_coverage_mismatch"),
-                               "Whole-model context does not include every model constraint.",
-                               {subject(constraint_domain, constraint.id.value)});
+                append_report_message(result.report, make_report_message(
+                    ReportSeverity::error,
+                    ReportCode{"kernel.context_coverage_mismatch"},
+                    "Whole-model context does not include every model constraint.",
+                    {subject(constraint_domain, constraint.id.value)}));
             }
         }
         for (const auto& rigid_set : snapshot.rigid_sets) {
-            if (!contains_rigid_set_id(context.rigid_set_ids, rigid_set.id)) {
+            if (!contains_rigid_set(context.rigid_set_ids, rigid_set.id)) {
                 result.payload.covers_whole_model = false;
-                append_message(result.report,
-                               ReportSeverity::error,
-                               code("kernel.context_coverage_mismatch"),
-                               "Whole-model context does not include every model rigid set.",
-                               {subject(rigid_set_domain, rigid_set.id.value)});
+                append_report_message(result.report, make_report_message(
+                    ReportSeverity::error,
+                    ReportCode{"kernel.context_coverage_mismatch"},
+                    "Whole-model context does not include every model rigid set.",
+                    {subject(rigid_set_domain, rigid_set.id.value)}));
             }
         }
     }
@@ -357,7 +466,7 @@ ContractResult<ContextValidationReport> validate_context(const ModelSnapshot& sn
 ContractResult<SnapshotDiff> diff_snapshots(const ModelSnapshot& before,
                                             const ModelSnapshot& after) {
     ContractResult<SnapshotDiff> result;
-    result.report = make_report("kernel.diff_snapshots");
+    result.report = make_stage_report("kernel.diff_snapshots");
     result.payload.same_schema = before.schema_version == after.schema_version;
     result.payload.state_version_changed = !(before.state_version == after.state_version);
 
@@ -394,242 +503,60 @@ ContractResult<SnapshotDiff> diff_snapshots(const ModelSnapshot& before,
 ContractResult<StateDeltaValidationReport> validate_delta(const ModelSnapshot& base,
                                                           const StateDelta& delta) {
     ContractResult<StateDeltaValidationReport> result;
-    result.report = make_report("kernel.validate_delta");
+    result.report = make_stage_report("kernel.validate_delta");
 
     result.payload.base_version_matches = delta.base_version == base.state_version;
     if (!result.payload.base_version_matches) {
-        append_message(result.report,
-                       ReportSeverity::error,
-                       code("kernel.delta_base_version_mismatch"),
-                       "State delta base version must match the model snapshot version.",
-                       {subject(state_version_domain, delta.base_version.value),
-                        subject(state_version_domain, base.state_version.value)});
+        append_report_message(result.report, make_report_message(
+            ReportSeverity::error,
+            ReportCode{"kernel.delta_base_version_mismatch"},
+            "State delta base version must match the model snapshot version.",
+            {subject(state_version_domain, delta.base_version.value),
+             subject(state_version_domain, base.state_version.value)}));
     }
 
     result.payload.target_version_is_next = delta.target_version == next_version(delta.base_version);
     if (!result.payload.target_version_is_next) {
-        append_message(result.report,
-                       ReportSeverity::error,
-                       code("kernel.delta_target_version_mismatch"),
-                       "State delta target version must be the next durable state version.",
-                       {subject(state_version_domain, delta.target_version.value)});
+        append_report_message(result.report, make_report_message(
+            ReportSeverity::error,
+            ReportCode{"kernel.delta_target_version_mismatch"},
+            "State delta target version must be the next durable state version.",
+            {subject(state_version_domain, delta.target_version.value)}));
     }
 
     std::vector<EntityId> seen_entities;
     for (const auto& entity_state : delta.entity_states) {
         if (already_seen(seen_entities, entity_state.entity_id)) {
-            append_message(result.report,
-                           ReportSeverity::error,
-                           code("kernel.delta_duplicate_entity_state"),
-                           "State delta contains duplicate entity state.",
-                           {subject(entity_domain, entity_state.entity_id.value)});
+            append_report_message(result.report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.delta_duplicate_entity_state"},
+                "State delta contains duplicate entity state.",
+                {subject(entity_domain, entity_state.entity_id.value)}));
         }
         seen_entities.push_back(entity_state.entity_id);
 
         const auto* entity = find_entity(base, entity_state.entity_id);
         if (entity == nullptr) {
-            append_message(result.report,
-                           ReportSeverity::error,
-                           code("kernel.delta_missing_entity"),
-                           "State delta references an entity that is not present in the model.",
-                           {subject(entity_domain, entity_state.entity_id.value)});
+            append_report_message(result.report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.delta_missing_entity"},
+                "State delta references an entity that is not present in the model.",
+                {subject(entity_domain, entity_state.entity_id.value)}));
             continue;
         }
 
         if (!valid_parameter_dimension(entity_state.parameters) ||
             entity_state.parameters.dimension != geometry_dof(entity->kind)) {
-            append_message(result.report,
-                           ReportSeverity::error,
-                           code("kernel.invalid_parameter_dimension"),
-                           "State delta parameter dimension does not match the entity geometry.",
-                           {subject(entity_domain, entity_state.entity_id.value)});
+            append_report_message(result.report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{"kernel.invalid_parameter_dimension"},
+                "State delta parameter dimension does not match the entity geometry.",
+                {subject(entity_domain, entity_state.entity_id.value)}));
         }
     }
 
     result.payload.valid = !has_errors(result.report);
     return result;
-}
-
-}
-
-namespace gcs {
-
-bool operator==(EntityId lhs, EntityId rhs) { return lhs.value == rhs.value; }
-bool operator==(ConstraintId lhs, ConstraintId rhs) { return lhs.value == rhs.value; }
-bool operator==(RigidSetId lhs, RigidSetId rhs) { return lhs.value == rhs.value; }
-bool operator==(ContextId lhs, ContextId rhs) { return lhs.value == rhs.value; }
-bool operator==(CoverId lhs, CoverId rhs) { return lhs.value == rhs.value; }
-bool operator==(ProjectionId lhs, ProjectionId rhs) { return lhs.value == rhs.value; }
-bool operator==(StateVersionId lhs, StateVersionId rhs) { return lhs.value == rhs.value; }
-bool operator==(ReportId lhs, ReportId rhs) { return lhs.value == rhs.value; }
-bool operator==(CommandId lhs, CommandId rhs) { return lhs.value == rhs.value; }
-
-std::string toString(GeometryKind kind) {
-    switch (kind) {
-        case GeometryKind::Point: return "Point";
-        case GeometryKind::Line: return "Line";
-        case GeometryKind::Plane: return "Plane";
-    }
-    return "UnknownGeometry";
-}
-
-std::string toString(ConstraintKind kind) {
-    switch (kind) {
-        case ConstraintKind::Coincident: return "Coincident";
-        case ConstraintKind::Parallel: return "Parallel";
-        case ConstraintKind::Perpendicular: return "Perpendicular";
-        case ConstraintKind::Distance: return "Distance";
-        case ConstraintKind::Angle: return "Angle";
-    }
-    return "UnknownConstraint";
-}
-
-std::string toString(SolveMode mode) {
-    switch (mode) {
-        case SolveMode::Update: return "Update";
-        case SolveMode::Drag: return "Drag";
-        case SolveMode::Simulation: return "Simulation";
-    }
-    return "UnknownSolveMode";
-}
-
-std::string toString(ContextKind kind) {
-    switch (kind) {
-        case ContextKind::WholeModel: return "WholeModel";
-        case ContextKind::ConnectedComponent: return "ConnectedComponent";
-        case ContextKind::RigidSet: return "RigidSet";
-        case ContextKind::Subproblem: return "Subproblem";
-        case ContextKind::Overlap: return "Overlap";
-        case ContextKind::Gauge: return "Gauge";
-    }
-    return "UnknownContext";
-}
-
-std::string toString(GaugeKind kind) {
-    switch (kind) {
-        case GaugeKind::None: return "None";
-        case GaugeKind::AnchorEntities: return "AnchorEntities";
-        case GaugeKind::QuotientRigidMotion: return "QuotientRigidMotion";
-    }
-    return "UnknownGauge";
-}
-
-std::string toString(SolveStatus status) {
-    switch (status) {
-        case SolveStatus::NotRun: return "NotRun";
-        case SolveStatus::Solved: return "Solved";
-        case SolveStatus::AcceptedWithWarnings: return "AcceptedWithWarnings";
-        case SolveStatus::InvalidModel: return "InvalidModel";
-        case SolveStatus::UnderConstrained: return "UnderConstrained";
-        case SolveStatus::OverConstrained: return "OverConstrained";
-        case SolveStatus::Redundant: return "Redundant";
-        case SolveStatus::Inconsistent: return "Inconsistent";
-        case SolveStatus::NumericallySingular: return "NumericallySingular";
-        case SolveStatus::Unsupported: return "Unsupported";
-        case SolveStatus::Failed: return "Failed";
-    }
-    return "UnknownSolveStatus";
-}
-
-std::string toString(StageStatus status) {
-    switch (status) {
-        case StageStatus::Ok: return "Ok";
-        case StageStatus::Warning: return "Warning";
-        case StageStatus::Error: return "Error";
-        case StageStatus::Unsupported: return "Unsupported";
-    }
-    return "UnknownStageStatus";
-}
-
-int geometryDof(GeometryKind kind) {
-    switch (kind) {
-        case GeometryKind::Point: return 3;
-        case GeometryKind::Line: return 6;
-        case GeometryKind::Plane: return 6;
-    }
-    return 0;
-}
-
-int constraintDofEffect(ConstraintKind kind) {
-    switch (kind) {
-        case ConstraintKind::Coincident: return 3;
-        case ConstraintKind::Parallel: return 2;
-        case ConstraintKind::Perpendicular: return 1;
-        case ConstraintKind::Distance: return 1;
-        case ConstraintKind::Angle: return 1;
-    }
-    return 0;
-}
-
-const GeometricEntity* findEntity(const ModelSnapshot& model, EntityId id) {
-    for (const auto& entity : model.entities) {
-        if (entity.id == id) return &entity;
-    }
-    return nullptr;
-}
-
-const ConstraintInstance* findConstraint(const ModelSnapshot& model, ConstraintId id) {
-    for (const auto& constraint : model.constraints) {
-        if (constraint.id == id) return &constraint;
-    }
-    return nullptr;
-}
-
-const RigidSet* findRigidSet(const ModelSnapshot& model, RigidSetId id) {
-    for (const auto& rigidSet : model.rigidSets) {
-        if (rigidSet.id == id) return &rigidSet;
-    }
-    return nullptr;
-}
-
-bool containsEntity(const std::vector<EntityId>& ids, EntityId id) {
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
-}
-
-bool containsConstraint(const std::vector<ConstraintId>& ids, ConstraintId id) {
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
-}
-
-bool containsRigidSet(const std::vector<RigidSetId>& ids, RigidSetId id) {
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
-}
-
-ContextSnapshot makeWholeModelContext(const ModelSnapshot& model, ContextId id) {
-    ContextSnapshot context;
-    context.id = id;
-    context.kind = ContextKind::WholeModel;
-    for (const auto& entity : model.entities) {
-        context.entityIds.push_back(entity.id);
-    }
-    for (const auto& constraint : model.constraints) {
-        context.constraintIds.push_back(constraint.id);
-    }
-    for (const auto& rigidSet : model.rigidSets) {
-        context.rigidSetIds.push_back(rigidSet.id);
-    }
-    return context;
-}
-
-std::vector<EntityState> captureEntityStates(const ModelSnapshot& model,
-                                             const std::vector<EntityId>& entityIds) {
-    std::vector<EntityState> states;
-    for (EntityId id : entityIds) {
-        if (const auto* entity = findEntity(model, id)) {
-            states.push_back(EntityState{entity->id, entity->parameters});
-        }
-    }
-    return states;
-}
-
-StateVersionId nextVersion(StateVersionId current) {
-    return StateVersionId{current.value + 1};
-}
-
-StageReport makeStageReport(std::string stage, StageStatus status) {
-    StageReport report;
-    report.stage = std::move(stage);
-    report.status = status;
-    return report;
 }
 
 }

@@ -1,5 +1,6 @@
 module;
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -10,17 +11,21 @@ export import gcs.session_runtime;
 
 export namespace gcs::viewer {
 
+using gcs::kernel::ModelSnapshot;
+using gcs::kernel::SolveStatus;
+
 struct SnapshotSummary {
-    int rigidSetCount = 0;
-    int entityCount = 0;
-    int constraintCount = 0;
-    int stateVersion = 0;
-    SolveStatus lastStatus = SolveStatus::NotRun;
+    int rigid_set_count = 0;
+    int entity_count = 0;
+    int constraint_count = 0;
+    std::uint64_t state_version = 0;
+    SolveStatus last_status = SolveStatus::not_run;
     std::vector<std::string> messages;
 };
 
-SnapshotSummary summarizeSnapshot(const ModelSnapshot& snapshot);
-SnapshotSummary summarizeCommandResult(const ModelSnapshot& snapshot,
-                                       const runtime::CommandResult& result);
+SnapshotSummary summarize_snapshot(const ModelSnapshot& snapshot);
+SnapshotSummary summarize_command_result(const ModelSnapshot& snapshot,
+                                         const runtime::CommandResult& result);
+std::string solve_status_text(SolveStatus status);
 
 }

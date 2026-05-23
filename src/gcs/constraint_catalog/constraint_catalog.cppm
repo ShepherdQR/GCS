@@ -9,19 +9,26 @@ export import gcs.kernel;
 
 export namespace gcs::constraints {
 
+using gcs::kernel::ConstraintDraft;
+using gcs::kernel::ConstraintId;
+using gcs::kernel::ConstraintKind;
+using gcs::kernel::ModelSnapshot;
+using gcs::kernel::ReportMessage;
+using gcs::kernel::StageReport;
+
 struct ConstraintDefinition {
-    ConstraintKind kind = ConstraintKind::Coincident;
+    ConstraintKind kind = ConstraintKind::coincident;
     std::string name;
-    int minEntityCount = 0;
-    int maxEntityCount = 0;
-    int residualDimension = 0;
-    int genericDofEffect = 0;
-    bool requiresDistinctRigidSets = true;
+    int min_entity_count = 0;
+    int max_entity_count = 0;
+    int residual_dimension = 0;
+    int generic_dof_effect = 0;
+    bool requires_distinct_rigid_sets = true;
 };
 
 struct ConstraintValidationInput {
     ModelSnapshot model;
-    ConstraintInstance constraint;
+    ConstraintDraft constraint;
 };
 
 struct ConstraintValidationResult {
@@ -30,11 +37,11 @@ struct ConstraintValidationResult {
     std::vector<ReportMessage> messages;
 };
 
-const std::vector<ConstraintDefinition>& builtinDefinitions();
-const ConstraintDefinition* findDefinition(ConstraintKind kind);
-int residualDimension(ConstraintKind kind);
-int genericDofEffect(ConstraintKind kind);
-ConstraintValidationResult validateConstraint(const ConstraintValidationInput& input);
-StageReport validateModelConstraints(const ModelSnapshot& model);
+const std::vector<ConstraintDefinition>& builtin_definitions();
+const ConstraintDefinition* find_definition(ConstraintKind kind);
+int residual_dimension(ConstraintKind kind);
+int generic_dof_effect(ConstraintKind kind);
+ConstraintValidationResult validate_constraint(const ConstraintValidationInput& input);
+StageReport validate_model_constraints(const ModelSnapshot& model);
 
 }

@@ -82,7 +82,7 @@ Target types:
 ```cpp
 export module gcs.kernel;
 
-export namespace gcs {
+export namespace gcs::kernel {
 
 enum class ReportSeverity { info, warning, error };
 enum class StageStatus { ok, warning, error, unsupported };
@@ -742,7 +742,15 @@ Contract tests:
 
 ## Contract Test Architecture
 
-The current monolithic smoke test file should be replaced. Target test layout:
+The current monolithic smoke test file is replaced by contract suites that
+import public C++23 modules only. The current bootstrap suites are:
+
+```text
+tests/contracts/kernel/kernel_contract_tests.cpp
+tests/contracts/pipeline/pipeline_contract_tests.cpp
+```
+
+Target test layout:
 
 ```text
 tests/contracts/kernel/kernel_contract_tests.cpp

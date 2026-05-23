@@ -6,7 +6,10 @@ export import gcs.kernel;
 
 export namespace gcs::tools {
 
-ModelSnapshot makeTwoPointDistanceModel();
-ContextSnapshot makeWholeContextFor(const ModelSnapshot& model);
+using gcs::kernel::ContextSnapshot;
+using gcs::kernel::ModelSnapshot;
+
+ModelSnapshot make_two_point_distance_model();
+ContextSnapshot make_whole_context_for(const ModelSnapshot& model);
 
 }

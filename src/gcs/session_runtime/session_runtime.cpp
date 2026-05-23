@@ -15,149 +15,155 @@ import gcs.diagnostics;
 
 namespace gcs::runtime {
 
-SessionRuntime::SessionRuntime(ModelSnapshot snapshot)
-    : currentSnapshot_(std::move(snapshot)) {}
+namespace kernel = gcs::kernel;
 
-void SessionRuntime::loadSnapshot(ModelSnapshot snapshot) {
-    currentSnapshot_ = std::move(snapshot);
+SessionRuntime::SessionRuntime(ModelSnapshot snapshot)
+    : current_snapshot_(std::move(snapshot)) {}
+
+void SessionRuntime::load_snapshot(ModelSnapshot snapshot) {
+    current_snapshot_ = std::move(snapshot);
 }
 
-const ModelSnapshot& SessionRuntime::currentSnapshot() const {
-    return currentSnapshot_;
+const ModelSnapshot& SessionRuntime::current_snapshot() const {
+    return current_snapshot_;
 }
 
 CommandResult SessionRuntime::solve(SolveIntent intent) {
-    return execute(makeSolveCommand(std::move(intent)));
+    return execute(make_solve_command(std::move(intent)));
 }
 
 CommandResult SessionRuntime::execute(const Command& command) {
     CommandResult result;
-    if (command.kind != CommandKind::Solve) {
-        result.userVisibleStatus = SolveStatus::Unsupported;
-        result.obstructionReport = diagnostics::makeObstruction(
+    if (command.kind != CommandKind::solve) {
+        result.user_visible_status = SolveStatus::unsupported;
+        result.obstruction_report = diagnostics::make_obstruction(
             "runtime.unsupported_command",
             "Only solve commands are supported by the first runtime skeleton.");
         return result;
     }
 
-    currentSnapshot_.solveIntent = command.solveIntent;
+    current_snapshot_.solve_intent = command.solve_intent;
 
-    StageReport validationReport = constraints::validateModelConstraints(currentSnapshot_);
-    result.stageReports.push_back(validationReport);
-    if (validationReport.status == StageStatus::Error) {
-        result.userVisibleStatus = SolveStatus::InvalidModel;
-        result.obstructionReport = diagnostics::makeObstruction(
+    StageReport validation_report = constraints::validate_model_constraints(current_snapshot_);
+    result.stage_reports.push_back(validation_report);
+    if (validation_report.status == kernel::StageStatus::error) {
+        result.user_visible_status = SolveStatus::invalid_model;
+        result.obstruction_report = diagnostics::make_obstruction(
             "runtime.invalid_model",
             "Constraint catalog validation failed before planning.");
         return result;
     }
 
-    graph::IncidenceIndices incidence = graph::buildIncidenceIndices(graph::IncidenceInput{currentSnapshot_});
-    result.stageReports.push_back(incidence.report);
-    if (incidence.report.status == StageStatus::Error) {
-        result.userVisibleStatus = SolveStatus::InvalidModel;
-        result.obstructionReport = diagnostics::makeObstruction(
+    graph::IncidenceIndices incidence =
+        graph::build_incidence_indices(graph::IncidenceInput{current_snapshot_});
+    result.stage_reports.push_back(incidence.report);
+    if (incidence.report.status == kernel::StageStatus::error) {
+        result.user_visible_status = SolveStatus::invalid_model;
+        result.obstruction_report = diagnostics::make_obstruction(
             "runtime.invalid_incidence",
             "Incidence graph construction failed.");
         return result;
     }
 
-    result.plannerOutput = planning::planDecomposition(
-        planning::PlannerInput{currentSnapshot_, incidence, command.solveIntent, {}});
-    result.stageReports.push_back(result.plannerOutput.structuralReport);
+    result.planner_output = planning::plan_decomposition(
+        planning::PlannerInput{current_snapshot_, incidence, command.solve_intent, {}});
+    result.stage_reports.push_back(result.planner_output.structural_report);
 
-    ContextSnapshot rootContext = makeWholeModelContext(currentSnapshot_);
-    result.preSolveDiagnostics = diagnostics::diagnose(
+    kernel::ContextSnapshot root_context = kernel::make_whole_model_context(current_snapshot_);
+    result.pre_solve_diagnostics = diagnostics::diagnose(
         diagnostics::DiagnosticInput{
-            currentSnapshot_,
-            rootContext,
+            current_snapshot_,
+            root_context,
             {},
-            result.plannerOutput.gaugePolicy});
+            result.planner_output.gauge_policy});
 
-    std::vector<LocalSection> localSections;
-    for (const auto& subproblem : result.plannerOutput.subproblems) {
-        const ContextSnapshot* context = nullptr;
-        for (const auto& candidate : result.plannerOutput.coverPlan.contexts) {
-            if (candidate.id == subproblem.contextId) {
+    std::vector<kernel::LocalSection> local_sections;
+    for (const auto& subproblem : result.planner_output.subproblems) {
+        const kernel::ContextSnapshot* context = nullptr;
+        for (const auto& candidate : result.planner_output.cover_plan.contexts) {
+            if (candidate.id == subproblem.context_id) {
                 context = &candidate;
                 break;
             }
         }
         if (context == nullptr) {
-            result.userVisibleStatus = SolveStatus::InvalidModel;
-            result.obstructionReport = diagnostics::makeObstruction(
+            result.user_visible_status = SolveStatus::invalid_model;
+            result.obstruction_report = diagnostics::make_obstruction(
                 "runtime.missing_context",
                 "Planner produced a subproblem whose context is absent from the cover plan.");
             return result;
         }
 
-        auto task = numeric::makeNumericTask(
-            currentSnapshot_,
+        auto task = numeric::make_numeric_task(
+            current_snapshot_,
             *context,
-            subproblem.activeVariables,
-            subproblem.activeEquations,
-            result.plannerOutput.gaugePolicy);
-        task.boundaryVariables = subproblem.boundaryVariables;
+            subproblem.active_variables,
+            subproblem.active_equations,
+            result.planner_output.gauge_policy);
+        task.boundary_variables = subproblem.boundary_variables;
 
-        auto numericReport = numeric::solveLocal(task);
-        localSections.push_back(numericReport.localSection);
-        result.stageReports.push_back(numericReport.stageReport);
-        result.numericReports.push_back(numericReport);
+        auto numeric_report = numeric::solve_local(task);
+        local_sections.push_back(numeric_report.local_section);
+        result.stage_reports.push_back(numeric_report.stage_report);
+        result.numeric_reports.push_back(numeric_report);
 
-        if (numericReport.resultCode != SolveStatus::Solved) {
-            result.userVisibleStatus = numericReport.resultCode;
-            result.obstructionReport = diagnostics::makeObstruction(
+        if (numeric_report.result_code != SolveStatus::solved) {
+            result.user_visible_status = numeric_report.result_code;
+            result.obstruction_report = diagnostics::make_obstruction(
                 "runtime.numeric_failure",
-                numericReport.failureCause.empty() ? "Numeric engine failed." : numericReport.failureCause);
+                numeric_report.failure_cause.empty()
+                    ? "Numeric engine failed."
+                    : numeric_report.failure_cause);
             return result;
         }
     }
 
-    result.gluingReport = diagnostics::glueLocalSections(
+    result.gluing_report = diagnostics::glue_local_sections(
         diagnostics::GluingInput{
-            currentSnapshot_,
-            result.plannerOutput.coverPlan,
-            localSections,
-            result.plannerOutput.boundaryProjections,
-            result.plannerOutput.gaugePolicy,
-            currentSnapshot_.tolerances});
-    result.stageReports.push_back(result.gluingReport.stageReport);
+            current_snapshot_,
+            result.planner_output.cover_plan,
+            local_sections,
+            result.planner_output.boundary_projections,
+            result.planner_output.gauge_policy,
+            current_snapshot_.tolerances});
+    result.stage_reports.push_back(result.gluing_report.stage_report);
 
-    if (!result.gluingReport.accepted) {
-        result.userVisibleStatus = SolveStatus::Inconsistent;
-        result.obstructionReport = result.gluingReport.obstructionReport;
+    if (!result.gluing_report.accepted) {
+        result.user_visible_status = SolveStatus::inconsistent;
+        result.obstruction_report = result.gluing_report.obstruction_report;
         return result;
     }
 
-    commitAcceptedState(result.gluingReport.proposedGlobalState);
+    commit_accepted_state(result.gluing_report.proposed_global_state);
     result.accepted = true;
-    result.newStateVersion = currentSnapshot_.stateVersion;
-    result.userVisibleStatus = result.preSolveDiagnostics.statusCode == SolveStatus::Solved
-        ? SolveStatus::Solved
-        : SolveStatus::AcceptedWithWarnings;
+    result.new_state_version = current_snapshot_.state_version;
+    result.user_visible_status =
+        result.pre_solve_diagnostics.status_code == SolveStatus::solved
+            ? SolveStatus::solved
+            : SolveStatus::accepted_with_warnings;
     return result;
 }
 
-Command SessionRuntime::makeSolveCommand(SolveIntent intent) {
+Command SessionRuntime::make_solve_command(SolveIntent intent) {
     Command command;
-    command.id = nextCommandId_;
-    nextCommandId_ = CommandId{nextCommandId_.value + 1};
-    command.kind = CommandKind::Solve;
-    command.solveIntent = std::move(intent);
-    command.modelEditOrSolveRequest = currentSnapshot_;
+    command.id = next_command_id_;
+    next_command_id_ = CommandId{next_command_id_.value + 1};
+    command.kind = CommandKind::solve;
+    command.solve_intent = std::move(intent);
+    command.model_edit_or_solve_request = current_snapshot_;
     return command;
 }
 
-void SessionRuntime::commitAcceptedState(const ProposedState& proposedState) {
-    for (const auto& state : proposedState.entityStates) {
-        for (auto& entity : currentSnapshot_.entities) {
-            if (entity.id == state.entityId) {
+void SessionRuntime::commit_accepted_state(const ProposedState& proposed_state) {
+    for (const auto& state : proposed_state.entity_states) {
+        for (auto& entity : current_snapshot_.entities) {
+            if (entity.id == state.entity_id) {
                 entity.parameters = state.parameters;
                 break;
             }
         }
     }
-    currentSnapshot_.stateVersion = nextVersion(currentSnapshot_.stateVersion);
+    current_snapshot_.state_version = kernel::next_version(current_snapshot_.state_version);
 }
 
 }

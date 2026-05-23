@@ -6,25 +6,29 @@ import gcs.kernel;
 
 namespace gcs::tools {
 
-ModelSnapshot makeTwoPointDistanceModel() {
-    ModelSnapshot model;
-    model.rigidSets.push_back(RigidSet{RigidSetId{0}, {EntityId{0}}});
-    model.rigidSets.push_back(RigidSet{RigidSetId{1}, {EntityId{1}}});
+namespace kernel = gcs::kernel;
 
-    GeometricEntity first;
-    first.id = EntityId{0};
-    first.kind = GeometryKind::Point;
-    first.rigidSetId = RigidSetId{0};
-    first.parameters.dimension = geometryDof(first.kind);
+ModelSnapshot make_two_point_distance_model() {
+    ModelSnapshot model;
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{0}, {kernel::EntityId{0}}});
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{1}, {kernel::EntityId{1}}});
+
+    kernel::EntityDraft first;
+    first.id = kernel::EntityId{0};
+    first.kind = kernel::GeometryKind::point;
+    first.rigid_set_id = kernel::RigidSetId{0};
+    first.parameters.dimension = kernel::geometry_dof(first.kind);
     first.parameters.values[0] = 0.0;
     first.parameters.values[1] = 0.0;
     first.parameters.values[2] = 0.0;
 
-    GeometricEntity second;
-    second.id = EntityId{1};
-    second.kind = GeometryKind::Point;
-    second.rigidSetId = RigidSetId{1};
-    second.parameters.dimension = geometryDof(second.kind);
+    kernel::EntityDraft second;
+    second.id = kernel::EntityId{1};
+    second.kind = kernel::GeometryKind::point;
+    second.rigid_set_id = kernel::RigidSetId{1};
+    second.parameters.dimension = kernel::geometry_dof(second.kind);
     second.parameters.values[0] = 1.0;
     second.parameters.values[1] = 0.0;
     second.parameters.values[2] = 0.0;
@@ -32,17 +36,17 @@ ModelSnapshot makeTwoPointDistanceModel() {
     model.entities.push_back(first);
     model.entities.push_back(second);
 
-    ConstraintInstance distance;
-    distance.id = ConstraintId{0};
-    distance.kind = ConstraintKind::Distance;
-    distance.entityIds = {EntityId{0}, EntityId{1}};
+    kernel::ConstraintDraft distance;
+    distance.id = kernel::ConstraintId{0};
+    distance.kind = kernel::ConstraintKind::distance;
+    distance.entity_ids = {kernel::EntityId{0}, kernel::EntityId{1}};
     distance.value = 1.0;
     model.constraints.push_back(distance);
     return model;
 }
 
-ContextSnapshot makeWholeContextFor(const ModelSnapshot& model) {
-    return makeWholeModelContext(model);
+ContextSnapshot make_whole_context_for(const ModelSnapshot& model) {
+    return kernel::make_whole_model_context(model);
 }
 
 }
