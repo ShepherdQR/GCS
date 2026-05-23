@@ -62,6 +62,64 @@ def runtime_public_gates(smoke: dict, unavailable_status: str) -> list[dict]:
     ]
 
 
+def runtime_report_from_config(public_gate_config: dict | None) -> dict | None:
+    config = public_gate_config or {}
+    report = config.get("runtime_report")
+    if isinstance(report, dict):
+        return report
+    report_path = config.get("runtime_report_path")
+    if report_path:
+        with open(str(report_path), "r", encoding="utf-8") as f:
+            loaded = json.load(f)
+        if isinstance(loaded, dict):
+            return loaded
+    return None
+
+
+def _stage_report_text(report: dict) -> str:
+    parts = []
+    for key in ("code", "phase", "status", "message", "gate_id", "reason_code"):
+        value = report.get(key)
+        if value is not None:
+            parts.append(str(value))
+    return " ".join(parts).lower()
+
+
+def structured_runtime_public_gates(runtime_report: dict) -> list[dict]:
+    accepted_statuses = {"accepted", "acceptedwithwarnings", "solved", "ok", "passed"}
+    status_text = str(runtime_report.get("status", "")).replace(" ", "").lower()
+    runtime_passed = bool(runtime_report.get("accepted")) or status_text in accepted_statuses
+
+    stage_reports = runtime_report.get("stage_reports") or runtime_report.get("reports") or []
+    if isinstance(stage_reports, dict):
+        stage_reports = list(stage_reports.values())
+    stage_reports = [report for report in stage_reports if isinstance(report, dict)]
+    diagnostics_passed = bool(runtime_report.get("diagnostics")) or any(
+        "diagnostic" in _stage_report_text(report) or "gluing" in _stage_report_text(report)
+        for report in stage_reports
+    )
+
+    return [
+        make_gate(
+            "runtime_smoke",
+            "passed" if runtime_passed else "failed",
+            None if runtime_passed else "runtime_smoke_failed",
+            {"source": "structured_runtime_report", "runtime_report": runtime_report},
+        ),
+        make_gate(
+            "diagnostics_evidence",
+            "passed" if diagnostics_passed else "failed",
+            None if diagnostics_passed else "diagnostics_evidence_failed",
+            {
+                "source": "structured_runtime_report",
+                "stage_report_count": len(stage_reports),
+                "diagnostics_present": diagnostics_passed,
+                "runtime_report": runtime_report,
+            },
+        ),
+    ]
+
+
 def public_adapter_gates(
     store: SceneGenerationStore | str,
     repo_root: str,
@@ -80,7 +138,7 @@ def public_adapter_gates(
     round_trip_digest = sha256_text(promotion.canonical_public_scene_text(round_trip))
     kernel_valid, kernel_issues = promotion.validate_public_scene_kernel(round_trip)
     unavailable_status = "skipped" if gate_profile == "local_plus_public_smoke" or allow_unsupported else "unsupported"
-    smoke = promotion.run_solver_smoke(public_scene["path"], public_gate_config, repo_root, default_gcs_exe)
+    runtime_report = runtime_report_from_config(public_gate_config)
 
     gates = [
         make_gate(
@@ -115,7 +173,11 @@ def public_adapter_gates(
             [projection.get("graph_id") or projection.get("projected_graph_id") or "geometry_primal"],
         ),
     ]
-    gates.extend(runtime_public_gates(smoke, unavailable_status))
+    if runtime_report is not None:
+        gates.extend(structured_runtime_public_gates(runtime_report))
+    else:
+        smoke = promotion.run_solver_smoke(public_scene["path"], public_gate_config, repo_root, default_gcs_exe)
+        gates.extend(runtime_public_gates(smoke, unavailable_status))
     return gates
 
 

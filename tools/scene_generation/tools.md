@@ -139,11 +139,17 @@ adapter gates:
 
 - scene JSON round trip;
 - kernel-shape validation over the public scene;
-- runtime smoke through `GCS.exe` or `public_gate_config.solver_command`;
-- diagnostics evidence from runtime output;
+- structured runtime evidence from `public_gate_config.runtime_report` or
+  `public_gate_config.runtime_report_path`, with executable smoke fallback
+  through `GCS.exe` or `public_gate_config.solver_command`;
+- diagnostics evidence from structured runtime reports or fallback runtime
+  output;
 - viewer projection evidence from the generated geometry-primal projection.
 
-Set `GCS_EXE` or pass `public_gate_config.solver_command` when the default
+Pass `public_gate_config.runtime_report` or
+`public_gate_config.runtime_report_path` when structured runtime/diagnostics
+evidence is already available. Otherwise set `GCS_EXE` or pass
+`public_gate_config.solver_command` when the default
 `out/build/clang-ninja/GCS.exe` is not available. Use
 `gate_profile: "local_only"` for a local-only promotion package.
 
@@ -174,6 +180,8 @@ Keep these pieces when rewriting the explorer structure:
   `gcs_scene_generation.explorer`;
 - promotion package writing, public gate reports, and blocking rules in
   `gcs_scene_generation.promotion_package`;
+- structured runtime/diagnostics report preference before executable smoke
+  fallback in `gcs_scene_generation.promotion_package`;
 - canonical JSON and custom text serialization;
 - public scene conversion and solver smoke adapters in
   `gcs_scene_generation.promotion`.
@@ -226,9 +234,10 @@ helpers, Step 22 moved validation plus projection helpers, Step 23 moved
 parameterization plus reporting helpers, Step 24 moved repair policy, and
 Step 25 moved explorer plus promotion-package orchestration. Step 26 contained
 scratch-store path and IO policy behind `SceneGenerationStore`; public command
-compatibility still flows through `tools.py`. Promotion gate hardening remains
-the next structural split. Do not move generation policy into the solver, GUI,
-or scene IO modules.
+compatibility still flows through `tools.py`. Step 27 hardened promotion gates
+by preferring structured runtime/diagnostics reports before executable smoke
+fallback. Solver algorithm deepening remains the next structural split. Do not
+move generation policy into the solver, GUI, or scene IO modules.
 
 ## Tests
 

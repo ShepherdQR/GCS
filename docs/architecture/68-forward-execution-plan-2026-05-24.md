@@ -22,6 +22,8 @@ implementation step they describe.
     `gcs_scene_generation.promotion_package`;
   - scratch-store path, graph IO, trace, root, and digest policy has been
     contained behind `gcs_scene_generation.storage.SceneGenerationStore`;
+  - promotion public gates now prefer structured runtime/diagnostics reports
+    before executable smoke fallback;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
@@ -86,27 +88,34 @@ Reassessment after Step 26:
 - Step 29 should stay after Step 28 unless the gate-hardening work changes the
   visual architecture atlas earlier.
 
-### Step 27: Promotion Gate Hardening
+### Completed Step 27: Promotion Gate Hardening
 
-Goal:
+Delivered:
 
-- Harden public promotion gates beyond executable smoke checks where direct
-  public APIs are available.
-
-Expected shape:
-
-- Prefer direct IO, kernel, contract-tool, runtime, diagnostics, and viewer
-  adapters over parsing process output.
-- Keep `public_gate_config.solver_command` as a fallback smoke path.
-- Preserve explicit skipped/unsupported/failed gate semantics.
+- Add `public_gate_config.runtime_report` and
+  `public_gate_config.runtime_report_path` support for structured runtime and
+  diagnostics evidence.
+- Keep existing executable smoke behavior as fallback when no structured
+  runtime report is provided.
+- Preserve existing gate IDs (`runtime_smoke`, `diagnostics_evidence`) while
+  changing evidence preference from stdout parsing to structured reports where
+  available.
+- Keep explicit failed/unsupported semantics for fallback smoke gates.
 
 Tests:
 
-- Public scene IO round trip remains canonical.
-- Missing adapter/solver evidence remains explicit and blocks default
-  promotion.
-- Passing direct gates and fallback smoke gates produce comparable structured
-  evidence.
+- Direct package tests verify structured runtime evidence passes runtime and
+  diagnostics gates even when the fallback executable is missing.
+- Existing missing-solver blocking tests still cover fallback unsupported
+  behavior.
+
+Reassessment after Step 27:
+
+- Step 28 is now the highest-leverage next move: scene generation and
+  promotion evidence are strong enough to return to solver algorithm
+  deepening.
+- Step 29 should remain after Step 28 so the atlas reflects both the solver
+  algorithm step and the completed generation/promotion boundaries.
 
 ### Step 28: Solver Algorithm Deepening Reassessment
 
@@ -160,6 +169,6 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 26 completion update, the active planned steps are registered
-as Step 27 through Step 29. Step 27 is the next implementation step.
+As of the Step 27 completion update, the active planned steps are registered
+as Step 28 through Step 29. Step 28 is the next implementation step.
 

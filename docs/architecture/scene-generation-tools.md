@@ -480,6 +480,9 @@ Current v1 status:
 - `gcs_scene_generation.promotion_package` now owns promotion package
   assembly, public adapter gate reports, promotion blocking rules, and
   promotion artifact writing behind the same facade.
+- Promotion gates now prefer structured runtime/diagnostics reports supplied by
+  `public_gate_config.runtime_report` or `runtime_report_path` before falling
+  back to executable smoke output.
 - Structured exploration artifacts are written under
   `.store/explorations/<exploration_id>/`.
 - Promotion packages are written under `.store/promotions/<promotion_id>/`.
@@ -489,8 +492,9 @@ Current v1 status:
 Remaining migration path:
 
 1. Keep `tools.py` as the CLI dispatcher and compatibility facade.
-2. Harden public gates from executable smoke checks into direct IO, contract
-   tools, runtime, diagnostics, and viewer adapters as those APIs stabilize.
+2. Continue broadening direct public gates from structured report inputs into
+   direct contract-tool, runtime, diagnostics, and viewer adapters as those
+   APIs stabilize.
 
 This is a rewrite of structure, not a rewrite of all algorithms.
 

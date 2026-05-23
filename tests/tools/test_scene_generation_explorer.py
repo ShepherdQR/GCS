@@ -263,6 +263,47 @@ class SceneGenerationExplorerTests(unittest.TestCase):
         self.assertEqual(package["known_unsupported_gates"], ["runtime_smoke"])
         self.assertTrue(package["canonical_serialization"]["public_scene_digest"].startswith("sha256:"))
 
+    def test_public_adapter_gates_prefer_structured_runtime_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = storage.SceneGenerationStore(str(root))
+            gcs = {
+                "rigid_sets": [{"id": 0}, {"id": 1}],
+                "geometries": [
+                    {"id": 1, "type": "Point", "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
+                    {"id": 2, "type": "Point", "rigid_set_id": 1, "v": [1, 0, 0, 0, 0, 0]},
+                ],
+                "constraints": [{"id": 7, "type": "Distance", "geometry_ids": [1, 2], "value": 1.0}],
+            }
+            projection = {"projected_graph_id": "structured_runtime_projection", "vertices": [1, 2], "edges": [[1, 2]]}
+
+            gates = promotion_package.public_adapter_gates(
+                store,
+                str(root),
+                str(root / "missing_solver.exe"),
+                "structured_runtime_gcs",
+                gcs,
+                projection,
+                "promotion",
+                False,
+                {
+                    "runtime_report": {
+                        "accepted": True,
+                        "status": "AcceptedWithWarnings",
+                        "stage_reports": [
+                            {"code": "diagnostics.glue_local_sections", "status": "Ok"},
+                        ],
+                    }
+                },
+            )
+
+            by_id = {gate["gate_id"]: gate for gate in gates}
+            self.assertEqual(by_id["scene_io_round_trip"]["status"], "passed")
+            self.assertEqual(by_id["kernel_validation"]["status"], "passed")
+            self.assertEqual(by_id["runtime_smoke"]["status"], "passed")
+            self.assertEqual(by_id["diagnostics_evidence"]["status"], "passed")
+            self.assertEqual(by_id["runtime_smoke"]["evidence"]["source"], "structured_runtime_report")
+
     def test_explorer_is_deterministic_and_keeps_negative_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
             tools = load_tools(Path(tmp))

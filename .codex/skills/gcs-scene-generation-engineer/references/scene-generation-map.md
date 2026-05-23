@@ -39,7 +39,8 @@
   writing, and `ExploreResult` assembly.
 - `tools/scene_generation/gcs_scene_generation/promotion_package.py`:
   promotion-package assembly, blocking status rules, public adapter gate
-  reports, promotion artifact writing, and candidate provenance loading.
+  reports, structured runtime-report preference, promotion artifact writing,
+  and candidate provenance loading.
 - `tools/scene_generation/tools.md`: design notes for the tool family.
 - `tools/scene_generation/.store`: local generated JSON graph store used by
   the tools. Treat this as scratch state unless a generated graph is promoted.

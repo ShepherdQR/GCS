@@ -202,15 +202,31 @@ Delivered:
 - Extend focused unittest coverage for adapter save/load/list plus exploration
   and promotion root contracts.
 
-## Next Step 27
+## Completed Step 27
 
-The next step is promotion gate hardening: prefer direct IO/kernel/runtime/
-diagnostics/viewer adapters over executable smoke parsing where those public
-APIs are available, while keeping explicit skipped/unsupported/failed gate
-semantics.
+Step 27 hardened promotion public gates.
+
+Delivered:
+
+- Add `public_gate_config.runtime_report` and
+  `public_gate_config.runtime_report_path` as structured runtime/diagnostics
+  evidence inputs.
+- Prefer structured runtime reports for `runtime_smoke` and
+  `diagnostics_evidence` gate evidence.
+- Keep `public_gate_config.solver_command`, `GCS_EXE`, and the default
+  executable smoke path as fallback behavior.
+- Extend focused unittest coverage so structured runtime evidence passes public
+  gates even when the fallback executable is missing.
+
+## Next Step 28
+
+The next step is solver algorithm deepening reassessment. The best current
+candidate remains choosing among numeric engine, diagnostics, or decomposition
+planner based on which module can now produce the most actionable failing or
+incomplete evidence from the contract tools and generated scene corpus.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 25 through
 29 were registered there and in the implementation roadmap. After Step 25, the
-remaining steps were reconsidered; Steps 27 through 29 remain registered, with
-Step 27 now the next highest-leverage move.
+remaining steps were reconsidered; Steps 28 through 29 remain registered, with
+Step 28 now the next highest-leverage move.

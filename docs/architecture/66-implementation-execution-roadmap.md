@@ -896,6 +896,31 @@ Reassessment after Step 26:
 - Step 29 remains architecture atlas synchronization after the implementation
   boundaries stabilize, unless Step 27 changes the viewer-facing map earlier.
 
+## Scene Generation Promotion Gate Hardening Milestone
+
+Implemented scope for Step 27:
+
+- `gcs_scene_generation.promotion_package` now accepts structured runtime
+  evidence through `public_gate_config.runtime_report` and
+  `public_gate_config.runtime_report_path`.
+- Public promotion gates prefer structured runtime and diagnostics evidence for
+  `runtime_smoke` and `diagnostics_evidence` before falling back to executable
+  smoke output.
+- Existing fallback behavior through `public_gate_config.solver_command`,
+  `GCS_EXE`, and the default built `GCS.exe` remains available with explicit
+  skipped/unsupported/failed semantics.
+- Focused unittest coverage verifies structured runtime evidence passes public
+  gates even when the fallback executable is missing.
+
+Reassessment after Step 27:
+
+- Step 28 is now solver algorithm deepening reassessment because
+  scene-generation evidence, store ownership, and promotion gates are stable
+  enough to feed stronger solver work.
+- Step 29 remains architecture atlas synchronization after the next solver
+  algorithm move, unless Step 28 changes only documentation and the atlas can
+  be synchronized immediately afterward.
+
 ## Damped Numeric Local Solve Step Plan
 
 Implemented commit-level scope:
