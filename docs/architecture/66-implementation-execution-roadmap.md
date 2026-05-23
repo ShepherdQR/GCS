@@ -173,6 +173,18 @@ Status legend: `done`, `in_progress`, `pending`.
     with deterministic structured tests.
 24. `done` - extract scene-generation repair policy with structured edit-list
     tests.
+25. `pending` - split scene-generation explorer and promotion orchestration
+    from the CLI facade.
+26. `pending` - contain scene-generation flat store access behind a store
+    adapter.
+27. `pending` - harden promotion public gates from executable smoke toward
+    direct public adapters.
+28. `pending` - reassess and resume solver algorithm deepening in the highest
+    leverage C++ module.
+29. `pending` - synchronize the architecture atlas and tracked visualization
+    assets with the current module state.
+
+Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
 ## Constraint Catalog Milestone
 

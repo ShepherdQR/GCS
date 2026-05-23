@@ -174,3 +174,9 @@ Delivered:
 
 The next step is to split explorer and promotion orchestration from `tools.py`,
 leaving the file as a command dispatcher over package modules.
+
+The registered forward plan is persisted in
+`docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 25 through
+29 are registered there and in the implementation roadmap. After each completed
+step, the remaining steps must be reconsidered and updated before or with the
+next implementation commit.
