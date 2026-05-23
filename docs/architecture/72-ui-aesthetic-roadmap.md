@@ -42,9 +42,8 @@ Deliverables:
 
 Acceptance:
 
-- `python -m compileall -q python\gcs_viz` passes;
-- app still starts through `scripts\start_gui.cmd` when local GUI dependencies
-  are present;
+- `python -m compileall -q python\gcs_viz` passes when pycache is writable;
+- `python -B -m py_compile` passes for touched Python files;
 - rendered views are visibly warmer, lower saturation, and less default
   Matplotlib-like.
 

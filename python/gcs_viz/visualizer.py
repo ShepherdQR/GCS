@@ -4,11 +4,12 @@ import matplotlib
 if os.environ.get("GCS_GUI") != "1":
     matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_rgba
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import networkx as nx
 from gcs_viz.algebra import GCSGraph, GeometryType, ConstraintType, DOF_GEOMETRY, DOF_REMOVED_CONSTRAINT
-from gcs_viz.color_scheme import RIGID_SET_COLORS, CONSTRAINT_COLORS, GEOMETRY_NAMES, CONSTRAINT_NAMES
+from gcs_viz.color_scheme import RIGID_SET_COLORS, CONSTRAINT_COLORS, GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME
 
 
 def _get_rs_color(graph: GCSGraph, rs_id: int) -> str:
@@ -25,8 +26,51 @@ def _get_rs_color_index(graph: GCSGraph, rs_id: int) -> int:
     return 0
 
 
+def _apply_figure_theme(fig):
+    fig.patch.set_facecolor(GCS_THEME["bg_canvas"])
+
+
+def _style_2d_axis(ax, grid: bool = False):
+    ax.set_facecolor(GCS_THEME["bg_canvas"])
+    ax.title.set_color(GCS_THEME["text_primary"])
+    ax.xaxis.label.set_color(GCS_THEME["text_secondary"])
+    ax.yaxis.label.set_color(GCS_THEME["text_secondary"])
+    ax.tick_params(colors=GCS_THEME["axis"], labelsize=8)
+    for spine in ax.spines.values():
+        spine.set_color(GCS_THEME["border"])
+    if grid:
+        ax.grid(True, color=GCS_THEME["grid"], alpha=0.45, linewidth=0.8)
+
+
+def _style_3d_axis(ax):
+    ax.set_facecolor(GCS_THEME["bg_canvas"])
+    ax.title.set_color(GCS_THEME["text_primary"])
+    ax.xaxis.label.set_color(GCS_THEME["text_secondary"])
+    ax.yaxis.label.set_color(GCS_THEME["text_secondary"])
+    ax.zaxis.label.set_color(GCS_THEME["text_secondary"])
+    ax.tick_params(colors=GCS_THEME["axis"], labelsize=8)
+    pane = to_rgba(GCS_THEME["bg_canvas"], 0.96)
+    grid = to_rgba(GCS_THEME["grid"], 0.55)
+    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+        axis.set_pane_color(pane)
+        axis._axinfo["grid"]["color"] = grid
+        axis._axinfo["grid"]["linewidth"] = 0.8
+
+
+def _style_legend(legend):
+    if legend is None:
+        return
+    frame = legend.get_frame()
+    frame.set_facecolor(GCS_THEME["bg_canvas"])
+    frame.set_edgecolor(GCS_THEME["border"])
+    frame.set_alpha(0.92)
+    for text in legend.get_texts():
+        text.set_color(GCS_THEME["text_secondary"])
+
+
 def _build_3d_figure(graph: GCSGraph, title: str = "GCS 3D View"):
     fig = plt.figure(figsize=(10, 8))
+    _apply_figure_theme(fig)
     ax = fig.add_subplot(111, projection="3d")
 
     for g in graph.geometries:
@@ -64,7 +108,7 @@ def _build_3d_figure(graph: GCSGraph, title: str = "GCS 3D View"):
             ax.text(pos[0], pos[1], pos[2] + 0.15, f"G{g.id}", fontsize=8, ha="center", color=color)
 
     for c in graph.constraints:
-        color = CONSTRAINT_COLORS.get(c.type, "#ffffff")
+        color = CONSTRAINT_COLORS.get(c.type, GCS_THEME["constraint_default"])
         positions = []
         for gid in c.geometry_ids:
             g = graph.find_geometry(gid)
@@ -115,6 +159,7 @@ def _build_3d_figure(graph: GCSGraph, title: str = "GCS 3D View"):
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
     ax.set_title(title)
+    _style_3d_axis(ax)
 
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
@@ -124,11 +169,11 @@ def _build_3d_figure(graph: GCSGraph, title: str = "GCS 3D View"):
         legend_elements.append(Patch(facecolor=c, alpha=0.5, label=f"RS {rs.id}"))
     for ct, c in CONSTRAINT_COLORS.items():
         legend_elements.append(Line2D([0], [0], color=c, linestyle="--", label=CONSTRAINT_NAMES.get(ct, "?")))
-    ax.legend(handles=legend_elements, loc="upper left", fontsize=7)
+    _style_legend(ax.legend(handles=legend_elements, loc="upper left", fontsize=7))
 
     dof = graph.compute_dof()
     info_text = f"RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}"
-    fig.text(0.5, 0.01, info_text, ha="center", fontsize=9, color="gray")
+    fig.text(0.5, 0.01, info_text, ha="center", fontsize=9, color=GCS_THEME["text_secondary"])
 
     plt.tight_layout()
     return fig
@@ -148,6 +193,7 @@ def _build_constraint_graph_figure(graph: GCSGraph, title: str = "Constraint Gra
                 )
 
     fig, ax = plt.subplots(figsize=(10, 8))
+    _apply_figure_theme(fig)
     pos = nx.spring_layout(G, seed=42, k=2.0)
 
     node_colors = []
@@ -170,7 +216,7 @@ def _build_constraint_graph_figure(graph: GCSGraph, title: str = "Constraint Gra
     edge_styles = []
     for u, v, data in G.edges(data=True):
         ct = data.get("constraint_type", 3)
-        edge_colors.append(CONSTRAINT_COLORS.get(ct, "#ffffff"))
+        edge_colors.append(CONSTRAINT_COLORS.get(ct, GCS_THEME["constraint_default"]))
         edge_styles.append("dashed" if ct in (0, 1, 2) else "solid")
 
     for (u, v, data), color, style in zip(G.edges(data=True), edge_colors, edge_styles):
@@ -185,7 +231,7 @@ def _build_constraint_graph_figure(graph: GCSGraph, title: str = "Constraint Gra
         if val != 0:
             label += f"={val}"
         edge_labels[(u, v)] = label
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax, font_size=6, font_color="#aaaaaa")
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax, font_size=6, font_color=GCS_THEME["text_muted"])
 
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
@@ -195,17 +241,19 @@ def _build_constraint_graph_figure(graph: GCSGraph, title: str = "Constraint Gra
         legend_elements.append(Patch(facecolor=c, alpha=0.5, label=f"RS {rs.id}"))
     for ct, c in CONSTRAINT_COLORS.items():
         legend_elements.append(Line2D([0], [0], color=c, linestyle="--", label=CONSTRAINT_NAMES.get(ct, "?")))
-    ax.legend(handles=legend_elements, loc="upper left", fontsize=7)
+    _style_legend(ax.legend(handles=legend_elements, loc="upper left", fontsize=7))
 
     dof = graph.compute_dof()
     ax.set_title(f"{title}  |  RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}")
     ax.axis("off")
+    _style_2d_axis(ax)
     plt.tight_layout()
     return fig
 
 
 def _build_three_view_figure(graph: GCSGraph, title: str = "GCS Three-View"):
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    _apply_figure_theme(fig)
     views = [
         (axes[0, 0], "XY (Front)", 0, 1),
         (axes[0, 1], "XZ (Top)", 0, 2),
@@ -225,7 +273,7 @@ def _build_three_view_figure(graph: GCSGraph, title: str = "GCS Three-View"):
                 ax.scatter(g.v[dim1], g.v[dim2], color=color, s=100, marker="s", alpha=0.5)
 
         for c in graph.constraints:
-            color = CONSTRAINT_COLORS.get(c.type, "#ffffff")
+            color = CONSTRAINT_COLORS.get(c.type, GCS_THEME["constraint_default"])
             positions = []
             for gid in c.geometry_ids:
                 g = graph.find_geometry(gid)
@@ -246,20 +294,25 @@ def _build_three_view_figure(graph: GCSGraph, title: str = "GCS Three-View"):
         ax.set_ylabel(["X", "Y", "Z"][dim2])
         ax.set_title(view_name)
         ax.set_aspect("equal")
-        ax.grid(True, alpha=0.3)
+        _style_2d_axis(ax, grid=True)
 
     dof = graph.compute_dof()
     info = f"RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}"
-    axes[1, 1].text(0.5, 0.5, info, ha="center", va="center", fontsize=14, transform=axes[1, 1].transAxes)
+    axes[1, 1].set_facecolor(GCS_THEME["bg_canvas"])
+    axes[1, 1].text(0.5, 0.5, info, ha="center", va="center", fontsize=14,
+                    transform=axes[1, 1].transAxes, color=GCS_THEME["text_secondary"])
     axes[1, 1].set_title("Summary")
+    axes[1, 1].title.set_color(GCS_THEME["text_primary"])
 
     fig.suptitle(title)
+    fig._suptitle.set_color(GCS_THEME["text_primary"])
     plt.tight_layout()
     return fig
 
 
 def build_3d_on_figure(graph: GCSGraph, fig, title="GCS 3D View"):
     fig.clear()
+    _apply_figure_theme(fig)
     ax = fig.add_subplot(111, projection="3d")
 
     for g in graph.geometries:
@@ -297,7 +350,7 @@ def build_3d_on_figure(graph: GCSGraph, fig, title="GCS 3D View"):
             ax.text(pos[0], pos[1], pos[2] + 0.15, f"G{g.id}", fontsize=8, ha="center", color=color)
 
     for c in graph.constraints:
-        color = CONSTRAINT_COLORS.get(c.type, "#ffffff")
+        color = CONSTRAINT_COLORS.get(c.type, GCS_THEME["constraint_default"])
         positions = []
         for gid in c.geometry_ids:
             g = graph.find_geometry(gid)
@@ -348,6 +401,7 @@ def build_3d_on_figure(graph: GCSGraph, fig, title="GCS 3D View"):
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
     ax.set_title(title)
+    _style_3d_axis(ax)
 
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
@@ -357,17 +411,18 @@ def build_3d_on_figure(graph: GCSGraph, fig, title="GCS 3D View"):
         legend_elements.append(Patch(facecolor=c, alpha=0.5, label=f"RS {rs.id}"))
     for ct, c in CONSTRAINT_COLORS.items():
         legend_elements.append(Line2D([0], [0], color=c, linestyle="--", label=CONSTRAINT_NAMES.get(ct, "?")))
-    ax.legend(handles=legend_elements, loc="upper left", fontsize=7)
+    _style_legend(ax.legend(handles=legend_elements, loc="upper left", fontsize=7))
 
     dof = graph.compute_dof()
     info_text = f"RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}"
-    fig.text(0.5, 0.01, info_text, ha="center", fontsize=9, color="gray")
+    fig.text(0.5, 0.01, info_text, ha="center", fontsize=9, color=GCS_THEME["text_secondary"])
 
     return ax
 
 
 def build_graph_on_figure(graph: GCSGraph, fig, title="Constraint Graph"):
     fig.clear()
+    _apply_figure_theme(fig)
     ax = fig.add_subplot(111)
 
     G = nx.Graph()
@@ -404,7 +459,7 @@ def build_graph_on_figure(graph: GCSGraph, fig, title="Constraint Graph"):
     edge_styles = []
     for u, v, data in G.edges(data=True):
         ct = data.get("constraint_type", 3)
-        edge_colors.append(CONSTRAINT_COLORS.get(ct, "#ffffff"))
+        edge_colors.append(CONSTRAINT_COLORS.get(ct, GCS_THEME["constraint_default"]))
         edge_styles.append("dashed" if ct in (0, 1, 2) else "solid")
 
     for (u, v, data), color, style in zip(G.edges(data=True), edge_colors, edge_styles):
@@ -419,7 +474,7 @@ def build_graph_on_figure(graph: GCSGraph, fig, title="Constraint Graph"):
         if val != 0:
             label += f"={val}"
         edge_labels[(u, v)] = label
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax, font_size=6, font_color="#aaaaaa")
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax, font_size=6, font_color=GCS_THEME["text_muted"])
 
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
@@ -429,17 +484,19 @@ def build_graph_on_figure(graph: GCSGraph, fig, title="Constraint Graph"):
         legend_elements.append(Patch(facecolor=c, alpha=0.5, label=f"RS {rs.id}"))
     for ct, c in CONSTRAINT_COLORS.items():
         legend_elements.append(Line2D([0], [0], color=c, linestyle="--", label=CONSTRAINT_NAMES.get(ct, "?")))
-    ax.legend(handles=legend_elements, loc="upper left", fontsize=7)
+    _style_legend(ax.legend(handles=legend_elements, loc="upper left", fontsize=7))
 
     dof = graph.compute_dof()
     ax.set_title(f"{title}  |  RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}")
     ax.axis("off")
+    _style_2d_axis(ax)
 
     return ax
 
 
 def build_three_view_on_figure(graph: GCSGraph, fig, title="GCS Three-View"):
     fig.clear()
+    _apply_figure_theme(fig)
     axes = fig.subplots(2, 2)
     views = [
         (axes[0, 0], "XY (Front)", 0, 1),
@@ -460,7 +517,7 @@ def build_three_view_on_figure(graph: GCSGraph, fig, title="GCS Three-View"):
                 ax.scatter(g.v[dim1], g.v[dim2], color=color, s=100, marker="s", alpha=0.5)
 
         for c in graph.constraints:
-            color = CONSTRAINT_COLORS.get(c.type, "#ffffff")
+            color = CONSTRAINT_COLORS.get(c.type, GCS_THEME["constraint_default"])
             positions = []
             for gid in c.geometry_ids:
                 g = graph.find_geometry(gid)
@@ -481,13 +538,17 @@ def build_three_view_on_figure(graph: GCSGraph, fig, title="GCS Three-View"):
         ax.set_ylabel(["X", "Y", "Z"][dim2])
         ax.set_title(view_name)
         ax.set_aspect("equal")
-        ax.grid(True, alpha=0.3)
+        _style_2d_axis(ax, grid=True)
 
     dof = graph.compute_dof()
     info = f"RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}"
-    axes[1, 1].text(0.5, 0.5, info, ha="center", va="center", fontsize=14, transform=axes[1, 1].transAxes)
+    axes[1, 1].set_facecolor(GCS_THEME["bg_canvas"])
+    axes[1, 1].text(0.5, 0.5, info, ha="center", va="center", fontsize=14,
+                    transform=axes[1, 1].transAxes, color=GCS_THEME["text_secondary"])
     axes[1, 1].set_title("Summary")
+    axes[1, 1].title.set_color(GCS_THEME["text_primary"])
 
     fig.suptitle(title)
+    fig._suptitle.set_color(GCS_THEME["text_primary"])
 
     return axes

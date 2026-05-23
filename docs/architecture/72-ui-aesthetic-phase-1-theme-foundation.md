@@ -82,7 +82,8 @@ on the provided `Figure` and avoid Tk dependencies.
 
 ## Acceptance Checks
 
-- `python -m compileall -q python\gcs_viz`;
+- `python -m compileall -q python\gcs_viz` when pycache is writable;
+- `python -B -m py_compile python\gcs_viz\color_scheme.py python\gcs_viz\platform_gui.py python\gcs_viz\visualizer.py`;
 - focused `git diff --check` on touched files;
 - manual GUI check when a local display and required Python packages are
   available.
