@@ -45,7 +45,10 @@ order, not by historical source order. Background research notes live under
    - `65-agentic-implementation-tooling.md`: shared agent-callable scripts for
      validating module designs, skills, dependency boundaries, and scaffolding
      C++23 modules or contract tests.
-8. `90-references/`
+8. Visualization atlas
+   - `70-visualization/gcs-architecture-atlas.md`: architecture diagrams and
+     visual grammar for the target GCS shape.
+9. `90-references/`
    - Commercial and research notes used as background material.
 
 ## Target Thesis
