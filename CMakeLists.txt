@@ -95,6 +95,19 @@ if(GCS_BUILD_TESTS)
                 PROPERTIES LABELS "contract;constraint_catalog"
             )
 
+            add_executable(gcs_incidence_graph_contract_tests
+                tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp
+            )
+            target_link_libraries(gcs_incidence_graph_contract_tests
+                PRIVATE
+                    gcs_solver
+                    GTest::gtest_main
+            )
+            target_compile_features(gcs_incidence_graph_contract_tests PRIVATE cxx_std_23)
+            gtest_discover_tests(gcs_incidence_graph_contract_tests
+                PROPERTIES LABELS "contract;incidence_graph"
+            )
+
             add_executable(gcs_pipeline_contract_tests
                 tests/contracts/pipeline/pipeline_contract_tests.cpp
             )

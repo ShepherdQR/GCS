@@ -45,6 +45,50 @@ ModelSnapshot make_two_point_distance_model() {
     return model;
 }
 
+ModelSnapshot make_two_component_distance_model() {
+    ModelSnapshot model = make_two_point_distance_model();
+
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{2}, {kernel::EntityId{2}}});
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{3}, {kernel::EntityId{3}}});
+
+    kernel::EntityDraft third;
+    third.id = kernel::EntityId{2};
+    third.kind = kernel::GeometryKind::point;
+    third.rigid_set_id = kernel::RigidSetId{2};
+    third.parameters.dimension = kernel::geometry_dof(third.kind);
+    third.parameters.values[0] = 10.0;
+
+    kernel::EntityDraft fourth;
+    fourth.id = kernel::EntityId{3};
+    fourth.kind = kernel::GeometryKind::point;
+    fourth.rigid_set_id = kernel::RigidSetId{3};
+    fourth.parameters.dimension = kernel::geometry_dof(fourth.kind);
+    fourth.parameters.values[0] = 11.0;
+
+    model.entities.push_back(third);
+    model.entities.push_back(fourth);
+
+    kernel::ConstraintDraft second_distance;
+    second_distance.id = kernel::ConstraintId{1};
+    second_distance.kind = kernel::ConstraintKind::distance;
+    second_distance.entity_ids = {kernel::EntityId{2}, kernel::EntityId{3}};
+    second_distance.value = 1.0;
+    model.constraints.push_back(second_distance);
+    return model;
+}
+
+ModelSnapshot make_missing_entity_reference_model() {
+    ModelSnapshot model = make_two_point_distance_model();
+    model.constraints.push_back(kernel::ConstraintDraft{
+        kernel::ConstraintId{7},
+        kernel::ConstraintKind::distance,
+        {kernel::EntityId{0}, kernel::EntityId{999}},
+        1.0});
+    return model;
+}
+
 ContextSnapshot make_whole_context_for(const ModelSnapshot& model) {
     return kernel::make_whole_model_context(model);
 }

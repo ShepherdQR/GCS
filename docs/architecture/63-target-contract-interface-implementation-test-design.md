@@ -748,6 +748,7 @@ import public C++23 modules only. The current bootstrap suites are:
 ```text
 tests/contracts/kernel/kernel_contract_tests.cpp
 tests/contracts/constraint_catalog/constraint_catalog_contract_tests.cpp
+tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp
 tests/contracts/pipeline/pipeline_contract_tests.cpp
 ```
 
