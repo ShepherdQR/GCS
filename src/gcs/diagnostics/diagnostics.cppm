@@ -90,16 +90,40 @@ struct ObstructionReport {
     bool present = false;
     std::string code;
     std::string message;
+    std::vector<ProjectionId> projection_ids;
     std::vector<ContextId> context_ids;
     std::vector<EntityId> entity_ids;
     std::vector<ConstraintId> constraint_ids;
 };
 
+struct ConflictSet {
+    std::string code;
+    std::vector<EntityId> entity_ids;
+    std::vector<ConstraintId> constraint_ids;
+};
+
+struct RedundancySet {
+    std::string code;
+    std::vector<ConstraintId> constraint_ids;
+};
+
 struct OverlapStatus {
     ProjectionId projection_id;
+    ContextId source_context_id;
+    ContextId target_context_id;
     bool compatible = true;
     double boundary_residual = 0.0;
     std::vector<EntityId> entity_ids;
+};
+
+struct BoundaryAgreementReport {
+    ProjectionId projection_id;
+    ContextId source_context_id;
+    ContextId target_context_id;
+    bool compatible = true;
+    double max_boundary_residual = 0.0;
+    std::vector<EntityId> entity_ids;
+    std::vector<ConstraintId> constraint_ids;
 };
 
 struct GluingInput {
@@ -116,19 +140,11 @@ struct GluingReport {
     ProposedState proposed_global_state;
     std::vector<OverlapStatus> overlap_statuses;
     bool gauge_consistent = true;
+    std::vector<BoundaryAgreementReport> boundary_agreements;
+    std::vector<ConflictSet> conflict_sets;
+    std::vector<RedundancySet> redundancy_sets;
     ObstructionReport obstruction_report;
     StageReport stage_report;
-};
-
-struct ConflictSet {
-    std::string code;
-    std::vector<EntityId> entity_ids;
-    std::vector<ConstraintId> constraint_ids;
-};
-
-struct RedundancySet {
-    std::string code;
-    std::vector<ConstraintId> constraint_ids;
 };
 
 struct StatusEvidence {

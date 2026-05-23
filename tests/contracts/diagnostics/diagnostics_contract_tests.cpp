@@ -5,6 +5,8 @@ import gcs.numeric_engine;
 
 #include <gtest/gtest.h>
 
+#include <vector>
+
 namespace {
 
 namespace diagnostics = gcs::diagnostics;
@@ -39,6 +41,46 @@ bool has_evidence_code(const diagnostics::StatusPrecedenceTrace& trace,
         if (evidence.code == code) return true;
     }
     return false;
+}
+
+bool has_conflict_code(const diagnostics::GluingReport& report, const char* code) {
+    for (const auto& conflict : report.conflict_sets) {
+        if (conflict.code == code) return true;
+    }
+    return false;
+}
+
+kernel::LocalSection make_section(const kernel::ModelSnapshot& model,
+                                  kernel::ContextId context_id,
+                                  std::vector<kernel::EntityId> entity_ids) {
+    kernel::LocalSection section;
+    section.context_id = context_id;
+    section.valid = true;
+    section.entity_states = kernel::capture_entity_states(model, entity_ids);
+    return section;
+}
+
+diagnostics::GluingInput make_projection_gluing_input(bool mismatch) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    auto source = make_section(model, kernel::ContextId{1}, {kernel::EntityId{0}});
+    auto target = make_section(model, kernel::ContextId{2}, {kernel::EntityId{0}});
+    if (mismatch) {
+        target.entity_states.front().parameters.values[0] += 1.0;
+    }
+
+    kernel::BoundaryProjection projection;
+    projection.id = kernel::ProjectionId{7};
+    projection.source_context_id = source.context_id;
+    projection.target_context_id = target.context_id;
+    projection.entity_ids = {kernel::EntityId{0}};
+    projection.constraint_ids = {kernel::ConstraintId{0}};
+
+    diagnostics::GluingInput input;
+    input.model = model;
+    input.local_sections = {source, target};
+    input.boundary_projections = {projection};
+    input.tolerances = model.tolerances;
+    return input;
 }
 
 }  // namespace
@@ -114,4 +156,31 @@ TEST(DiagnosticsContract, ConflictAndRedundancyPlaceholdersAreStructured) {
     EXPECT_TRUE(output.conflict_sets.empty());
     EXPECT_TRUE(output.redundancy_sets.empty());
     EXPECT_FALSE(output.status_precedence_trace.considered.empty());
+}
+
+TEST(DiagnosticsContract, AcceptsCompatibleProjectedOverlap) {
+    auto report = diagnostics::glue_local_sections(make_projection_gluing_input(false));
+
+    EXPECT_TRUE(report.accepted);
+    ASSERT_EQ(report.boundary_agreements.size(), 1U);
+    EXPECT_TRUE(report.boundary_agreements.front().compatible);
+    EXPECT_EQ(report.boundary_agreements.front().projection_id.value, 7U);
+    EXPECT_NEAR(report.boundary_agreements.front().max_boundary_residual, 0.0, 1.0e-12);
+    ASSERT_EQ(report.overlap_statuses.size(), 1U);
+    EXPECT_TRUE(report.overlap_statuses.front().compatible);
+}
+
+TEST(DiagnosticsContract, RejectsMismatchedBoundaryProjection) {
+    auto report = diagnostics::glue_local_sections(make_projection_gluing_input(true));
+
+    EXPECT_FALSE(report.accepted);
+    EXPECT_EQ(report.obstruction_report.code, "gluing.boundary_projection_mismatch");
+    ASSERT_EQ(report.obstruction_report.projection_ids.size(), 1U);
+    EXPECT_EQ(report.obstruction_report.projection_ids.front().value, 7U);
+    ASSERT_EQ(report.obstruction_report.entity_ids.size(), 1U);
+    EXPECT_EQ(report.obstruction_report.entity_ids.front().value, 0U);
+    ASSERT_EQ(report.boundary_agreements.size(), 1U);
+    EXPECT_FALSE(report.boundary_agreements.front().compatible);
+    EXPECT_GT(report.boundary_agreements.front().max_boundary_residual, 0.0);
+    EXPECT_TRUE(has_conflict_code(report, "gluing.boundary_projection_mismatch"));
 }

@@ -134,9 +134,9 @@ Status legend: `done`, `in_progress`, `pending`.
    solve tests.
 7. `done` - add diagnostics DOF/rank/residual/status precedence
    contracts.
-8. `in_progress` - add projection-aware gluing obstruction and
+8. `done` - add projection-aware gluing obstruction and
    conflict/redundancy diagnostics.
-9. `pending` - harden session runtime transaction, rollback, stage trace, and
+9. `in_progress` - harden session runtime transaction, rollback, stage trace, and
    replay contracts.
 10. `pending` - add IO schema registry, canonical text/JSON path, parse
     reports, round-trip diff, and fixture tests.
@@ -324,6 +324,53 @@ Implement the projection-aware gluing obstruction milestone:
   failures where possible.
 - Extend diagnostics contract tests for compatible overlaps, mismatched
   overlap projections, and stable obstruction subject IDs.
+
+## Projection-Aware Gluing Step Plan
+
+Current commit-level scope:
+
+- Extend `gcs.diagnostics` gluing contracts with per-projection
+  `BoundaryAgreementReport` evidence.
+- Compare local sections through declared `BoundaryProjection` records,
+  including source/target context IDs, projected entity IDs, projected
+  constraint IDs, boundary residuals, and compatibility.
+- Keep existing duplicate-state merge checks, but report projection failures as
+  typed obstructions with stable projection, context, entity, and constraint
+  subjects.
+- Populate gluing-level conflict placeholders for boundary mismatches so the
+  next diagnostics step can minimize conflict sets without changing contracts.
+- Add contract tests for compatible projected overlaps and mismatched projected
+  overlaps under `tests/contracts/diagnostics/diagnostics_contract_tests.cpp`.
+
+## Projection-Aware Gluing Milestone
+
+Implemented scope for the projection-aware gluing obstruction milestone:
+
+- Add `BoundaryAgreementReport` to `gcs.diagnostics` and attach per-projection
+  evidence to `GluingReport`.
+- Extend `OverlapStatus` with source and target context IDs.
+- Add projection IDs to `ObstructionReport` so failed gluing can name the
+  concrete boundary projection that failed.
+- Compare local sections through declared `BoundaryProjection` records and
+  compute boundary residuals per projected overlap.
+- Return `gluing.boundary_projection_mismatch` with projection, context,
+  entity, and constraint subjects when a projected overlap fails.
+- Populate gluing-level `ConflictSet` evidence for boundary mismatches.
+- Extend diagnostics contract tests with compatible and mismatched projection
+  scenarios.
+
+## Next Milestone
+
+Implement the session runtime transaction and replay milestone:
+
+- Introduce runtime command precondition reports and transaction traces.
+- Ensure rejected commands preserve state and accepted commands advance state
+  version exactly once.
+- Record stage traces with pre-solve, planner, numeric, diagnostics, gluing,
+  commit, and rollback phases.
+- Add history and replay skeletons based on public command/result contracts.
+- Add session runtime contract tests under
+  `tests/contracts/session_runtime/session_runtime_contract_tests.cpp`.
 
 ## Decomposition Planner Step Plan
 

@@ -39,6 +39,34 @@ kernel::EntityState* find_state(std::vector<kernel::EntityState>& states,
     return nullptr;
 }
 
+const kernel::EntityState* find_state(const std::vector<kernel::EntityState>& states,
+                                      EntityId entity_id) {
+    for (const auto& state : states) {
+        if (state.entity_id == entity_id) return &state;
+    }
+    return nullptr;
+}
+
+const LocalSection* find_section(const std::vector<LocalSection>& sections,
+                                 ContextId context_id) {
+    for (const auto& section : sections) {
+        if (section.context_id == context_id) return &section;
+    }
+    return nullptr;
+}
+
+double parameter_residual(const kernel::ParameterVector& lhs,
+                          const kernel::ParameterVector& rhs) {
+    const int dimension = lhs.dimension < rhs.dimension ? lhs.dimension : rhs.dimension;
+    double residual = lhs.dimension == rhs.dimension ? 0.0 : 1.0;
+    for (int i = 0; i < dimension; ++i) {
+        const double delta = std::abs(lhs.values[static_cast<std::size_t>(i)] -
+                                      rhs.values[static_cast<std::size_t>(i)]);
+        if (delta > residual) residual = delta;
+    }
+    return residual;
+}
+
 SolveStatus classify_free_dof(int free_dof) {
     if (free_dof > 0) return SolveStatus::under_constrained;
     if (free_dof < 0) return SolveStatus::over_constrained;
@@ -260,6 +288,9 @@ GluingReport glue_local_sections(const GluingInput& input) {
     GluingReport report;
     report.stage_report = kernel::make_stage_report("diagnostics.glue_local_sections");
     report.proposed_global_state.base_version = input.model.state_version;
+    bool duplicate_state_mismatch = false;
+    ContextId duplicate_context;
+    EntityId duplicate_entity;
 
     for (const auto& section : input.local_sections) {
         if (!section.valid) {
@@ -278,14 +309,16 @@ GluingReport glue_local_sections(const GluingInput& input) {
                 if (!same_parameters(existing->parameters,
                                      state.parameters,
                                      input.tolerances.boundary)) {
-                    report.accepted = false;
-                    report.obstruction_report = make_obstruction(
-                        "gluing.entity_state_mismatch",
-                        "Local sections disagree on a shared entity state.");
-                    report.obstruction_report.context_ids.push_back(section.context_id);
-                    report.obstruction_report.entity_ids.push_back(state.entity_id);
-                    report.stage_report.status = kernel::StageStatus::error;
-                    return report;
+                    if (!duplicate_state_mismatch) {
+                        duplicate_state_mismatch = true;
+                        duplicate_context = section.context_id;
+                        duplicate_entity = state.entity_id;
+                        report.conflict_sets.push_back(
+                            ConflictSet{
+                                "gluing.entity_state_mismatch",
+                                {state.entity_id},
+                                {}});
+                    }
                 }
             } else {
                 report.proposed_global_state.entity_states.push_back(state);
@@ -294,12 +327,101 @@ GluingReport glue_local_sections(const GluingInput& input) {
     }
 
     for (const auto& projection : input.boundary_projections) {
+        BoundaryAgreementReport agreement;
+        agreement.projection_id = projection.id;
+        agreement.source_context_id = projection.source_context_id;
+        agreement.target_context_id = projection.target_context_id;
+        agreement.entity_ids = projection.entity_ids;
+        agreement.constraint_ids = projection.constraint_ids;
+
         OverlapStatus status;
         status.projection_id = projection.id;
-        status.compatible = true;
-        status.boundary_residual = 0.0;
+        status.source_context_id = projection.source_context_id;
+        status.target_context_id = projection.target_context_id;
         status.entity_ids = projection.entity_ids;
+
+        const auto* source_section = find_section(
+            input.local_sections,
+            projection.source_context_id);
+        const auto* target_section = find_section(
+            input.local_sections,
+            projection.target_context_id);
+
+        if (source_section == nullptr) {
+            agreement.compatible = false;
+            status.compatible = false;
+            report.boundary_agreements.push_back(agreement);
+            report.overlap_statuses.push_back(status);
+            report.accepted = false;
+            report.obstruction_report = make_obstruction(
+                "gluing.missing_source_section",
+                "Boundary projection references a source context with no local section.");
+            report.obstruction_report.projection_ids.push_back(projection.id);
+            report.obstruction_report.context_ids.push_back(projection.source_context_id);
+            report.obstruction_report.constraint_ids = projection.constraint_ids;
+            report.stage_report.status = kernel::StageStatus::error;
+            return report;
+        }
+
+        std::vector<EntityId> mismatched_entities;
+        for (EntityId entity_id : projection.entity_ids) {
+            const auto* source_state = find_state(source_section->entity_states, entity_id);
+            const auto* target_state =
+                target_section == nullptr
+                    ? find_state(report.proposed_global_state.entity_states, entity_id)
+                    : find_state(target_section->entity_states, entity_id);
+
+            if (source_state == nullptr || target_state == nullptr) {
+                mismatched_entities.push_back(entity_id);
+                agreement.compatible = false;
+                continue;
+            }
+
+            const double residual =
+                parameter_residual(source_state->parameters, target_state->parameters);
+            if (residual > agreement.max_boundary_residual) {
+                agreement.max_boundary_residual = residual;
+            }
+            if (residual > input.tolerances.boundary) {
+                mismatched_entities.push_back(entity_id);
+                agreement.compatible = false;
+            }
+        }
+
+        status.compatible = agreement.compatible;
+        status.boundary_residual = agreement.max_boundary_residual;
+        report.boundary_agreements.push_back(agreement);
         report.overlap_statuses.push_back(status);
+
+        if (!mismatched_entities.empty()) {
+            report.accepted = false;
+            report.obstruction_report = make_obstruction(
+                "gluing.boundary_projection_mismatch",
+                "Local sections disagree on a declared boundary projection.");
+            report.obstruction_report.projection_ids.push_back(projection.id);
+            report.obstruction_report.context_ids.push_back(projection.source_context_id);
+            report.obstruction_report.context_ids.push_back(projection.target_context_id);
+            report.obstruction_report.entity_ids = mismatched_entities;
+            report.obstruction_report.constraint_ids = projection.constraint_ids;
+            report.conflict_sets.push_back(
+                ConflictSet{
+                    "gluing.boundary_projection_mismatch",
+                    mismatched_entities,
+                    projection.constraint_ids});
+            report.stage_report.status = kernel::StageStatus::error;
+            return report;
+        }
+    }
+
+    if (duplicate_state_mismatch) {
+        report.accepted = false;
+        report.obstruction_report = make_obstruction(
+            "gluing.entity_state_mismatch",
+            "Local sections disagree on a shared entity state.");
+        report.obstruction_report.context_ids.push_back(duplicate_context);
+        report.obstruction_report.entity_ids.push_back(duplicate_entity);
+        report.stage_report.status = kernel::StageStatus::error;
+        return report;
     }
 
     report.gauge_consistent = true;
