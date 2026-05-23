@@ -1,0 +1,196 @@
+{
+  "schema_version": "gcs-agentic-toolkit-0.1",
+  "docs": {
+    "module_agents": "docs/architecture/62-module-agents.md",
+    "target_contracts": "docs/architecture/63-target-contract-interface-implementation-test-design.md",
+    "physical_skills": "docs/architecture/64-physical-agent-skill-catalog.md"
+  },
+  "modules": [
+    {
+      "id": "kernel",
+      "cxx_module": "gcs.kernel",
+      "namespace": "gcs::kernel",
+      "source_dir": "src/gcs/kernel",
+      "skill": ".codex/skills/gcs-kernel-contract-steward",
+      "agent_heading": "Kernel Contract Agent",
+      "target_heading": "Kernel Target Design",
+      "contract_test": "tests/contracts/kernel/kernel_contract_tests.cpp",
+      "structured_inputs": ["ModelDraft", "ModelSnapshot", "ContextRequest", "StateDelta", "SnapshotDiffRequest"],
+      "structured_outputs": ["ModelValidationReport", "ContextValidationReport", "ContextSnapshot", "SnapshotDiff", "StateDeltaValidationReport"],
+      "tools": ["id_allocator", "snapshot_validator", "context_validator", "state_delta_validator", "snapshot_diff"],
+      "allowed_imports": []
+    },
+    {
+      "id": "constraint_catalog",
+      "cxx_module": "gcs.constraint_catalog",
+      "namespace": "gcs::constraints",
+      "source_dir": "src/gcs/constraint_catalog",
+      "skill": ".codex/skills/gcs-constraint-semantics-steward",
+      "agent_heading": "Constraint Semantics Agent",
+      "target_heading": "Constraint Catalog Target Design",
+      "contract_test": "tests/contracts/constraint_catalog/constraint_catalog_contract_tests.cpp",
+      "structured_inputs": ["ConstraintDefinitionRequest", "ConstraintValidationRequest", "ResidualEvaluationRequest", "JacobianEvaluationRequest", "DegeneracyProbeRequest"],
+      "structured_outputs": ["ConstraintDefinition", "ConstraintValidationReport", "ResidualEvaluationResult", "JacobianEvaluationResult", "DegeneracyReport", "CatalogVersionReport"],
+      "tools": ["constraint_registry_builder", "signature_matcher", "parameter_schema_validator", "residual_jacobian_checker", "finite_difference_checker", "degeneracy_fixture_generator"],
+      "allowed_imports": ["gcs.kernel"]
+    },
+    {
+      "id": "incidence_graph",
+      "cxx_module": "gcs.incidence_graph",
+      "namespace": "gcs::graph",
+      "source_dir": "src/gcs/incidence_graph",
+      "skill": ".codex/skills/gcs-incidence-structure-steward",
+      "agent_heading": "Incidence Structure Agent",
+      "target_heading": "Incidence Graph Target Design",
+      "contract_test": "tests/contracts/incidence_graph/incidence_graph_contract_tests.cpp",
+      "structured_inputs": ["HypergraphBuildRequest", "RigidGraphBuildRequest", "StructuralQueryRequest", "GraphDumpRequest"],
+      "structured_outputs": ["IncidenceHypergraph", "EntityIncidenceIndex", "ConstraintIncidenceIndex", "RigidBodyGraph", "ConnectedComponents", "SeparatorReport", "StructuralReport", "GraphDump"],
+      "tools": ["hypergraph_builder", "reverse_index_builder", "rigid_body_graph_builder", "component_analyzer", "separator_finder", "graph_dump_generator"],
+      "allowed_imports": ["gcs.kernel"]
+    },
+    {
+      "id": "decomposition_planner",
+      "cxx_module": "gcs.decomposition_planner",
+      "namespace": "gcs::planning",
+      "source_dir": "src/gcs/decomposition_planner",
+      "skill": ".codex/skills/gcs-decomposition-planning-steward",
+      "agent_heading": "Decomposition Planning Agent",
+      "target_heading": "Decomposition Planner Target Design",
+      "contract_test": "tests/contracts/decomposition_planner/decomposition_planner_contract_tests.cpp",
+      "structured_inputs": ["PlanningRequest", "PlanningOptions", "StructuralHints", "DiagnosticHints", "CapabilityProfile"],
+      "structured_outputs": ["PlanningResult", "CoverPlan", "ContextSnapshot", "BoundaryProjection", "Subproblem", "SolveDag", "GaugePolicy", "UnsupportedPlanReport"],
+      "tools": ["coverage_verifier", "boundary_projection_builder", "gauge_policy_selector", "solve_dag_builder", "cycle_checker", "fallback_strategy_selector"],
+      "allowed_imports": ["gcs.kernel", "gcs.incidence_graph", "gcs.diagnostics"]
+    },
+    {
+      "id": "numeric_engine",
+      "cxx_module": "gcs.numeric_engine",
+      "namespace": "gcs::numeric",
+      "source_dir": "src/gcs/numeric_engine",
+      "skill": ".codex/skills/gcs-numeric-engine-steward",
+      "agent_heading": "Numeric Engine Agent",
+      "target_heading": "Numeric Engine Target Design",
+      "contract_test": "tests/contracts/numeric_engine/numeric_engine_contract_tests.cpp",
+      "structured_inputs": ["NumericTask", "NumericOptions", "InitialState", "ScalingPolicy", "ParameterizationPolicy", "JacobianPolicy", "LinearSolverPolicy", "TracePolicy"],
+      "structured_outputs": ["NumericReport", "LocalSection", "ResidualReport", "JacobianReport", "RankConditionReport", "IterationTrace", "NumericFailureReport"],
+      "tools": ["task_validator", "residual_assembler", "jacobian_assembler", "finite_difference_checker", "scaling_tool", "manifold_retraction_tool", "rank_condition_estimator", "numeric_replay_harness"],
+      "allowed_imports": ["gcs.kernel", "gcs.constraint_catalog"]
+    },
+    {
+      "id": "diagnostics",
+      "cxx_module": "gcs.diagnostics",
+      "namespace": "gcs::diagnostics",
+      "source_dir": "src/gcs/diagnostics",
+      "skill": ".codex/skills/gcs-diagnostics-certification-steward",
+      "agent_heading": "Diagnostics Certification Agent",
+      "target_heading": "Diagnostics Target Design",
+      "contract_test": "tests/contracts/diagnostics/diagnostics_contract_tests.cpp",
+      "structured_inputs": ["DiagnosticRequest", "DiagnosticPhase", "DofAnalysisRequest", "ResidualAnalysisRequest", "GluingRequest", "ConflictSearchRequest", "RedundancySearchRequest"],
+      "structured_outputs": ["DiagnosticReport", "DofReport", "RankReport", "ResidualReport", "BoundaryAgreementReport", "GluingReport", "ConflictSet", "RedundancySet", "ObstructionReport", "StatusPrecedenceTrace"],
+      "tools": ["dof_analyzer", "structural_rank_estimator", "numeric_rank_reconciler", "boundary_projection_comparator", "conflict_set_minimizer", "redundancy_detector", "status_precedence_resolver"],
+      "allowed_imports": [
+        "gcs.kernel",
+        "gcs.constraint_catalog",
+        "gcs.incidence_graph",
+        "gcs.decomposition_planner",
+        "gcs.numeric_engine"
+      ]
+    },
+    {
+      "id": "session_runtime",
+      "cxx_module": "gcs.session_runtime",
+      "namespace": "gcs::runtime",
+      "source_dir": "src/gcs/session_runtime",
+      "skill": ".codex/skills/gcs-session-runtime-steward",
+      "agent_heading": "Session Runtime Agent",
+      "target_heading": "Session Runtime Target Design",
+      "contract_test": "tests/contracts/session_runtime/session_runtime_contract_tests.cpp",
+      "structured_inputs": ["RuntimeCommand", "CommandPreconditions", "TransactionPolicy", "RuntimeServices", "ReplayRequest"],
+      "structured_outputs": ["CommandResult", "TransactionTrace", "HistoryEvent", "RollbackReport", "ReplayReport", "PostCommitVerificationReport"],
+      "tools": ["command_validator", "transaction_journal", "pipeline_orchestrator", "stage_trace_collector", "commit_rollback_tool", "history_store", "replay_harness"],
+      "allowed_imports": [
+        "gcs.kernel",
+        "gcs.constraint_catalog",
+        "gcs.incidence_graph",
+        "gcs.decomposition_planner",
+        "gcs.numeric_engine",
+        "gcs.diagnostics"
+      ]
+    },
+    {
+      "id": "io_adapters",
+      "cxx_module": "gcs.io_adapters",
+      "namespace": "gcs::io",
+      "source_dir": "src/gcs/io_adapters",
+      "skill": ".codex/skills/gcs-io-adapter-steward",
+      "agent_heading": "IO Adapter Agent",
+      "target_heading": "IO Adapters Target Design",
+      "contract_test": "tests/contracts/io_adapters/io_adapters_contract_tests.cpp",
+      "structured_inputs": ["SceneLoadRequest", "SceneWriteRequest", "SceneNormalizeRequest", "SceneMigrationRequest", "SceneRoundTripRequest"],
+      "structured_outputs": ["SceneLoadResult", "SceneWriteResult", "SceneValidationReport", "SceneMigrationReport", "RoundTripDiffReport", "CanonicalDigest"],
+      "tools": ["schema_registry", "canonical_serializer", "migration_runner", "fixture_linter", "round_trip_diff", "digest_generator"],
+      "allowed_imports": ["gcs.kernel"]
+    },
+    {
+      "id": "viewer_bridge",
+      "cxx_module": "gcs.viewer_bridge",
+      "namespace": "gcs::viewer",
+      "source_dir": "src/gcs/viewer_bridge",
+      "skill": ".codex/skills/gcs-viewer-bridge-steward",
+      "agent_heading": "Viewer Bridge Agent",
+      "target_heading": "Viewer Bridge Target Design",
+      "contract_test": "tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp",
+      "structured_inputs": ["ViewerProjectionRequest", "DiagnosticOverlayRequest", "InteractionDraftRequest", "HistoryFrameRequest"],
+      "structured_outputs": ["ViewerSceneProjection", "DiagnosticOverlay", "InteractionCommandDraft", "HistoryFrameProjection"],
+      "tools": ["projection_builder", "report_summarizer", "diagnostic_overlay_generator", "selection_mapper", "hit_test_mapper", "command_draft_validator"],
+      "allowed_imports": ["gcs.kernel", "gcs.session_runtime", "gcs.diagnostics"]
+    },
+    {
+      "id": "contract_tools",
+      "cxx_module": "gcs.contract_tools",
+      "namespace": "gcs::contract_tools",
+      "source_dir": "src/gcs/tools",
+      "skill": ".codex/skills/gcs-contract-tools-steward",
+      "agent_heading": "Contract Tools Agent",
+      "target_heading": "Contract Tools Target Design",
+      "contract_test": "tests/contracts/contract_tools/contract_tools_contract_tests.cpp",
+      "structured_inputs": ["FixtureBuildRequest", "InvariantCheckRequest", "CorpusGenerationRequest", "GoldenReportRequest", "DependencyAuditRequest"],
+      "structured_outputs": ["FixtureBundle", "InvariantReport", "GeneratedCorpus", "GoldenReport", "DependencyAuditReport"],
+      "tools": ["fixture_builder", "invariant_checker", "corpus_generator", "golden_report_writer", "dependency_auditor", "agentic_toolkit"],
+      "allowed_imports": [
+        "gcs.kernel",
+        "gcs.constraint_catalog",
+        "gcs.incidence_graph",
+        "gcs.decomposition_planner",
+        "gcs.numeric_engine",
+        "gcs.diagnostics",
+        "gcs.session_runtime",
+        "gcs.io_adapters",
+        "gcs.viewer_bridge"
+      ]
+    }
+  ],
+  "external_targets": [
+    {
+      "id": "gcs_cli",
+      "paths": ["apps/gcs_cli"],
+      "allowed_imports": ["gcs.io_adapters", "gcs.session_runtime", "gcs.viewer_bridge"]
+    },
+    {
+      "id": "contract_tests",
+      "paths": ["tests"],
+      "allowed_imports": [
+        "gcs.kernel",
+        "gcs.constraint_catalog",
+        "gcs.incidence_graph",
+        "gcs.decomposition_planner",
+        "gcs.numeric_engine",
+        "gcs.diagnostics",
+        "gcs.session_runtime",
+        "gcs.io_adapters",
+        "gcs.viewer_bridge",
+        "gcs.contract_tools"
+      ]
+    }
+  ]
+}

@@ -16,19 +16,22 @@ Read:
 - `docs/architecture/62-module-agents.md` -> `Quality Agent`
 - `docs/architecture/63-target-contract-interface-implementation-test-design.md`
   -> `Contract Test Architecture`
+- `docs/architecture/65-agentic-implementation-tooling.md`
 - `docs/architecture/40-quality/verification-strategy.md`
 - `docs/architecture/50-implementation/third-party-policy.md`
 
 ## Workflow
 
 1. Map the change to the module-owned contract.
-2. Choose fixture class: valid, invalid, under-constrained, over-constrained,
+2. Use `python tools/agentic_design/agentic_toolkit.py scaffold-contract-test
+   --module <id>` to preview contract-test placement when adding a suite.
+3. Choose fixture class: valid, invalid, under-constrained, over-constrained,
    redundant, inconsistent, singular, gluing obstruction, IO migration, or
    viewer projection.
-3. Assert structured outputs: status, report code, subject IDs, state version,
+4. Assert structured outputs: status, report code, subject IDs, state version,
    residual evidence, and obstruction data.
-4. Keep GoogleTest test-only and follow third-party policy.
-5. Add CTest labels by module and risk category.
+5. Keep GoogleTest test-only and follow third-party policy.
+6. Add CTest labels by module and risk category.
 
 ## Own
 

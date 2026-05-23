@@ -42,6 +42,9 @@ order, not by historical source order. Background research notes live under
      suites derived from the detailed design rather than current scaffolding.
    - `64-physical-agent-skill-catalog.md`: physical `.codex/skills` mapping
      for module-specific agent/skill operating procedures.
+   - `65-agentic-implementation-tooling.md`: shared agent-callable scripts for
+     validating module designs, skills, dependency boundaries, and scaffolding
+     C++23 modules or contract tests.
 8. `90-references/`
    - Commercial and research notes used as background material.
 

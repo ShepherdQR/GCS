@@ -16,16 +16,19 @@ Read:
 - `docs/architecture/62-module-agents.md` -> `Contract Tools Agent`
 - `docs/architecture/63-target-contract-interface-implementation-test-design.md`
   -> `Contract Tools Target Design`
+- `docs/architecture/65-agentic-implementation-tooling.md`
 - `docs/architecture/40-quality/verification-strategy.md`
 
 ## Workflow
 
-1. Define typed tool requests and reports before writing helper code.
-2. Make fixture generation deterministic under explicit seed and metadata.
-3. Check invariants through public contracts only.
-4. Keep test-support tools in support targets, separate from production solver
+1. Run `python tools/agentic_design/agentic_toolkit.py validate-docs` before
+   changing module contract scaffolding.
+2. Define typed tool requests and reports before writing helper code.
+3. Make fixture generation deterministic under explicit seed and metadata.
+4. Check invariants through public contracts only.
+5. Keep test-support tools in support targets, separate from production solver
    policy.
-5. Name tests for deterministic generation, validation, invariant reports, and
+6. Name tests for deterministic generation, validation, invariant reports, and
    dependency audits.
 
 ## Own
