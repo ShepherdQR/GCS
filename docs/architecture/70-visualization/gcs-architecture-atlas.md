@@ -29,6 +29,40 @@ module metadata.
 | Solid arrow | Runtime flow or allowed import/consumption. |
 | Dotted arrow | Report, evidence, read-only projection, or design overlay. |
 
+## Editorial Figure 1
+
+The Mermaid diagrams in this atlas remain the structural source of truth. The
+SVG below is the editorial artifact intended for high-signal architecture
+communication: it combines a real fixture-derived geometry panel, an incidence
+panel, residual/rank evidence, the runtime pipeline, and local-to-global
+semantics on one Nature-style multi-panel canvas.
+
+![Figure 1 - GCS Local-To-Global Constraint Solving](assets/figure1-gcs-local-to-global.svg)
+
+Generated assets:
+
+- `assets/figure1-gcs-local-to-global.svg`
+- `assets/figure1-panel-a-geometry.svg`
+- `assets/figure1-panel-b-incidence.svg`
+- `assets/figure1-panel-c-residual-rank.svg`
+
+Rebuild command:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'
+python tools\architecture_visualization\render_gcs_figure1.py --fixture fixtures\scene\saved\triangle_003_graph.json --out-dir docs\architecture\70-visualization\assets
+```
+
+Figure 1 should be updated when the structural source changes in one of these
+ways:
+
+- the target runtime pipeline gains, removes, or renames a stage;
+- decomposition changes the meaning of contexts, overlaps, boundary variables,
+  or gluing;
+- diagnostics changes the residual, rank, DOF, obstruction, or transaction
+  evidence that makes a command acceptable;
+- the fixture corpus gains a better canonical local-to-global example.
+
 ## 1. System Landscape
 
 Viewpoint: onboarding engineer or architecture reviewer.
