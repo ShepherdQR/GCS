@@ -50,6 +50,14 @@ Generated assets:
 - `assets/figure1-panel-b-incidence.svg`
 - `assets/figure1-panel-c-residual-rank.svg`
 
+Design controls:
+
+- Design controls live in
+  `tools/architecture_visualization/figure1.theme.json` and
+  `tools/architecture_visualization/figure1.layout.json`.
+- Inkscape round-trip editing is documented in
+  [`svg-editing-workflow.md`](svg-editing-workflow.md).
+
 Rebuild command:
 
 ```powershell

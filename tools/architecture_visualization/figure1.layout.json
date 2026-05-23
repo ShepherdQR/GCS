@@ -1,0 +1,205 @@
+{
+  "canvas": {
+    "width": 1600,
+    "height": 980
+  },
+  "final": {
+    "title": {
+      "x": 48,
+      "y": 54,
+      "size": 29,
+      "weight": 650
+    },
+    "subtitle": {
+      "x": 48,
+      "y": 84,
+      "size": 13
+    },
+    "fixture_label": {
+      "right": 48,
+      "y": 82,
+      "size": 12
+    },
+    "panels": {
+      "geometry": {
+        "x": 48,
+        "y": 118
+      },
+      "incidence": {
+        "x": 522,
+        "y": 118
+      },
+      "evidence": {
+        "x": 996,
+        "y": 118
+      },
+      "pipeline": {
+        "x": 48,
+        "y": 462
+      },
+      "topos": {
+        "x": 672,
+        "y": 462
+      },
+      "legend": {
+        "x": 48,
+        "y": 724
+      }
+    },
+    "claim": {
+      "x": 48,
+      "y": 906,
+      "size": 15,
+      "weight": 650
+    },
+    "note": {
+      "x": 48,
+      "y": 932,
+      "size": 13
+    }
+  },
+  "panels": {
+    "frame": {
+      "label_x": 18,
+      "label_y": 29,
+      "label_size": 22,
+      "title_x": 48,
+      "title_y": 27,
+      "title_size": 15
+    },
+    "geometry": {
+      "width": 430,
+      "height": 300,
+      "plot": {
+        "x": 24,
+        "y": 58,
+        "width": 244,
+        "height": 190,
+        "pad": 34
+      },
+      "evidence_title": {
+        "x": 286,
+        "y": 62
+      },
+      "evidence_card": {
+        "x": 286,
+        "y": 76,
+        "width": 128,
+        "height": 50,
+        "gap": 58
+      },
+      "footer": {
+        "x": 24,
+        "bottom": 18
+      }
+    },
+    "incidence": {
+      "width": 430,
+      "height": 300,
+      "matrix": {
+        "x": 128,
+        "y": 100,
+        "cell": 48
+      },
+      "site": {
+        "x": 288,
+        "y": 82,
+        "width": 100,
+        "height": 118
+      },
+      "footer_bottom": 18
+    },
+    "evidence": {
+      "width": 520,
+      "height": 300,
+      "chart": {
+        "x": 30,
+        "y": 76,
+        "width": 220,
+        "row_gap": 34,
+        "bar_height": 18
+      },
+      "rank_card": {
+        "x": 342,
+        "y": 76,
+        "width": 154,
+        "height": 160
+      },
+      "footer": {
+        "x": 30,
+        "bottom": 18
+      }
+    },
+    "pipeline": {
+      "width": 600,
+      "height": 220,
+      "stage_grid": {
+        "x": 24,
+        "y": 70,
+        "box_width": 72,
+        "box_height": 34,
+        "gap": 10,
+        "columns": 6,
+        "row_gap": 58
+      },
+      "footer": {
+        "x": 24,
+        "bottom": 18
+      }
+    },
+    "topos": {
+      "width": 780,
+      "height": 360,
+      "columns": [
+        {
+          "x": 28,
+          "y": 66,
+          "width": 176,
+          "height": 200
+        },
+        {
+          "x": 228,
+          "y": 66,
+          "width": 220,
+          "height": 200
+        },
+        {
+          "x": 472,
+          "y": 66,
+          "width": 280,
+          "height": 200
+        }
+      ],
+      "gluing_report": {
+        "x": 494,
+        "y": 178,
+        "width": 246,
+        "height": 38
+      },
+      "dictionary": {
+        "x": 28,
+        "y": 276,
+        "pill_width": 174,
+        "pill_height": 30,
+        "column_gap": 184,
+        "row_gap": 34,
+        "columns": 4
+      },
+      "footer": {
+        "x": 28,
+        "bottom": 8
+      }
+    },
+    "legend": {
+      "width": 600,
+      "height": 126,
+      "grid": {
+        "x": 28,
+        "y": 58,
+        "column_gap": 165,
+        "row_gap": 34,
+        "columns": 3
+      }
+    }
+  }
+}

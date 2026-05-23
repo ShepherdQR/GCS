@@ -5,14 +5,14 @@
 <path d="M0,0 L8,4 L0,8 Z" fill="#5f5b53"/>
 </marker>
 </defs>
-<rect x="0" y="0" width="1600" height="980" fill="#f7f4ec"/>
+<rect id="figure1-background" x="0" y="0" width="1600" height="980" fill="#f7f4ec"/>
 <text x="48.0" y="54.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="29" font-weight="650" fill="#181715" text-anchor="start">Figure 1 | GCS Local-To-Global Constraint Solving</text>
 <text x="48.0" y="84.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#5f5b53" text-anchor="start">Structural source: Mermaid atlas. Mathematical source: finite-site / sheaf gluing semantics.</text>
 <text x="1552.0" y="82.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="end">Fixture: fixtures/scene/saved/triangle_003_graph.json</text>
-<g transform="translate(48 118)"><rect x="0.0" y="0.0" width="430.0" height="300.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<g id="figure1-panel-a" data-layout-key="final.panels.geometry" transform="translate(48.0 118.0)"><rect id="panel-a-frame" x="0.0" y="0.0" width="430.0" height="300.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="18.0" y="29.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="22" font-weight="700" fill="#c8643f" text-anchor="start">a</text>
 <text x="48.0" y="27.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Geometry fixture</text>
-<rect x="24.0" y="58.0" width="244.0" height="190.0" rx="8.0" fill="#fbfaf5" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-a-geometry-plot" data-layout-key="panels.geometry.plot" x="24.0" y="58.0" width="244.0" height="190.0" rx="8.0" fill="#fbfaf5" stroke="#ece7dd" stroke-width="1.1"/>
 <line x1="146.0" y1="153.0" x2="187.3" y2="214.0" stroke="#b97834" stroke-width="2.4" stroke-linecap="round"/>
 <line x1="146.0" y1="153.0" x2="104.7" y2="92.0" stroke="#b97834" stroke-width="2.4" stroke-linecap="round"/>
 <line x1="187.3" y1="214.0" x2="104.7" y2="92.0" stroke="#b97834" stroke-width="2.4" stroke-linecap="round"/>
@@ -26,23 +26,23 @@
 <rect x="87.7" y="62.0" width="34.0" height="18.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="104.7" y="76.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="middle">G2</text>
 <text x="286.0" y="62.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#5f5b53" text-anchor="start">constraint evidence</text>
-<rect x="286.0" y="76.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-a-evidence-card-0" data-layout-key="panels.geometry.evidence_card" x="286.0" y="76.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="296.0" y="93.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="start">C0</text>
 <text x="330.0" y="93.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5f5b53" text-anchor="start">G0-G1</text>
 <text x="296.0" y="108.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">target 1  actual 1</text>
 <text x="296.0" y="121.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">residual +2.1e-09</text>
-<rect x="286.0" y="134.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-a-evidence-card-1" x="286.0" y="134.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="296.0" y="151.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="start">C1</text>
 <text x="330.0" y="151.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5f5b53" text-anchor="start">G0-G2</text>
 <text x="296.0" y="166.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">target 1  actual 1</text>
 <text x="296.0" y="179.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">residual +2.1e-09</text>
-<rect x="286.0" y="192.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-a-evidence-card-2" x="286.0" y="192.0" width="128.0" height="50.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="296.0" y="209.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="start">C2</text>
 <text x="330.0" y="209.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="400" fill="#5f5b53" text-anchor="start">G1-G2</text>
 <text x="296.0" y="224.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">target 2  actual 2</text>
 <text x="296.0" y="237.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">residual +2.5e-13</text>
 <text x="24.0" y="282.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="start">3 geometries, 3 constraints, stable IDs</text></g>
-<g transform="translate(522 118)"><rect x="0.0" y="0.0" width="430.0" height="300.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<g id="figure1-panel-b" data-layout-key="final.panels.incidence" transform="translate(522.0 118.0)"><rect id="panel-b-frame" x="0.0" y="0.0" width="430.0" height="300.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="18.0" y="29.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="22" font-weight="700" fill="#c8643f" text-anchor="start">b</text>
 <text x="48.0" y="27.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Incidence matrix and site base</text>
 <text x="176.0" y="54.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="middle">constraint columns</text>
@@ -72,7 +72,7 @@
 <circle cx="224.0" cy="148.0" r="7.0" fill="#765d87" stroke="#ffffff" stroke-width="2"/>
 <circle cx="224.0" cy="196.0" r="7.0" fill="#765d87" stroke="#ffffff" stroke-width="2"/>
 <text x="338.0" y="68.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#5f5b53" text-anchor="middle">finite site C</text>
-<rect x="288.0" y="82.0" width="100.0" height="118.0" rx="8.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-b-finite-site" data-layout-key="panels.incidence.site" x="288.0" y="82.0" width="100.0" height="118.0" rx="8.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <rect x="316.0" y="92.0" width="44.0" height="24.0" rx="12.0" fill="#e7edf8" stroke="#435f8c" stroke-width="1.1"/>
 <text x="338.0" y="109.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="middle">X</text>
 <rect x="298.0" y="140.0" width="38.0" height="24.0" rx="12.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
@@ -86,23 +86,23 @@
 <line x1="331.0" y1="170.0" x2="320.0" y2="164.0" stroke="#5f5b53" stroke-width="1.0" stroke-linecap="round" marker-end="url(#arrow)"/>
 <line x1="345.0" y1="170.0" x2="356.0" y2="164.0" stroke="#5f5b53" stroke-width="1.0" stroke-linecap="round" marker-end="url(#arrow)"/>
 <text x="215.0" y="282.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="middle">incidence builds the base category for covers</text></g>
-<g transform="translate(996 118)"><rect x="0.0" y="0.0" width="520.0" height="300.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<g id="figure1-panel-c" data-layout-key="final.panels.evidence" transform="translate(996.0 118.0)"><rect id="panel-c-frame" x="0.0" y="0.0" width="520.0" height="300.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="18.0" y="29.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="22" font-weight="700" fill="#c8643f" text-anchor="start">c</text>
 <text x="48.0" y="27.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Residual and rank evidence</text>
 <text x="30.0" y="64.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">per-constraint |residual|</text>
 <text x="30.0" y="90.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="650" fill="#181715" text-anchor="start">C0</text>
-<rect x="64.0" y="76.0" width="220.0" height="18.0" rx="4.0" fill="#efebe2" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-c-residual-track-0" x="64.0" y="76.0" width="220.0" height="18.0" rx="4.0" fill="#efebe2" stroke="#ece7dd" stroke-width="1.1"/>
 <rect x="64.0" y="76.0" width="0.5" height="18.0" rx="4.0" fill="#4b8a64" stroke="#4b8a64" stroke-width="1.1"/>
 <text x="300.0" y="90.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">2.05e-09</text>
 <text x="30.0" y="124.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="650" fill="#181715" text-anchor="start">C1</text>
-<rect x="64.0" y="110.0" width="220.0" height="18.0" rx="4.0" fill="#efebe2" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-c-residual-track-1" x="64.0" y="110.0" width="220.0" height="18.0" rx="4.0" fill="#efebe2" stroke="#ece7dd" stroke-width="1.1"/>
 <rect x="64.0" y="110.0" width="0.5" height="18.0" rx="4.0" fill="#4b8a64" stroke="#4b8a64" stroke-width="1.1"/>
 <text x="300.0" y="124.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">2.05e-09</text>
 <text x="30.0" y="158.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="650" fill="#181715" text-anchor="start">C2</text>
-<rect x="64.0" y="144.0" width="220.0" height="18.0" rx="4.0" fill="#efebe2" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-c-residual-track-2" x="64.0" y="144.0" width="220.0" height="18.0" rx="4.0" fill="#efebe2" stroke="#ece7dd" stroke-width="1.1"/>
 <rect x="64.0" y="144.0" width="3.0" height="18.0" rx="4.0" fill="#4b8a64" stroke="#4b8a64" stroke-width="1.1"/>
 <text x="300.0" y="158.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">2.45e-13</text>
-<rect x="342.0" y="76.0" width="154.0" height="160.0" rx="8.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<rect id="panel-c-rank-card" data-layout-key="panels.evidence.rank_card" x="342.0" y="76.0" width="154.0" height="160.0" rx="8.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
 <text x="358.0" y="101.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">Jacobian evidence</text>
 <text x="358.0" y="137.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#5e7d43" text-anchor="start">3</text>
 <text x="405.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">/ 3 eqs</text>
@@ -111,7 +111,7 @@
 <text x="358.0" y="197.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">nullity 6</text>
 <text x="358.0" y="218.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">gauge dof 6</text>
 <text x="30.0" y="282.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="start">numeric evidence is a report, not a commit</text></g>
-<g transform="translate(48 462)"><rect x="0.0" y="0.0" width="600.0" height="220.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<g id="figure1-panel-d" data-layout-key="final.panels.pipeline" transform="translate(48.0 462.0)"><rect id="panel-d-frame" x="0.0" y="0.0" width="600.0" height="220.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="18.0" y="29.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="22" font-weight="700" fill="#c8643f" text-anchor="start">d</text>
 <text x="48.0" y="27.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Runtime contract pipeline</text>
 <rect x="24.0" y="70.0" width="72.0" height="34.0" rx="7.0" fill="#e7edf8" stroke="#435f8c" stroke-width="1.1"/>
@@ -150,23 +150,23 @@
 <rect x="434.0" y="128.0" width="72.0" height="34.0" rx="7.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
 <text x="470.0" y="150.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="middle">Report</text>
 <text x="24.0" y="202.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="start">Each stage contributes typed evidence or a typed rejection.</text></g>
-<g transform="translate(672 462)"><rect x="0.0" y="0.0" width="780.0" height="360.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<g id="figure1-panel-e" data-layout-key="final.panels.topos" transform="translate(672.0 462.0)"><rect id="panel-e-frame" x="0.0" y="0.0" width="780.0" height="360.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="18.0" y="29.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="22" font-weight="700" fill="#c8643f" text-anchor="start">e</text>
 <text x="48.0" y="27.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Topos semantics: finite site, sections, gluing</text>
-<rect x="28.0" y="66.0" width="176.0" height="200.0" rx="8.0" fill="#fffdf7" stroke="#d8d1c4" stroke-width="1.1"/>
+<rect id="panel-e-column-0" data-layout-key="panels.topos.columns.0" x="28.0" y="66.0" width="176.0" height="200.0" rx="8.0" fill="#fffdf7" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="42.0" y="90.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="650" fill="#181715" text-anchor="start">1 Finite site C</text>
 <text x="42.0" y="109.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="400" fill="#5f5b53" text-anchor="start">contexts and overlaps</text>
-<rect x="228.0" y="66.0" width="220.0" height="200.0" rx="8.0" fill="#fffdf7" stroke="#d8d1c4" stroke-width="1.1"/>
+<rect id="panel-e-column-1" data-layout-key="panels.topos.columns.1" x="228.0" y="66.0" width="220.0" height="200.0" rx="8.0" fill="#fffdf7" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="242.0" y="90.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="650" fill="#181715" text-anchor="start">2 Presheaf F</text>
 <text x="242.0" y="109.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="400" fill="#5f5b53" text-anchor="start">restriction maps</text>
-<rect x="472.0" y="66.0" width="280.0" height="200.0" rx="8.0" fill="#fffdf7" stroke="#d8d1c4" stroke-width="1.1"/>
+<rect id="panel-e-column-2" data-layout-key="panels.topos.columns.2" x="472.0" y="66.0" width="280.0" height="200.0" rx="8.0" fill="#fffdf7" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="486.0" y="90.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="650" fill="#181715" text-anchor="start">3 Sheaf condition</text>
 <text x="486.0" y="109.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="400" fill="#5f5b53" text-anchor="start">gluing or obstruction</text>
 <rect x="96.0" y="86.0" width="48.0" height="26.0" rx="13.0" fill="#e7edf8" stroke="#435f8c" stroke-width="1.1"/>
 <text x="120.0" y="103.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="middle">X</text>
 <rect x="56.0" y="138.0" width="52.0" height="26.0" rx="13.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
 <text x="82.0" y="155.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="middle">Ua</text>
-<rect x="132.0" y="138.0" width="52.0" height="26.0" rx="13.0" fill="#e6f7ff" stroke="#435f8c" stroke-width="1.1"/>
+<rect x="132.0" y="138.0" width="52.0" height="26.0" rx="13.0" fill="#e9f3f6" stroke="#435f8c" stroke-width="1.1"/>
 <text x="158.0" y="155.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="middle">Ub</text>
 <rect x="94.0" y="198.0" width="52.0" height="24.0" rx="12.0" fill="#efe7f3" stroke="#765d87" stroke-width="1.1"/>
 <text x="120.0" y="214.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="middle">Uab</text>
@@ -186,36 +186,36 @@
 <text x="400.0" y="156.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="400" fill="#5f5b53" text-anchor="middle">rho_b</text>
 <text x="494.0" y="130.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="650" fill="#181715" text-anchor="start">Gamma(X,F) = compatible families</text>
 <text x="494.0" y="155.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">Eq(F(Ua) x F(Ub) =&gt; F(Uab))</text>
-<rect x="494.0" y="178.0" width="246.0" height="38.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<rect id="panel-e-gluing-report" data-layout-key="panels.topos.gluing_report" x="494.0" y="178.0" width="246.0" height="38.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
 <text x="617.0" y="203.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="middle">GluingReport: rho_a(sa) == rho_b(sb)</text>
 <rect x="494.0" y="232.0" width="108.0" height="34.0" rx="7.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
 <text x="548.0" y="254.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="middle">global section</text>
 <rect x="616.0" y="232.0" width="108.0" height="34.0" rx="7.0" fill="#f3ddd7" stroke="#a94c43" stroke-width="1.1"/>
 <text x="670.0" y="254.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="650" fill="#181715" text-anchor="middle">obstruction</text>
 <text x="28.0" y="264.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="650" fill="#5f5b53" text-anchor="start">GCS contract dictionary</text>
-<rect x="28.0" y="276.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-e-dictionary-pill-0" data-layout-key="panels.topos.dictionary" x="28.0" y="276.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="36.0" y="287.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">site object</text>
 <text x="36.0" y="301.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="650" fill="#181715" text-anchor="start">ContextSnapshot</text>
-<rect x="212.0" y="276.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-e-dictionary-pill-1" x="212.0" y="276.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="220.0" y="287.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">cover</text>
 <text x="220.0" y="301.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="650" fill="#181715" text-anchor="start">CoverPlan</text>
-<rect x="396.0" y="276.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-e-dictionary-pill-2" x="396.0" y="276.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="404.0" y="287.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">section</text>
 <text x="404.0" y="301.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="650" fill="#181715" text-anchor="start">LocalSection</text>
-<rect x="580.0" y="276.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-e-dictionary-pill-3" x="580.0" y="276.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="588.0" y="287.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">restriction</text>
 <text x="588.0" y="301.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="650" fill="#181715" text-anchor="start">BoundaryProjection</text>
-<rect x="28.0" y="310.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-e-dictionary-pill-4" x="28.0" y="310.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="36.0" y="321.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">gluing</text>
 <text x="36.0" y="335.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="650" fill="#181715" text-anchor="start">GluingReport</text>
-<rect x="212.0" y="310.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-e-dictionary-pill-5" x="212.0" y="310.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="220.0" y="321.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">obstruction</text>
 <text x="220.0" y="335.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="650" fill="#181715" text-anchor="start">ObstructionReport</text>
-<rect x="396.0" y="310.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<rect id="panel-e-dictionary-pill-6" x="396.0" y="310.0" width="174.0" height="30.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
 <text x="404.0" y="321.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">quotient/groupoid</text>
 <text x="404.0" y="335.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="650" fill="#181715" text-anchor="start">GaugePolicy</text>
 <text x="28.0" y="352.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="start">The advanced theory is visible as data contracts, not as runtime abstraction leakage.</text></g>
-<g transform="translate(48 724)"><rect x="0.0" y="0.0" width="600.0" height="126.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<g id="figure1-panel-f" data-layout-key="final.panels.legend" transform="translate(48.0 724.0)"><rect id="panel-f-frame" x="0.0" y="0.0" width="600.0" height="126.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
 <text x="18.0" y="29.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="22" font-weight="700" fill="#c8643f" text-anchor="start">f</text>
 <text x="48.0" y="27.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Visual grammar</text>
 <rect x="28.0" y="42.0" width="26.0" height="18.0" rx="4.0" fill="#e7edf8" stroke="#435f8c" stroke-width="1.1"/>
