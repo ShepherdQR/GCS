@@ -37,6 +37,9 @@ order, not by historical source order. Background research notes live under
      framework and optimized implementation order.
    - `62-module-agents.md`: specialist module agents, skills, tools,
      guardrails, handoffs, and deep-design backlogs.
+   - `63-target-contract-interface-implementation-test-design.md`: target
+     C++23 module interfaces, implementation boundaries, and contract-test
+     suites derived from the detailed design rather than current scaffolding.
 8. `90-references/`
    - Commercial and research notes used as background material.
 

@@ -67,6 +67,7 @@ standard is now governed by:
 - `docs/architecture/60-agentic-submodule-design-analysis.md`;
 - `docs/architecture/61-agentic-module-framework.md`;
 - `docs/architecture/62-module-agents.md`.
+- `docs/architecture/63-target-contract-interface-implementation-test-design.md`.
 
 Before expanding a module beyond the skeleton, define or update its structured
 input contracts, structured output contracts, module tools, core agent, core
