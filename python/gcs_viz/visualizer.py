@@ -1,22 +1,61 @@
 import os
+from typing import Mapping, Optional
+
 import numpy as np
 import matplotlib
 if os.environ.get("GCS_GUI") != "1":
     matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
-from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import networkx as nx
-from gcs_viz.algebra import GCSGraph, GeometryType, ConstraintType, DOF_GEOMETRY, DOF_REMOVED_CONSTRAINT
-from gcs_viz.color_scheme import RIGID_SET_COLORS, CONSTRAINT_COLORS, GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME
+
+from gcs_viz.algebra import GCSGraph, GeometryType
+from gcs_viz.color_scheme import (
+    RIGID_SET_COLORS,
+    CONSTRAINT_COLORS,
+    GEOMETRY_NAMES,
+    CONSTRAINT_NAMES,
+    GCS_THEME,
+)
+
+
+GEOMETRY_MARKERS = {
+    int(GeometryType.Point): "o",
+    int(GeometryType.Line): "D",
+    int(GeometryType.Plane): "s",
+}
+
+GEOMETRY_NODE_SIZES = {
+    int(GeometryType.Point): 300,
+    int(GeometryType.Line): 390,
+    int(GeometryType.Plane): 480,
+}
+
+CONSTRAINT_LINE_STYLES = {
+    0: "dotted",
+    1: "dashed",
+    2: "dashdot",
+    3: "solid",
+    4: (0, (3, 2)),
+}
+
+CONSTRAINT_GRAPH_LINE_STYLES = {
+    0: "dotted",
+    1: "dashed",
+    2: "dashdot",
+    3: "solid",
+    4: "dashed",
+}
 
 
 def _get_rs_color(graph: GCSGraph, rs_id: int) -> str:
     for i, rs in enumerate(graph.rigid_sets):
         if rs.id == rs_id:
             return RIGID_SET_COLORS[i % len(RIGID_SET_COLORS)]
-    return "#888888"
+    return GCS_THEME["text_muted"]
 
 
 def _get_rs_color_index(graph: GCSGraph, rs_id: int) -> int:
@@ -24,6 +63,72 @@ def _get_rs_color_index(graph: GCSGraph, rs_id: int) -> int:
         if rs.id == rs_id:
             return i
     return 0
+
+
+def _focus_ids(focus: Optional[Mapping], key: str) -> set[int]:
+    if not focus:
+        return set()
+    result = set()
+    for value in focus.get(key, []) or []:
+        try:
+            result.add(int(value))
+        except (TypeError, ValueError):
+            continue
+    return result
+
+
+def _is_focused_geometry(geometry, focus: Optional[Mapping]) -> bool:
+    return (
+        geometry.id in _focus_ids(focus, "geometry_ids")
+        or geometry.rigid_set_id in _focus_ids(focus, "rigid_set_ids")
+    )
+
+
+def _is_focused_constraint(constraint, focus: Optional[Mapping]) -> bool:
+    return constraint.id in _focus_ids(focus, "constraint_ids")
+
+
+def _has_focus(focus: Optional[Mapping]) -> bool:
+    return bool(
+        _focus_ids(focus, "constraint_ids")
+        or _focus_ids(focus, "geometry_ids")
+        or _focus_ids(focus, "rigid_set_ids")
+    )
+
+
+def _constraint_color(constraint, focus: Optional[Mapping]) -> str:
+    if _is_focused_constraint(constraint, focus):
+        return GCS_THEME["accent"]
+    return CONSTRAINT_COLORS.get(int(constraint.type), GCS_THEME["constraint_default"])
+
+
+def _constraint_line_style(constraint_type) -> object:
+    return CONSTRAINT_LINE_STYLES.get(int(constraint_type), "dashed")
+
+
+def _constraint_graph_line_style(constraint_type) -> str:
+    return CONSTRAINT_GRAPH_LINE_STYLES.get(int(constraint_type), "dashed")
+
+
+def _constraint_line_width(constraint, focus: Optional[Mapping]) -> float:
+    return 2.7 if _is_focused_constraint(constraint, focus) else 1.35
+
+
+def _constraint_alpha(constraint, focus: Optional[Mapping]) -> float:
+    return 0.95 if _is_focused_constraint(constraint, focus) else 0.56
+
+
+def _geometry_label_color(color: str, focused: bool) -> str:
+    return GCS_THEME["accent_active"] if focused else color
+
+
+def _constraint_label(constraint, focused: bool) -> str:
+    if focused:
+        label = f"C{constraint.id} {CONSTRAINT_NAMES.get(int(constraint.type), '?')}"
+        if constraint.value != 0:
+            label += f"={constraint.value:g}"
+        return label
+    return f"C{constraint.id}"
 
 
 def _apply_figure_theme(fig):
@@ -68,80 +173,245 @@ def _style_legend(legend):
         text.set_color(GCS_THEME["text_secondary"])
 
 
-def _build_3d_figure(graph: GCSGraph, title: str = "GCS 3D View"):
-    fig = plt.figure(figsize=(10, 8))
-    _apply_figure_theme(fig)
-    ax = fig.add_subplot(111, projection="3d")
+def _geometry_anchor_3d(geometry) -> np.ndarray:
+    if geometry.type == GeometryType.Line:
+        return np.array(
+            [
+                (geometry.v[0] + geometry.v[3]) / 2,
+                (geometry.v[1] + geometry.v[4]) / 2,
+                (geometry.v[2] + geometry.v[5]) / 2,
+            ]
+        )
+    return np.array([geometry.v[0], geometry.v[1], geometry.v[2]])
 
-    for g in graph.geometries:
-        color = _get_rs_color(graph, g.rigid_set_id)
-        if g.type == GeometryType.Point:
-            ax.scatter([g.v[0]], [g.v[1]], [g.v[2]], color=color, s=80, depthshade=True, zorder=5)
-            ax.text(g.v[0], g.v[1], g.v[2] + 0.08, f"G{g.id}", fontsize=8, ha="center", color=color)
-        elif g.type == GeometryType.Line:
-            p1 = np.array([g.v[0], g.v[1], g.v[2]])
-            p2 = np.array([g.v[3], g.v[4], g.v[5]])
-            ax.plot([p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]], color=color, linewidth=2, zorder=4)
-            mid = (p1 + p2) / 2
-            ax.text(mid[0], mid[1], mid[2] + 0.08, f"G{g.id}", fontsize=8, ha="center", color=color)
-            for pt in [p1, p2]:
-                ax.scatter([pt[0]], [pt[1]], [pt[2]], color=color, s=30, depthshade=True, zorder=5)
-        elif g.type == GeometryType.Plane:
-            pos = np.array([g.v[0], g.v[1], g.v[2]])
-            normal = np.array([g.v[3], g.v[4], g.v[5]])
-            norm = np.linalg.norm(normal)
-            if norm < 1e-12:
-                normal = np.array([0, 0, 1])
-            else:
-                normal = normal / norm
-            if abs(normal[2]) < 0.9:
-                u = np.cross(normal, [0, 0, 1])
-            else:
-                u = np.cross(normal, [1, 0, 0])
-            u = u / np.linalg.norm(u)
-            v = np.cross(normal, u)
-            v = v / np.linalg.norm(v)
-            size = 1.0
-            corners = [pos + size * (-u - v), pos + size * (u - v), pos + size * (u + v), pos + size * (-u + v)]
-            poly = Poly3DCollection([corners], alpha=0.25, facecolor=color, edgecolor=color, linewidth=1)
-            ax.add_collection3d(poly)
-            ax.text(pos[0], pos[1], pos[2] + 0.15, f"G{g.id}", fontsize=8, ha="center", color=color)
 
-    for c in graph.constraints:
-        color = CONSTRAINT_COLORS.get(c.type, GCS_THEME["constraint_default"])
+def _geometry_anchor_2d(geometry, dim1: int, dim2: int) -> tuple[float, float]:
+    if geometry.type == GeometryType.Line:
+        return (
+            (geometry.v[dim1] + geometry.v[dim1 + 3]) / 2,
+            (geometry.v[dim2] + geometry.v[dim2 + 3]) / 2,
+        )
+    return geometry.v[dim1], geometry.v[dim2]
+
+
+def _draw_geometry_3d(ax, geometry, color: str, focused: bool):
+    label_color = _geometry_label_color(color, focused)
+    text_alpha = 0.95 if focused else 0.74
+
+    if geometry.type == GeometryType.Point:
+        point = np.array([geometry.v[0], geometry.v[1], geometry.v[2]])
+        if focused:
+            ax.scatter(
+                [point[0]], [point[1]], [point[2]],
+                color=GCS_THEME["accent"], s=190, alpha=0.18,
+                edgecolors="none", depthshade=False, zorder=7,
+            )
+        ax.scatter(
+            [point[0]], [point[1]], [point[2]],
+            color=color, s=98 if focused else 72, depthshade=True,
+            edgecolors=GCS_THEME["bg_canvas"], linewidths=1.5 if focused else 0.9,
+            zorder=8 if focused else 5,
+        )
+        ax.text(
+            point[0], point[1], point[2] + 0.08, f"G{geometry.id}",
+            fontsize=8, ha="center", color=label_color, alpha=text_alpha,
+        )
+        return
+
+    if geometry.type == GeometryType.Line:
+        p1 = np.array([geometry.v[0], geometry.v[1], geometry.v[2]])
+        p2 = np.array([geometry.v[3], geometry.v[4], geometry.v[5]])
+        if focused:
+            ax.plot(
+                [p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]],
+                color=GCS_THEME["accent"], linewidth=5.5, alpha=0.24, zorder=6,
+            )
+        ax.plot(
+            [p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]],
+            color=color, linewidth=2.7 if focused else 2.0, zorder=7 if focused else 4,
+        )
+        mid = (p1 + p2) / 2
+        ax.text(
+            mid[0], mid[1], mid[2] + 0.08, f"G{geometry.id}",
+            fontsize=8, ha="center", color=label_color, alpha=text_alpha,
+        )
+        for point in (p1, p2):
+            ax.scatter(
+                [point[0]], [point[1]], [point[2]],
+                color=color, s=42 if focused else 26, depthshade=True,
+                edgecolors=GCS_THEME["bg_canvas"], linewidths=1.1,
+                zorder=8 if focused else 5,
+            )
+        return
+
+    if geometry.type == GeometryType.Plane:
+        pos = np.array([geometry.v[0], geometry.v[1], geometry.v[2]])
+        normal = np.array([geometry.v[3], geometry.v[4], geometry.v[5]])
+        norm = np.linalg.norm(normal)
+        normal = np.array([0, 0, 1]) if norm < 1e-12 else normal / norm
+        if abs(normal[2]) < 0.9:
+            u = np.cross(normal, [0, 0, 1])
+        else:
+            u = np.cross(normal, [1, 0, 0])
+        u = u / np.linalg.norm(u)
+        v = np.cross(normal, u)
+        v = v / np.linalg.norm(v)
+        size = 1.0
+        corners = [
+            pos + size * (-u - v),
+            pos + size * (u - v),
+            pos + size * (u + v),
+            pos + size * (-u + v),
+        ]
+        poly = Poly3DCollection(
+            [corners],
+            facecolor=to_rgba(color, 0.30 if focused else 0.22),
+            edgecolor=GCS_THEME["accent"] if focused else color,
+            linewidth=2.0 if focused else 1.0,
+        )
+        ax.add_collection3d(poly)
+        ax.text(
+            pos[0], pos[1], pos[2] + 0.15, f"G{geometry.id}",
+            fontsize=8, ha="center", color=label_color, alpha=text_alpha,
+        )
+
+
+def _draw_constraints_3d(graph: GCSGraph, ax, focus: Optional[Mapping]):
+    show_default_labels = len(graph.constraints) <= 8
+    for constraint in graph.constraints:
         positions = []
-        for gid in c.geometry_ids:
-            g = graph.find_geometry(gid)
-            if g is None:
-                continue
-            if g.type == GeometryType.Point:
-                positions.append(np.array([g.v[0], g.v[1], g.v[2]]))
-            elif g.type == GeometryType.Line:
-                positions.append(np.array([(g.v[0] + g.v[3]) / 2, (g.v[1] + g.v[4]) / 2, (g.v[2] + g.v[5]) / 2]))
-            elif g.type == GeometryType.Plane:
-                positions.append(np.array([g.v[0], g.v[1], g.v[2]]))
+        for gid in constraint.geometry_ids:
+            geometry = graph.find_geometry(gid)
+            if geometry is not None:
+                positions.append(_geometry_anchor_3d(geometry))
+
+        focused = _is_focused_constraint(constraint, focus)
+        color = _constraint_color(constraint, focus)
+        linewidth = _constraint_line_width(constraint, focus)
+        alpha = _constraint_alpha(constraint, focus)
+        linestyle = _constraint_line_style(constraint.type)
+
         for i in range(len(positions)):
             for j in range(i + 1, len(positions)):
                 p1, p2 = positions[i], positions[j]
-                ax.plot([p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]], color=color, linewidth=1.5, linestyle="--", alpha=0.7)
-                mid = (p1 + p2) / 2
-                label = f"C{c.id}({CONSTRAINT_NAMES.get(c.type, '?')})"
-                if c.value != 0.0:
-                    label += f"={c.value}"
-                ax.text(mid[0], mid[1], mid[2] - 0.1, label, fontsize=6, ha="center", color=color, alpha=0.9)
+                ax.plot(
+                    [p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]],
+                    color=color, linewidth=linewidth, linestyle=linestyle,
+                    alpha=alpha, zorder=9 if focused else 3,
+                )
+                if focused or show_default_labels:
+                    mid = (p1 + p2) / 2
+                    ax.text(
+                        mid[0], mid[1], mid[2] - 0.1,
+                        _constraint_label(constraint, focused),
+                        fontsize=7 if focused else 6,
+                        ha="center", color=color, alpha=0.94 if focused else 0.68,
+                    )
 
-    all_pts = []
-    for g in graph.geometries:
-        if g.type == GeometryType.Point:
-            all_pts.append([g.v[0], g.v[1], g.v[2]])
-        elif g.type == GeometryType.Line:
-            all_pts.append([g.v[0], g.v[1], g.v[2]])
-            all_pts.append([g.v[3], g.v[4], g.v[5]])
-        elif g.type == GeometryType.Plane:
-            all_pts.append([g.v[0], g.v[1], g.v[2]])
 
-    if all_pts:
-        pts = np.array(all_pts)
+def _draw_geometry_2d(ax, geometry, color: str, dim1: int, dim2: int, focused: bool):
+    label_color = _geometry_label_color(color, focused)
+    text_alpha = 0.95 if focused else 0.72
+
+    if geometry.type == GeometryType.Point:
+        x, y = geometry.v[dim1], geometry.v[dim2]
+        if focused:
+            ax.scatter(x, y, color=GCS_THEME["accent"], s=170, alpha=0.18, linewidths=0, zorder=7)
+        ax.scatter(
+            x, y, color=color, s=76 if focused else 54,
+            edgecolors=GCS_THEME["bg_canvas"], linewidths=1.3 if focused else 0.8,
+            zorder=8 if focused else 5,
+        )
+        ax.annotate(
+            f"G{geometry.id}", (x, y), xytext=(4, 4), textcoords="offset points",
+            fontsize=7, color=label_color, alpha=text_alpha,
+        )
+        return
+
+    if geometry.type == GeometryType.Line:
+        xs = [geometry.v[dim1], geometry.v[dim1 + 3]]
+        ys = [geometry.v[dim2], geometry.v[dim2 + 3]]
+        if focused:
+            ax.plot(xs, ys, color=GCS_THEME["accent"], linewidth=5.0, alpha=0.20, zorder=6)
+        ax.plot(xs, ys, color=color, linewidth=2.5 if focused else 1.8, zorder=7 if focused else 4)
+        ax.scatter(
+            xs, ys, color=color, s=32 if focused else 20,
+            edgecolors=GCS_THEME["bg_canvas"], linewidths=0.9,
+            zorder=8 if focused else 5,
+        )
+        mid = ((xs[0] + xs[1]) / 2, (ys[0] + ys[1]) / 2)
+        ax.annotate(
+            f"G{geometry.id}", mid, xytext=(4, 4), textcoords="offset points",
+            fontsize=7, color=label_color, alpha=text_alpha,
+        )
+        return
+
+    if geometry.type == GeometryType.Plane:
+        x, y = geometry.v[dim1], geometry.v[dim2]
+        if focused:
+            ax.scatter(x, y, color=GCS_THEME["accent"], s=210, marker="s", alpha=0.18, linewidths=0, zorder=7)
+        ax.scatter(
+            x, y, color=color, s=112 if focused else 88, marker="s",
+            alpha=0.62 if focused else 0.48,
+            edgecolors=GCS_THEME["accent"] if focused else color,
+            linewidths=1.7 if focused else 0.9,
+            zorder=8 if focused else 5,
+        )
+        ax.annotate(
+            f"G{geometry.id}", (x, y), xytext=(4, 4), textcoords="offset points",
+            fontsize=7, color=label_color, alpha=text_alpha,
+        )
+
+
+def _draw_constraints_2d(graph: GCSGraph, ax, dim1: int, dim2: int, focus: Optional[Mapping]):
+    show_default_labels = len(graph.constraints) <= 6
+    for constraint in graph.constraints:
+        positions = []
+        for gid in constraint.geometry_ids:
+            geometry = graph.find_geometry(gid)
+            if geometry is not None:
+                positions.append(_geometry_anchor_2d(geometry, dim1, dim2))
+
+        focused = _is_focused_constraint(constraint, focus)
+        color = _constraint_color(constraint, focus)
+        linewidth = _constraint_line_width(constraint, focus)
+        alpha = _constraint_alpha(constraint, focus)
+        linestyle = _constraint_line_style(constraint.type)
+
+        for i in range(len(positions)):
+            for j in range(i + 1, len(positions)):
+                p1, p2 = positions[i], positions[j]
+                ax.plot(
+                    [p1[0], p2[0]], [p1[1], p2[1]],
+                    color=color, linewidth=linewidth, linestyle=linestyle,
+                    alpha=alpha, zorder=9 if focused else 3,
+                )
+                if focused or show_default_labels:
+                    mid = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
+                    ax.annotate(
+                        _constraint_label(constraint, focused),
+                        mid, xytext=(4, -8), textcoords="offset points",
+                        fontsize=6, color=color, alpha=0.92 if focused else 0.64,
+                    )
+
+
+def _collect_scene_points(graph: GCSGraph) -> list[list[float]]:
+    points = []
+    for geometry in graph.geometries:
+        if geometry.type == GeometryType.Point:
+            points.append([geometry.v[0], geometry.v[1], geometry.v[2]])
+        elif geometry.type == GeometryType.Line:
+            points.append([geometry.v[0], geometry.v[1], geometry.v[2]])
+            points.append([geometry.v[3], geometry.v[4], geometry.v[5]])
+        elif geometry.type == GeometryType.Plane:
+            points.append([geometry.v[0], geometry.v[1], geometry.v[2]])
+    return points
+
+
+def _set_3d_bounds(ax, graph: GCSGraph):
+    points = _collect_scene_points(graph)
+    if points:
+        pts = np.array(points)
         center = pts.mean(axis=0)
         max_range = max(pts.max(axis=0) - pts.min(axis=0)) / 2
         if max_range < 0.5:
@@ -155,263 +425,86 @@ def _build_3d_figure(graph: GCSGraph, title: str = "GCS 3D View"):
         ax.set_ylim(-2, 2)
         ax.set_zlim(-2, 2)
 
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
-    ax.set_title(title)
-    _style_3d_axis(ax)
 
-    from matplotlib.lines import Line2D
-    from matplotlib.patches import Patch
-    legend_elements = []
-    for i, rs in enumerate(graph.rigid_sets):
-        c = RIGID_SET_COLORS[i % len(RIGID_SET_COLORS)]
-        legend_elements.append(Patch(facecolor=c, alpha=0.5, label=f"RS {rs.id}"))
-    for ct, c in CONSTRAINT_COLORS.items():
-        legend_elements.append(Line2D([0], [0], color=c, linestyle="--", label=CONSTRAINT_NAMES.get(ct, "?")))
-    _style_legend(ax.legend(handles=legend_elements, loc="upper left", fontsize=7))
+def _legend_elements(graph: GCSGraph, focus: Optional[Mapping] = None):
+    elements = []
+    for i, rigid_set in enumerate(graph.rigid_sets):
+        color = RIGID_SET_COLORS[i % len(RIGID_SET_COLORS)]
+        elements.append(Patch(facecolor=color, alpha=0.5, label=f"RS {rigid_set.id}"))
 
-    dof = graph.compute_dof()
-    info_text = f"RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}"
-    fig.text(0.5, 0.01, info_text, ha="center", fontsize=9, color=GCS_THEME["text_secondary"])
+    used_constraint_types = sorted({int(constraint.type) for constraint in graph.constraints})
+    for constraint_type in used_constraint_types:
+        color = CONSTRAINT_COLORS.get(constraint_type, GCS_THEME["constraint_default"])
+        elements.append(
+            Line2D(
+                [0], [0],
+                color=color,
+                linestyle=_constraint_line_style(constraint_type),
+                linewidth=1.8,
+                label=CONSTRAINT_NAMES.get(constraint_type, "?"),
+            )
+        )
 
+    if _has_focus(focus):
+        elements.append(
+            Line2D(
+                [0], [0],
+                color=GCS_THEME["accent"],
+                linewidth=2.7,
+                label="Focus",
+            )
+        )
+    return elements
+
+
+def _build_3d_figure(graph: GCSGraph, title: str = "GCS 3D View", focus: Optional[Mapping] = None):
+    fig = plt.figure(figsize=(10, 8))
+    build_3d_on_figure(graph, fig, title=title, focus=focus)
     plt.tight_layout()
     return fig
 
 
-def _build_constraint_graph_figure(graph: GCSGraph, title: str = "Constraint Graph"):
-    G = nx.Graph()
-    for g in graph.geometries:
-        rs_idx = _get_rs_color_index(graph, g.rigid_set_id)
-        G.add_node(f"G{g.id}", node_type="geometry", geom_type=int(g.type), rs_index=rs_idx)
-    for c in graph.constraints:
-        for i in range(len(c.geometry_ids)):
-            for j in range(i + 1, len(c.geometry_ids)):
-                G.add_edge(
-                    f"G{c.geometry_ids[i]}", f"G{c.geometry_ids[j]}",
-                    constraint_type=int(c.type), constraint_id=c.id, value=c.value
-                )
-
-    fig, ax = plt.subplots(figsize=(10, 8))
-    _apply_figure_theme(fig)
-    pos = nx.spring_layout(G, seed=42, k=2.0)
-
-    node_colors = []
-    node_sizes = []
-    for node, data in G.nodes(data=True):
-        rs_idx = data.get("rs_index", 0)
-        node_colors.append(RIGID_SET_COLORS[rs_idx % len(RIGID_SET_COLORS)])
-        geom_type = data.get("geom_type", 0)
-        if geom_type == 0:
-            node_sizes.append(300)
-        elif geom_type == 1:
-            node_sizes.append(400)
-        else:
-            node_sizes.append(500)
-
-    nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=node_sizes, alpha=0.85)
-    nx.draw_networkx_labels(G, pos, ax=ax, font_size=8, font_color="white")
-
-    edge_colors = []
-    edge_styles = []
-    for u, v, data in G.edges(data=True):
-        ct = data.get("constraint_type", 3)
-        edge_colors.append(CONSTRAINT_COLORS.get(ct, GCS_THEME["constraint_default"]))
-        edge_styles.append("dashed" if ct in (0, 1, 2) else "solid")
-
-    for (u, v, data), color, style in zip(G.edges(data=True), edge_colors, edge_styles):
-        nx.draw_networkx_edges(G, pos, edgelist=[(u, v)], ax=ax, edge_color=color, style=style, width=1.5, alpha=0.7)
-
-    edge_labels = {}
-    for u, v, data in G.edges(data=True):
-        ct = data.get("constraint_type", 3)
-        cid = data.get("constraint_id", "?")
-        val = data.get("value", 0)
-        label = f"C{cid}({CONSTRAINT_NAMES.get(ct, '?')})"
-        if val != 0:
-            label += f"={val}"
-        edge_labels[(u, v)] = label
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax, font_size=6, font_color=GCS_THEME["text_muted"])
-
-    from matplotlib.lines import Line2D
-    from matplotlib.patches import Patch
-    legend_elements = []
-    for i, rs in enumerate(graph.rigid_sets):
-        c = RIGID_SET_COLORS[i % len(RIGID_SET_COLORS)]
-        legend_elements.append(Patch(facecolor=c, alpha=0.5, label=f"RS {rs.id}"))
-    for ct, c in CONSTRAINT_COLORS.items():
-        legend_elements.append(Line2D([0], [0], color=c, linestyle="--", label=CONSTRAINT_NAMES.get(ct, "?")))
-    _style_legend(ax.legend(handles=legend_elements, loc="upper left", fontsize=7))
-
-    dof = graph.compute_dof()
-    ax.set_title(f"{title}  |  RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}")
-    ax.axis("off")
-    _style_2d_axis(ax)
+def _build_constraint_graph_figure(
+    graph: GCSGraph,
+    title: str = "Constraint Graph",
+    focus: Optional[Mapping] = None,
+):
+    fig = plt.figure(figsize=(10, 8))
+    build_graph_on_figure(graph, fig, title=title, focus=focus)
     plt.tight_layout()
     return fig
 
 
-def _build_three_view_figure(graph: GCSGraph, title: str = "GCS Three-View"):
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-    _apply_figure_theme(fig)
-    views = [
-        (axes[0, 0], "XY (Front)", 0, 1),
-        (axes[0, 1], "XZ (Top)", 0, 2),
-        (axes[1, 0], "YZ (Side)", 1, 2),
-    ]
-    axes[1, 1].axis("off")
-
-    for ax, view_name, dim1, dim2 in views:
-        for g in graph.geometries:
-            color = _get_rs_color(graph, g.rigid_set_id)
-            if g.type == GeometryType.Point:
-                ax.scatter(g.v[dim1], g.v[dim2], color=color, s=60, zorder=5)
-                ax.annotate(f"G{g.id}", (g.v[dim1], g.v[dim2]), fontsize=7, color=color)
-            elif g.type == GeometryType.Line:
-                ax.plot([g.v[dim1], g.v[dim1 + 3]], [g.v[dim2], g.v[dim2 + 3]], color=color, linewidth=2)
-            elif g.type == GeometryType.Plane:
-                ax.scatter(g.v[dim1], g.v[dim2], color=color, s=100, marker="s", alpha=0.5)
-
-        for c in graph.constraints:
-            color = CONSTRAINT_COLORS.get(c.type, GCS_THEME["constraint_default"])
-            positions = []
-            for gid in c.geometry_ids:
-                g = graph.find_geometry(gid)
-                if g is None:
-                    continue
-                if g.type == GeometryType.Point:
-                    positions.append((g.v[dim1], g.v[dim2]))
-                elif g.type == GeometryType.Line:
-                    positions.append(((g.v[dim1] + g.v[dim1 + 3]) / 2, (g.v[dim2] + g.v[dim2 + 3]) / 2))
-                elif g.type == GeometryType.Plane:
-                    positions.append((g.v[dim1], g.v[dim2]))
-            for i in range(len(positions)):
-                for j in range(i + 1, len(positions)):
-                    ax.plot([positions[i][0], positions[j][0]], [positions[i][1], positions[j][1]],
-                            color=color, linewidth=1, linestyle="--", alpha=0.5)
-
-        ax.set_xlabel(["X", "Y", "Z"][dim1])
-        ax.set_ylabel(["X", "Y", "Z"][dim2])
-        ax.set_title(view_name)
-        ax.set_aspect("equal")
-        _style_2d_axis(ax, grid=True)
-
-    dof = graph.compute_dof()
-    info = f"RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}"
-    axes[1, 1].set_facecolor(GCS_THEME["bg_canvas"])
-    axes[1, 1].text(0.5, 0.5, info, ha="center", va="center", fontsize=14,
-                    transform=axes[1, 1].transAxes, color=GCS_THEME["text_secondary"])
-    axes[1, 1].set_title("Summary")
-    axes[1, 1].title.set_color(GCS_THEME["text_primary"])
-
-    fig.suptitle(title)
-    fig._suptitle.set_color(GCS_THEME["text_primary"])
+def _build_three_view_figure(graph: GCSGraph, title: str = "GCS Three-View", focus: Optional[Mapping] = None):
+    fig = plt.figure(figsize=(12, 10))
+    build_three_view_on_figure(graph, fig, title=title, focus=focus)
     plt.tight_layout()
     return fig
 
 
-def build_3d_on_figure(graph: GCSGraph, fig, title="GCS 3D View"):
+def build_3d_on_figure(
+    graph: GCSGraph,
+    fig,
+    title: str = "GCS 3D View",
+    focus: Optional[Mapping] = None,
+):
     fig.clear()
     _apply_figure_theme(fig)
     ax = fig.add_subplot(111, projection="3d")
 
-    for g in graph.geometries:
-        color = _get_rs_color(graph, g.rigid_set_id)
-        if g.type == GeometryType.Point:
-            ax.scatter([g.v[0]], [g.v[1]], [g.v[2]], color=color, s=80, depthshade=True, zorder=5)
-            ax.text(g.v[0], g.v[1], g.v[2] + 0.08, f"G{g.id}", fontsize=8, ha="center", color=color)
-        elif g.type == GeometryType.Line:
-            p1 = np.array([g.v[0], g.v[1], g.v[2]])
-            p2 = np.array([g.v[3], g.v[4], g.v[5]])
-            ax.plot([p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]], color=color, linewidth=2, zorder=4)
-            mid = (p1 + p2) / 2
-            ax.text(mid[0], mid[1], mid[2] + 0.08, f"G{g.id}", fontsize=8, ha="center", color=color)
-            for pt in [p1, p2]:
-                ax.scatter([pt[0]], [pt[1]], [pt[2]], color=color, s=30, depthshade=True, zorder=5)
-        elif g.type == GeometryType.Plane:
-            pos = np.array([g.v[0], g.v[1], g.v[2]])
-            normal = np.array([g.v[3], g.v[4], g.v[5]])
-            norm = np.linalg.norm(normal)
-            if norm < 1e-12:
-                normal = np.array([0, 0, 1])
-            else:
-                normal = normal / norm
-            if abs(normal[2]) < 0.9:
-                u = np.cross(normal, [0, 0, 1])
-            else:
-                u = np.cross(normal, [1, 0, 0])
-            u = u / np.linalg.norm(u)
-            v = np.cross(normal, u)
-            v = v / np.linalg.norm(v)
-            size = 1.0
-            corners = [pos + size * (-u - v), pos + size * (u - v), pos + size * (u + v), pos + size * (-u + v)]
-            poly = Poly3DCollection([corners], alpha=0.25, facecolor=color, edgecolor=color, linewidth=1)
-            ax.add_collection3d(poly)
-            ax.text(pos[0], pos[1], pos[2] + 0.15, f"G{g.id}", fontsize=8, ha="center", color=color)
+    for geometry in graph.geometries:
+        color = _get_rs_color(graph, geometry.rigid_set_id)
+        _draw_geometry_3d(ax, geometry, color, _is_focused_geometry(geometry, focus))
 
-    for c in graph.constraints:
-        color = CONSTRAINT_COLORS.get(c.type, GCS_THEME["constraint_default"])
-        positions = []
-        for gid in c.geometry_ids:
-            g = graph.find_geometry(gid)
-            if g is None:
-                continue
-            if g.type == GeometryType.Point:
-                positions.append(np.array([g.v[0], g.v[1], g.v[2]]))
-            elif g.type == GeometryType.Line:
-                positions.append(np.array([(g.v[0] + g.v[3]) / 2, (g.v[1] + g.v[4]) / 2, (g.v[2] + g.v[5]) / 2]))
-            elif g.type == GeometryType.Plane:
-                positions.append(np.array([g.v[0], g.v[1], g.v[2]]))
-        for i in range(len(positions)):
-            for j in range(i + 1, len(positions)):
-                p1, p2 = positions[i], positions[j]
-                ax.plot([p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]], color=color, linewidth=1.5, linestyle="--", alpha=0.7)
-                mid = (p1 + p2) / 2
-                label = f"C{c.id}({CONSTRAINT_NAMES.get(c.type, '?')})"
-                if c.value != 0.0:
-                    label += f"={c.value}"
-                ax.text(mid[0], mid[1], mid[2] - 0.1, label, fontsize=6, ha="center", color=color, alpha=0.9)
-
-    all_pts = []
-    for g in graph.geometries:
-        if g.type == GeometryType.Point:
-            all_pts.append([g.v[0], g.v[1], g.v[2]])
-        elif g.type == GeometryType.Line:
-            all_pts.append([g.v[0], g.v[1], g.v[2]])
-            all_pts.append([g.v[3], g.v[4], g.v[5]])
-        elif g.type == GeometryType.Plane:
-            all_pts.append([g.v[0], g.v[1], g.v[2]])
-
-    if all_pts:
-        pts = np.array(all_pts)
-        center = pts.mean(axis=0)
-        max_range = max(pts.max(axis=0) - pts.min(axis=0)) / 2
-        if max_range < 0.5:
-            max_range = 2.0
-        margin = max_range * 1.3
-        ax.set_xlim(center[0] - margin, center[0] + margin)
-        ax.set_ylim(center[1] - margin, center[1] + margin)
-        ax.set_zlim(center[2] - margin, center[2] + margin)
-    else:
-        ax.set_xlim(-2, 2)
-        ax.set_ylim(-2, 2)
-        ax.set_zlim(-2, 2)
+    _draw_constraints_3d(graph, ax, focus)
+    _set_3d_bounds(ax, graph)
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
     ax.set_title(title)
     _style_3d_axis(ax)
-
-    from matplotlib.lines import Line2D
-    from matplotlib.patches import Patch
-    legend_elements = []
-    for i, rs in enumerate(graph.rigid_sets):
-        c = RIGID_SET_COLORS[i % len(RIGID_SET_COLORS)]
-        legend_elements.append(Patch(facecolor=c, alpha=0.5, label=f"RS {rs.id}"))
-    for ct, c in CONSTRAINT_COLORS.items():
-        legend_elements.append(Line2D([0], [0], color=c, linestyle="--", label=CONSTRAINT_NAMES.get(ct, "?")))
-    _style_legend(ax.legend(handles=legend_elements, loc="upper left", fontsize=7))
+    _style_legend(ax.legend(handles=_legend_elements(graph, focus), loc="upper left", fontsize=7))
 
     dof = graph.compute_dof()
     info_text = f"RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}"
@@ -420,71 +513,132 @@ def build_3d_on_figure(graph: GCSGraph, fig, title="GCS 3D View"):
     return ax
 
 
-def build_graph_on_figure(graph: GCSGraph, fig, title="Constraint Graph"):
+def build_graph_on_figure(
+    graph: GCSGraph,
+    fig,
+    title: str = "Constraint Graph",
+    focus: Optional[Mapping] = None,
+):
     fig.clear()
     _apply_figure_theme(fig)
     ax = fig.add_subplot(111)
 
-    G = nx.Graph()
-    for g in graph.geometries:
-        rs_idx = _get_rs_color_index(graph, g.rigid_set_id)
-        G.add_node(f"G{g.id}", node_type="geometry", geom_type=int(g.type), rs_index=rs_idx)
-    for c in graph.constraints:
-        for i in range(len(c.geometry_ids)):
-            for j in range(i + 1, len(c.geometry_ids)):
-                G.add_edge(
-                    f"G{c.geometry_ids[i]}", f"G{c.geometry_ids[j]}",
-                    constraint_type=int(c.type), constraint_id=c.id, value=c.value
+    network = nx.Graph()
+    for geometry in graph.geometries:
+        rs_idx = _get_rs_color_index(graph, geometry.rigid_set_id)
+        network.add_node(
+            f"G{geometry.id}",
+            node_type="geometry",
+            geom_id=geometry.id,
+            geom_type=int(geometry.type),
+            rs_id=geometry.rigid_set_id,
+            rs_index=rs_idx,
+        )
+
+    for constraint in graph.constraints:
+        for i in range(len(constraint.geometry_ids)):
+            for j in range(i + 1, len(constraint.geometry_ids)):
+                network.add_edge(
+                    f"G{constraint.geometry_ids[i]}",
+                    f"G{constraint.geometry_ids[j]}",
+                    constraint_type=int(constraint.type),
+                    constraint_id=constraint.id,
+                    value=constraint.value,
                 )
 
-    pos = nx.spring_layout(G, seed=42, k=2.0)
+    pos = nx.spring_layout(network, seed=42, k=2.0) if network.nodes else {}
+    geometry_focus_ids = _focus_ids(focus, "geometry_ids")
+    rigid_set_focus_ids = _focus_ids(focus, "rigid_set_ids")
 
-    node_colors = []
-    node_sizes = []
-    for node, data in G.nodes(data=True):
-        rs_idx = data.get("rs_index", 0)
-        node_colors.append(RIGID_SET_COLORS[rs_idx % len(RIGID_SET_COLORS)])
-        geom_type = data.get("geom_type", 0)
-        if geom_type == 0:
-            node_sizes.append(300)
-        elif geom_type == 1:
-            node_sizes.append(400)
-        else:
-            node_sizes.append(500)
+    for geom_type, marker in GEOMETRY_MARKERS.items():
+        nodes = [node for node, data in network.nodes(data=True) if data.get("geom_type") == geom_type]
+        if not nodes:
+            continue
 
-    nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=node_sizes, alpha=0.85)
-    nx.draw_networkx_labels(G, pos, ax=ax, font_size=8, font_color="white")
+        halo_nodes = [
+            node for node in nodes
+            if network.nodes[node].get("geom_id") in geometry_focus_ids
+            or network.nodes[node].get("rs_id") in rigid_set_focus_ids
+        ]
+        if halo_nodes:
+            nx.draw_networkx_nodes(
+                network,
+                pos,
+                nodelist=halo_nodes,
+                ax=ax,
+                node_shape=marker,
+                node_color=GCS_THEME["accent"],
+                node_size=[GEOMETRY_NODE_SIZES[geom_type] + 430 for _ in halo_nodes],
+                alpha=0.20,
+                linewidths=0,
+            )
 
-    edge_colors = []
-    edge_styles = []
-    for u, v, data in G.edges(data=True):
-        ct = data.get("constraint_type", 3)
-        edge_colors.append(CONSTRAINT_COLORS.get(ct, GCS_THEME["constraint_default"]))
-        edge_styles.append("dashed" if ct in (0, 1, 2) else "solid")
+        node_colors = [
+            RIGID_SET_COLORS[network.nodes[node].get("rs_index", 0) % len(RIGID_SET_COLORS)]
+            for node in nodes
+        ]
+        node_sizes = [
+            GEOMETRY_NODE_SIZES[geom_type]
+            + (120 if node in halo_nodes else 0)
+            for node in nodes
+        ]
+        node_edges = [
+            GCS_THEME["accent"] if node in halo_nodes else GCS_THEME["bg_canvas"]
+            for node in nodes
+        ]
+        nx.draw_networkx_nodes(
+            network,
+            pos,
+            nodelist=nodes,
+            ax=ax,
+            node_shape=marker,
+            node_color=node_colors,
+            node_size=node_sizes,
+            edgecolors=node_edges,
+            linewidths=1.5,
+            alpha=0.92,
+        )
 
-    for (u, v, data), color, style in zip(G.edges(data=True), edge_colors, edge_styles):
-        nx.draw_networkx_edges(G, pos, edgelist=[(u, v)], ax=ax, edge_color=color, style=style, width=1.5, alpha=0.7)
+    nx.draw_networkx_labels(network, pos, ax=ax, font_size=8, font_color=GCS_THEME["text_on_accent"])
+
+    constraint_focus_ids = _focus_ids(focus, "constraint_ids")
+    for u, v, data in network.edges(data=True):
+        constraint_id = data.get("constraint_id")
+        focused = constraint_id in constraint_focus_ids
+        constraint_type = data.get("constraint_type", 3)
+        color = GCS_THEME["accent"] if focused else CONSTRAINT_COLORS.get(
+            constraint_type, GCS_THEME["constraint_default"]
+        )
+        nx.draw_networkx_edges(
+            network,
+            pos,
+            edgelist=[(u, v)],
+            ax=ax,
+            edge_color=color,
+            style=_constraint_graph_line_style(constraint_type),
+            width=2.8 if focused else 1.35,
+            alpha=0.95 if focused else 0.58,
+        )
 
     edge_labels = {}
-    for u, v, data in G.edges(data=True):
-        ct = data.get("constraint_type", 3)
-        cid = data.get("constraint_id", "?")
-        val = data.get("value", 0)
-        label = f"C{cid}({CONSTRAINT_NAMES.get(ct, '?')})"
-        if val != 0:
-            label += f"={val}"
+    for u, v, data in network.edges(data=True):
+        constraint_id = data.get("constraint_id", "?")
+        constraint_type = data.get("constraint_type", 3)
+        focused = constraint_id in constraint_focus_ids
+        label = f"C{constraint_id}"
+        if focused:
+            label += f" {CONSTRAINT_NAMES.get(constraint_type, '?')}"
         edge_labels[(u, v)] = label
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax, font_size=6, font_color=GCS_THEME["text_muted"])
+    nx.draw_networkx_edge_labels(
+        network,
+        pos,
+        edge_labels=edge_labels,
+        ax=ax,
+        font_size=6,
+        font_color=GCS_THEME["text_muted"],
+    )
 
-    from matplotlib.lines import Line2D
-    from matplotlib.patches import Patch
-    legend_elements = []
-    for i, rs in enumerate(graph.rigid_sets):
-        c = RIGID_SET_COLORS[i % len(RIGID_SET_COLORS)]
-        legend_elements.append(Patch(facecolor=c, alpha=0.5, label=f"RS {rs.id}"))
-    for ct, c in CONSTRAINT_COLORS.items():
-        legend_elements.append(Line2D([0], [0], color=c, linestyle="--", label=CONSTRAINT_NAMES.get(ct, "?")))
-    _style_legend(ax.legend(handles=legend_elements, loc="upper left", fontsize=7))
+    _style_legend(ax.legend(handles=_legend_elements(graph, focus), loc="upper left", fontsize=7))
 
     dof = graph.compute_dof()
     ax.set_title(f"{title}  |  RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}")
@@ -494,7 +648,12 @@ def build_graph_on_figure(graph: GCSGraph, fig, title="Constraint Graph"):
     return ax
 
 
-def build_three_view_on_figure(graph: GCSGraph, fig, title="GCS Three-View"):
+def build_three_view_on_figure(
+    graph: GCSGraph,
+    fig,
+    title: str = "GCS Three-View",
+    focus: Optional[Mapping] = None,
+):
     fig.clear()
     _apply_figure_theme(fig)
     axes = fig.subplots(2, 2)
@@ -506,33 +665,11 @@ def build_three_view_on_figure(graph: GCSGraph, fig, title="GCS Three-View"):
     axes[1, 1].axis("off")
 
     for ax, view_name, dim1, dim2 in views:
-        for g in graph.geometries:
-            color = _get_rs_color(graph, g.rigid_set_id)
-            if g.type == GeometryType.Point:
-                ax.scatter(g.v[dim1], g.v[dim2], color=color, s=60, zorder=5)
-                ax.annotate(f"G{g.id}", (g.v[dim1], g.v[dim2]), fontsize=7, color=color)
-            elif g.type == GeometryType.Line:
-                ax.plot([g.v[dim1], g.v[dim1 + 3]], [g.v[dim2], g.v[dim2 + 3]], color=color, linewidth=2)
-            elif g.type == GeometryType.Plane:
-                ax.scatter(g.v[dim1], g.v[dim2], color=color, s=100, marker="s", alpha=0.5)
+        for geometry in graph.geometries:
+            color = _get_rs_color(graph, geometry.rigid_set_id)
+            _draw_geometry_2d(ax, geometry, color, dim1, dim2, _is_focused_geometry(geometry, focus))
 
-        for c in graph.constraints:
-            color = CONSTRAINT_COLORS.get(c.type, GCS_THEME["constraint_default"])
-            positions = []
-            for gid in c.geometry_ids:
-                g = graph.find_geometry(gid)
-                if g is None:
-                    continue
-                if g.type == GeometryType.Point:
-                    positions.append((g.v[dim1], g.v[dim2]))
-                elif g.type == GeometryType.Line:
-                    positions.append(((g.v[dim1] + g.v[dim1 + 3]) / 2, (g.v[dim2] + g.v[dim2 + 3]) / 2))
-                elif g.type == GeometryType.Plane:
-                    positions.append((g.v[dim1], g.v[dim2]))
-            for i in range(len(positions)):
-                for j in range(i + 1, len(positions)):
-                    ax.plot([positions[i][0], positions[j][0]], [positions[i][1], positions[j][1]],
-                            color=color, linewidth=1, linestyle="--", alpha=0.5)
+        _draw_constraints_2d(graph, ax, dim1, dim2, focus)
 
         ax.set_xlabel(["X", "Y", "Z"][dim1])
         ax.set_ylabel(["X", "Y", "Z"][dim2])
@@ -543,8 +680,16 @@ def build_three_view_on_figure(graph: GCSGraph, fig, title="GCS Three-View"):
     dof = graph.compute_dof()
     info = f"RS:{len(graph.rigid_sets)} G:{len(graph.geometries)} C:{len(graph.constraints)} DOF:{dof}"
     axes[1, 1].set_facecolor(GCS_THEME["bg_canvas"])
-    axes[1, 1].text(0.5, 0.5, info, ha="center", va="center", fontsize=14,
-                    transform=axes[1, 1].transAxes, color=GCS_THEME["text_secondary"])
+    axes[1, 1].text(
+        0.5,
+        0.5,
+        info,
+        ha="center",
+        va="center",
+        fontsize=14,
+        transform=axes[1, 1].transAxes,
+        color=GCS_THEME["text_secondary"],
+    )
     axes[1, 1].set_title("Summary")
     axes[1, 1].title.set_color(GCS_THEME["text_primary"])
 

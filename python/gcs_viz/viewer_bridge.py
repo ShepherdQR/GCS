@@ -25,13 +25,19 @@ def graph_summary(graph: GCSGraph) -> dict:
     }
 
 
-def render_graph_view(graph: GCSGraph, fig, view: str = "3d", title: Optional[str] = None):
+def render_graph_view(
+    graph: GCSGraph,
+    fig,
+    view: str = "3d",
+    title: Optional[str] = None,
+    focus: Optional[Mapping] = None,
+):
     renderer = VIEW_RENDERERS.get(view)
     if renderer is None:
         raise ValueError(f"Unknown view mode: {view}")
     if title is None:
-        return renderer(graph, fig)
-    return renderer(graph, fig, title=title)
+        return renderer(graph, fig, focus=focus)
+    return renderer(graph, fig, title=title, focus=focus)
 
 
 def render_message(fig, message: str, title: Optional[str] = None):

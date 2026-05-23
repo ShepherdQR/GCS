@@ -51,6 +51,8 @@ Acceptance:
 
 Make the visualization more expressive without increasing visual noise.
 
+Detailed design: `docs/architecture/72-ui-aesthetic-phase-2-viewport-semantics.md`.
+
 Deliverables:
 
 - geometry type encoded by marker/shape and size;
