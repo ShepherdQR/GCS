@@ -9,10 +9,13 @@ promote a candidate.
 
 ## Current Audit
 
-Audit date: 2026-05-24.
+Audit date: 2026-05-24. Implementation refresh: 2026-05-24.
 
-The current `tools/scene_generation/tools.py` implementation is useful, but it
-is not a complete scene auto explorer.
+The pre-refresh `tools/scene_generation/tools.py` implementation was useful,
+but it was not a complete scene auto explorer. The refreshed v1 now includes
+`explore_scene_space`, `promote_candidate`, structured coverage, negative
+evidence, deterministic traces, and promotion packages while keeping the older
+single-step commands as compatibility wrappers.
 
 Reusable pieces:
 
@@ -31,28 +34,37 @@ Reusable pieces:
   `rigidset_quotient`;
 - machine-readable graph report and canonical JSON/text serialization.
 
-Observed limits:
+Original observed limits:
 
-- The command family is a collection of single-step tools, not an explorer. It
-  has no search state, frontier, budget, objective, novelty scoring, coverage
-  accounting, or stop condition.
+- The command family was a collection of single-step tools, not an explorer.
+  This is addressed by `explore_scene_space`.
 - `lift_skeleton_to_gcs` intentionally creates zero-valued geometry vectors.
   A lifted graph may fail schema validation until
   `assign_geometry_parameters` runs.
-- Reports summarize one candidate, but do not compare candidates or explain
-  why a scenario covers a missing solver behavior.
+- Reports summarized one candidate, but did not compare candidates or explain
+  why a scenario covers a missing solver behavior. The v1 explorer now tracks
+  coverage goals and candidate contributions.
 - The validator is generator-local. It does not yet round-trip through the
   C++ scene IO, kernel, runtime, diagnostics, or viewer contracts before a
   candidate is considered promotion-ready.
 - Repair can make a graph pass local invariants, but it does not produce a
   minimal or semantically classified repair plan.
-- There is no corpus manifest, provenance bundle, golden digest, rejection
-  corpus, or reproducible exploration trace.
-- There are no contract tests around the Python generator itself.
+- There was no corpus manifest, provenance bundle, rejection corpus, or
+  reproducible exploration trace. The v1 explorer writes request/result,
+  candidate provenance, rejected-candidate evidence, and `trace.jsonl`.
+- There were no tests around the Python generator itself. The v1 explorer has
+  unittest coverage for determinism, negative evidence, and promotion gates.
 
-Decision: keep the verified helper algorithms and the command-line surface,
-but rewrite the tool around an explicit auto-exploration core. The current
-single-step commands remain as compatibility wrappers over that core.
+Remaining limits:
+
+- Public IO, kernel, runtime, diagnostics, and viewer gate adapters are still
+  explicit `unsupported` or `skipped` gate reports. They block default
+  `promotion` packages unless `allow_unsupported_gates` is set.
+- The implementation is still physically monolithic in `tools.py`; a later
+  cleanup may split it into package modules after the public gate adapters are
+  ready.
+- Repair is still candidate-level and explicit. It is not a semantic minimal
+  repair planner.
 
 ## Completeness Bar
 
@@ -73,10 +85,11 @@ of the following:
 - tests that prove determinism, validation behavior, rejection behavior, and
   promotion evidence.
 
-Current maturity is L1-L2: helper commands and local validation exist, but the
-explorer contract, corpus management, cross-module gates, and tests are
-missing. Target maturity for this tool family is L3 design, then L4 once the
-implementation and tests satisfy this document.
+Current maturity is L3-L4 for the local explorer: structured contracts,
+scratch corpus management, coverage accounting, local gates, traces, promotion
+packages, and tests exist. It remains below full L4 for cross-module promotion
+until public IO, kernel, runtime, diagnostics, and viewer gate adapters are
+implemented.
 
 ## Ownership Boundary
 
@@ -429,18 +442,24 @@ human or explicit command copy data into `fixtures/scene`.
 
 ## Implementation Migration
 
-Recommended migration path:
+Current v1 status:
+
+- `explore_scene_space` and `promote_candidate` are implemented.
+- Flat compatibility commands still work.
+- Structured exploration artifacts are written under
+  `.store/explorations/<exploration_id>/`.
+- Promotion packages are written under `.store/promotions/<promotion_id>/`.
+- Deterministic unittest coverage exists for the local explorer.
+
+Remaining migration path:
 
 1. Extract pure data helpers from `tools.py` into package modules:
    `store.py`, `topology.py`, `gcs_model.py`, `validation.py`,
    `projection.py`, `parameterization.py`, `reporting.py`, and
    `explorer.py`.
 2. Keep `tools.py` as the CLI dispatcher and compatibility facade.
-3. Add `explore_scene_space` and `promote_candidate` commands.
-4. Move flat `.store` compatibility reads behind a store adapter.
-5. Add deterministic tests for helper algorithms and command-level smoke
-   tests.
-6. Add public gate adapters incrementally as IO, contract tools, runtime, and
+3. Move flat `.store` compatibility reads behind a store adapter.
+4. Add public gate adapters incrementally as IO, contract tools, runtime, and
    viewer checks stabilize.
 
 This is a rewrite of structure, not a rewrite of all algorithms.
@@ -491,9 +510,12 @@ validate_gcs_schema
 
 ## Final Design Decision
 
-The current implementation is reusable as a prototype library and CLI
-compatibility layer. It is not sufficient as the required scene auto explorer.
-The next implementation should preserve the verified local algorithms, replace
-the monolithic command file with a small package plus CLI facade, and add an
-explicit exploration contract with coverage, provenance, gates, traces, and
-promotion packages.
+The refreshed implementation is sufficient as a complete local scene auto
+explorer. It preserves the verified local algorithms, keeps the existing CLI
+commands compatible, and adds an explicit exploration contract with coverage,
+provenance, gates, traces, negative evidence, and promotion packages.
+
+The next design step is not another rewrite; it is adapter hardening: connect
+promotion gates to public scene IO, kernel validation, runtime smoke checks,
+diagnostics reports, and viewer projection, then split the monolithic CLI file
+into package modules once those adapters stabilize.

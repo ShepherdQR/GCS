@@ -18,10 +18,14 @@ import math
 import os
 import random
 import sys
+import time
 from collections import Counter, defaultdict
 
 
-STORE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".store")
+STORE_DIR = os.environ.get(
+    "GCS_SCENE_GENERATION_STORE_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), ".store"),
+)
 
 GEOMETRY_TYPES = ("Point", "Line", "Plane")
 CONSTRAINT_TYPES = ("Coincident", "Parallel", "Perpendicular", "Distance", "Angle")
@@ -44,6 +48,28 @@ VALID_CONSTRAINT_SIGNATURES = {
 
 GEOMETRY_TYPE_MAP = {"Point": 0, "Line": 1, "Plane": 2}
 CONSTRAINT_TYPE_MAP = {"Coincident": 0, "Parallel": 1, "Perpendicular": 2, "Distance": 3, "Angle": 4}
+
+FAILURE_REASON_CODES = {
+    "invalid_request",
+    "budget_exhausted",
+    "unknown_geometry_type",
+    "unknown_constraint_type",
+    "invalid_constraint_signature",
+    "constraint_same_rigid_set",
+    "degenerate_line",
+    "zero_plane_normal",
+    "negative_distance",
+    "invalid_angle_range",
+    "topology_not_connected",
+    "topology_has_articulation",
+    "io_round_trip_failed",
+    "kernel_validation_failed",
+    "runtime_smoke_failed",
+    "viewer_projection_failed",
+    "promotion_gate_unsupported",
+    "no_coverage_gain",
+    "search_exhausted",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -101,6 +127,60 @@ def delete_graph(graph_id: str) -> dict:
         return {"error": f"Graph '{graph_id}' not found"}
     os.remove(path)
     return {"deleted": graph_id}
+
+
+def _safe_store_id(value: str, field_name: str = "id") -> str:
+    text = str(value)
+    if not text:
+        raise ValueError(f"{field_name} must not be empty")
+    allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-")
+    if any(ch not in allowed for ch in text):
+        raise ValueError(f"{field_name} may only contain letters, digits, '.', '_' and '-'")
+    if text in {".", ".."} or text.startswith(".") or ".." in text:
+        raise ValueError(f"{field_name} must not be a hidden or relative path segment")
+    return text
+
+
+def _write_json_file(path: str, data: dict | list) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, sort_keys=True)
+        f.write("\n")
+
+
+def _read_json_file(path: str) -> dict:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _exploration_root(exploration_id: str) -> str:
+    return os.path.join(STORE_DIR, "explorations", _safe_store_id(exploration_id, "exploration_id"))
+
+
+def _promotion_root(promotion_id: str) -> str:
+    return os.path.join(STORE_DIR, "promotions", _safe_store_id(promotion_id, "promotion_id"))
+
+
+def _candidate_slot(candidate_id: str) -> str:
+    suffix = str(candidate_id).rsplit("_c", 1)[-1]
+    if suffix and suffix[0:4].isdigit():
+        return f"c{suffix[0:4]}"
+    return _safe_store_id(candidate_id, "candidate_id")
+
+
+def _candidate_root(exploration_id: str, candidate_id: str) -> str:
+    return os.path.join(_exploration_root(exploration_id), "candidates", _candidate_slot(candidate_id))
+
+
+def _append_trace(trace_path: str, event: dict) -> None:
+    os.makedirs(os.path.dirname(trace_path), exist_ok=True)
+    with open(trace_path, "a", encoding="utf-8") as f:
+        json.dump(event, f, sort_keys=True)
+        f.write("\n")
+
+
+def _sha256_text(text: str) -> str:
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 # ---------------------------------------------------------------------------
@@ -1211,6 +1291,808 @@ def tool_assign_geometry_parameters(params: dict) -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Command: explore_scene_space
+# ---------------------------------------------------------------------------
+
+
+def _as_int_list(value, default: list[int]) -> list[int]:
+    if value is None:
+        return list(default)
+    if isinstance(value, int):
+        return [int(value)]
+    return [int(item) for item in value]
+
+
+def _as_str_list(value, default: list[str]) -> list[str]:
+    if value is None:
+        return list(default)
+    if isinstance(value, str):
+        return [value]
+    return [str(item) for item in value]
+
+
+def _extra_edge_values(value) -> list[int]:
+    if value is None:
+        return [0, 1, 2, 3]
+    if isinstance(value, int):
+        return [int(value)]
+    if isinstance(value, list) and len(value) == 2 and all(isinstance(item, (int, float)) for item in value):
+        lo = int(value[0])
+        hi = int(value[1])
+        if hi < lo:
+            raise ValueError("extra_edge_range upper bound must be >= lower bound")
+        return list(range(lo, hi + 1))
+    return [int(item) for item in value]
+
+
+def _default_exploration_request(params: dict) -> dict:
+    seed = int(params.get("seed", 0))
+    exploration_id = _safe_store_id(params.get("exploration_id", f"exploration_{seed}"), "exploration_id")
+    budget = params.get("budget", {})
+    topology_policy = params.get("topology_policy", {})
+    gcs_policy = params.get("gcs_policy", {})
+    parameter_policy = params.get("parameter_policy", {})
+    write_policy = params.get("write_policy", {})
+
+    request = {
+        "exploration_id": exploration_id,
+        "seed": seed,
+        "budget": {
+            "max_candidates": int(budget.get("max_candidates", 32)),
+            "max_accepts": int(budget.get("max_accepts", 8)),
+            "max_seconds": float(budget.get("max_seconds", 0.0)),
+        },
+        "topology_policy": {
+            "vertex_counts": _as_int_list(topology_policy.get("vertex_counts"), [3, 4, 5, 8]),
+            "methods": _as_str_list(topology_policy.get("methods"), ["cycle_plus_chords", "ear_decomposition"]),
+            "extra_edge_values": _extra_edge_values(topology_policy.get("extra_edge_range")),
+            "require_vertex_biconnected": bool(topology_policy.get("require_vertex_biconnected", True)),
+        },
+        "gcs_policy": {
+            "geometry_types": _as_str_list(gcs_policy.get("geometry_types"), list(GEOMETRY_TYPES)),
+            "constraint_types": _as_str_list(gcs_policy.get("constraint_types"), list(CONSTRAINT_TYPES)),
+            "rigid_set_counts": _as_int_list(gcs_policy.get("rigid_set_counts"), [2, 3]),
+            "require_cross_rigid_set_constraints": bool(gcs_policy.get("require_cross_rigid_set_constraints", True)),
+        },
+        "parameter_policy": {
+            "layouts": _as_str_list(parameter_policy.get("layouts"), ["circular", "grid", "random"]),
+            "avoid_degenerate_geometry": bool(parameter_policy.get("avoid_degenerate_geometry", True)),
+            "value_tolerance": float(parameter_policy.get("value_tolerance", 1e-9)),
+        },
+        "coverage_goals": _as_str_list(
+            params.get("coverage_goals"),
+            [
+                "all_geometry_types",
+                "all_constraint_types",
+                "mixed_rigid_sets",
+                "biconnected_geometry_primal",
+                "invalid_signature_negative_case",
+                "same_rigid_set_negative_case",
+            ],
+        ),
+        "gate_profile": params.get("gate_profile", "local_only"),
+        "write_policy": {
+            "store": write_policy.get("store", "scratch"),
+            "keep_rejected": bool(write_policy.get("keep_rejected", True)),
+            "promote": bool(write_policy.get("promote", False)),
+        },
+        "allow_unsupported_gates": bool(params.get("allow_unsupported_gates", False)),
+    }
+
+    if request["budget"]["max_candidates"] < 1:
+        raise ValueError("budget.max_candidates must be >= 1")
+    if request["budget"]["max_accepts"] < 1:
+        raise ValueError("budget.max_accepts must be >= 1")
+    if any(v < 3 for v in request["topology_policy"]["vertex_counts"]):
+        raise ValueError("topology_policy.vertex_counts must all be >= 3")
+    unknown_geometry = [g for g in request["gcs_policy"]["geometry_types"] if g not in GEOMETRY_TYPES]
+    if unknown_geometry:
+        raise ValueError(f"Unknown geometry type(s): {unknown_geometry}")
+    unknown_constraints = [c for c in request["gcs_policy"]["constraint_types"] if c not in CONSTRAINT_TYPES]
+    if unknown_constraints:
+        raise ValueError(f"Unknown constraint type(s): {unknown_constraints}")
+    if request["write_policy"]["store"] != "scratch":
+        raise ValueError("write_policy.store currently supports only 'scratch'")
+    if request["gate_profile"] not in {"local_only", "local_plus_public_smoke", "promotion"}:
+        raise ValueError("gate_profile must be one of local_only, local_plus_public_smoke, or promotion")
+    return request
+
+
+def _candidate_seed(seed: int, candidate_index: int, offset: int) -> int:
+    return (int(seed) * 100_003 + candidate_index * 101 + offset) % 2_147_483_647
+
+
+def _geometry_distribution(geometry_types: list[str]) -> dict:
+    if not geometry_types:
+        return {}
+    weight = 1.0 / len(geometry_types)
+    return {gtype: weight for gtype in geometry_types}
+
+
+def _endpoint_signature(g1: dict, g2: dict) -> str:
+    return "-".join(sorted([g1.get("type", "?"), g2.get("type", "?")]))
+
+
+def _candidate_record(gcs: dict, report: dict, gates: list[dict], serialization: dict, variant: str) -> dict:
+    geom_by_id = _geometry_map(gcs)
+    geometry_hist = Counter(g.get("type") for g in gcs.get("geometries", []))
+    constraint_hist = Counter(c.get("type") for c in gcs.get("constraints", []))
+    signature_hist = Counter()
+    for constraint in gcs.get("constraints", []):
+        gids = constraint.get("geometry_ids", [])
+        if len(gids) >= 2 and gids[0] in geom_by_id and gids[1] in geom_by_id:
+            signature_hist[_endpoint_signature(geom_by_id[gids[0]], geom_by_id[gids[1]])] += 1
+    return {
+        "variant": variant,
+        "num_geometries": len(gcs.get("geometries", [])),
+        "num_constraints": len(gcs.get("constraints", [])),
+        "num_rigid_sets": len(gcs.get("rigid_sets", [])),
+        "geometry_types": dict(sorted(geometry_hist.items())),
+        "constraint_types": dict(sorted(constraint_hist.items())),
+        "endpoint_signatures": dict(sorted(signature_hist.items())),
+        "schema_valid": bool(report.get("schema_valid", False)),
+        "geometry_primal_biconnected": bool(report.get("geometry_primal_biconnected", False)),
+        "gates": gates,
+        "digest": _sha256_text(serialization.get("serialization", "")),
+    }
+
+
+def _make_gate(gate_id: str, status: str, reason_code: str | None = None, evidence=None, artifact_ids=None) -> dict:
+    return {
+        "gate_id": gate_id,
+        "status": status,
+        "reason_code": reason_code,
+        "evidence": evidence or {},
+        "artifact_ids": artifact_ids or [],
+        "duration_ms": 0,
+    }
+
+
+def _run_candidate_gates(gcs_graph_id: str, projection_id: str, gate_profile: str, allow_unsupported: bool = False) -> tuple[list[dict], dict, dict, dict]:
+    validation = tool_validate_gcs_schema({"gcs_graph_id": gcs_graph_id})
+    projection = tool_project_gcs_graph(
+        {
+            "gcs_graph_id": gcs_graph_id,
+            "projection": "geometry_primal",
+            "projected_graph_id": projection_id,
+        }
+    )
+    biconnectivity = tool_check_vertex_biconnected({"projected_graph_id": projection_id})
+    report = tool_generate_graph_report({"gcs_graph_id": gcs_graph_id})
+    serialization = tool_serialize_gcs_graph({"gcs_graph_id": gcs_graph_id, "format": "json"})
+
+    gates = [
+        _make_gate(
+            "local_schema_validation",
+            "passed" if validation.get("valid") else "failed",
+            None if validation.get("valid") else _first_violation_reason(validation),
+            {"violations": validation.get("violations", [])},
+            [gcs_graph_id],
+        ),
+        _make_gate(
+            "geometry_primal_projection",
+            "passed" if "error" not in projection else "failed",
+            projection.get("error"),
+            {"num_vertices": len(projection.get("vertices", [])), "num_edges": len(projection.get("edges", []))},
+            [projection_id],
+        ),
+        _make_gate(
+            "geometry_primal_biconnectivity",
+            "passed" if biconnectivity.get("is_vertex_biconnected") else "failed",
+            None if biconnectivity.get("is_vertex_biconnected") else _topology_failure_reason(biconnectivity),
+            {
+                "articulation_points": biconnectivity.get("articulation_points", []),
+                "num_connected_components": biconnectivity.get("num_connected_components"),
+            },
+            [projection_id],
+        ),
+        _make_gate(
+            "canonical_serialization",
+            "passed" if serialization.get("canonical") else "failed",
+            None if serialization.get("canonical") else serialization.get("error", "serialization_failed"),
+            {"checksum": serialization.get("checksum"), "format": serialization.get("format")},
+            [gcs_graph_id],
+        ),
+    ]
+
+    if gate_profile in {"local_plus_public_smoke", "promotion"}:
+        unsupported_status = "skipped" if gate_profile == "local_plus_public_smoke" or allow_unsupported else "unsupported"
+        for gate_id, reason_code in [
+            ("scene_io_round_trip", "io_round_trip_failed"),
+            ("kernel_validation", "kernel_validation_failed"),
+            ("runtime_smoke", "runtime_smoke_failed"),
+            ("viewer_projection", "viewer_projection_failed"),
+        ]:
+            gates.append(
+                _make_gate(
+                    gate_id,
+                    unsupported_status,
+                    "promotion_gate_unsupported" if unsupported_status == "unsupported" else reason_code,
+                    {"message": "Public gate adapter is not implemented in scene_generation yet."},
+                    [gcs_graph_id],
+                )
+            )
+    return gates, report, projection, serialization
+
+
+def _first_violation_reason(validation: dict) -> str:
+    violations = validation.get("violations", [])
+    if not violations:
+        return "invalid_request"
+    reason = violations[0].get("type", "invalid_request")
+    return reason if reason in FAILURE_REASON_CODES else "invalid_request"
+
+
+def _topology_failure_reason(biconnectivity: dict) -> str:
+    if int(biconnectivity.get("num_connected_components") or 0) != 1:
+        return "topology_not_connected"
+    if biconnectivity.get("articulation_points"):
+        return "topology_has_articulation"
+    return "topology_has_articulation"
+
+
+def _candidate_failure_reason(gates: list[dict]) -> str:
+    for gate in gates:
+        if gate["status"] == "failed":
+            reason = gate.get("reason_code") or "invalid_request"
+            return reason if reason in FAILURE_REASON_CODES else "invalid_request"
+    for gate in gates:
+        if gate["status"] == "unsupported":
+            return "promotion_gate_unsupported"
+    return "invalid_request"
+
+
+def _coverage_from_records(accepted_records: list[dict], rejected_records: list[dict], request: dict) -> dict:
+    goals = set(request["coverage_goals"])
+    requested_geometry = set(request["gcs_policy"]["geometry_types"])
+    requested_constraints = set(request["gcs_policy"]["constraint_types"])
+    geometry_hist = Counter()
+    constraint_hist = Counter()
+    signature_hist = Counter()
+    rigid_set_hist = Counter()
+    topology_size_hist = Counter()
+    gate_status_hist = Counter()
+    rejection_hist = Counter()
+
+    for record in accepted_records:
+        geometry_hist.update(record.get("geometry_types", {}))
+        constraint_hist.update(record.get("constraint_types", {}))
+        signature_hist.update(record.get("endpoint_signatures", {}))
+        rigid_set_hist[str(record.get("num_rigid_sets"))] += 1
+        topology_size_hist[str(record.get("num_geometries"))] += 1
+        for gate in record.get("gates", []):
+            gate_status_hist[f"{gate['gate_id']}:{gate['status']}"] += 1
+    for record in rejected_records:
+        reason = record.get("reason_code", "invalid_request")
+        rejection_hist[reason] += 1
+
+    accepted_geometry = set(geometry_hist)
+    accepted_constraints = set(constraint_hist)
+    satisfied = set()
+    if "all_geometry_types" in goals and requested_geometry.issubset(accepted_geometry):
+        satisfied.add("all_geometry_types")
+    if "all_constraint_types" in goals and requested_constraints.issubset(accepted_constraints):
+        satisfied.add("all_constraint_types")
+    if "mixed_rigid_sets" in goals and any(int(key) > 1 for key in rigid_set_hist):
+        satisfied.add("mixed_rigid_sets")
+    if "biconnected_geometry_primal" in goals and any(r.get("geometry_primal_biconnected") for r in accepted_records):
+        satisfied.add("biconnected_geometry_primal")
+    if "invalid_signature_negative_case" in goals and rejection_hist.get("invalid_constraint_signature"):
+        satisfied.add("invalid_signature_negative_case")
+    if "same_rigid_set_negative_case" in goals and rejection_hist.get("constraint_same_rigid_set"):
+        satisfied.add("same_rigid_set_negative_case")
+    if "io_round_trip_candidate" in goals:
+        io_passed = any(
+            gate.get("gate_id") == "scene_io_round_trip" and gate.get("status") == "passed"
+            for record in accepted_records
+            for gate in record.get("gates", [])
+        )
+        if io_passed:
+            satisfied.add("io_round_trip_candidate")
+
+    return {
+        "satisfied_goals": sorted(satisfied),
+        "missing_goals": sorted(goals - satisfied),
+        "histograms": {
+            "geometry_types": dict(sorted(geometry_hist.items())),
+            "constraint_types": dict(sorted(constraint_hist.items())),
+            "endpoint_signatures": dict(sorted(signature_hist.items())),
+            "rigid_set_counts": dict(sorted(rigid_set_hist.items())),
+            "topology_sizes": dict(sorted(topology_size_hist.items())),
+            "gate_statuses": dict(sorted(gate_status_hist.items())),
+            "rejection_reasons": dict(sorted(rejection_hist.items())),
+        },
+    }
+
+
+def _candidate_score(record: dict, before_coverage: dict, after_coverage: dict) -> float:
+    before_goals = set(before_coverage.get("satisfied_goals", []))
+    after_goals = set(after_coverage.get("satisfied_goals", []))
+    new_goals = len(after_goals - before_goals)
+    geometry_diversity = len(record.get("geometry_types", {}))
+    constraint_diversity = len(record.get("constraint_types", {}))
+    simplicity = 1.0 / max(1, int(record.get("num_constraints", 1)))
+    return round(new_goals * 10.0 + geometry_diversity + constraint_diversity + simplicity, 6)
+
+
+def _save_candidate_artifacts(exploration_id: str, candidate_id: str, artifacts: dict, provenance: dict, report: dict, projection: dict) -> None:
+    root = _candidate_root(exploration_id, candidate_id)
+    _write_json_file(os.path.join(root, "provenance.json"), provenance)
+    _write_json_file(os.path.join(root, "report.json"), report)
+    _write_json_file(os.path.join(root, "geometry_primal.json"), projection)
+    role_names = {
+        "skeleton_graph_id": "skeleton",
+        "gcs_graph_id": "gcs",
+        "skeleton": "skeleton",
+        "gcs": "gcs",
+    }
+    for role, graph_id in artifacts.items():
+        if not graph_id or role == "projection_ids":
+            continue
+        if isinstance(graph_id, list):
+            continue
+        file_role = role_names.get(role, role)
+        try:
+            _write_json_file(os.path.join(root, f"{file_role}.json"), load_graph(graph_id))
+        except FileNotFoundError:
+            pass
+
+
+def _invalid_constraint_type_for(g1: dict, g2: dict) -> str | None:
+    for ctype in CONSTRAINT_TYPES:
+        if not is_valid_constraint_signature(ctype, g1.get("type"), g2.get("type")):
+            return ctype
+    return None
+
+
+def _make_negative_candidate(base_gcs_id: str, negative_gcs_id: str, variant: str) -> dict:
+    base = load_graph(base_gcs_id)
+    gcs = copy.deepcopy(base)
+    gcs["gcs_graph_id"] = negative_gcs_id
+    gcs["status"] = variant
+    geom_by_id = _geometry_map(gcs)
+    if variant == "invalid_signature_negative_case":
+        for constraint in sorted(gcs.get("constraints", []), key=lambda c: c["id"]):
+            gids = constraint.get("geometry_ids", [])
+            if len(gids) < 2 or gids[0] not in geom_by_id or gids[1] not in geom_by_id:
+                continue
+            invalid = _invalid_constraint_type_for(geom_by_id[gids[0]], geom_by_id[gids[1]])
+            if invalid:
+                constraint["type"] = invalid
+                save_graph(negative_gcs_id, gcs)
+                return gcs
+    elif variant == "same_rigid_set_negative_case":
+        for constraint in sorted(gcs.get("constraints", []), key=lambda c: c["id"]):
+            gids = constraint.get("geometry_ids", [])
+            if len(gids) < 2 or gids[0] not in geom_by_id or gids[1] not in geom_by_id:
+                continue
+            geom_by_id[gids[1]]["rigid_set_id"] = geom_by_id[gids[0]]["rigid_set_id"]
+            _rebuild_rigid_sets(gcs)
+            save_graph(negative_gcs_id, gcs)
+            return gcs
+    raise ValueError(f"Could not create negative candidate variant {variant}")
+
+
+def _build_positive_candidate(request: dict, candidate_index: int, combo: dict) -> tuple[dict, dict, dict, dict, dict, list[dict]]:
+    exploration_id = request["exploration_id"]
+    candidate_id = f"{exploration_id}_c{candidate_index:04d}"
+    skeleton_id = f"{candidate_id}_skel"
+    gcs_id = f"{candidate_id}_gcs"
+    projection_id = f"{candidate_id}_geom_primal"
+    seed = request["seed"]
+    seed_path = {
+        "exploration_seed": seed,
+        "topology_seed": _candidate_seed(seed, candidate_index, 1),
+        "lift_seed": _candidate_seed(seed, candidate_index, 2),
+        "parameter_seed": _candidate_seed(seed, candidate_index, 3),
+    }
+
+    skeleton = tool_generate_skeleton_graph(
+        {
+            "graph_id": skeleton_id,
+            "num_vertices": combo["num_vertices"],
+            "method": combo["method"],
+            "extra_edges": combo["extra_edges"],
+            "seed": seed_path["topology_seed"],
+        }
+    )
+    if "error" in skeleton:
+        raise ValueError(skeleton["error"])
+
+    lift = tool_lift_skeleton_to_gcs(
+        {
+            "skeleton_graph_id": skeleton_id,
+            "gcs_graph_id": gcs_id,
+            "seed": seed_path["lift_seed"],
+            "geometry_type_policy": {
+                "allowed_types": request["gcs_policy"]["geometry_types"],
+                "distribution": _geometry_distribution(request["gcs_policy"]["geometry_types"]),
+            },
+            "constraint_type_policy": {
+                "allowed_types": request["gcs_policy"]["constraint_types"],
+                "respect_type_signature": True,
+            },
+            "rigid_set_policy": {
+                "num_rigid_sets": combo["num_rigid_sets"],
+                "assignment": "random_balanced",
+                "allow_new_rigid_sets": True,
+            },
+        }
+    )
+    if "error" in lift:
+        raise ValueError(lift["error"])
+
+    assigned = tool_assign_geometry_parameters(
+        {
+            "gcs_graph_id": gcs_id,
+            "layout": combo["layout"],
+            "seed": seed_path["parameter_seed"],
+        }
+    )
+    if "error" in assigned:
+        raise ValueError(assigned["error"])
+
+    gates, report, projection, serialization = _run_candidate_gates(
+        gcs_id,
+        projection_id,
+        request["gate_profile"],
+        request["allow_unsupported_gates"],
+    )
+    gcs = load_graph(gcs_id)
+    artifacts = {
+        "skeleton": skeleton_id,
+        "gcs": gcs_id,
+        "projection_ids": [projection_id],
+    }
+    provenance = {
+        "candidate_id": candidate_id,
+        "parent_exploration_id": exploration_id,
+        "variant": "positive",
+        "seed_path": seed_path,
+        "artifacts": {
+            "skeleton_graph_id": skeleton_id,
+            "gcs_graph_id": gcs_id,
+            "projection_ids": [projection_id],
+        },
+        "policies": {
+            "topology": combo,
+            "gcs_policy": request["gcs_policy"],
+            "parameter_policy": {"layout": combo["layout"]},
+        },
+        "digest": _sha256_text(serialization.get("serialization", "")),
+    }
+    return gcs, report, projection, serialization, provenance, gates
+
+
+def _build_candidate_combos(request: dict) -> list[dict]:
+    topology = request["topology_policy"]
+    gcs_policy = request["gcs_policy"]
+    parameter = request["parameter_policy"]
+    combos = []
+    for num_vertices in sorted(topology["vertex_counts"]):
+        for method in sorted(topology["methods"]):
+            for extra_edges in sorted(topology["extra_edge_values"]):
+                for num_rigid_sets in sorted(gcs_policy["rigid_set_counts"]):
+                    for layout in sorted(parameter["layouts"]):
+                        combos.append(
+                            {
+                                "num_vertices": num_vertices,
+                                "method": method,
+                                "extra_edges": extra_edges,
+                                "num_rigid_sets": num_rigid_sets,
+                                "layout": layout,
+                            }
+                        )
+    rng = _rng(request["seed"])
+    rng.shuffle(combos)
+    return combos
+
+
+def tool_explore_scene_space(params: dict) -> dict:
+    try:
+        request = _default_exploration_request(params)
+    except ValueError as exc:
+        return {"status": "failed", "reason_code": "invalid_request", "error": str(exc)}
+
+    exploration_id = request["exploration_id"]
+    root = _exploration_root(exploration_id)
+    trace_path = os.path.join(root, "trace.jsonl")
+    os.makedirs(root, exist_ok=True)
+    if os.path.exists(trace_path):
+        os.remove(trace_path)
+    _write_json_file(os.path.join(root, "request.json"), request)
+
+    accepted = []
+    accepted_records = []
+    rejected = []
+    rejected_records = []
+    attempted = 0
+    event_index = 0
+    start = time.monotonic()
+    stop_reason = "search_exhausted"
+    combos = _build_candidate_combos(request)
+
+    def trace(event_type: str, candidate_id: str | None, payload: dict) -> None:
+        nonlocal event_index
+        event = {
+            "event_index": event_index,
+            "event_type": event_type,
+            "candidate_id": candidate_id,
+            "payload": payload,
+        }
+        event_index += 1
+        _append_trace(trace_path, event)
+
+    def should_stop() -> str | None:
+        if len(accepted) >= request["budget"]["max_accepts"]:
+            return "max_accepts"
+        if attempted >= request["budget"]["max_candidates"]:
+            return "max_candidates"
+        max_seconds = request["budget"]["max_seconds"]
+        if max_seconds > 0.0 and (time.monotonic() - start) >= max_seconds:
+            return "max_seconds"
+        return None
+
+    for combo_index, combo in enumerate(combos):
+        reason = should_stop()
+        if reason:
+            stop_reason = reason
+            break
+
+        candidate_index = attempted
+        candidate_id = f"{exploration_id}_c{candidate_index:04d}"
+        attempted += 1
+        trace("candidate_started", candidate_id, {"combo": combo})
+        try:
+            gcs, report, projection, serialization, provenance, gates = _build_positive_candidate(request, candidate_index, combo)
+            record = _candidate_record(gcs, report, gates, serialization, "positive")
+            before_coverage = _coverage_from_records(accepted_records, rejected_records, request)
+            candidate_after = accepted_records + [record] if record["schema_valid"] and record["geometry_primal_biconnected"] else accepted_records
+            after_coverage = _coverage_from_records(candidate_after, rejected_records, request)
+            score = _candidate_score(record, before_coverage, after_coverage)
+            provenance["reports"] = {"graph_report": report, "gates": gates}
+            _save_candidate_artifacts(exploration_id, candidate_id, provenance["artifacts"], provenance, report, projection)
+            if record["schema_valid"] and record["geometry_primal_biconnected"] and (
+                set(after_coverage["satisfied_goals"]) - set(before_coverage["satisfied_goals"]) or not accepted
+            ):
+                record["score"] = score
+                accepted_records.append(record)
+                accepted.append(
+                    {
+                        "candidate_id": candidate_id,
+                        "gcs_graph_id": provenance["artifacts"]["gcs_graph_id"],
+                        "score": score,
+                        "schema_valid": True,
+                        "geometry_primal_biconnected": True,
+                        "digest": record["digest"],
+                        "coverage_contributions": sorted(set(after_coverage["satisfied_goals"]) - set(before_coverage["satisfied_goals"])),
+                    }
+                )
+                trace("candidate_accepted", candidate_id, {"score": score})
+            else:
+                reason_code = _candidate_failure_reason(record["gates"]) if not record["schema_valid"] else "no_coverage_gain"
+                rejected_record = {
+                    "candidate_id": candidate_id,
+                    "reason_code": reason_code,
+                    "evidence_ids": [f"{candidate_id}_report"],
+                    "variant": "positive",
+                }
+                rejected.append(rejected_record)
+                rejected_records.append(rejected_record)
+                trace("candidate_rejected", candidate_id, {"reason_code": reason_code})
+
+            requested_negative = []
+            current_coverage = _coverage_from_records(accepted_records, rejected_records, request)
+            if "invalid_signature_negative_case" in current_coverage["missing_goals"]:
+                requested_negative.append("invalid_signature_negative_case")
+            if "same_rigid_set_negative_case" in current_coverage["missing_goals"]:
+                requested_negative.append("same_rigid_set_negative_case")
+            for variant in requested_negative:
+                reason = should_stop()
+                if reason:
+                    stop_reason = reason
+                    break
+                negative_index = attempted
+                negative_id = f"{exploration_id}_c{negative_index:04d}"
+                attempted += 1
+                negative_gcs_id = f"{negative_id}_gcs"
+                negative_projection_id = f"{negative_id}_geom_primal"
+                trace("candidate_started", negative_id, {"variant": variant, "source_candidate_id": candidate_id})
+                negative_gcs = _make_negative_candidate(provenance["artifacts"]["gcs_graph_id"], negative_gcs_id, variant)
+                gates, negative_report, negative_projection, negative_serialization = _run_candidate_gates(
+                    negative_gcs_id,
+                    negative_projection_id,
+                    request["gate_profile"],
+                    request["allow_unsupported_gates"],
+                )
+                reason_code = _candidate_failure_reason(gates)
+                negative_provenance = {
+                    "candidate_id": negative_id,
+                    "parent_exploration_id": exploration_id,
+                    "variant": variant,
+                    "source_candidate_id": candidate_id,
+                    "seed_path": provenance["seed_path"],
+                    "artifacts": {
+                        "skeleton_graph_id": provenance["artifacts"]["skeleton_graph_id"],
+                        "gcs_graph_id": negative_gcs_id,
+                        "projection_ids": [negative_projection_id],
+                    },
+                    "policies": {"negative_variant": variant},
+                    "reports": {"graph_report": negative_report, "gates": gates},
+                    "digest": _sha256_text(negative_serialization.get("serialization", "")),
+                }
+                if request["write_policy"]["keep_rejected"]:
+                    _save_candidate_artifacts(
+                        exploration_id,
+                        negative_id,
+                        {"gcs": negative_gcs_id, "projection_ids": [negative_projection_id]},
+                        negative_provenance,
+                        negative_report,
+                        negative_projection,
+                    )
+                rejected_record = {
+                    "candidate_id": negative_id,
+                    "reason_code": reason_code,
+                    "evidence_ids": [f"{negative_id}_report"],
+                    "variant": variant,
+                }
+                rejected.append(rejected_record)
+                rejected_records.append(rejected_record)
+                trace("candidate_rejected", negative_id, {"reason_code": reason_code, "variant": variant})
+        except Exception as exc:
+            rejected_record = {
+                "candidate_id": candidate_id,
+                "reason_code": "invalid_request",
+                "evidence_ids": [f"{candidate_id}_exception"],
+                "variant": "positive",
+                "message": str(exc),
+            }
+            rejected.append(rejected_record)
+            rejected_records.append(rejected_record)
+            trace("candidate_rejected", candidate_id, {"reason_code": "invalid_request", "message": str(exc)})
+
+        if stop_reason != "search_exhausted":
+            break
+    else:
+        stop_reason = "search_exhausted"
+
+    coverage = _coverage_from_records(accepted_records, rejected_records, request)
+    if accepted and rejected:
+        status = "accepted_with_rejections"
+    elif accepted:
+        status = "accepted"
+    elif rejected:
+        status = "rejected_only"
+    else:
+        status = "no_candidates_accepted"
+    result = {
+        "exploration_id": exploration_id,
+        "status": status,
+        "seed": request["seed"],
+        "stop_reason": stop_reason,
+        "summary": {
+            "attempted": attempted,
+            "accepted": len(accepted),
+            "rejected": len(rejected),
+        },
+        "coverage": coverage,
+        "accepted_candidates": accepted,
+        "rejected_candidates": rejected,
+        "trace_id": f"{exploration_id}_trace",
+    }
+    if request["write_policy"]["promote"]:
+        result["promotion_results"] = [
+            tool_promote_candidate(
+                {
+                    "exploration_id": exploration_id,
+                    "candidate_id": candidate["candidate_id"],
+                    "promotion_id": f"{candidate['candidate_id']}_promotion",
+                    "gate_profile": request["gate_profile"],
+                    "allow_unsupported_gates": request["allow_unsupported_gates"],
+                }
+            )
+            for candidate in accepted
+        ]
+    _write_json_file(os.path.join(root, "result.json"), result)
+    trace("exploration_finished", None, {"status": status, "stop_reason": stop_reason, "summary": result["summary"]})
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Command: promote_candidate
+# ---------------------------------------------------------------------------
+
+
+def _load_candidate_provenance(exploration_id: str, candidate_id: str) -> dict:
+    path = os.path.join(_candidate_root(exploration_id, candidate_id), "provenance.json")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Candidate '{candidate_id}' not found for exploration '{exploration_id}'")
+    return _read_json_file(path)
+
+
+def tool_promote_candidate(params: dict) -> dict:
+    try:
+        exploration_id = _safe_store_id(params["exploration_id"], "exploration_id")
+        candidate_id = _safe_store_id(params["candidate_id"], "candidate_id")
+        promotion_id = _safe_store_id(params.get("promotion_id", f"{candidate_id}_promotion"), "promotion_id")
+    except (KeyError, ValueError) as exc:
+        return {"status": "failed", "reason_code": "invalid_request", "error": str(exc)}
+
+    gate_profile = params.get("gate_profile", "promotion")
+    allow_unsupported = bool(params.get("allow_unsupported_gates", False))
+    copy_to_fixtures = bool(params.get("copy_to_fixtures", False))
+
+    try:
+        provenance = _load_candidate_provenance(exploration_id, candidate_id)
+        gcs_graph_id = provenance["artifacts"]["gcs_graph_id"]
+        if not os.path.exists(_store_path(gcs_graph_id)):
+            nested_gcs_path = os.path.join(_candidate_root(exploration_id, candidate_id), "gcs.json")
+            if os.path.exists(nested_gcs_path):
+                save_graph(gcs_graph_id, _read_json_file(nested_gcs_path))
+        projection_id = f"{candidate_id}_promotion_geom_primal"
+        gates, report, projection, json_serialization = _run_candidate_gates(
+            gcs_graph_id,
+            projection_id,
+            gate_profile,
+            allow_unsupported,
+        )
+        text_serialization = tool_serialize_gcs_graph({"gcs_graph_id": gcs_graph_id, "format": "custom_text_v1"})
+    except Exception as exc:
+        return {"status": "failed", "reason_code": "invalid_request", "error": str(exc)}
+
+    blocking_gate = next((gate for gate in gates if gate["status"] in {"failed", "unsupported"}), None)
+    status = "promotion_package_written" if blocking_gate is None else "promotion_blocked"
+    reason_code = None if blocking_gate is None else (blocking_gate.get("reason_code") or "promotion_gate_unsupported")
+    package = {
+        "promotion_id": promotion_id,
+        "status": status,
+        "reason_code": reason_code,
+        "source": {
+            "exploration_id": exploration_id,
+            "candidate_id": candidate_id,
+            "gcs_graph_id": gcs_graph_id,
+        },
+        "candidate_provenance": provenance,
+        "local_validation_report": report,
+        "gate_reports": gates,
+        "canonical_serialization": {
+            "json_checksum": json_serialization.get("checksum"),
+            "text_checksum": text_serialization.get("checksum"),
+            "json_digest": _sha256_text(json_serialization.get("serialization", "")),
+            "text_digest": _sha256_text(text_serialization.get("serialization", "")),
+        },
+        "fixture_metadata_proposal": {
+            "fixture_id": candidate_id,
+            "generator": "tools.scene_generation.explore_scene_space",
+            "schema": "scene-generation-promotion-v1",
+        },
+        "known_unsupported_gates": [gate["gate_id"] for gate in gates if gate["status"] == "unsupported"],
+    }
+    root = _promotion_root(promotion_id)
+    _write_json_file(os.path.join(root, "package.json"), package)
+    _write_json_file(os.path.join(root, "geometry_primal.json"), projection)
+    _write_json_file(os.path.join(root, "scene.json"), load_graph(gcs_graph_id))
+
+    copied_fixture_path = None
+    if copy_to_fixtures and status == "promotion_package_written":
+        fixture_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "fixtures", "scene", "generated"))
+        copied_fixture_path = os.path.join(fixture_dir, f"{candidate_id}.gcs.json")
+        _write_json_file(copied_fixture_path, load_graph(gcs_graph_id))
+    elif copy_to_fixtures and status != "promotion_package_written":
+        package["copy_to_fixtures_blocked"] = True
+        _write_json_file(os.path.join(root, "package.json"), package)
+
+    return {
+        "promotion_id": promotion_id,
+        "status": status,
+        "reason_code": reason_code,
+        "package_id": promotion_id,
+        "copied_fixture_path": copied_fixture_path,
+        "known_unsupported_gates": package["known_unsupported_gates"],
+    }
+
+
 TOOLS = {
     "generate_skeleton_graph": tool_generate_skeleton_graph,
     "lift_skeleton_to_gcs": tool_lift_skeleton_to_gcs,
@@ -1221,6 +2103,8 @@ TOOLS = {
     "repair_gcs_graph": tool_repair_gcs_graph,
     "serialize_gcs_graph": tool_serialize_gcs_graph,
     "generate_graph_report": tool_generate_graph_report,
+    "explore_scene_space": tool_explore_scene_space,
+    "promote_candidate": tool_promote_candidate,
 }
 
 
@@ -1377,6 +2261,8 @@ def main() -> None:
   python tools.py lift_skeleton_to_gcs --input '{"skeleton_graph_id":"demo_skel","gcs_graph_id":"demo_gcs","seed":43}'
   python tools.py assign_geometry_parameters --input '{"gcs_graph_id":"demo_gcs","seed":44}'
   python tools.py validate_gcs_schema --input '{"gcs_graph_id":"demo_gcs"}'
+  python tools.py explore_scene_space --input '{"exploration_id":"demo_explore","seed":45}'
+  python tools.py promote_candidate --input '{"exploration_id":"demo_explore","candidate_id":"demo_explore_c0000","gate_profile":"local_only"}'
 """,
     )
     parser.add_argument("command", choices=all_commands)

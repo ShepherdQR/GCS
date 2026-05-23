@@ -7,9 +7,12 @@ source is:
 docs/architecture/scene-generation-tools.md
 ```
 
-The current implementation is a useful compatibility command set and prototype
-algorithm library. It is not yet the full scene auto explorer described in the
-architecture document.
+The current implementation includes the compatibility command set plus a
+complete local v1 scene auto explorer. The explorer is complete for local
+generation, coverage, local validation, negative evidence, deterministic trace,
+and promotion-package creation. Public IO/kernel/runtime/viewer gate adapters
+are represented as explicit `unsupported` or `skipped` gate reports until those
+module-specific adapters are wired in.
 
 ## Compatibility Flow
 
@@ -60,11 +63,53 @@ Supported commands:
 - `repair_gcs_graph`
 - `serialize_gcs_graph`
 - `generate_graph_report`
+- `explore_scene_space`
+- `promote_candidate`
 - `list`
 - `delete`
 
 Outputs are JSON. Scratch artifacts are written to
 `tools/scene_generation/.store`.
+
+`GCS_SCENE_GENERATION_STORE_DIR` can point commands and tests at an alternate
+scratch store.
+
+## Auto Explorer
+
+`explore_scene_space` accepts a structured request with:
+
+- `exploration_id`;
+- deterministic `seed`;
+- `budget.max_candidates`, `budget.max_accepts`, and optional
+  `budget.max_seconds`;
+- topology, GCS, and parameter policies;
+- explicit `coverage_goals`;
+- `gate_profile`: `local_only`, `local_plus_public_smoke`, or `promotion`;
+- `write_policy.keep_rejected`.
+
+The command writes:
+
+```text
+.store/
+  explorations/<exploration_id>/
+    request.json
+    result.json
+    trace.jsonl
+    candidates/<candidate>/
+      provenance.json
+      gcs.json
+      geometry_primal.json
+      report.json
+```
+
+Accepted candidates must pass local schema validation and geometry-primal
+biconnectivity. Negative candidates are retained when requested by coverage
+goals, including invalid constraint signatures and same-rigid-set constraints.
+
+`promote_candidate` reloads an accepted candidate and writes a promotion package
+under `.store/promotions/<promotion_id>/`. The default `promotion` gate profile
+blocks on currently unsupported public gates. Use `gate_profile: "local_only"`
+for a local-only promotion package.
 
 ## Reusable Implementation Pieces
 
@@ -81,20 +126,21 @@ Keep these pieces when rewriting the explorer structure:
 - parameter assignment for non-degenerate point, line, and plane data;
 - canonical JSON and custom text serialization.
 
-## Missing Explorer Pieces
+## Implemented Explorer Pieces
 
-The rewrite needs to add:
+The v1 explorer now provides:
 
 - `explore_scene_space` command;
 - structured exploration request/result schemas;
-- candidate provenance bundles;
-- coverage goals and novelty scoring;
-- explicit budgets and deterministic stop reasons;
+- stable candidate IDs and provenance bundles;
+- coverage goals and deterministic scoring;
+- explicit budgets and stop reasons;
 - rejected-candidate evidence;
-- exploration trace and replay;
-- public validation gate adapters;
-- promotion packages separate from scratch generation;
-- deterministic tests for command compatibility and explorer behavior.
+- deterministic `trace.jsonl`;
+- local validation gates and explicit unsupported public gates;
+- `promote_candidate` package generation separate from fixture copying;
+- Python unittest coverage for determinism, negative evidence, and promotion
+  gate behavior.
 
 ## Rewrite Direction
 
@@ -114,6 +160,15 @@ tools/scene_generation/
     explorer.py
 ```
 
-The first rewrite should preserve command compatibility while moving logic out
-of the monolithic `tools.py`. Do not move generation or repair policy into the
-solver, GUI, or scene IO modules.
+The current v1 keeps command compatibility inside `tools.py`. A future cleanup
+may move the helpers into the package split above once the public gate adapters
+are ready. Do not move generation or repair policy into the solver, GUI, or
+scene IO modules.
+
+## Tests
+
+Run the local explorer tests with:
+
+```bat
+python -m unittest tests.tools.test_scene_generation_explorer
+```
