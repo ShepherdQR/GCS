@@ -79,6 +79,19 @@ if(GCS_BUILD_TESTS)
 
             include(GoogleTest)
             gtest_discover_tests(gcs_contract_tests)
+
+            add_executable(gcs_kernel_contract_tests
+                tests/contracts/kernel/kernel_contract_tests.cpp
+            )
+            target_link_libraries(gcs_kernel_contract_tests
+                PRIVATE
+                    gcs_solver
+                    GTest::gtest_main
+            )
+            target_compile_features(gcs_kernel_contract_tests PRIVATE cxx_std_23)
+            gtest_discover_tests(gcs_kernel_contract_tests
+                PROPERTIES LABELS "contract;kernel"
+            )
         else()
             message(STATUS "GTest not found; skipping gcs_contract_tests. Set GCS_FETCH_GTEST=ON to fetch it.")
         endif()
