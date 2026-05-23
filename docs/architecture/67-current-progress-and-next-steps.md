@@ -20,6 +20,8 @@ Completed algorithm-deepening steps:
   typed fixture expectations and cross-module evidence checks.
 - Step 18: promoted contract, dependency, fixture, scene, and CLI checks into
   a single CI-ready quality gate command.
+- Step 19: connected scene auto explorer promotion packages to public IO,
+  kernel, runtime, diagnostics, and viewer gate adapters.
 
 Current validation baseline:
 
@@ -69,9 +71,22 @@ Delivered:
 - Document the gate contract in
   `docs/architecture/69-ci-ready-quality-gates.md`.
 
-## Next Step 19
+## Completed Step 19
 
-The next practical step is to replace scene-generation promotion gate
-placeholders with public adapters for IO round-trip, kernel validation, runtime
-smoke, diagnostics evidence, and viewer projection. That connects the new
-scene auto explorer to the same quality surface as the C++23 solver contracts.
+Step 19 replaces scene-generation promotion placeholders with public adapters.
+
+Delivered:
+
+- Convert generated candidates into public `gcs-0.3` scene artifacts.
+- Add promotion gates for scene IO round trip, kernel-shape validation,
+  runtime smoke, diagnostics evidence, and viewer projection.
+- Let tests and CI inject `public_gate_config.solver_command`, while local use
+  defaults to `GCS_EXE` or `out/build/clang-ninja/GCS.exe`.
+- Write `public_scene.gcs.json` into promotion packages.
+- Extend scene-generation tests with fake-solver public promotion coverage.
+
+## Next Step 20
+
+The next step is to split the monolithic scene-generation tool into a small
+package structure once the public gate adapters are stable: contracts,
+storage, topology, lifting, validation, promotion, and CLI facade.

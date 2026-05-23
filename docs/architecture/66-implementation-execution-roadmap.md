@@ -161,6 +161,8 @@ Status legend: `done`, `in_progress`, `pending`.
 17. `done` - expand reusable fixture corpus and golden report digests.
 18. `done` - promote contract, dependency, fixture, scene, and CLI checks into
     CI-ready quality gates.
+19. `done` - connect scene auto explorer promotion packages to public IO,
+    kernel, runtime, diagnostics, and viewer gate adapters.
 
 ## Constraint Catalog Milestone
 
@@ -673,6 +675,34 @@ Implemented scope for Step 18:
   `--continue-on-failure` for CI diagnostics.
 - Split-job and debug usage can skip agentic, Python, build, CTest, or CLI
   gates explicitly, while the default remains the merge-quality path.
+
+## Scene Promotion Public Gate Step Plan
+
+Implemented commit-level scope:
+
+- Convert generated GCS candidate graphs into public `gcs-0.3` scene JSON
+  artifacts during promotion.
+- Replace unsupported promotion placeholders with concrete gate records for
+  scene IO round trip, kernel-shape validation, runtime smoke,
+  diagnostics-output evidence, and viewer projection.
+- Allow tests and CI to inject `public_gate_config.solver_command` while local
+  use defaults to `GCS_EXE` or `out/build/clang-ninja/GCS.exe`.
+- Write `public_scene.gcs.json` into promotion packages and copy that public
+  scene into fixtures when fixture promotion is requested.
+- Extend scene-generation tests with deterministic fake-solver promotion
+  checks so public adapter behavior remains covered without requiring a local
+  C++ build inside the Python unit test.
+
+## Scene Promotion Public Gate Milestone
+
+Implemented scope for Step 19:
+
+- `promote_candidate` can now produce promotion packages with all public gates
+  passing when a solver command is available.
+- Missing solver commands are explicit runtime/diagnostic gate evidence instead
+  of generic unsupported placeholders.
+- Promotion packages now carry both the generator-native `scene.json` and the
+  solver-facing `public_scene.gcs.json`.
 
 ## Damped Numeric Local Solve Step Plan
 

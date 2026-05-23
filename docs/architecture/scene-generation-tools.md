@@ -55,11 +55,23 @@ Original observed limits:
 - There were no tests around the Python generator itself. The v1 explorer has
   unittest coverage for determinism, negative evidence, and promotion gates.
 
+Implemented public adapter gates:
+
+- `scene_io_round_trip` writes a public `gcs-0.3` scene and verifies canonical
+  JSON replay inside the promotion package.
+- `kernel_validation` checks stable entity, constraint, rigid-set, and
+  parameter-vector shape before promotion.
+- `runtime_smoke` runs the configured solver command against the public scene.
+- `diagnostics_evidence` verifies runtime output carries status and diagnostic
+  stage evidence.
+- `viewer_projection` binds the promotion package to the geometry-primal
+  projection artifact.
+
 Remaining limits:
 
-- Public IO, kernel, runtime, diagnostics, and viewer gate adapters are still
-  explicit `unsupported` or `skipped` gate reports. They block default
-  `promotion` packages unless `allow_unsupported_gates` is set.
+- The runtime and diagnostics public gates require a local solver command.
+  Without `GCS_EXE` or `public_gate_config.solver_command`, promotion remains
+  blocked by explicit runtime/diagnostic gate evidence.
 - The implementation is still physically monolithic in `tools.py`; a later
   cleanup may split it into package modules after the public gate adapters are
   ready.

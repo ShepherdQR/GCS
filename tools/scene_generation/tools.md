@@ -108,8 +108,18 @@ goals, including invalid constraint signatures and same-rigid-set constraints.
 
 `promote_candidate` reloads an accepted candidate and writes a promotion package
 under `.store/promotions/<promotion_id>/`. The default `promotion` gate profile
-blocks on currently unsupported public gates. Use `gate_profile: "local_only"`
-for a local-only promotion package.
+now converts the generator graph into a public `gcs-0.3` scene and runs public
+adapter gates:
+
+- scene JSON round trip;
+- kernel-shape validation over the public scene;
+- runtime smoke through `GCS.exe` or `public_gate_config.solver_command`;
+- diagnostics evidence from runtime output;
+- viewer projection evidence from the generated geometry-primal projection.
+
+Set `GCS_EXE` or pass `public_gate_config.solver_command` when the default
+`out/build/clang-ninja/GCS.exe` is not available. Use
+`gate_profile: "local_only"` for a local-only promotion package.
 
 ## Reusable Implementation Pieces
 

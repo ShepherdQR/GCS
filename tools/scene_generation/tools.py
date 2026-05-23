@@ -17,14 +17,24 @@ import json
 import math
 import os
 import random
+import shutil
+import subprocess
 import sys
 import time
 from collections import Counter, defaultdict
 
 
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 STORE_DIR = os.environ.get(
     "GCS_SCENE_GENERATION_STORE_DIR",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), ".store"),
+)
+DEFAULT_GCS_EXE = os.path.join(
+    REPO_ROOT,
+    "out",
+    "build",
+    "clang-ninja",
+    "GCS.exe" if os.name == "nt" else "GCS",
 )
 
 GEOMETRY_TYPES = ("Point", "Line", "Plane")
@@ -65,6 +75,7 @@ FAILURE_REASON_CODES = {
     "io_round_trip_failed",
     "kernel_validation_failed",
     "runtime_smoke_failed",
+    "diagnostics_evidence_failed",
     "viewer_projection_failed",
     "promotion_gate_unsupported",
     "no_coverage_gain",
@@ -1372,6 +1383,7 @@ def _default_exploration_request(params: dict) -> dict:
             ],
         ),
         "gate_profile": params.get("gate_profile", "local_only"),
+        "public_gate_config": params.get("public_gate_config", {}),
         "write_policy": {
             "store": write_policy.get("store", "scratch"),
             "keep_rejected": bool(write_policy.get("keep_rejected", True)),
@@ -1449,7 +1461,251 @@ def _make_gate(gate_id: str, status: str, reason_code: str | None = None, eviden
     }
 
 
-def _run_candidate_gates(gcs_graph_id: str, projection_id: str, gate_profile: str, allow_unsupported: bool = False) -> tuple[list[dict], dict, dict, dict]:
+def _canonical_public_scene_text(scene: dict) -> str:
+    return json.dumps(scene, indent=2, sort_keys=True) + "\n"
+
+
+def _public_scene_root() -> str:
+    return os.path.join(STORE_DIR, "public_scenes")
+
+
+def _public_scene_path(public_scene_id: str) -> str:
+    return os.path.join(_public_scene_root(), f"{_safe_store_id(public_scene_id, 'public_scene_id')}.gcs.json")
+
+
+def _solver_scene_from_gcs(gcs: dict) -> dict:
+    rigid_set_ids = sorted({int(rs["id"]) for rs in gcs.get("rigid_sets", [])})
+    scene = {
+        "format_version": "gcs-0.3",
+        "state_version": 0,
+        "rigid_sets": [{"id": rigid_set_id} for rigid_set_id in rigid_set_ids],
+        "geometries": [],
+        "constraints": [],
+    }
+    for geometry in sorted(gcs.get("geometries", []), key=lambda item: int(item["id"])):
+        values = list(geometry.get("v", []))
+        values = (values + [0.0] * 6)[:6]
+        scene["geometries"].append(
+            {
+                "id": int(geometry["id"]),
+                "type": GEOMETRY_TYPE_MAP[geometry["type"]],
+                "rigid_set_id": int(geometry.get("rigid_set_id", 0)),
+                "v": [float(value) for value in values],
+            }
+        )
+    for constraint in sorted(gcs.get("constraints", []), key=lambda item: int(item["id"])):
+        scene["constraints"].append(
+            {
+                "id": int(constraint["id"]),
+                "type": CONSTRAINT_TYPE_MAP[constraint["type"]],
+                "geometry_ids": [int(gid) for gid in constraint.get("geometry_ids", [])],
+                "value": float(constraint.get("value", 0.0)),
+            }
+        )
+    return scene
+
+
+def _write_public_scene(gcs_graph_id: str) -> dict:
+    gcs = load_graph(gcs_graph_id)
+    scene = _solver_scene_from_gcs(gcs)
+    public_scene_id = f"{gcs_graph_id}_public_scene"
+    scene_path = _public_scene_path(public_scene_id)
+    _write_json_file(scene_path, scene)
+    canonical = _canonical_public_scene_text(scene)
+    return {
+        "public_scene_id": public_scene_id,
+        "path": scene_path,
+        "scene": scene,
+        "digest": _sha256_text(canonical),
+        "entity_count": len(scene["geometries"]),
+        "constraint_count": len(scene["constraints"]),
+    }
+
+
+def _validate_public_scene_kernel(scene: dict) -> tuple[bool, list[dict]]:
+    issues = []
+    rigid_set_ids = {item.get("id") for item in scene.get("rigid_sets", [])}
+    geometry_ids = set()
+    for geometry in scene.get("geometries", []):
+        geometry_id = geometry.get("id")
+        if geometry_id in geometry_ids:
+            issues.append({"code": "kernel.duplicate_entity", "entity_id": geometry_id})
+        geometry_ids.add(geometry_id)
+        if geometry.get("type") not in set(GEOMETRY_TYPE_MAP.values()):
+            issues.append({"code": "kernel.invalid_geometry_kind", "entity_id": geometry_id})
+        if geometry.get("rigid_set_id") not in rigid_set_ids:
+            issues.append({"code": "kernel.missing_rigid_set", "entity_id": geometry_id})
+        values = geometry.get("v", [])
+        if len(values) != 6 or not all(isinstance(value, (int, float)) for value in values):
+            issues.append({"code": "kernel.invalid_parameter_vector", "entity_id": geometry_id})
+
+    constraint_ids = set()
+    for constraint in scene.get("constraints", []):
+        constraint_id = constraint.get("id")
+        if constraint_id in constraint_ids:
+            issues.append({"code": "kernel.duplicate_constraint", "constraint_id": constraint_id})
+        constraint_ids.add(constraint_id)
+        if constraint.get("type") not in set(CONSTRAINT_TYPE_MAP.values()):
+            issues.append({"code": "kernel.invalid_constraint_kind", "constraint_id": constraint_id})
+        for geometry_id in constraint.get("geometry_ids", []):
+            if geometry_id not in geometry_ids:
+                issues.append(
+                    {
+                        "code": "kernel.missing_entity",
+                        "constraint_id": constraint_id,
+                        "entity_id": geometry_id,
+                    }
+                )
+        if not isinstance(constraint.get("value", 0.0), (int, float)):
+            issues.append({"code": "kernel.invalid_constraint_value", "constraint_id": constraint_id})
+    return not issues, issues
+
+
+def _normalize_solver_command(public_gate_config: dict | None) -> list[str]:
+    config = public_gate_config or {}
+    command = config.get("solver_command")
+    if isinstance(command, list) and command:
+        return [str(part) for part in command]
+    if isinstance(command, str) and command:
+        return [command]
+    executable = config.get("gcs_exe") or os.environ.get("GCS_EXE") or DEFAULT_GCS_EXE
+    return [str(executable)]
+
+
+def _command_available(command: list[str]) -> bool:
+    if not command:
+        return False
+    executable = command[0]
+    if os.path.isabs(executable) or os.path.sep in executable:
+        return os.path.exists(executable)
+    return shutil.which(executable) is not None
+
+
+def _trim_lines(text: str, limit: int = 40) -> list[str]:
+    lines = text.splitlines()
+    return lines[:limit]
+
+
+def _run_solver_smoke(scene_path: str, public_gate_config: dict | None) -> dict:
+    command = _normalize_solver_command(public_gate_config)
+    if not _command_available(command):
+        return {
+            "available": False,
+            "command": command,
+            "exit_code": None,
+            "stdout_lines": [],
+            "stderr_lines": [f"Solver command is not available: {command[0]}"],
+        }
+    timeout_seconds = float((public_gate_config or {}).get("timeout_seconds", 20.0))
+    started = time.monotonic()
+    completed = subprocess.run(
+        [*command, scene_path],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=timeout_seconds,
+    )
+    return {
+        "available": True,
+        "command": command,
+        "exit_code": completed.returncode,
+        "duration_ms": int((time.monotonic() - started) * 1000),
+        "stdout_lines": _trim_lines(completed.stdout),
+        "stderr_lines": _trim_lines(completed.stderr),
+    }
+
+
+def _runtime_public_gates(smoke: dict, unavailable_status: str) -> list[dict]:
+    if not smoke.get("available"):
+        evidence = {
+            "command": smoke.get("command", []),
+            "stderr_lines": smoke.get("stderr_lines", []),
+            "message": "Set GCS_EXE or public_gate_config.solver_command to enable CLI public gates.",
+        }
+        return [
+            _make_gate("runtime_smoke", unavailable_status, "runtime_smoke_failed", evidence),
+            _make_gate("diagnostics_evidence", unavailable_status, "diagnostics_evidence_failed", evidence),
+        ]
+
+    runtime_passed = smoke.get("exit_code") == 0
+    output = "\n".join(smoke.get("stdout_lines", []) + smoke.get("stderr_lines", []))
+    diagnostics_passed = runtime_passed and "diagnostics" in output and "Status:" in output
+    return [
+        _make_gate(
+            "runtime_smoke",
+            "passed" if runtime_passed else "failed",
+            None if runtime_passed else "runtime_smoke_failed",
+            smoke,
+        ),
+        _make_gate(
+            "diagnostics_evidence",
+            "passed" if diagnostics_passed else "failed",
+            None if diagnostics_passed else "diagnostics_evidence_failed",
+            {
+                "status_line_present": "Status:" in output,
+                "diagnostics_line_present": "diagnostics" in output,
+                "stdout_lines": smoke.get("stdout_lines", []),
+                "stderr_lines": smoke.get("stderr_lines", []),
+            },
+        ),
+    ]
+
+
+def _public_adapter_gates(gcs_graph_id: str,
+                          projection: dict,
+                          gate_profile: str,
+                          allow_unsupported: bool,
+                          public_gate_config: dict | None) -> list[dict]:
+    public_scene = _write_public_scene(gcs_graph_id)
+    scene_text = _canonical_public_scene_text(public_scene["scene"])
+    round_trip = json.loads(scene_text)
+    round_trip_digest = _sha256_text(_canonical_public_scene_text(round_trip))
+    kernel_valid, kernel_issues = _validate_public_scene_kernel(round_trip)
+    unavailable_status = "skipped" if gate_profile == "local_plus_public_smoke" or allow_unsupported else "unsupported"
+    smoke = _run_solver_smoke(public_scene["path"], public_gate_config)
+
+    gates = [
+        _make_gate(
+            "scene_io_round_trip",
+            "passed" if round_trip_digest == public_scene["digest"] else "failed",
+            None if round_trip_digest == public_scene["digest"] else "io_round_trip_failed",
+            {
+                "public_scene_id": public_scene["public_scene_id"],
+                "path": public_scene["path"],
+                "digest": public_scene["digest"],
+                "round_trip_digest": round_trip_digest,
+                "entity_count": public_scene["entity_count"],
+                "constraint_count": public_scene["constraint_count"],
+            },
+            [public_scene["public_scene_id"]],
+        ),
+        _make_gate(
+            "kernel_validation",
+            "passed" if kernel_valid else "failed",
+            None if kernel_valid else "kernel_validation_failed",
+            {"issues": kernel_issues},
+            [public_scene["public_scene_id"]],
+        ),
+        _make_gate(
+            "viewer_projection",
+            "passed" if "error" not in projection else "failed",
+            None if "error" not in projection else "viewer_projection_failed",
+            {
+                "num_vertices": len(projection.get("vertices", [])),
+                "num_edges": len(projection.get("edges", [])),
+            },
+            [projection.get("graph_id") or projection.get("projected_graph_id") or "geometry_primal"],
+        ),
+    ]
+    gates.extend(_runtime_public_gates(smoke, unavailable_status))
+    return gates
+
+
+def _run_candidate_gates(gcs_graph_id: str,
+                         projection_id: str,
+                         gate_profile: str,
+                         allow_unsupported: bool = False,
+                         public_gate_config: dict | None = None) -> tuple[list[dict], dict, dict, dict]:
     validation = tool_validate_gcs_schema({"gcs_graph_id": gcs_graph_id})
     projection = tool_project_gcs_graph(
         {
@@ -1497,22 +1753,15 @@ def _run_candidate_gates(gcs_graph_id: str, projection_id: str, gate_profile: st
     ]
 
     if gate_profile in {"local_plus_public_smoke", "promotion"}:
-        unsupported_status = "skipped" if gate_profile == "local_plus_public_smoke" or allow_unsupported else "unsupported"
-        for gate_id, reason_code in [
-            ("scene_io_round_trip", "io_round_trip_failed"),
-            ("kernel_validation", "kernel_validation_failed"),
-            ("runtime_smoke", "runtime_smoke_failed"),
-            ("viewer_projection", "viewer_projection_failed"),
-        ]:
-            gates.append(
-                _make_gate(
-                    gate_id,
-                    unsupported_status,
-                    "promotion_gate_unsupported" if unsupported_status == "unsupported" else reason_code,
-                    {"message": "Public gate adapter is not implemented in scene_generation yet."},
-                    [gcs_graph_id],
-                )
+        gates.extend(
+            _public_adapter_gates(
+                gcs_graph_id,
+                projection,
+                gate_profile,
+                allow_unsupported,
+                public_gate_config,
             )
+        )
     return gates, report, projection, serialization
 
 
@@ -1738,6 +1987,7 @@ def _build_positive_candidate(request: dict, candidate_index: int, combo: dict) 
         projection_id,
         request["gate_profile"],
         request["allow_unsupported_gates"],
+        request.get("public_gate_config", {}),
     )
     gcs = load_graph(gcs_id)
     artifacts = {
@@ -1905,6 +2155,7 @@ def tool_explore_scene_space(params: dict) -> dict:
                     negative_projection_id,
                     request["gate_profile"],
                     request["allow_unsupported_gates"],
+                    request.get("public_gate_config", {}),
                 )
                 reason_code = _candidate_failure_reason(gates)
                 negative_provenance = {
@@ -1990,6 +2241,7 @@ def tool_explore_scene_space(params: dict) -> dict:
                     "promotion_id": f"{candidate['candidate_id']}_promotion",
                     "gate_profile": request["gate_profile"],
                     "allow_unsupported_gates": request["allow_unsupported_gates"],
+                    "public_gate_config": request.get("public_gate_config", {}),
                 }
             )
             for candidate in accepted
@@ -2022,6 +2274,11 @@ def tool_promote_candidate(params: dict) -> dict:
     gate_profile = params.get("gate_profile", "promotion")
     allow_unsupported = bool(params.get("allow_unsupported_gates", False))
     copy_to_fixtures = bool(params.get("copy_to_fixtures", False))
+    public_gate_config = dict(params.get("public_gate_config", {}))
+    if "gcs_exe" in params:
+        public_gate_config["gcs_exe"] = params["gcs_exe"]
+    if "solver_command" in params:
+        public_gate_config["solver_command"] = params["solver_command"]
 
     try:
         provenance = _load_candidate_provenance(exploration_id, candidate_id)
@@ -2036,8 +2293,10 @@ def tool_promote_candidate(params: dict) -> dict:
             projection_id,
             gate_profile,
             allow_unsupported,
+            public_gate_config,
         )
         text_serialization = tool_serialize_gcs_graph({"gcs_graph_id": gcs_graph_id, "format": "custom_text_v1"})
+        public_scene = _solver_scene_from_gcs(load_graph(gcs_graph_id))
     except Exception as exc:
         return {"status": "failed", "reason_code": "invalid_request", "error": str(exc)}
 
@@ -2061,6 +2320,7 @@ def tool_promote_candidate(params: dict) -> dict:
             "text_checksum": text_serialization.get("checksum"),
             "json_digest": _sha256_text(json_serialization.get("serialization", "")),
             "text_digest": _sha256_text(text_serialization.get("serialization", "")),
+            "public_scene_digest": _sha256_text(_canonical_public_scene_text(public_scene)),
         },
         "fixture_metadata_proposal": {
             "fixture_id": candidate_id,
@@ -2073,12 +2333,13 @@ def tool_promote_candidate(params: dict) -> dict:
     _write_json_file(os.path.join(root, "package.json"), package)
     _write_json_file(os.path.join(root, "geometry_primal.json"), projection)
     _write_json_file(os.path.join(root, "scene.json"), load_graph(gcs_graph_id))
+    _write_json_file(os.path.join(root, "public_scene.gcs.json"), public_scene)
 
     copied_fixture_path = None
     if copy_to_fixtures and status == "promotion_package_written":
         fixture_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "fixtures", "scene", "generated"))
         copied_fixture_path = os.path.join(fixture_dir, f"{candidate_id}.gcs.json")
-        _write_json_file(copied_fixture_path, load_graph(gcs_graph_id))
+        _write_json_file(copied_fixture_path, public_scene)
     elif copy_to_fixtures and status != "promotion_package_written":
         package["copy_to_fixtures_blocked"] = True
         _write_json_file(os.path.join(root, "package.json"), package)
