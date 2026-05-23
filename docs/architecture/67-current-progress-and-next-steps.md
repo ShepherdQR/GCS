@@ -187,14 +187,30 @@ Delivered:
 - Extend unittest coverage with direct package-boundary checks for explorer
   request/coverage contracts and promotion blocking contracts.
 
-## Next Step 26
+## Completed Step 26
 
-The next step is store adapter containment: reduce remaining direct `.store`
-path knowledge in `tools.py` and package helpers while preserving flat command
-compatibility.
+Step 26 contained store/path policy behind `SceneGenerationStore`.
+
+Delivered:
+
+- Add `gcs_scene_generation.storage.SceneGenerationStore` for scratch-store
+  path policy, graph IO, safe IDs, JSON IO, exploration roots, candidate
+  roots, promotion roots, trace append, and digest helpers.
+- Route `tools.py` compatibility storage wrappers through the adapter.
+- Route explorer services and promotion-package helpers through the adapter
+  instead of raw store-path threading.
+- Extend focused unittest coverage for adapter save/load/list plus exploration
+  and promotion root contracts.
+
+## Next Step 27
+
+The next step is promotion gate hardening: prefer direct IO/kernel/runtime/
+diagnostics/viewer adapters over executable smoke parsing where those public
+APIs are available, while keeping explicit skipped/unsupported/failed gate
+semantics.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 25 through
 29 were registered there and in the implementation roadmap. After Step 25, the
-remaining steps were reconsidered; Steps 26 through 29 remain registered, with
-Step 26 still the next highest-leverage move.
+remaining steps were reconsidered; Steps 27 through 29 remain registered, with
+Step 27 now the next highest-leverage move.

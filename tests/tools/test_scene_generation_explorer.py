@@ -116,6 +116,14 @@ class SceneGenerationExplorerTests(unittest.TestCase):
         self.assertEqual(topology.unique_edges([[2, 1], [1, 2], [2, 2]]), [[1, 2]])
         gcs_model.rebuild_rigid_sets({"geometries": [], "rigid_sets": []}, 0)
 
+        with tempfile.TemporaryDirectory() as tmp:
+            store = storage.SceneGenerationStore(str(Path(tmp)))
+            store.save_graph("adapter_graph", {"graph_id": "adapter_graph"})
+            self.assertEqual(store.load_graph("adapter_graph")["graph_id"], "adapter_graph")
+            self.assertEqual(store.list_graphs(), [{"id": "adapter_graph", "type": "skeleton"}])
+            self.assertTrue(store.exploration_root("explore_a").endswith(str(Path("explorations") / "explore_a")))
+            self.assertTrue(store.promotion_root("promo_a").endswith(str(Path("promotions") / "promo_a")))
+
     def test_validation_and_projection_modules_report_structured_contracts(self):
         gcs = {
             "rigid_sets": [{"id": 0, "geometry_ids": [1]}, {"id": 1, "geometry_ids": [2]}],

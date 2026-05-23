@@ -5,6 +5,56 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class SceneGenerationStore:
+    """Store adapter carrying deterministic path, IO, trace, and digest policy."""
+
+    store_dir: str
+
+    def store_path(self, graph_id: str) -> str:
+        return store_path(self.store_dir, graph_id)
+
+    def save_graph(self, graph_id: str, data: dict) -> None:
+        save_graph(self.store_dir, graph_id, data)
+
+    def load_graph(self, graph_id: str) -> dict:
+        return load_graph(self.store_dir, graph_id)
+
+    def list_graphs(self) -> list[dict]:
+        return list_graphs(self.store_dir)
+
+    def delete_graph(self, graph_id: str) -> dict:
+        return delete_graph(self.store_dir, graph_id)
+
+    def safe_store_id(self, value: str, field_name: str = "id") -> str:
+        return safe_store_id(value, field_name)
+
+    def write_json_file(self, path: str, data: dict | list) -> None:
+        write_json_file(path, data)
+
+    def read_json_file(self, path: str) -> dict:
+        return read_json_file(path)
+
+    def exploration_root(self, exploration_id: str) -> str:
+        return exploration_root(self.store_dir, exploration_id)
+
+    def promotion_root(self, promotion_id: str) -> str:
+        return promotion_root(self.store_dir, promotion_id)
+
+    def candidate_slot(self, candidate_id: str) -> str:
+        return candidate_slot(candidate_id)
+
+    def candidate_root(self, exploration_id: str, candidate_id: str) -> str:
+        return candidate_root(self.store_dir, exploration_id, candidate_id)
+
+    def append_trace(self, trace_path: str, event: dict) -> None:
+        append_trace(trace_path, event)
+
+    def sha256_text(self, text: str) -> str:
+        return sha256_text(text)
 
 
 def safe_store_id(value: str, field_name: str = "id") -> str:
@@ -107,4 +157,3 @@ def append_trace(trace_path: str, event: dict) -> None:
 
 def sha256_text(text: str) -> str:
     return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
-

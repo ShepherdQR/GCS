@@ -152,6 +152,9 @@ Set `GCS_EXE` or pass `public_gate_config.solver_command` when the default
 Keep these pieces when rewriting the explorer structure:
 
 - deterministic JSON save/load helpers;
+- `SceneGenerationStore` adapter for scratch-store path policy, graph IO,
+  exploration roots, promotion roots, candidate roots, trace append, and
+  digests;
 - edge canonicalization and sorted graph traversal in
   `gcs_scene_generation.topology`;
 - connected-component and Tarjan biconnectivity checks in
@@ -204,7 +207,7 @@ tools/scene_generation/
   tools.py              # CLI facade and compatibility commands
   gcs_scene_generation/
     contracts.py        # implemented
-    storage.py          # implemented
+    storage.py          # implemented, includes SceneGenerationStore
     promotion.py        # implemented
     topology.py         # implemented
     gcs_model.py        # implemented
@@ -221,9 +224,11 @@ The current v1 keeps command compatibility inside `tools.py`. Step 20 moved
 contracts/storage/promotion helpers, Step 21 moved topology plus GCS model
 helpers, Step 22 moved validation plus projection helpers, Step 23 moved
 parameterization plus reporting helpers, Step 24 moved repair policy, and
-Step 25 moved explorer plus promotion-package orchestration. Store adapter
-containment remains the next structural split. Do not move generation policy
-into the solver, GUI, or scene IO modules.
+Step 25 moved explorer plus promotion-package orchestration. Step 26 contained
+scratch-store path and IO policy behind `SceneGenerationStore`; public command
+compatibility still flows through `tools.py`. Promotion gate hardening remains
+the next structural split. Do not move generation policy into the solver, GUI,
+or scene IO modules.
 
 ## Tests
 

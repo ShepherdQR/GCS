@@ -871,6 +871,31 @@ Reassessment after Step 25:
 - Steps 28 and 29 remain registered after Step 26 and Step 27 unless the store
   adapter work exposes a higher-priority solver or atlas gap.
 
+## Scene Generation Store Adapter Milestone
+
+Implemented scope for Step 26:
+
+- `gcs_scene_generation.storage.SceneGenerationStore` now owns scratch-store
+  path policy, graph IO, safe IDs, JSON IO, exploration roots, candidate roots,
+  promotion roots, trace append, and digest helpers.
+- `tools.py` compatibility storage functions now route through the adapter
+  while preserving the mutable `STORE_DIR` binding required by existing tests
+  and manual scripts.
+- `gcs_scene_generation.explorer` and
+  `gcs_scene_generation.promotion_package` now consume the adapter instead of
+  raw store paths at their orchestration seams.
+- Focused unittest coverage now checks adapter save/load/list behavior and
+  stable exploration/promotion root contracts.
+
+Reassessment after Step 26:
+
+- Step 27 is now promotion gate hardening because executable smoke output is
+  still the weakest public evidence boundary.
+- Step 28 remains solver algorithm deepening after gate hardening so promoted
+  fixtures and adapter evidence can support stronger algorithm work.
+- Step 29 remains architecture atlas synchronization after the implementation
+  boundaries stabilize, unless Step 27 changes the viewer-facing map earlier.
+
 ## Damped Numeric Local Solve Step Plan
 
 Implemented commit-level scope:

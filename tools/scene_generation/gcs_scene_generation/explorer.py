@@ -13,19 +13,12 @@ from typing import Callable
 from . import gcs_model
 from .contracts import CONSTRAINT_TYPES, FAILURE_REASON_CODES, GEOMETRY_TYPES, is_valid_constraint_signature
 from .promotion_package import make_gate
-from .storage import (
-    append_trace,
-    candidate_root,
-    exploration_root,
-    safe_store_id,
-    sha256_text,
-    write_json_file,
-)
+from .storage import SceneGenerationStore, safe_store_id, sha256_text
 
 
 @dataclass(frozen=True)
 class ExplorerServices:
-    store_dir: str
+    store: SceneGenerationStore
     generate_skeleton_graph: Callable[[dict], dict]
     lift_skeleton_to_gcs: Callable[[dict], dict]
     assign_geometry_parameters: Callable[[dict], dict]
@@ -374,10 +367,10 @@ def save_candidate_artifacts(
     report: dict,
     projection: dict,
 ) -> None:
-    root = candidate_root(services.store_dir, exploration_id, candidate_id)
-    write_json_file(os.path.join(root, "provenance.json"), provenance)
-    write_json_file(os.path.join(root, "report.json"), report)
-    write_json_file(os.path.join(root, "geometry_primal.json"), projection)
+    root = services.store.candidate_root(exploration_id, candidate_id)
+    services.store.write_json_file(os.path.join(root, "provenance.json"), provenance)
+    services.store.write_json_file(os.path.join(root, "report.json"), report)
+    services.store.write_json_file(os.path.join(root, "geometry_primal.json"), projection)
     role_names = {
         "skeleton_graph_id": "skeleton",
         "gcs_graph_id": "gcs",
@@ -391,7 +384,7 @@ def save_candidate_artifacts(
             continue
         file_role = role_names.get(role, role)
         try:
-            write_json_file(os.path.join(root, f"{file_role}.json"), services.load_graph(graph_id))
+            services.store.write_json_file(os.path.join(root, f"{file_role}.json"), services.load_graph(graph_id))
         except FileNotFoundError:
             pass
 
@@ -554,12 +547,12 @@ def explore_scene_space(params: dict, services: ExplorerServices) -> dict:
         return {"status": "failed", "reason_code": "invalid_request", "error": str(exc)}
 
     exploration_id = request["exploration_id"]
-    root = exploration_root(services.store_dir, exploration_id)
+    root = services.store.exploration_root(exploration_id)
     trace_path = os.path.join(root, "trace.jsonl")
     os.makedirs(root, exist_ok=True)
     if os.path.exists(trace_path):
         os.remove(trace_path)
-    write_json_file(os.path.join(root, "request.json"), request)
+    services.store.write_json_file(os.path.join(root, "request.json"), request)
 
     accepted = []
     accepted_records = []
@@ -580,7 +573,7 @@ def explore_scene_space(params: dict, services: ExplorerServices) -> dict:
             "payload": payload,
         }
         event_index += 1
-        append_trace(trace_path, event)
+        services.store.append_trace(trace_path, event)
 
     def should_stop() -> str | None:
         if len(accepted) >= request["budget"]["max_accepts"]:
@@ -767,6 +760,6 @@ def explore_scene_space(params: dict, services: ExplorerServices) -> dict:
                 )
                 for candidate in accepted
             ]
-    write_json_file(os.path.join(root, "result.json"), result)
+    services.store.write_json_file(os.path.join(root, "result.json"), result)
     trace("exploration_finished", None, {"status": status, "stop_reason": stop_reason, "summary": result["summary"]})
     return result

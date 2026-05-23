@@ -63,60 +63,64 @@ is_valid_constraint_signature = scene_contracts.is_valid_constraint_signature
 # ---------------------------------------------------------------------------
 
 
+def _store_adapter() -> scene_storage.SceneGenerationStore:
+    return scene_storage.SceneGenerationStore(STORE_DIR)
+
+
 def _store_path(graph_id: str) -> str:
-    return scene_storage.store_path(STORE_DIR, graph_id)
+    return _store_adapter().store_path(graph_id)
 
 
 def save_graph(graph_id: str, data: dict) -> None:
-    scene_storage.save_graph(STORE_DIR, graph_id, data)
+    _store_adapter().save_graph(graph_id, data)
 
 
 def load_graph(graph_id: str) -> dict:
-    return scene_storage.load_graph(STORE_DIR, graph_id)
+    return _store_adapter().load_graph(graph_id)
 
 
 def list_graphs() -> list[dict]:
-    return scene_storage.list_graphs(STORE_DIR)
+    return _store_adapter().list_graphs()
 
 
 def delete_graph(graph_id: str) -> dict:
-    return scene_storage.delete_graph(STORE_DIR, graph_id)
+    return _store_adapter().delete_graph(graph_id)
 
 
 def _safe_store_id(value: str, field_name: str = "id") -> str:
-    return scene_storage.safe_store_id(value, field_name)
+    return _store_adapter().safe_store_id(value, field_name)
 
 
 def _write_json_file(path: str, data: dict | list) -> None:
-    scene_storage.write_json_file(path, data)
+    _store_adapter().write_json_file(path, data)
 
 
 def _read_json_file(path: str) -> dict:
-    return scene_storage.read_json_file(path)
+    return _store_adapter().read_json_file(path)
 
 
 def _exploration_root(exploration_id: str) -> str:
-    return scene_storage.exploration_root(STORE_DIR, exploration_id)
+    return _store_adapter().exploration_root(exploration_id)
 
 
 def _promotion_root(promotion_id: str) -> str:
-    return scene_storage.promotion_root(STORE_DIR, promotion_id)
+    return _store_adapter().promotion_root(promotion_id)
 
 
 def _candidate_slot(candidate_id: str) -> str:
-    return scene_storage.candidate_slot(candidate_id)
+    return _store_adapter().candidate_slot(candidate_id)
 
 
 def _candidate_root(exploration_id: str, candidate_id: str) -> str:
-    return scene_storage.candidate_root(STORE_DIR, exploration_id, candidate_id)
+    return _store_adapter().candidate_root(exploration_id, candidate_id)
 
 
 def _append_trace(trace_path: str, event: dict) -> None:
-    scene_storage.append_trace(trace_path, event)
+    _store_adapter().append_trace(trace_path, event)
 
 
 def _sha256_text(text: str) -> str:
-    return scene_storage.sha256_text(text)
+    return _store_adapter().sha256_text(text)
 
 
 # ---------------------------------------------------------------------------
@@ -628,7 +632,7 @@ def tool_assign_geometry_parameters(params: dict) -> dict:
 
 def _make_explorer_services() -> explorer_module.ExplorerServices:
     return explorer_module.ExplorerServices(
-        store_dir=STORE_DIR,
+        store=_store_adapter(),
         generate_skeleton_graph=tool_generate_skeleton_graph,
         lift_skeleton_to_gcs=tool_lift_skeleton_to_gcs,
         assign_geometry_parameters=tool_assign_geometry_parameters,
@@ -685,11 +689,11 @@ def _canonical_public_scene_text(scene: dict) -> str:
 
 
 def _public_scene_root() -> str:
-    return promotion_adapters.public_scene_root(STORE_DIR)
+    return promotion_adapters.public_scene_root(_store_adapter().store_dir)
 
 
 def _public_scene_path(public_scene_id: str) -> str:
-    return promotion_adapters.public_scene_path(STORE_DIR, public_scene_id)
+    return promotion_adapters.public_scene_path(_store_adapter().store_dir, public_scene_id)
 
 
 def _solver_scene_from_gcs(gcs: dict) -> dict:
@@ -698,7 +702,7 @@ def _solver_scene_from_gcs(gcs: dict) -> dict:
 
 def _write_public_scene(gcs_graph_id: str) -> dict:
     gcs = load_graph(gcs_graph_id)
-    return promotion_adapters.write_public_scene(STORE_DIR, gcs_graph_id, gcs)
+    return promotion_adapters.write_public_scene(_store_adapter().store_dir, gcs_graph_id, gcs)
 
 
 def _validate_public_scene_kernel(scene: dict) -> tuple[bool, list[dict]]:
@@ -731,7 +735,7 @@ def _public_adapter_gates(gcs_graph_id: str,
                           allow_unsupported: bool,
                           public_gate_config: dict | None) -> list[dict]:
     return promotion_package.public_adapter_gates(
-        STORE_DIR,
+        _store_adapter(),
         REPO_ROOT,
         DEFAULT_GCS_EXE,
         gcs_graph_id,
@@ -816,7 +820,7 @@ def tool_explore_scene_space(params: dict) -> dict:
 
 
 def _load_candidate_provenance(exploration_id: str, candidate_id: str) -> dict:
-    return promotion_package.load_candidate_provenance(STORE_DIR, exploration_id, candidate_id)
+    return promotion_package.load_candidate_provenance(_store_adapter(), exploration_id, candidate_id)
 
 
 def tool_promote_candidate(params: dict) -> dict:
@@ -871,7 +875,7 @@ def tool_promote_candidate(params: dict) -> dict:
     status = package["status"]
     reason_code = package["reason_code"]
     root = promotion_package.write_promotion_artifacts(
-        STORE_DIR,
+        _store_adapter(),
         promotion_id,
         package,
         projection,

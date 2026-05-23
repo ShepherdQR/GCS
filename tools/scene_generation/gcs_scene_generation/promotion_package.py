@@ -6,7 +6,13 @@ import json
 import os
 
 from . import promotion
-from .storage import candidate_root, promotion_root, read_json_file, sha256_text, write_json_file
+from .storage import SceneGenerationStore, sha256_text
+
+
+def _coerce_store(store: SceneGenerationStore | str) -> SceneGenerationStore:
+    if isinstance(store, SceneGenerationStore):
+        return store
+    return SceneGenerationStore(str(store))
 
 
 def make_gate(gate_id: str, status: str, reason_code: str | None = None, evidence=None, artifact_ids=None) -> dict:
@@ -57,7 +63,7 @@ def runtime_public_gates(smoke: dict, unavailable_status: str) -> list[dict]:
 
 
 def public_adapter_gates(
-    store_dir: str,
+    store: SceneGenerationStore | str,
     repo_root: str,
     default_gcs_exe: str,
     gcs_graph_id: str,
@@ -67,7 +73,8 @@ def public_adapter_gates(
     allow_unsupported: bool,
     public_gate_config: dict | None,
 ) -> list[dict]:
-    public_scene = promotion.write_public_scene(store_dir, gcs_graph_id, gcs)
+    store = _coerce_store(store)
+    public_scene = promotion.write_public_scene(store.store_dir, gcs_graph_id, gcs)
     scene_text = promotion.canonical_public_scene_text(public_scene["scene"])
     round_trip = json.loads(scene_text)
     round_trip_digest = sha256_text(promotion.canonical_public_scene_text(round_trip))
@@ -112,11 +119,12 @@ def public_adapter_gates(
     return gates
 
 
-def load_candidate_provenance(store_dir: str, exploration_id: str, candidate_id: str) -> dict:
-    path = os.path.join(candidate_root(store_dir, exploration_id, candidate_id), "provenance.json")
+def load_candidate_provenance(store: SceneGenerationStore | str, exploration_id: str, candidate_id: str) -> dict:
+    store = _coerce_store(store)
+    path = os.path.join(store.candidate_root(exploration_id, candidate_id), "provenance.json")
     if not os.path.exists(path):
         raise FileNotFoundError(f"Candidate '{candidate_id}' not found for exploration '{exploration_id}'")
-    return read_json_file(path)
+    return store.read_json_file(path)
 
 
 def promotion_status_from_gates(gates: list[dict]) -> tuple[str, str | None]:
@@ -168,16 +176,17 @@ def build_promotion_package(
 
 
 def write_promotion_artifacts(
-    store_dir: str,
+    store: SceneGenerationStore | str,
     promotion_id: str,
     package: dict,
     projection: dict,
     scene: dict,
     public_scene: dict,
 ) -> str:
-    root = promotion_root(store_dir, promotion_id)
-    write_json_file(os.path.join(root, "package.json"), package)
-    write_json_file(os.path.join(root, "geometry_primal.json"), projection)
-    write_json_file(os.path.join(root, "scene.json"), scene)
-    write_json_file(os.path.join(root, "public_scene.gcs.json"), public_scene)
+    store = _coerce_store(store)
+    root = store.promotion_root(promotion_id)
+    store.write_json_file(os.path.join(root, "package.json"), package)
+    store.write_json_file(os.path.join(root, "geometry_primal.json"), projection)
+    store.write_json_file(os.path.join(root, "scene.json"), scene)
+    store.write_json_file(os.path.join(root, "public_scene.gcs.json"), public_scene)
     return root

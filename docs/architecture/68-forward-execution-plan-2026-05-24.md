@@ -20,6 +20,8 @@ implementation step they describe.
   - scene-generation exploration and promotion-package orchestration have been
     extracted into `gcs_scene_generation.explorer` and
     `gcs_scene_generation.promotion_package`;
+  - scratch-store path, graph IO, trace, root, and digest policy has been
+    contained behind `gcs_scene_generation.storage.SceneGenerationStore`;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
@@ -55,26 +57,34 @@ Reassessment after Step 25:
 - Step 28 and Step 29 remain registered; no new evidence requires reordering
   them before store containment.
 
-### Step 26: Store Adapter Containment
+### Completed Step 26: Store Adapter Containment
 
-Goal:
+Delivered:
 
-- Reduce remaining direct `.store` path knowledge in `tools.py` and package
-  helpers.
-
-Expected shape:
-
-- Introduce a small store adapter object or module functions that carry
-  `store_dir`, graph IO, exploration roots, promotion roots, and trace append.
-- Keep flat compatibility reads/writes working.
-- Keep generated `.store` data scratch-only unless explicit fixture promotion
-  is requested.
+- Introduce `SceneGenerationStore` as the store adapter object carrying
+  `store_dir`, graph IO, safe IDs, JSON IO, exploration roots, candidate roots,
+  promotion roots, trace append, and digest helpers.
+- Route `tools.py` compatibility storage functions through the adapter while
+  preserving the mutable `STORE_DIR` binding expected by tests and manual
+  scripts.
+- Route explorer services and promotion-package helpers through the adapter
+  instead of passing raw store paths through those orchestration seams.
 
 Tests:
 
-- Alternate `GCS_SCENE_GENERATION_STORE_DIR` remains deterministic.
-- Flat command compatibility still works.
-- Exploration and promotion package paths remain stable.
+- Focused unittest coverage now checks adapter save/load/list plus exploration
+  and promotion root contracts.
+- Existing deterministic explorer and promotion package tests still pass.
+
+Reassessment after Step 26:
+
+- Step 27 is now the highest-leverage next move: public promotion gates still
+  depend on executable smoke output and should prefer direct IO/runtime/viewer
+  adapters where available.
+- Step 28 should stay after Step 27 because solver algorithm deepening will be
+  better supported once promoted fixtures have stronger direct public gates.
+- Step 29 should stay after Step 28 unless the gate-hardening work changes the
+  visual architecture atlas earlier.
 
 ### Step 27: Promotion Gate Hardening
 
@@ -150,6 +160,6 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 25 completion update, the active planned steps are registered
-as Step 26 through Step 29. Step 26 is the next implementation step.
+As of the Step 26 completion update, the active planned steps are registered
+as Step 27 through Step 29. Step 27 is the next implementation step.
 

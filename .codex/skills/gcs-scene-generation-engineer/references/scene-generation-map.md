@@ -8,7 +8,7 @@
 - `tools/scene_generation/gcs_scene_generation/contracts.py`: generated graph
   constants, public type maps, signature validation, and failure taxonomy.
 - `tools/scene_generation/gcs_scene_generation/storage.py`: scratch-store
-  paths, safe IDs, deterministic JSON IO, trace append, and digests.
+  adapter, paths, safe IDs, deterministic JSON IO, trace append, and digests.
 - `tools/scene_generation/gcs_scene_generation/promotion.py`: public
   `gcs-0.3` scene conversion, kernel-shape validation, solver command
   normalization, and runtime smoke execution.
