@@ -1,0 +1,41 @@
+{
+  "format_version": 1,
+  "rigid_sets": [
+    {"id": 0, "geometry_ids": [0]},
+    {"id": 1, "geometry_ids": [1]},
+    {"id": 2, "geometry_ids": [2]},
+    {"id": 3, "geometry_ids": [3]},
+    {"id": 4, "geometry_ids": [4]}
+  ],
+  "geometries": [
+    {"id": 0, "type": 0, "rigid_set_id": 0, "v": [0.0, 0.0, 0.0, 0, 0, 0]},
+    {"id": 1, "type": 1, "rigid_set_id": 1, "v": [1.0, 0.0, 0.0, 1.0, 1.0, 0.0]},
+    {"id": 2, "type": 2, "rigid_set_id": 2, "v": [0.0, 1.0, 0.0, 0.0, 0.0, 1.0]},
+    {"id": 3, "type": 0, "rigid_set_id": 3, "v": [1.0, 1.0, 0.0, 0, 0, 0]},
+    {"id": 4, "type": 1, "rigid_set_id": 4, "v": [-1.0, 0.0, 0.0, -1.0, 1.0, 0.0]}
+  ],
+  "constraints": [
+    {"id": 0, "type": 0, "geometry_ids": [0, 3], "value": 0.0},
+    {"id": 1, "type": 1, "geometry_ids": [1, 4], "value": 0.0},
+    {"id": 2, "type": 2, "geometry_ids": [1, 2], "value": 0.0},
+    {"id": 3, "type": 3, "geometry_ids": [0, 2], "value": 1.0},
+    {"id": 4, "type": 4, "geometry_ids": [4, 2], "value": 45.0}
+  ],
+  "history": [
+    {"action": "AddRigidSet", "payload": {"id": 0}},
+    {"action": "AddRigidSet", "payload": {"id": 1}},
+    {"action": "AddRigidSet", "payload": {"id": 2}},
+    {"action": "AddRigidSet", "payload": {"id": 3}},
+    {"action": "AddRigidSet", "payload": {"id": 4}},
+    {"action": "AddGeometry", "payload": {"id": 0, "type": 0, "rigid_set_id": 0, "v": [0.0, 0.0, 0.0, 0, 0, 0]}},
+    {"action": "AddGeometry", "payload": {"id": 1, "type": 1, "rigid_set_id": 1, "v": [1.0, 0.0, 0.0, 1.0, 1.0, 0.0]}},
+    {"action": "AddGeometry", "payload": {"id": 2, "type": 2, "rigid_set_id": 2, "v": [0.0, 1.0, 0.0, 0.0, 0.0, 1.0]}},
+    {"action": "AddGeometry", "payload": {"id": 3, "type": 0, "rigid_set_id": 3, "v": [1.0, 1.0, 0.0, 0, 0, 0]}},
+    {"action": "AddGeometry", "payload": {"id": 4, "type": 1, "rigid_set_id": 4, "v": [-1.0, 0.0, 0.0, -1.0, 1.0, 0.0]}},
+    {"action": "AddConstraint", "payload": {"id": 0, "type": 0, "geometry_ids": [0, 3], "value": 0.0}},
+    {"action": "AddConstraint", "payload": {"id": 1, "type": 1, "geometry_ids": [1, 4], "value": 0.0}},
+    {"action": "AddConstraint", "payload": {"id": 2, "type": 2, "geometry_ids": [1, 2], "value": 0.0}},
+    {"action": "AddConstraint", "payload": {"id": 3, "type": 3, "geometry_ids": [0, 2], "value": 1.0}},
+    {"action": "AddConstraint", "payload": {"id": 4, "type": 4, "geometry_ids": [4, 2], "value": 45.0}}
+  ]
+}

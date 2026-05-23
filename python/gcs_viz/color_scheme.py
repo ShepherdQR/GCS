@@ -24,7 +24,7 @@ GCS_THEME = {
     "bg_table": "#FFFCF7",
     "bg_table_selected": "#EAD9CF",
     "text_primary": "#141413",
-    "text_secondary": "#6F6A60",
+    "text_secondary": "#635D53",
     "text_muted": "#8A8178",
     "text_on_accent": "#FAF9F5",
     "accent": "#D97757",

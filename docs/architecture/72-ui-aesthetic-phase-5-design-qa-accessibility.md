@@ -45,6 +45,12 @@ Add a non-GUI validation script that can run in CI-like environments:
 The script should report actionable failures and avoid writing generated assets
 by default.
 
+Initial implementation path:
+
+- `tools/ui_qa/gcs_ui_qa.py`;
+- `tests/tools/test_gcs_ui_qa.py`;
+- `fixtures/scene/ui_qa/mixed_geometry_constraints.json`.
+
 ## Manual Review Checklist
 
 The design QA document should include a checklist for reviewers:

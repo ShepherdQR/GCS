@@ -287,7 +287,7 @@ class GCSPlatformGUI:
             ttk.Radiobutton(toolbar_frame, text=text, variable=self.view_var, value=val, command=self._on_view_change).pack(side=tk.LEFT, padx=4)
 
         ttk.Separator(toolbar_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=8)
-        ttk.Button(toolbar_frame, text="🔄 Refresh", command=self._refresh_canvas).pack(side=tk.LEFT, padx=4)
+        ttk.Button(toolbar_frame, text="Refresh", command=self._refresh_canvas).pack(side=tk.LEFT, padx=4)
         ttk.Separator(toolbar_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=8)
         ttk.Label(toolbar_frame, textvariable=self.model_name_var, style="Section.TLabel").pack(side=tk.LEFT, padx=4)
 
