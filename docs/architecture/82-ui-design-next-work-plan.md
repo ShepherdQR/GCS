@@ -242,6 +242,27 @@ Reasoning:
 - Figure 72 should gain a browser PNG/PDF review artifact and screenshot
   baseline before external design tooling is reconsidered.
 
+## Post-P6 Forward Plan
+
+The next plan is **P7 Review Artifact Hardening**.
+
+| Order | Work | Status | Purpose | Acceptance |
+| --- | --- | --- | --- | --- |
+| 14 | P7.1 Figure 72 browser review baseline | Next | Export Figure 72 HTML into PNG/PDF review artifacts and baseline the stable PNG if reproducible. | Browser export evidence and screenshot-baseline manifest entry, or a documented skip reason. |
+| 15 | P7.2 Art Director review | Pending | Judge Figure 72 against five-second claim clarity, evidence hierarchy, text economy, semantic color, and GCS Quiet Technical Atelier. | Approval, conditional approval, or rejection with findings. |
+| 16 | P7.3 Atlas/report hardening | Pending | Make Figure 72 review artifacts first-class in the atlas and keep the legacy SVG clearly secondary. | Atlas/report links and visual gates pass. |
+| 17 | P7.4 Figma pilot gate | Pending | Reopen Figma MCP only if P7.2/P7.3 names a concrete collaboration, editable-layout, or external-review gap. | Pilot request with provider, data boundary, write policy, rollback, and offline-gate plan, or explicit continued deferral. |
+
+Operating rule:
+
+- Continue the phase-step loop: task card -> execution plan -> implementation
+  -> validation -> completed-task archive -> roadmap update -> Bladesmith
+  learning -> commit -> continue.
+- Keep Figure 72 HTML, metadata, and visual-integrity gates as the source of
+  truth.
+- Keep Figma MCP out of default build/test/QA paths unless a future pilot is
+  explicitly accepted.
+
 ## Opportunistic Cleanup
 
 P0 still has useful documentation cleanup:
