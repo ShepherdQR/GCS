@@ -42,10 +42,12 @@ Completed:
   contrast markers, with forced overlap and weak-contrast fixtures in tests.
 - P5.4 is complete: Figure 71 now has a stable screenshot-baseline manifest,
   exact PNG artifact checks, and forced baseline failure fixtures.
+- P5 is closed: default visual-integrity gates and reviewer-only art-direction
+  gates are now separated before P6.
 
 Active phase:
 
-- P5 Visual Integrity QA phase close.
+- P6 Showcase And Editorial Polish.
 
 ## Persisted Forward Plan
 
@@ -59,8 +61,8 @@ Active phase:
 | 6 | P5.2 Text overflow gate | Done | Catch text that would spill from figure panels or compact UI surfaces. | Forced overflow fixture fails. |
 | 7 | P5.3 Overlap and contrast gates | Done | Catch critical text/shape overlap and weak contrast in status/evidence surfaces. | Forced overlap fails and contrast report is produced. |
 | 8 | P5.4 Screenshot baselines | Done | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
-| 9 | P5 phase close | Next | Decide default versus reviewer-only visual-integrity gates before P6. | Phase-close summary and downstream plan update committed. |
-| 10 | P6.1 Showcase brief | Pending | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
+| 9 | P5 phase close | Done | Decide default versus reviewer-only visual-integrity gates before P6. | Phase-close summary and downstream plan update committed. |
+| 10 | P6.1 Showcase brief | Next | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
 | 11 | P6.2 Showcase fixture | Pending | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
 | 12 | P6.3 Showcase figure | Pending | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
 | 13 | P6.4 Figma MCP decision | Pending | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
@@ -149,9 +151,18 @@ Active phase:
   sequence.
 - Added `docs/architecture/70-visualization/screenshot-baseline-gate.md`.
 
+## P5 Phase-Close Summary
+
+- Added `docs/architecture/87-p5-visual-integrity-phase-close.md`.
+- Closed P5 with token lint, text overflow, overlap/contrast, and screenshot
+  baselines as default quality gates.
+- Recorded that main-claim clarity, editorial hierarchy, and external
+  design-tool value remain reviewer-only art-direction gates.
+- Moved the active phase to P6 and made P6.1 the next implementation step.
+
 ## Updated Next Move
 
-The next implementation step should be **P5 phase close**.
+The next implementation step should be **P6.1 Showcase Brief**.
 
 Reasoning:
 
@@ -165,8 +176,10 @@ Reasoning:
 - P5.2 is now in place as a source-level text-budget gate.
 - P5.3 is now in place as a source-level overlap and contrast gate.
 - P5.4 is now in place as an artifact-level screenshot baseline gate.
-- P5 should close by deciding which visual-integrity gates are default quality
-  gates and which remain reviewer-only before P6 showcase work begins.
+- P5 is closed, so showcase work can now use a known default/reviewer-only
+  visual-integrity boundary.
+- P6.1 should define the main claim, evidence vocabulary, panels, and review
+  gates before fixture or figure assets change.
 
 ## Opportunistic Cleanup
 
@@ -203,7 +216,7 @@ Reasoning:
   scattered raw colors.
 - P4.4 should not happen before the basic gates exist; otherwise we may create
   impressive artifacts that are still fragile.
-- P6 should wait until the figure pipeline and visual integrity gate are strong
+- P6 can now begin from a figure pipeline and visual integrity gate strong
   enough that showcase work is editorial polish, not manual rescue.
 
 ## Not Recommended Yet
@@ -211,5 +224,5 @@ Reasoning:
 - Do not install or configure Figma MCP as the next move.
 - Do not introduce a new graph/chart package before P4.3 records the dependency
   decision.
-- Do not regenerate final showcase assets before P5 has at least token lint and
-  basic text/contrast checks.
+- Do not regenerate final showcase assets before P6.1 defines the brief and
+  evidence vocabulary.

@@ -46,8 +46,8 @@ commit message must name the step's purpose.
 | P2 | Token Unification | Done | Make GUI, figures, and reports consume the same semantic token vocabulary. |
 | P3 | Viewer UI Implementation | Done | Apply the design system to the Python viewer without moving solver truth into UI. |
 | P4 | Scientific Figure Pipeline | Done | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
-| P5 | Visual Integrity QA | In progress | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
-| P6 | Showcase And Editorial Polish | Pending | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
+| P5 | Visual Integrity QA | Done | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
+| P6 | Showcase And Editorial Polish | In progress | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
 
 ## P0: Convention Foundation
 
@@ -540,6 +540,23 @@ Updated P5 next steps after P5.4:
 - P6.1 showcase brief should start only after the phase-close decision records
   how showcase artifacts will be judged.
 
+P5 phase-close summary:
+
+- Added `docs/architecture/87-p5-visual-integrity-phase-close.md`.
+- Closed P5 after token lint, text overflow, overlap/contrast, and screenshot
+  baseline gates entered the default quality-gate sequence.
+- Recorded that deterministic source/artifact checks are default gates, while
+  main-claim clarity, editorial hierarchy, and design-tool value remain
+  reviewer-only `GCS Art Director Review` decisions.
+- Moved the active downstream phase to P6 showcase and editorial polish.
+
+Updated P6 next steps after P5 close:
+
+- P6.1 should define the showcase brief before changing fixture or figure
+  assets.
+- P6.4 should judge Figma MCP only after P6.3 produces a repo-native showcase
+  artifact that exposes the remaining collaboration gap.
+
 ## P6: Showcase And Editorial Polish
 
 Goal: produce a top-tier showcase of GCS local-to-global solving and decide on
@@ -547,7 +564,7 @@ external design-surface integration.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P6.1 | Pending | Define integrated feature constraint graph showcase brief using the canonical evidence-token vocabulary. | Brief review |
+| P6.1 | Next | Define integrated feature constraint graph showcase brief using the canonical evidence-token vocabulary. | Brief review |
 | P6.2 | Pending | Generate or promote showcase fixture with expected rank, gluing, replay, and diagnostic evidence. | Public gate |
 | P6.3 | Pending | Produce showcase figure through the scientific figure pipeline and tokenized HTML compositor. | Visual integrity QA |
 | P6.4 | Pending | Decide whether to install/configure Figma MCP only after repo-native token and QA gates are reliable. | Governance decision |
