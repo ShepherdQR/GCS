@@ -43,7 +43,7 @@ commit message must name the step's purpose.
 | --- | --- | --- | --- |
 | P0 | Convention Foundation | In progress | Name the UI design system and make it governable. |
 | P1 | Governance And Agents | Done | Give future work dedicated skills, agents, and review responsibilities. |
-| P2 | Token Unification | In progress | Make GUI, figures, and reports consume the same semantic token vocabulary. |
+| P2 | Token Unification | Done | Make GUI, figures, and reports consume the same semantic token vocabulary. |
 | P3 | Viewer UI Implementation | Pending | Apply the design system to the Python viewer without moving solver truth into UI. |
 | P4 | Scientific Figure Pipeline | Pending | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
 | P5 | Visual Integrity QA | Pending | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
@@ -212,6 +212,30 @@ Updated P2 phase-close work:
 - P3 should treat `python/gcs_viz/color_scheme.py` as the viewer mirror and
   avoid new raw hex values in GUI or Matplotlib renderer code.
 
+P2 phase-close summary:
+
+- Closed P2 after landing inventory, taxonomy, Python viewer mirror, and
+  HTML/CSS figure renderer token alignment.
+- Source-of-truth decision: keep `figure1.theme.json` and
+  `python/gcs_viz/color_scheme.py` as mirrored token surfaces for now. Do not
+  add token generation until P5 has raw-hex, contrast, and screenshot gates
+  stable enough to catch generator mistakes.
+- P3 starts from the rule that viewer code should consume `GCS_TOKENS`,
+  `GCS_THEME`, or exported compatibility palettes, not fresh hex values.
+- P4 starts from the rule that figure specs may keep short evidence keys only
+  at the compatibility boundary; renderer internals should prefer canonical
+  dot-path tokens and `--gcs-*` CSS variables.
+
+Post-P2 replanning:
+
+- P3 is now the next implementation phase and should begin with a raw-token
+  audit before layout changes.
+- P4 can build on `figure-renderer-token-usage.md` and the compositor's
+  canonical CSS variables.
+- P5 should add token linting before deeper screenshot and overlap gates.
+- P6 should delay any Figma MCP decision until repo-native token and QA gates
+  are reliable.
+
 ## P3: Viewer UI Implementation
 
 Goal: apply the design system to the actual local viewer while preserving
@@ -219,10 +243,10 @@ solver/runtime/viewer boundaries.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P3.1 | Pending | Apply theme foundation to Tkinter/ttk and Matplotlib surfaces. | `python -B -m py_compile` for touched files |
-| P3.2 | Pending | Implement viewport semantics for geometry markers, constraint line styles, and visual states. | UI QA fixture render or manual screenshot |
-| P3.3 | Pending | Reshape inspector layout toward model summary plus tabbed object tables. | Narrow-window smoke |
-| P3.4 | Pending | Add replay and solve evidence polish. | Replay fixture smoke |
+| P3.1 | Pending | Audit viewer and legacy textual surfaces for raw hex values, token aliases, and remaining dark-terminal styles; fix low-risk leftovers. | Raw-token audit plus Python syntax check |
+| P3.2 | Pending | Apply canonical state aliases to selected, replay-current, violated, solved, warning, and error surfaces without changing command ownership. | UI smoke or renderer fixture |
+| P3.3 | Pending | Reshape inspector layout toward model summary plus tabbed object tables using existing tokens. | Narrow-window smoke |
+| P3.4 | Pending | Add replay and solve evidence polish with structured summary evidence ahead of logs. | Replay fixture smoke |
 
 Phase-close replanning requirement:
 
@@ -237,10 +261,10 @@ Pipeline`.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P4.1 | Pending | Upgrade `figure71.yaml` from prototype JSON-compatible YAML into a stable figure-spec schema. | Spec QA |
+| P4.1 | Pending | Upgrade execution-map figure specs from prototype JSON-compatible YAML into a stable schema with canonical token fields. | Spec QA |
 | P4.2 | Pending | Add browser-rendered export path for HTML to PNG/PDF/SVG where tooling is available. | Browser smoke |
 | P4.3 | Pending | Add graph/chart panel backends after third-party governance. | Dependency decision |
-| P4.4 | Pending | Rebuild Figure 71 from the new pipeline and demote the old SVG to historical prototype. | `figure_qa.py` plus review artifact |
+| P4.4 | Pending | Rebuild the execution-map figure from the new pipeline and demote old SVG output to historical prototype. | `figure_qa.py` plus review artifact |
 
 Phase-close replanning requirement:
 
@@ -253,9 +277,9 @@ Goal: make `GCS Visual Integrity Gate` measurable.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P5.1 | Pending | Add rendered text overflow checks. | QA fixture fails on forced overflow |
-| P5.2 | Pending | Add bounding-box overlap checks for text and critical shapes. | QA fixture fails on forced overlap |
-| P5.3 | Pending | Add contrast checks for text and status chips. | Contrast report |
+| P5.1 | Pending | Add raw-hex and unknown-token linting for GUI, Matplotlib, and figure renderer code. | Forced raw-hex fixture fails |
+| P5.2 | Pending | Add rendered text overflow checks. | QA fixture fails on forced overflow |
+| P5.3 | Pending | Add bounding-box overlap and contrast checks for text, status chips, and evidence panels. | Forced overlap plus contrast report |
 | P5.4 | Pending | Add screenshot baselines for core GUI/figure states. | Stable baseline policy |
 
 Phase-close replanning requirement:
@@ -270,10 +294,10 @@ external design-surface integration.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P6.1 | Pending | Define integrated feature constraint graph showcase brief. | Brief review |
-| P6.2 | Pending | Generate or promote showcase fixture with expected rank/diagnostic evidence. | Public gate |
-| P6.3 | Pending | Produce showcase figure through the scientific figure pipeline. | Visual integrity QA |
-| P6.4 | Pending | Decide whether to install/configure Figma MCP for final editorial review. | Governance decision |
+| P6.1 | Pending | Define integrated feature constraint graph showcase brief using the canonical evidence-token vocabulary. | Brief review |
+| P6.2 | Pending | Generate or promote showcase fixture with expected rank, gluing, replay, and diagnostic evidence. | Public gate |
+| P6.3 | Pending | Produce showcase figure through the scientific figure pipeline and tokenized HTML compositor. | Visual integrity QA |
+| P6.4 | Pending | Decide whether to install/configure Figma MCP only after repo-native token and QA gates are reliable. | Governance decision |
 
 Phase-close replanning requirement:
 
