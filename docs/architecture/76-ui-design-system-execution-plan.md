@@ -375,6 +375,13 @@ Updated P4 next steps:
 - P4.4 should rebuild generated assets only after P4.2 export behavior is
   stable.
 
+Current next-work plan:
+
+- `82-ui-design-next-work-plan.md` persists the P4.2-through-P6 sequence and
+  records the preferred operating bias: keep P4.2 thin, add P5.1 token lint
+  before P4.4 asset rebuild, and delay Figma MCP until repo-native QA is
+  reliable.
+
 ## P5: Visual Integrity QA
 
 Goal: make `GCS Visual Integrity Gate` measurable.
