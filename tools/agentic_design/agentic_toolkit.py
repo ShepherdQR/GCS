@@ -1416,6 +1416,14 @@ def build_quality_gate_commands(args: argparse.Namespace,
             [python, "-m", "unittest", "tests.tools.test_showcase_scene_renderer"],
         ))
         commands.append(GateCommand(
+            "python.showcase_fixture_evidence",
+            [python, "tools/architecture_visualization/showcase_fixture_evidence.py"],
+        ))
+        commands.append(GateCommand(
+            "python.showcase_fixture_evidence_tests",
+            [python, "-m", "unittest", "tests.tools.test_showcase_fixture_evidence"],
+        ))
+        commands.append(GateCommand(
             "python.browser_export",
             [python, "-m", "unittest", "tests.tools.test_browser_export"],
         ))

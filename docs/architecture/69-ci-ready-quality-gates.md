@@ -1,6 +1,6 @@
 # CI-Ready Quality Gates
 
-Status: Step 46 runtime replay boundary gate integrated.
+Status: P6.2 showcase fixture evidence gate integrated.
 
 ## Purpose
 
@@ -38,17 +38,24 @@ The default gate runs:
 5. Python scene auto explorer unittest
 6. Python agentic toolkit unittest
 7. Python showcase-scene renderer unittest
-8. Python scene-schema algebra unittest
-9. Python history-replay unittest
-10. `cmake --preset clang-ninja`
-11. `cmake --build --preset clang-ninja`
-12. full CTest contract suite
-13. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
-14. explicit public-evidence-chain CTest selection for rank, diagnostics,
+8. Python showcase fixture evidence metadata check
+9. Python showcase fixture evidence unittest
+10. Python browser-export unittest
+11. Python token lint and token-lint unittest
+12. Python text-overflow check and unittest
+13. Python overlap/contrast check and unittest
+14. Python screenshot-baseline check and unittest
+15. Python scene-schema algebra unittest
+16. Python history-replay unittest
+17. `cmake --preset clang-ninja`
+18. `cmake --build --preset clang-ninja`
+19. full CTest contract suite
+20. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
+21. explicit public-evidence-chain CTest selection for rank, diagnostics,
     runtime, viewer, corpus, showcase, and replay-boundary evidence introduced
     in Steps 31 through 46
-15. CLI smoke on `fixtures/scene/basic/g1.txt`
-16. CLI smoke on
+22. CLI smoke on `fixtures/scene/basic/g1.txt`
+23. CLI smoke on
     `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
 
 The command exits nonzero on the first failed gate by default and prints a
@@ -108,6 +115,9 @@ A change is Step 18 complete when:
   showcase, and replay-boundary sentinel tests;
 - scene-generation tests are part of the default gate;
 - showcase-scene renderer tests are part of the default gate;
+- showcase fixture evidence metadata checks are part of the default gate;
+- token, text-overflow, overlap/contrast, and screenshot-baseline visual
+  integrity checks are part of the default gate;
 - Python scene-schema algebra tests are part of the default gate;
 - Python history-replay tests are part of the default gate;
 - the agentic toolkit gate sequence is unit-tested as a Python tools contract;

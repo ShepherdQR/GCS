@@ -7,10 +7,20 @@
     "derived_from": "integrated_feature_showcase with an invalid behavior fixed ID",
     "promotion_reason": "Exercise negative scene behavior validation through public IO and kernel reports."
   },
+  "showcase_brief": {
+    "brief_path": "docs/architecture/88-p6-1-integrated-showcase-brief.md",
+    "required_panel": "negative_variant",
+    "canonical_token": "evidence.failure"
+  },
   "expected_public_evidence": {
     "load": "rejected",
     "report_code": "kernel.solve_intent_missing_fixed_entity",
     "missing_fixed_geometry_ids": [999]
+  },
+  "expected_solver_evidence": {
+    "accepted": false,
+    "validation_stage": "kernel.validate_model",
+    "report_code": "kernel.solve_intent_missing_fixed_entity"
   },
   "quality_gates": [
     "IoAdaptersContract.RejectsShowcaseSceneWithMissingFixedEntity"

@@ -565,8 +565,8 @@ external design-surface integration.
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
 | P6.1 | Done | `88-p6-1-integrated-showcase-brief.md` defines the showcase claim, evidence vocabulary, panels, and review questions. | Brief review |
-| P6.2 | Next | Generate or promote showcase fixture with expected rank, gluing, replay, and diagnostic evidence. | Public gate |
-| P6.3 | Pending | Produce showcase figure through the scientific figure pipeline and tokenized HTML compositor. | Visual integrity QA |
+| P6.2 | Done | Showcase fixture metadata now carries rank/residual, gluing, diagnostics, replay-boundary, panel, token, and rejection evidence. | Public gate |
+| P6.3 | Next | Produce showcase figure through the scientific figure pipeline and tokenized HTML compositor. | Visual integrity QA |
 | P6.4 | Pending | Decide whether to install/configure Figma MCP only after repo-native token and QA gates are reliable. | Governance decision |
 
 Phase-close replanning requirement:
@@ -592,3 +592,22 @@ Updated P6 next steps after P6.1:
   visual-integrity gates.
 - P6.4 should judge Figma MCP against the actual P6.3 artifact and remaining
   collaboration gap.
+
+P6.2 completion summary:
+
+- Enriched showcase positive and negative metadata with the P6.1 brief path,
+  required panels, canonical tokens, rank/residual expectations, gluing,
+  diagnostics, replay-boundary gates, and typed negative rejection evidence.
+- Added `tools/architecture_visualization/showcase_fixture_evidence.py` and
+  forced failure tests for missing panels, rank mismatch, and report-code
+  mismatch.
+- Promoted `python.showcase_fixture_evidence` and
+  `python.showcase_fixture_evidence_tests` into default quality gates.
+- Updated fixture and CI quality-gate documentation.
+
+Updated P6 next steps after P6.2:
+
+- P6.3 should consume the enriched metadata instead of hard-coding evidence
+  facts in renderer code.
+- P6.4 should compare Figma MCP against a repo-native pipeline that now has
+  executable fixture evidence plus visual-integrity gates.

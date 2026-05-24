@@ -12,6 +12,18 @@ The JSON `behavior` object is the source of truth for scene-facing solve
 intent. Companion metadata records provenance and expected evidence, but does
 not carry solver behavior by itself.
 
+P6.2 promotes the metadata into a renderer-consumable evidence bundle. The
+positive metadata now names the P6.1 showcase brief, required panels, canonical
+evidence tokens, expected rank/residual reports, gluing evidence, diagnostics,
+and replay-boundary gates. The negative metadata names the required rejection
+panel and stable missing-fixed report code.
+
+Validate the bundle with:
+
+```bat
+python tools\architecture_visualization\showcase_fixture_evidence.py
+```
+
 Scene-backed showcase visualization:
 
 - `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.svg`

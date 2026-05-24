@@ -46,6 +46,9 @@ Completed:
   gates are now separated before P6.
 - P6.1 is complete: the integrated showcase brief now names the claim, source
   evidence, token vocabulary, panels, and review questions.
+- P6.2 is complete: showcase metadata now carries executable fixture evidence
+  for rank/residual, gluing, diagnostics, replay boundary, panels, tokens, and
+  negative rejection.
 
 Active phase:
 
@@ -65,8 +68,8 @@ Active phase:
 | 8 | P5.4 Screenshot baselines | Done | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
 | 9 | P5 phase close | Done | Decide default versus reviewer-only visual-integrity gates before P6. | Phase-close summary and downstream plan update committed. |
 | 10 | P6.1 Showcase brief | Done | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
-| 11 | P6.2 Showcase fixture | Next | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
-| 12 | P6.3 Showcase figure | Pending | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
+| 11 | P6.2 Showcase fixture | Done | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
+| 12 | P6.3 Showcase figure | Next | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
 | 13 | P6.4 Figma MCP decision | Pending | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
 
 ## P4.2 Completion Summary
@@ -173,9 +176,20 @@ Active phase:
 - Kept fixture and figure assets unchanged so P6.2 can promote evidence before
   P6.3 changes visuals.
 
+## P6.2 Completion Summary
+
+- Enriched `fixtures/scene/showcase/integrated_feature_showcase.metadata.json`
+  and the missing-fixed negative metadata with P6.1 panel, token, rank,
+  residual, gluing, diagnostic, replay-boundary, and rejection evidence.
+- Added `tools/architecture_visualization/showcase_fixture_evidence.py`.
+- Added forced missing-panel, rank-mismatch, and report-code mismatch tests.
+- Promoted `python.showcase_fixture_evidence` and
+  `python.showcase_fixture_evidence_tests` into default quality gates.
+- Added `docs/architecture/89-p6-2-showcase-fixture-evidence.md`.
+
 ## Updated Next Move
 
-The next implementation step should be **P6.2 Showcase Fixture**.
+The next implementation step should be **P6.3 Showcase Figure**.
 
 Reasoning:
 
@@ -193,8 +207,10 @@ Reasoning:
   visual-integrity boundary.
 - P6.1 now defines the main claim, evidence vocabulary, panels, and review
   gates.
-- P6.2 should make the showcase fixture evidence directly consumable by P6.3
+- P6.2 now makes the showcase fixture evidence directly consumable by P6.3
   figure production.
+- P6.3 should upgrade or justify the Figure 72 production path against the
+  brief, enriched metadata, and P5 visual-integrity gates.
 
 ## Opportunistic Cleanup
 
@@ -239,5 +255,5 @@ Reasoning:
 - Do not install or configure Figma MCP as the next move.
 - Do not introduce a new graph/chart package before P4.3 records the dependency
   decision.
-- Do not regenerate final showcase assets before P6.2 confirms the fixture
-  evidence bundle is sufficient for the brief.
+- Do not decide Figma MCP before P6.3 shows whether the repo-native showcase
+  figure still has a collaboration or editable-layout gap.

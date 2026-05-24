@@ -7,6 +7,31 @@
     "derived_from": "gcs.contract_tools FixtureKind::integrated_feature_showcase",
     "promotion_reason": "Expose the integrated showcase through public scene IO and CLI paths."
   },
+  "showcase_brief": {
+    "brief_path": "docs/architecture/88-p6-1-integrated-showcase-brief.md",
+    "five_second_claim": "One public constraint scene carries solve intent through decomposition, numeric evidence, gluing diagnostics, viewer projection, CLI smoke, and negative rejection evidence.",
+    "required_panels": [
+      "scene_contract",
+      "constraint_graph",
+      "boundary_plan",
+      "numeric_evidence",
+      "gluing_and_diagnostics",
+      "negative_variant",
+      "gate_chain"
+    ],
+    "canonical_tokens": [
+      "evidence.domain",
+      "evidence.graph",
+      "evidence.planner",
+      "evidence.numeric",
+      "evidence.diagnostic",
+      "evidence.failure",
+      "evidence.boundary",
+      "state.ok",
+      "state.warning",
+      "state.error"
+    ]
+  },
   "expected_public_evidence": {
     "load": "ok",
     "solve_status": "AcceptedWithWarnings",
@@ -18,9 +43,53 @@
     "numeric_reports": 2,
     "post_local_diagnostics": 2
   },
+  "expected_solver_evidence": {
+    "accepted": true,
+    "state_version_after_solve": 1,
+    "cover_contexts": 3,
+    "local_numeric_reports": [
+      {
+        "index": 0,
+        "rank": 2,
+        "variables": 9,
+        "free_variables": 6,
+        "frozen_variables": 3,
+        "residuals": 2,
+        "nullity": 4,
+        "max_residual": 0.0
+      },
+      {
+        "index": 1,
+        "rank": 2,
+        "variables": 15,
+        "free_variables": 15,
+        "frozen_variables": 0,
+        "residuals": 2,
+        "nullity": 13,
+        "max_residual": 0.0
+      }
+    ],
+    "gluing": {
+      "report_code": "gluing.accepted",
+      "message": "All local sections are compatible within boundary tolerance."
+    },
+    "diagnostics": {
+      "post_local_diagnostics_warnings": 2,
+      "residual_reports": 2
+    },
+    "replay_boundary": {
+      "runtime_trace_is_report_evidence": true,
+      "quality_gates": [
+        "SessionRuntimeContract.ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory",
+        "ViewerBridgeContract.RuntimeHistoryFrameProjectsAsReportEvidenceOnly"
+      ]
+    }
+  },
   "quality_gates": [
     "IoAdaptersContract.ShowcaseJsonSceneCarriesSolveIntentBehavior",
     "ViewerBridgeContract.ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence",
+    "SessionRuntimeContract.ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory",
+    "ViewerBridgeContract.RuntimeHistoryFrameProjectsAsReportEvidenceOnly",
     "cli.showcase_scene"
   ]
 }
