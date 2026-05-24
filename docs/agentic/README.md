@@ -1,0 +1,66 @@
+# GCS Agentic Operating Layer
+
+## Purpose
+
+This directory is the executable operating layer for the GCS agentic software
+engineering workflow. `docs/architecture/68-agentic-se-lifecycle-self-evolution.md`
+defines the strategy. This directory defines the templates, runbooks, evidence
+formats, and eval rubrics that make the strategy repeatable.
+
+Use this layer for work-process artifacts:
+
+- task cards;
+- execution plans;
+- evidence bundles;
+- experience records;
+- eval rubrics;
+- lifecycle runbooks.
+
+Keep durable solver architecture in `docs/architecture/`. Keep generated
+scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
+
+## File Map
+
+| Path | Purpose |
+| --- | --- |
+| `task-card-template.md` | Structured intake template for non-trivial tasks. |
+| `execution-plan-template.md` | High-risk or multi-step implementation plan template. |
+| `evidence-bundle-template.md` | Standard evidence summary for commits and PRs. |
+| `trace-schema.md` | Minimal trace schema for agent work and tool calls. |
+| `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
+| `eval-rubric.md` | General scoring rubric for agentic SE work. |
+| `lifecycle-runbook.md` | Action guide for moving from request to push. |
+| `evals/module-agent-evals.md` | Seed eval tasks for module agents. |
+| `evals/review-rubrics.md` | Independent review rubrics by change type. |
+| `tasks/` | Checked-in task cards that are large enough to persist. |
+| `experience/` | Promoted learning records. |
+
+## Minimum Workflow
+
+1. Create a task card for non-trivial work:
+
+   ```bat
+   python tools\agentic_design\agentic_toolkit.py new-task-card --slug agentic-tooling --scope tool --risk medium --owner gcs-contract-tools-steward --request "Add task-card validation" --write
+   ```
+
+2. Fill the generated scope, evidence, and risk fields, then validate the task
+   card:
+
+   ```bat
+   python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-24-agentic-tooling.md
+   ```
+
+3. Write an execution plan when risk is high or the task spans modules.
+4. Implement in the owning module or support tool boundary.
+5. Collect evidence with the standard quality gates.
+6. Record any repeated failure as an experience record before changing skills.
+
+## Boundaries
+
+- `docs/agentic` may define workflow, task, evidence, and learning formats.
+- `docs/agentic` must not redefine solver contracts, report codes, or module
+  ownership. Those belong in `docs/architecture`.
+- Agentic tools may inspect and validate the solver, but the solver core must
+  not import or depend on agentic infrastructure.
+- Experience records are observations. They become rules only after promotion
+  into a skill, fixture, test, tool, or architecture document.

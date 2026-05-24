@@ -8,6 +8,7 @@ agents can run it in restricted local environments.
 from __future__ import annotations
 
 import argparse
+import datetime as _datetime
 import json
 import os
 import re
@@ -21,6 +22,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INVENTORY = ROOT / "tools" / "agentic_design" / "module_inventory.json"
+AGENTIC_TASK_DIR = ROOT / "docs" / "agentic" / "tasks"
 
 
 @dataclass(frozen=True)
@@ -82,12 +84,82 @@ def parse_simple_yaml(text: str) -> dict[str, str]:
     return values
 
 
+def parse_frontmatter_values(text: str) -> dict[str, Any]:
+    match = re.match(r"^---\r?\n(.*?)\r?\n---\r?\n", text, flags=re.DOTALL)
+    if not match:
+        return {}
+
+    values: dict[str, Any] = {}
+    current_key: str | None = None
+    for raw_line in match.group(1).splitlines():
+        line = raw_line.rstrip()
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if stripped.startswith("- ") and current_key:
+            current_value = values.setdefault(current_key, [])
+            if not isinstance(current_value, list):
+                values[current_key] = current_value = []
+            current_value.append(stripped[2:].strip().strip('"'))
+            continue
+        if ":" not in line or line.startswith((" ", "\t")):
+            current_key = None
+            continue
+
+        key, value = line.split(":", 1)
+        key = key.strip()
+        value = value.strip()
+        if not value:
+            values[key] = []
+            current_key = key
+            continue
+        current_key = None
+        values[key] = parse_frontmatter_scalar(value)
+    return values
+
+
+def parse_frontmatter_scalar(value: str) -> Any:
+    value = value.strip().strip('"')
+    lower = value.lower()
+    if lower == "true":
+        return True
+    if lower == "false":
+        return False
+    if value.startswith("[") and value.endswith("]"):
+        inner = value[1:-1].strip()
+        if not inner:
+            return []
+        return [item.strip().strip('"') for item in inner.split(",")]
+    return value
+
+
 def module_by_id(inventory: dict[str, Any], module_id: str) -> dict[str, Any]:
     for module in inventory["modules"]:
         if module["id"] == module_id:
             return module
     known = ", ".join(module["id"] for module in inventory["modules"])
     raise KeyError(f"unknown module '{module_id}'. Known modules: {known}")
+
+
+def known_skill_names() -> set[str]:
+    skill_root = ROOT / ".codex" / "skills"
+    if not skill_root.exists():
+        return set()
+    return {
+        path.name
+        for path in skill_root.iterdir()
+        if path.is_dir() and (path / "SKILL.md").exists()
+    }
+
+
+def normalize_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return [str(value)]
 
 
 def validate_skills(inventory: dict[str, Any]) -> list[CheckResult]:
@@ -262,6 +334,114 @@ def check_dependencies(inventory: dict[str, Any]) -> list[CheckResult]:
     return results
 
 
+def validate_task_card_file(path: Path) -> list[CheckResult]:
+    results: list[CheckResult] = []
+    if not path.exists():
+        return [CheckResult(False, f"task-card: missing file {path}")]
+
+    text = read_text(path)
+    data = parse_frontmatter_values(text)
+    required = [
+        "task_id",
+        "status",
+        "request",
+        "scope",
+        "risk",
+        "owning_agent",
+        "affected_paths",
+        "required_evidence",
+        "human_gate_required",
+    ]
+    for field in required:
+        if field not in data or data[field] in ("", []):
+            results.append(CheckResult(False, f"{path}: missing frontmatter field {field}"))
+
+    placeholder_patterns = [
+        "<...",
+        "TODO",
+        "Describe what is in scope",
+        "Record commands run",
+        "List remaining uncertainty",
+        "ContractNameOrNone",
+    ]
+    for pattern in placeholder_patterns:
+        if pattern in text:
+            results.append(CheckResult(False, f"{path}: placeholder text remains: {pattern}"))
+
+    task_id = str(data.get("task_id", ""))
+    if task_id and not re.match(r"^\d{4}-\d{2}-\d{2}-[a-z0-9][a-z0-9-]*$", task_id):
+        results.append(CheckResult(False, f"{path}: task_id must look like YYYY-MM-DD-slug"))
+
+    valid_statuses = {"draft", "ready", "in_progress", "blocked", "complete"}
+    status = str(data.get("status", ""))
+    if status and status not in valid_statuses:
+        results.append(CheckResult(False, f"{path}: status must be one of {sorted(valid_statuses)}"))
+
+    valid_scopes = {
+        "architecture",
+        "implementation",
+        "test",
+        "fixture",
+        "ci",
+        "docs",
+        "tool",
+        "review",
+        "maintenance",
+        "release",
+    }
+    scope = str(data.get("scope", "")).lower()
+    if scope and scope not in valid_scopes:
+        results.append(CheckResult(False, f"{path}: scope must be one of {sorted(valid_scopes)}"))
+
+    valid_risks = {"low", "medium", "high"}
+    risk = str(data.get("risk", "")).lower()
+    if risk and risk not in valid_risks:
+        results.append(CheckResult(False, f"{path}: risk must be one of {sorted(valid_risks)}"))
+
+    known_skills = known_skill_names()
+    owner = str(data.get("owning_agent", ""))
+    if owner and known_skills and owner not in known_skills:
+        results.append(CheckResult(False, f"{path}: owning_agent {owner!r} is not a known .codex skill"))
+
+    for specialist in normalize_list(data.get("specialist_agents")):
+        if specialist.lower() == "none":
+            continue
+        if known_skills and specialist not in known_skills:
+            results.append(CheckResult(False, f"{path}: specialist_agent {specialist!r} is not a known .codex skill"))
+
+    evidence = normalize_list(data.get("required_evidence"))
+    if not evidence:
+        results.append(CheckResult(False, f"{path}: required_evidence must name at least one gate"))
+
+    affected_paths = normalize_list(data.get("affected_paths"))
+    if not affected_paths:
+        results.append(CheckResult(False, f"{path}: affected_paths must name at least one path or boundary"))
+
+    human_gate = data.get("human_gate_required")
+    if not isinstance(human_gate, bool):
+        results.append(CheckResult(False, f"{path}: human_gate_required must be true or false"))
+    if risk == "high" and human_gate is not True:
+        results.append(CheckResult(False, f"{path}: high-risk tasks require human_gate_required: true"))
+    if human_gate is True and not str(data.get("human_gate_reason", "")).strip():
+        results.append(CheckResult(False, f"{path}: human gate requires human_gate_reason"))
+
+    required_sections = [
+        "## Scope",
+        "## Non-Goals",
+        "## Acceptance Gates",
+        "## Verification Plan",
+        "## Evidence Bundle",
+        "## Residual Risks",
+    ]
+    for section in required_sections:
+        if section not in text:
+            results.append(CheckResult(False, f"{path}: missing section {section}"))
+
+    if not results:
+        results.append(CheckResult(True, f"task-card: {path.relative_to(ROOT)} passed"))
+    return results
+
+
 def design_card(inventory: dict[str, Any], module_id: str) -> dict[str, Any]:
     module = module_by_id(inventory, module_id)
     return {
@@ -362,6 +542,103 @@ def scaffold_module(args: argparse.Namespace, inventory: dict[str, Any]) -> int:
             print(f"# target: {path.relative_to(ROOT)}")
             print(text)
     return 0
+
+
+def task_card_template(args: argparse.Namespace) -> str:
+    today = args.date or _datetime.date.today().isoformat()
+    slug = re.sub(r"[^a-z0-9-]+", "-", args.slug.lower()).strip("-")
+    task_id = f"{today}-{slug}"
+    human_gate = "true" if args.human_gate or args.risk == "high" else "false"
+    human_gate_reason = args.human_gate_reason
+    if human_gate == "true" and not human_gate_reason:
+        human_gate_reason = "High-risk or explicitly gated task."
+    request = args.request.replace('"', '\\"')
+    evidence = args.evidence or ["validate-docs", "validate-inventory", "check-dependencies"]
+    evidence_lines = "\n".join(f"  - {item}" for item in evidence)
+    specialists = args.specialist or []
+    specialist_lines = "\n".join(f"  - {item}" for item in specialists)
+    if not specialist_lines:
+        specialist_lines = "  - none"
+
+    return f"""---
+task_id: {task_id}
+status: draft
+request: "{request}"
+scope: {args.scope}
+risk: {args.risk}
+owning_agent: {args.owner}
+specialist_agents:
+{specialist_lines}
+affected_contracts:
+  - none
+affected_paths:
+  - docs/agentic/
+required_evidence:
+{evidence_lines}
+human_gate_required: {human_gate}
+human_gate_reason: "{human_gate_reason}"
+---
+
+# {task_id}
+
+## Scope
+
+Describe what is in scope and what is intentionally out of scope.
+
+## Non-Goals
+
+- Do not change solver runtime semantics.
+- Do not redefine architecture contracts in `docs/agentic`.
+
+## Context To Read
+
+- `docs/architecture/README.md`
+- Owning skill: `{args.owner}`
+
+## Acceptance Gates
+
+- The owning boundary is clear.
+- Required evidence is produced or a reason is recorded.
+- Residual risks are named.
+
+## Verification Plan
+
+```bat
+python tools\\agentic_design\\agentic_toolkit.py validate-task-card docs\\agentic\\tasks\\{task_id}.md
+```
+
+## Evidence Bundle
+
+Record commands run, important outputs, changed files, and skipped checks.
+
+## Residual Risks
+
+List remaining uncertainty, review focus, or follow-up work.
+"""
+
+
+def new_task_card(args: argparse.Namespace) -> int:
+    today = args.date or _datetime.date.today().isoformat()
+    slug = re.sub(r"[^a-z0-9-]+", "-", args.slug.lower()).strip("-")
+    if not slug:
+        raise ValueError("--slug must contain at least one letter or number")
+    target = repo_path(args.output) if args.output else AGENTIC_TASK_DIR / f"{today}-{slug}.md"
+    text = task_card_template(args)
+    if args.write:
+        write_text(target, text, args.force)
+        print(f"wrote {target.relative_to(ROOT)}")
+    else:
+        print(f"# target: {target.relative_to(ROOT)}")
+        print(text)
+    return 0
+
+
+def validate_task_card_command(args: argparse.Namespace) -> int:
+    paths = [repo_path(path) if not Path(path).is_absolute() else Path(path) for path in args.paths]
+    results: list[CheckResult] = []
+    for path in paths:
+        results.extend(validate_task_card_file(path))
+    return run_checks(results)
 
 
 def run_checks(checks: list[CheckResult]) -> int:
@@ -485,6 +762,24 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("validate-docs", help="Validate architecture design coverage")
     subparsers.add_parser("check-dependencies", help="Check C++23 module import boundaries")
 
+    validate_task = subparsers.add_parser("validate-task-card", help="Validate agentic task-card frontmatter and sections")
+    validate_task.add_argument("paths", nargs="+")
+
+    new_task = subparsers.add_parser("new-task-card", help="Create a task-card skeleton")
+    new_task.add_argument("--slug", required=True)
+    new_task.add_argument("--request", required=True)
+    new_task.add_argument("--scope", default="implementation")
+    new_task.add_argument("--risk", default="medium")
+    new_task.add_argument("--owner", default="gcs-architecture-steward")
+    new_task.add_argument("--specialist", action="append", default=[])
+    new_task.add_argument("--evidence", action="append", default=[])
+    new_task.add_argument("--human-gate", action="store_true")
+    new_task.add_argument("--human-gate-reason", default="")
+    new_task.add_argument("--date", default="")
+    new_task.add_argument("--output", default="")
+    new_task.add_argument("--write", action="store_true")
+    new_task.add_argument("--force", action="store_true")
+
     gates = subparsers.add_parser(
         "run-quality-gates",
         help="Run CI-ready build, test, scene, and architecture quality gates",
@@ -527,6 +822,10 @@ def main(argv: list[str]) -> int:
         return run_checks(validate_docs(inventory))
     if args.command == "check-dependencies":
         return run_checks(check_dependencies(inventory))
+    if args.command == "validate-task-card":
+        return validate_task_card_command(args)
+    if args.command == "new-task-card":
+        return new_task_card(args)
     if args.command == "run-quality-gates":
         return run_quality_gates(args)
     if args.command == "emit-design-card":

@@ -46,6 +46,18 @@ Check C++23 module import boundaries:
 python tools\agentic_design\agentic_toolkit.py check-dependencies
 ```
 
+Create a structured agentic task card:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py new-task-card --slug agentic-tooling --scope tool --risk medium --owner gcs-contract-tools-steward --request "Add task-card validation" --write
+```
+
+Validate an agentic task card:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-24-agentic-tooling.md
+```
+
 Run the full local/CI quality gate:
 
 ```bat
@@ -77,7 +89,8 @@ python tools\agentic_design\agentic_toolkit.py scaffold-module --module kernel
 ```
 
 The scaffold commands refuse to overwrite existing files unless `--force` is
-passed.
+passed. `new-task-card` follows the same preview-first convention and writes
+only when `--write` is passed.
 
 ## Module Inventory
 
@@ -104,13 +117,15 @@ same change.
 Module agents should use the toolkit in this order:
 
 1. `validate-docs` before changing module contracts.
-2. `validate-inventory` after changing module IO, tool, or import metadata.
-3. `emit-design-card --module <id>` to start a structured design report.
-4. `scaffold-module --module <id>` to preview C++23 interface and
+2. `new-task-card` and `validate-task-card` before non-trivial or high-risk
+   work that should persist beyond the current conversation.
+3. `validate-inventory` after changing module IO, tool, or import metadata.
+4. `emit-design-card --module <id>` to start a structured design report.
+5. `scaffold-module --module <id>` to preview C++23 interface and
    implementation paths.
-5. `scaffold-contract-test --module <id>` to preview contract-test placement.
-6. `check-dependencies` after C++ imports change.
-7. `validate-skills` after skill or agent metadata changes.
+6. `scaffold-contract-test --module <id>` to preview contract-test placement.
+7. `check-dependencies` after C++ imports change.
+8. `validate-skills` after skill or agent metadata changes.
 
 ## Current Scope
 
@@ -120,6 +135,7 @@ the infrastructure needed to implement modules safely:
 - skill/catalog validation;
 - design coverage validation;
 - dependency boundary scanning;
+- task-card creation and validation;
 - design-card generation;
 - C++23 module skeleton preview/write;
 - contract-test skeleton preview/write.
