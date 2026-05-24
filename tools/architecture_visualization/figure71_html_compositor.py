@@ -78,6 +78,10 @@ def escape(value: object) -> str:
     return html.escape(str(value), quote=True)
 
 
+def text_budget(label: str, budget: int) -> str:
+    return f'data-gcs-text-label="{escape(label)}" data-gcs-text-budget="{budget}"'
+
+
 def load_json(path: Path) -> dict[str, object]:
     with path.open("r", encoding="utf-8") as handle:
         data = json.load(handle)
@@ -196,8 +200,8 @@ def render_step(step: Step, colors: dict[str, str]) -> str:
           <span class="step-number">{step.number}</span>
           {marker}
         </div>
-        <h4>{escape(step.focus)}</h4>
-        <p>{escape(step.evidence)}</p>
+        <h4 {text_budget(f"step-{step.number}-focus", 52)}>{escape(step.focus)}</h4>
+        <p {text_budget(f"step-{step.number}-evidence", 112)}>{escape(step.evidence)}</p>
       </article>
     """
 
@@ -224,11 +228,11 @@ def render_arc(arc: dict[str, object], arc_steps: list[Step], colors: dict[str, 
       <header class="panel-header">
         <div>
           <p class="panel-kicker">{escape(range_label)}</p>
-          <h2>{escape(title)}</h2>
+          <h2 {text_budget(f"panel-{escape(str(arc.get('id', 'panel')))}-title", 36)}>{escape(title)}</h2>
         </div>
-        <span class="token-chip">{escape(canonical_token)}</span>
+        <span class="token-chip" {text_budget(f"panel-{escape(str(arc.get('id', 'panel')))}-token", 28)}>{escape(canonical_token)}</span>
       </header>
-      <p class="panel-claim">{escape(claim)}</p>
+      <p class="panel-claim" {text_budget(f"panel-{escape(str(arc.get('id', 'panel')))}-claim", 104)}>{escape(claim)}</p>
       <div class="panel-body">
         {cards}
       </div>
@@ -567,14 +571,14 @@ def render_html(spec: dict[str, object], steps: list[Step], colors: dict[str, st
   <main class="figure-shell" data-figure-id="{escape(spec.get('id', 'figure'))}" data-schema-version="{escape(spec.get('schema_version', SCHEMA_VERSION))}">
     <header class="figure-title">
       <div>
-        <h1>{escape(figure_label)} | {escape(title)}</h1>
-        <p class="subtitle">{escape(subtitle)}</p>
+        <h1 {text_budget("figure-title", 84)}>{escape(figure_label)} | {escape(title)}</h1>
+        <p class="subtitle" {text_budget("figure-subtitle", 120)}>{escape(subtitle)}</p>
       </div>
       <p class="meta">Source: {escape(source_label)}<br>{done_count} done / {len(steps) - done_count} pending</p>
     </header>
     <section class="claim-band">
       <p class="claim-label">Procedure claim</p>
-      <p>{escape(claim)}</p>
+      <p {text_budget("procedure-claim", 150)}>{escape(claim)}</p>
     </section>
     <section class="figure-grid" aria-label="{escape(figure_label)} panels">
       {arc_markup}

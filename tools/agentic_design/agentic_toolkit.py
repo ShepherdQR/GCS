@@ -1428,6 +1428,14 @@ def build_quality_gate_commands(args: argparse.Namespace,
             [python, "-m", "unittest", "tests.tools.test_gcs_token_lint"],
         ))
         commands.append(GateCommand(
+            "python.gcs_text_overflow",
+            [python, "tools/ui_qa/gcs_text_overflow.py"],
+        ))
+        commands.append(GateCommand(
+            "python.gcs_text_overflow_tests",
+            [python, "-m", "unittest", "tests.tools.test_gcs_text_overflow"],
+        ))
+        commands.append(GateCommand(
             "python.gcs_viz_algebra",
             [python, "-m", "unittest", "tests.tools.test_gcs_viz_algebra"],
         ))

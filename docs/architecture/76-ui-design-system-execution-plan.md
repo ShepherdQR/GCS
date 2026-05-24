@@ -451,7 +451,7 @@ Goal: make `GCS Visual Integrity Gate` measurable.
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
 | P5.1 | Done | `gcs_token_lint.py` enforces raw-hex and unknown-token linting for GUI, Matplotlib, and figure renderer code. | Forced raw-hex fixture fails |
-| P5.2 | Pending | Add rendered text overflow checks. | QA fixture fails on forced overflow |
+| P5.2 | Done | `gcs_text_overflow.py` checks Figure 71 HTML text budgets and forced overflow fixtures. | QA fixture fails on forced overflow |
 | P5.3 | Pending | Add bounding-box overlap and contrast checks for text, status chips, and evidence panels. | Forced overlap plus contrast report |
 | P5.4 | Pending | Add screenshot baselines for core GUI/figure states. | Stable baseline policy |
 
@@ -480,6 +480,26 @@ Updated P5 next steps:
 - P4.4 can now rebuild Figure 71 with token drift guarded automatically.
 - P5.2 should focus on rendered text overflow rather than expanding token
   lint into a broader layout checker.
+
+P5.2 completion summary:
+
+- Added `tools/ui_qa/gcs_text_overflow.py` as a standard-library text-budget
+  checker for generated HTML figures.
+- Added text-budget markers to Figure 71 title, subtitle, procedure claim,
+  panel titles, token chips, panel claims, step focus labels, and step evidence
+  text.
+- Added `tests/tools/test_gcs_text_overflow.py` with current Figure 71 pass,
+  forced overflow failure, and missing-budget failure.
+- Promoted `python.gcs_text_overflow` and
+  `python.gcs_text_overflow_tests` into default quality gates.
+- Added `docs/architecture/70-visualization/text-overflow-gate.md`.
+
+Updated P5 next steps after P5.2:
+
+- P5.3 should add overlap and contrast gates over the same figure/HTML
+  artifact family.
+- P5.4 should decide screenshot baselines after the source-level gates are in
+  place.
 
 ## P6: Showcase And Editorial Polish
 
