@@ -45,7 +45,7 @@ commit message must name the step's purpose.
 | P1 | Governance And Agents | Done | Give future work dedicated skills, agents, and review responsibilities. |
 | P2 | Token Unification | Done | Make GUI, figures, and reports consume the same semantic token vocabulary. |
 | P3 | Viewer UI Implementation | Done | Apply the design system to the Python viewer without moving solver truth into UI. |
-| P4 | Scientific Figure Pipeline | In progress | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
+| P4 | Scientific Figure Pipeline | Done | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
 | P5 | Visual Integrity QA | In progress | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
 | P6 | Showcase And Editorial Polish | Pending | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
 
@@ -426,6 +426,16 @@ Updated P4 phase-close work:
 
 - P4 can now close with a phase summary and downstream plan update.
 - P5.2 should begin after P4 close and focus on rendered text overflow.
+
+P4 phase-close summary:
+
+- Added `86-p4-scientific-figure-pipeline-phase-close.md`.
+- Closed P4 after completing schema stabilization, browser export smoke,
+  graph/chart backend governance, and Figure 71 rebuild/prototype demotion.
+- Recorded stable decisions: specs are source of truth, repo-native pipeline
+  remains sufficient for Figure 71, graph/chart dependencies are deferred, and
+  Figma MCP remains a later P6.4 decision.
+- Moved active downstream work to P5.2 rendered text overflow checks.
 
 Current next-work plan:
 

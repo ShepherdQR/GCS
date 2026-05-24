@@ -34,10 +34,12 @@ Completed:
 - P4.4 is complete: Figure 71 is displayed from the browser-rendered review
   PNG, with editable HTML, review PDF, manifest, QA evidence, and old SVG
   prototype demotion recorded.
+- P4 is closed: the scientific figure pipeline has a phase-close summary and
+  downstream visual-integrity plan.
 
 Active phase:
 
-- P4 Scientific Figure Pipeline.
+- P5 Visual Integrity QA.
 
 ## Persisted Forward Plan
 
@@ -47,8 +49,8 @@ Active phase:
 | 2 | P5.1 Token lint gate | Done | Enforce the P2/P3 rule that raw hex values belong only in token sources and unknown tokens fail fast. | Forced raw-hex fixture fails; current code passes. |
 | 3 | P4.3 Graph/chart backend decision | Done | Decide whether execution-map panels need new graph/chart backends or can stay repo-native for now. | Dependency decision recorded before any new renderer package is added. |
 | 4 | P4.4 Rebuild execution-map figure | Done | Regenerate execution-map assets through the stable spec/compositor/QA path and demote old SVG output to prototype history. | `figure_qa.py` passes and generated artifacts are linked from architecture docs. |
-| 5 | P4 phase close | Next | Reassess whether repo-native figure production is stable enough before considering Figma MCP. | Phase-close summary and downstream plan update committed. |
-| 6 | P5.2 Text overflow gate | Pending | Catch text that would spill from figure panels or compact UI surfaces. | Forced overflow fixture fails. |
+| 5 | P4 phase close | Done | Reassess whether repo-native figure production is stable enough before considering Figma MCP. | Phase-close summary and downstream plan update committed. |
+| 6 | P5.2 Text overflow gate | Next | Catch text that would spill from figure panels or compact UI surfaces. | Forced overflow fixture fails. |
 | 7 | P5.3 Overlap and contrast gates | Pending | Catch critical text/shape overlap and weak contrast in status/evidence surfaces. | Forced overlap fails and contrast report is produced. |
 | 8 | P5.4 Screenshot baselines | Pending | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
 | 9 | P6.1 Showcase brief | Pending | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
@@ -101,9 +103,18 @@ Active phase:
   manifest refresh when browser artifacts exist but a local browser process
   does not exit cleanly.
 
+## P4 Phase-Close Summary
+
+- Added `docs/architecture/86-p4-scientific-figure-pipeline-phase-close.md`.
+- Closed P4 with Figure 71 as the phase proof: semantic spec, shared theme,
+  HTML/CSS compositor, browser-rendered review artifacts, token lint, and
+  structural QA.
+- Recorded residual risks for P5: text overflow, overlap, contrast, and
+  screenshot-baseline stability.
+
 ## Updated Next Move
 
-The next implementation step should be **P4 Phase Close**.
+The next implementation step should be **P5.2 Text Overflow Gate**.
 
 Reasoning:
 
@@ -112,8 +123,10 @@ Reasoning:
 - P4.3 now confirms P4.4 should not add graph/chart dependencies.
 - P4.4 rebuilt the execution-map display artifact and recorded the remaining
   browser-process caveat.
-- P4 should now close before P5.2 starts, so downstream visual-integrity work
-  begins from an explicit phase summary.
+- P4 is now closed, so downstream visual-integrity work can begin from an
+  explicit phase summary.
+- P5.2 should stay narrow: rendered text overflow, with forced bad fixtures,
+  before broader overlap and contrast checks.
 
 ## Opportunistic Cleanup
 
