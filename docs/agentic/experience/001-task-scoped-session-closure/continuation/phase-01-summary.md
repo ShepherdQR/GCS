@@ -13,7 +13,7 @@ commit, and next-step declaration.
 | 1.1 | `continuation/phase-step-research-roadmap.md` | `d99f233` |
 | 1.2 | `continuation/phase-step-state-machine.md` | `c9d13f6` |
 | 1.3 | `continuation/step-closure-record-template.md` | `cf55315` |
-| 1.4 | `continuation/phase-01-summary.md` | current step |
+| 1.4 | `continuation/phase-01-summary.md` | `94b01fe` |
 
 ## What Phase 1 Established
 

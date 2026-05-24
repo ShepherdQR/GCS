@@ -65,6 +65,13 @@ research: add E001 step closure template
 | Phase 3 | Run an empirical pilot over completed-task reports | planned |
 | Phase 4 | Promote validated lessons into skill, eval, or lifecycle policy | planned |
 
+## Plan Documents
+
+- Current status: `continuation/current-status.md`
+- Phase 2 plan: `continuation/phase-02-plan.md`
+- Phase 3 plan: `continuation/phase-03-plan.md`
+- Phase 4 plan: `continuation/phase-04-plan.md`
+
 ## Phase 1: Research Operating Model
 
 Goal: define how E001 continuation research should be conducted as a sequence
