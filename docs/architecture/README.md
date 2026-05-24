@@ -51,6 +51,8 @@ order, not by historical source order. Background research notes live under
      self-evolution.
    - `69-ci-ready-quality-gates.md`: Step 18 quality-gate contract for local
      pre-push and CI execution.
+   - `71-step-1-40-execution-report.md`: reporting-oriented summary of Step 1
+     through Step 40 status, core deliverables, evidence, and next batch.
 8. Visualization atlas
    - `70-visualization/gcs-architecture-atlas.md`: architecture diagrams and
      visual grammar for the target GCS shape.
