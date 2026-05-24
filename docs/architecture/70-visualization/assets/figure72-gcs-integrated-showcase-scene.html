@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Figure 72 - GCS Integrated Showcase Evidence</title>
+  <style>
+    :root {
+      --gcs-accent: #c8643f;
+      --gcs-bar-track: #efebe2;
+      --gcs-boundary: #efede6;
+      --gcs-boundary-stroke: #777166;
+      --gcs-constraint: #b97834;
+      --gcs-cool-domain: #e9f3f6;
+      --gcs-diagnostic: #f6e7cf;
+      --gcs-diagnostic-stroke: #a36b32;
+      --gcs-domain: #e7edf8;
+      --gcs-domain-stroke: #435f8c;
+      --gcs-failure: #f3ddd7;
+      --gcs-failure-stroke: #a94c43;
+      --gcs-graph: #efe7f3;
+      --gcs-graph-stroke: #765d87;
+      --gcs-ink: #181715;
+      --gcs-muted: #5f5b53;
+      --gcs-numeric: #edf2df;
+      --gcs-numeric-stroke: #5e7d43;
+      --gcs-ok: #4b8a64;
+      --gcs-panel: #fffefa;
+      --gcs-paper: #f7f4ec;
+      --gcs-planner: #e3f0e4;
+      --gcs-planner-stroke: #477861;
+      --gcs-plot: #fbfaf5;
+      --gcs-point: #334c78;
+      --gcs-quiet: #8b867a;
+      --gcs-rule: #d8d1c4;
+      --gcs-rule-soft: #ece7dd;
+      --gcs-surface: #fffdf7;
+      --gcs-white: #ffffff;
+      --gcs-font-sans: Anthropic Sans, Inter, Segoe UI, Arial, sans-serif;
+      --gcs-font-serif: Anthropic Serif, Georgia, Cambria, Times New Roman, serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--gcs-paper);
+      color: var(--gcs-ink);
+      font-family: var(--gcs-font-sans);
+      overflow-wrap: anywhere;
+    }
+    main {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 38px;
+    }
+    .figure-shell {
+      background: var(--gcs-paper);
+      border: 1px solid var(--gcs-rule);
+      border-radius: 8px;
+      padding: 34px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      border-bottom: 1px solid var(--gcs-rule);
+      padding-bottom: 22px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-family: var(--gcs-font-serif);
+      font-size: 34px;
+      line-height: 1.08;
+      margin: 0 0 10px;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 0;
+      max-width: 900px;
+      color: var(--gcs-muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 12px;
+      border: 1px solid var(--gcs-planner-stroke);
+      border-radius: 999px;
+      background: var(--gcs-planner);
+      color: var(--gcs-planner-stroke);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .panel {
+      grid-column: span 4;
+      min-height: 280px;
+      background: var(--gcs-panel);
+      border: 1px solid var(--gcs-rule);
+      border-top: 5px solid var(--panel-token-stroke);
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel-gate_chain {
+      grid-column: 1 / -1;
+      min-height: 210px;
+    }
+    .panel-topline {
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .eyebrow {
+      margin: 0 0 5px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gcs-muted);
+    }
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    .panel-claim {
+      margin: 0;
+      color: var(--gcs-muted);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+    .chip,
+    .panel-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 6px 10px;
+      border: 1px solid var(--chip-stroke);
+      border-radius: 999px;
+      background: var(--chip-fill);
+      color: var(--chip-stroke);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .scene-contract-layout {
+      display: grid;
+      grid-template-columns: minmax(160px, 0.85fr) minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+    .scene-glyph {
+      width: 100%;
+      min-height: 180px;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .metric {
+      min-height: 70px;
+      border: 1px solid var(--metric-stroke);
+      border-radius: 7px;
+      background: var(--metric-fill);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .metric span {
+      font-size: 10px;
+      color: var(--gcs-muted);
+      font-weight: 700;
+    }
+    .metric strong {
+      font-size: 18px;
+      line-height: 1.1;
+    }
+    .evidence-list,
+    .rank-list,
+    .gate-layout ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    .evidence-list p,
+    .rank-list li,
+    .gate-layout li {
+      margin: 0;
+      padding: 10px 11px;
+      border: 1px solid var(--gcs-rule-soft);
+      border-radius: 7px;
+      background: var(--gcs-surface);
+      font-size: 13px;
+      line-height: 1.38;
+    }
+    .rank-list li {
+      display: grid;
+      gap: 4px;
+    }
+    .rank-list span {
+      color: var(--gcs-muted);
+    }
+    .negative-list p:first-child {
+      border-color: var(--gcs-failure-stroke);
+      background: var(--gcs-failure);
+    }
+    .gate-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.65fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .panel-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    @media (max-width: 980px) {
+      main { padding: 16px; }
+      .figure-shell { padding: 20px; }
+      header,
+      .scene-contract-layout,
+      .gate-layout {
+        grid-template-columns: 1fr;
+      }
+      .panel { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article class="figure-shell">
+      <header>
+        <div>
+          <h1 data-gcs-text-label="figure72-title" data-gcs-text-budget="70" data-gcs-contrast-label="figure72-title" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#f7f4ec" data-gcs-contrast-min="4.5">GCS Integrated Showcase Evidence</h1>
+          <p class="subtitle" data-gcs-text-label="figure72-subtitle" data-gcs-text-budget="190" data-gcs-contrast-label="figure72-subtitle" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#f7f4ec" data-gcs-contrast-min="4.5">One public constraint scene carries solve intent through decomposition, numeric evidence, gluing diagnostics, viewer projection, CLI smoke, and typed rejection evidence.</p>
+        </div>
+        <span class="status-pill" data-gcs-text-label="figure72-status" data-gcs-text-budget="44" data-gcs-contrast-label="figure72-status" data-gcs-contrast-fg="#477861" data-gcs-contrast-bg="#e3f0e4" data-gcs-contrast-min="3.0">AcceptedWithWarnings</span>
+      </header>
+      <div class="panel-grid">
+        
+    <section class="panel panel-scene_contract" style="--panel-token-fill:#e7edf8;--panel-token-stroke:#435f8c;" data-gcs-box-label="figure72-scene_contract" data-gcs-box-group="figure72-grid" data-gcs-box="0,0,4,1">
+      <div class="panel-topline">
+        <div>
+          <p class="eyebrow" data-gcs-text-label="scene_contract-eyebrow" data-gcs-text-budget="34" data-gcs-contrast-label="scene_contract-eyebrow" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">evidence.domain</p>
+          <h2 data-gcs-text-label="scene_contract-title" data-gcs-text-budget="44" data-gcs-contrast-label="scene_contract-title" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Scene Contract</h2>
+        </div>
+        <span class="chip" style="--chip-fill:#e7edf8;--chip-stroke:#435f8c;" data-gcs-text-label="chip-Scene Contract" data-gcs-text-budget="40" data-gcs-contrast-label="chip-Scene Contract" data-gcs-contrast-fg="#435f8c" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="3.0">Scene Contract</span>
+      </div>
+      <p class="panel-claim" data-gcs-text-label="scene_contract-claim" data-gcs-text-budget="150" data-gcs-contrast-label="scene_contract-claim" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Public JSON carries durable solve intent and inspectable geometry.</p>
+      
+      <div class="scene-contract-layout">
+        
+      <svg class="scene-glyph" viewBox="0 0 240 210" role="img" aria-label="integrated showcase scene graph">
+        <rect x="1" y="1" width="238" height="208" rx="8" fill="#fbfaf5" stroke="#d8d1c4"/>
+        <line x1="40.0" y1="54.0" x2="110.0" y2="54.0" stroke="#b97834" stroke-width="2.2" stroke-linecap="round"/><line x1="110.0" y1="54.0" x2="180.0" y2="54.0" stroke="#b97834" stroke-width="2.2" stroke-linecap="round"/><line x1="40.0" y1="178.0" x2="40.0" y2="178.0" stroke="#b97834" stroke-width="2.2" stroke-linecap="round"/><line x1="180.0" y1="178.0" x2="40.0" y2="178.0" stroke="#b97834" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="40.0" cy="54.0" r="15" fill="#c8643f" stroke="#435f8c" stroke-width="1.4"/><circle cx="110.0" cy="54.0" r="15" fill="#e7edf8" stroke="#435f8c" stroke-width="1.4"/><circle cx="180.0" cy="54.0" r="15" fill="#e7edf8" stroke="#435f8c" stroke-width="1.4"/><circle cx="40.0" cy="178.0" r="15" fill="#e7edf8" stroke="#435f8c" stroke-width="1.4"/><circle cx="40.0" cy="178.0" r="15" fill="#e7edf8" stroke="#435f8c" stroke-width="1.4"/><circle cx="180.0" cy="178.0" r="15" fill="#e7edf8" stroke="#435f8c" stroke-width="1.4"/>
+      </svg>
+    
+        <div class="metric-grid">
+          
+      <div class="metric" style="--metric-fill:#e7edf8;--metric-stroke:#435f8c;">
+        <span data-gcs-text-label="metric-Rigid sets-label" data-gcs-text-budget="28" data-gcs-contrast-label="metric-Rigid sets-label" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="4.5">Rigid sets</span>
+        <strong data-gcs-text-label="metric-Rigid sets-value" data-gcs-text-budget="30" data-gcs-contrast-label="metric-Rigid sets-value" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="4.5">6</strong>
+      </div>
+    
+      <div class="metric" style="--metric-fill:#e7edf8;--metric-stroke:#435f8c;">
+        <span data-gcs-text-label="metric-Geometries-label" data-gcs-text-budget="28" data-gcs-contrast-label="metric-Geometries-label" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="4.5">Geometries</span>
+        <strong data-gcs-text-label="metric-Geometries-value" data-gcs-text-budget="30" data-gcs-contrast-label="metric-Geometries-value" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="4.5">6</strong>
+      </div>
+    
+      <div class="metric" style="--metric-fill:#e7edf8;--metric-stroke:#435f8c;">
+        <span data-gcs-text-label="metric-Constraints-label" data-gcs-text-budget="28" data-gcs-contrast-label="metric-Constraints-label" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="4.5">Constraints</span>
+        <strong data-gcs-text-label="metric-Constraints-value" data-gcs-text-budget="30" data-gcs-contrast-label="metric-Constraints-value" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="4.5">4</strong>
+      </div>
+    
+      <div class="metric" style="--metric-fill:#e7edf8;--metric-stroke:#435f8c;">
+        <span data-gcs-text-label="metric-Fixed IDs-label" data-gcs-text-budget="28" data-gcs-contrast-label="metric-Fixed IDs-label" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="4.5">Fixed IDs</span>
+        <strong data-gcs-text-label="metric-Fixed IDs-value" data-gcs-text-budget="30" data-gcs-contrast-label="metric-Fixed IDs-value" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#e7edf8" data-gcs-contrast-min="4.5">1</strong>
+      </div>
+    
+        </div>
+      </div>
+    
+    </section>
+    
+    <section class="panel panel-constraint_graph" style="--panel-token-fill:#efe7f3;--panel-token-stroke:#765d87;" data-gcs-box-label="figure72-constraint_graph" data-gcs-box-group="figure72-grid" data-gcs-box="4,0,4,1">
+      <div class="panel-topline">
+        <div>
+          <p class="eyebrow" data-gcs-text-label="constraint_graph-eyebrow" data-gcs-text-budget="34" data-gcs-contrast-label="constraint_graph-eyebrow" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">evidence.graph</p>
+          <h2 data-gcs-text-label="constraint_graph-title" data-gcs-text-budget="44" data-gcs-contrast-label="constraint_graph-title" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Constraint Graph</h2>
+        </div>
+        <span class="chip" style="--chip-fill:#efe7f3;--chip-stroke:#765d87;" data-gcs-text-label="chip-Constraint Graph" data-gcs-text-budget="40" data-gcs-contrast-label="chip-Constraint Graph" data-gcs-contrast-fg="#765d87" data-gcs-contrast-bg="#efe7f3" data-gcs-contrast-min="3.0">Constraint Graph</span>
+      </div>
+      <p class="panel-claim" data-gcs-text-label="constraint_graph-claim" data-gcs-text-budget="150" data-gcs-contrast-label="constraint_graph-claim" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Two local components make the showcase a real decomposition scene.</p>
+      
+      <div class="evidence-list">
+        <p data-gcs-text-label="constraint-components" data-gcs-text-budget="90" data-gcs-contrast-label="constraint-components" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Components: (0, 1, 2); (3, 4, 5)</p>
+        <p data-gcs-text-label="constraint-types" data-gcs-text-budget="130" data-gcs-contrast-label="constraint-types" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Constraints: Distance, Distance, Distance, Perpendicular</p>
+        <p data-gcs-text-label="constraint-geometry-types" data-gcs-text-budget="130" data-gcs-contrast-label="constraint-geometry-types" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Geometry mix: Point, Point, Point, Point, Plane, Line</p>
+      </div>
+    
+    </section>
+    
+    <section class="panel panel-boundary_plan" style="--panel-token-fill:#e3f0e4;--panel-token-stroke:#477861;" data-gcs-box-label="figure72-boundary_plan" data-gcs-box-group="figure72-grid" data-gcs-box="8,0,4,1">
+      <div class="panel-topline">
+        <div>
+          <p class="eyebrow" data-gcs-text-label="boundary_plan-eyebrow" data-gcs-text-budget="34" data-gcs-contrast-label="boundary_plan-eyebrow" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">evidence.planner</p>
+          <h2 data-gcs-text-label="boundary_plan-title" data-gcs-text-budget="44" data-gcs-contrast-label="boundary_plan-title" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Boundary Plan</h2>
+        </div>
+        <span class="chip" style="--chip-fill:#e3f0e4;--chip-stroke:#477861;" data-gcs-text-label="chip-Boundary Plan" data-gcs-text-budget="40" data-gcs-contrast-label="chip-Boundary Plan" data-gcs-contrast-fg="#477861" data-gcs-contrast-bg="#e3f0e4" data-gcs-contrast-min="3.0">Boundary Plan</span>
+      </div>
+      <p class="panel-claim" data-gcs-text-label="boundary_plan-claim" data-gcs-text-budget="150" data-gcs-contrast-label="boundary_plan-claim" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Fixed geometry propagates into cover and local numeric tasks.</p>
+      
+      <div class="metric-grid">
+        
+      <div class="metric" style="--metric-fill:#e3f0e4;--metric-stroke:#477861;">
+        <span data-gcs-text-label="metric-fixed boundary-label" data-gcs-text-budget="28" data-gcs-contrast-label="metric-fixed boundary-label" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#e3f0e4" data-gcs-contrast-min="4.5">fixed boundary</span>
+        <strong data-gcs-text-label="metric-fixed boundary-value" data-gcs-text-budget="30" data-gcs-contrast-label="metric-fixed boundary-value" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#e3f0e4" data-gcs-contrast-min="4.5">[0]</strong>
+      </div>
+    
+        
+      <div class="metric" style="--metric-fill:#e3f0e4;--metric-stroke:#477861;">
+        <span data-gcs-text-label="metric-planner subproblems-label" data-gcs-text-budget="28" data-gcs-contrast-label="metric-planner subproblems-label" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#e3f0e4" data-gcs-contrast-min="4.5">planner subproblems</span>
+        <strong data-gcs-text-label="metric-planner subproblems-value" data-gcs-text-budget="30" data-gcs-contrast-label="metric-planner subproblems-value" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#e3f0e4" data-gcs-contrast-min="4.5">2</strong>
+      </div>
+    
+        
+      <div class="metric" style="--metric-fill:#e3f0e4;--metric-stroke:#477861;">
+        <span data-gcs-text-label="metric-cover contexts-label" data-gcs-text-budget="28" data-gcs-contrast-label="metric-cover contexts-label" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#e3f0e4" data-gcs-contrast-min="4.5">cover contexts</span>
+        <strong data-gcs-text-label="metric-cover contexts-value" data-gcs-text-budget="30" data-gcs-contrast-label="metric-cover contexts-value" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#e3f0e4" data-gcs-contrast-min="4.5">3</strong>
+      </div>
+    
+      </div>
+    
+    </section>
+    
+    <section class="panel panel-numeric_evidence" style="--panel-token-fill:#edf2df;--panel-token-stroke:#5e7d43;" data-gcs-box-label="figure72-numeric_evidence" data-gcs-box-group="figure72-grid" data-gcs-box="0,1,4,1">
+      <div class="panel-topline">
+        <div>
+          <p class="eyebrow" data-gcs-text-label="numeric_evidence-eyebrow" data-gcs-text-budget="34" data-gcs-contrast-label="numeric_evidence-eyebrow" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">evidence.numeric</p>
+          <h2 data-gcs-text-label="numeric_evidence-title" data-gcs-text-budget="44" data-gcs-contrast-label="numeric_evidence-title" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Numeric Evidence</h2>
+        </div>
+        <span class="chip" style="--chip-fill:#edf2df;--chip-stroke:#5e7d43;" data-gcs-text-label="chip-Numeric Evidence" data-gcs-text-budget="40" data-gcs-contrast-label="chip-Numeric Evidence" data-gcs-contrast-fg="#5e7d43" data-gcs-contrast-bg="#edf2df" data-gcs-contrast-min="3.0">Numeric Evidence</span>
+      </div>
+      <p class="panel-claim" data-gcs-text-label="numeric_evidence-claim" data-gcs-text-budget="150" data-gcs-contrast-label="numeric_evidence-claim" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Rank and residual reports stay visible at the local-solve boundary.</p>
+      <ul class="rank-list">
+        <li>
+          <strong data-gcs-text-label="rank-0-label" data-gcs-text-budget="24" data-gcs-contrast-label="rank-0-label" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">local 0</strong>
+          <span data-gcs-text-label="rank-0-detail" data-gcs-text-budget="96" data-gcs-contrast-label="rank-0-detail" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">rank 2, free 6, frozen 3, residual max 0.0</span>
+        </li>
+        
+        <li>
+          <strong data-gcs-text-label="rank-1-label" data-gcs-text-budget="24" data-gcs-contrast-label="rank-1-label" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">local 1</strong>
+          <span data-gcs-text-label="rank-1-detail" data-gcs-text-budget="96" data-gcs-contrast-label="rank-1-detail" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">rank 2, free 15, frozen 0, residual max 0.0</span>
+        </li>
+        </ul>
+    </section>
+    
+    <section class="panel panel-gluing_and_diagnostics" style="--panel-token-fill:#f6e7cf;--panel-token-stroke:#a36b32;" data-gcs-box-label="figure72-gluing_and_diagnostics" data-gcs-box-group="figure72-grid" data-gcs-box="4,1,4,1">
+      <div class="panel-topline">
+        <div>
+          <p class="eyebrow" data-gcs-text-label="gluing_and_diagnostics-eyebrow" data-gcs-text-budget="34" data-gcs-contrast-label="gluing_and_diagnostics-eyebrow" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">evidence.diagnostic</p>
+          <h2 data-gcs-text-label="gluing_and_diagnostics-title" data-gcs-text-budget="44" data-gcs-contrast-label="gluing_and_diagnostics-title" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Gluing Diagnostics</h2>
+        </div>
+        <span class="chip" style="--chip-fill:#f6e7cf;--chip-stroke:#a36b32;" data-gcs-text-label="chip-Gluing Diagnostics" data-gcs-text-budget="40" data-gcs-contrast-label="chip-Gluing Diagnostics" data-gcs-contrast-fg="#a36b32" data-gcs-contrast-bg="#f6e7cf" data-gcs-contrast-min="3.0">Gluing Diagnostics</span>
+      </div>
+      <p class="panel-claim" data-gcs-text-label="gluing_and_diagnostics-claim" data-gcs-text-budget="150" data-gcs-contrast-label="gluing_and_diagnostics-claim" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Local sections become a committed accepted state through diagnostics.</p>
+      
+      <div class="evidence-list">
+        <p data-gcs-text-label="gluing-code" data-gcs-text-budget="42" data-gcs-contrast-label="gluing-code" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">gluing.accepted</p>
+        <p data-gcs-text-label="gluing-message" data-gcs-text-budget="120" data-gcs-contrast-label="gluing-message" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">All local sections are compatible within boundary tolerance.</p>
+        <p data-gcs-text-label="diagnostic-count" data-gcs-text-budget="80" data-gcs-contrast-label="diagnostic-count" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">post-local diagnostics warnings: 2</p>
+      </div>
+    
+    </section>
+    
+    <section class="panel panel-negative_variant" style="--panel-token-fill:#f3ddd7;--panel-token-stroke:#a94c43;" data-gcs-box-label="figure72-negative_variant" data-gcs-box-group="figure72-grid" data-gcs-box="8,1,4,1">
+      <div class="panel-topline">
+        <div>
+          <p class="eyebrow" data-gcs-text-label="negative_variant-eyebrow" data-gcs-text-budget="34" data-gcs-contrast-label="negative_variant-eyebrow" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">evidence.failure</p>
+          <h2 data-gcs-text-label="negative_variant-title" data-gcs-text-budget="44" data-gcs-contrast-label="negative_variant-title" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Negative Variant</h2>
+        </div>
+        <span class="chip" style="--chip-fill:#f3ddd7;--chip-stroke:#a94c43;" data-gcs-text-label="chip-Negative Variant" data-gcs-text-budget="40" data-gcs-contrast-label="chip-Negative Variant" data-gcs-contrast-fg="#a94c43" data-gcs-contrast-bg="#f3ddd7" data-gcs-contrast-min="3.0">Negative Variant</span>
+      </div>
+      <p class="panel-claim" data-gcs-text-label="negative_variant-claim" data-gcs-text-budget="150" data-gcs-contrast-label="negative_variant-claim" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Invalid solve intent fails with a stable typed report code.</p>
+      
+      <div class="evidence-list negative-list">
+        <p data-gcs-text-label="negative-code" data-gcs-text-budget="70" data-gcs-contrast-label="negative-code" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">kernel.solve_intent_missing_fixed_entity</p>
+        <p data-gcs-text-label="negative-missing" data-gcs-text-budget="60" data-gcs-contrast-label="negative-missing" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">missing fixed geometry IDs: [999]</p>
+      </div>
+    
+    </section>
+    
+    <section class="panel panel-gate_chain" style="--panel-token-fill:#efede6;--panel-token-stroke:#777166;" data-gcs-box-label="figure72-gate_chain" data-gcs-box-group="figure72-grid" data-gcs-box="0,2,12,1">
+      <div class="panel-topline">
+        <div>
+          <p class="eyebrow" data-gcs-text-label="gate_chain-eyebrow" data-gcs-text-budget="34" data-gcs-contrast-label="gate_chain-eyebrow" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">evidence.boundary</p>
+          <h2 data-gcs-text-label="gate_chain-title" data-gcs-text-budget="44" data-gcs-contrast-label="gate_chain-title" data-gcs-contrast-fg="#181715" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">Gate Chain</h2>
+        </div>
+        <span class="chip" style="--chip-fill:#efede6;--chip-stroke:#777166;" data-gcs-text-label="chip-Gate Chain" data-gcs-text-budget="40" data-gcs-contrast-label="chip-Gate Chain" data-gcs-contrast-fg="#777166" data-gcs-contrast-bg="#efede6" data-gcs-contrast-min="3.0">Gate Chain</span>
+      </div>
+      <p class="panel-claim" data-gcs-text-label="gate_chain-claim" data-gcs-text-budget="150" data-gcs-contrast-label="gate_chain-claim" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">The showcase is public evidence because fixture, viewer, replay, and CLI gates name it.</p>
+      
+      <div class="gate-layout">
+        <ul><li data-gcs-text-label="gate-0" data-gcs-text-budget="94" data-gcs-contrast-label="gate-0" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">IoAdaptersContract.ShowcaseJsonSceneCarriesSolveIntentBehavior</li><li data-gcs-text-label="gate-1" data-gcs-text-budget="94" data-gcs-contrast-label="gate-1" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">ViewerBridgeContract.ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence</li><li data-gcs-text-label="gate-2" data-gcs-text-budget="94" data-gcs-contrast-label="gate-2" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">SessionRuntimeContract.ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory</li><li data-gcs-text-label="gate-3" data-gcs-text-budget="94" data-gcs-contrast-label="gate-3" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">ViewerBridgeContract.RuntimeHistoryFrameProjectsAsReportEvidenceOnly</li><li data-gcs-text-label="gate-4" data-gcs-text-budget="94" data-gcs-contrast-label="gate-4" data-gcs-contrast-fg="#5f5b53" data-gcs-contrast-bg="#fffefa" data-gcs-contrast-min="4.5">cli.showcase_scene</li></ul>
+        <div class="panel-tags"><span class="panel-tag" data-gcs-text-label="required-panel-0" data-gcs-text-budget="32" data-gcs-contrast-label="required-panel-0" data-gcs-contrast-fg="#777166" data-gcs-contrast-bg="#efede6" data-gcs-contrast-min="3.0">scene_contract</span><span class="panel-tag" data-gcs-text-label="required-panel-1" data-gcs-text-budget="32" data-gcs-contrast-label="required-panel-1" data-gcs-contrast-fg="#777166" data-gcs-contrast-bg="#efede6" data-gcs-contrast-min="3.0">constraint_graph</span><span class="panel-tag" data-gcs-text-label="required-panel-2" data-gcs-text-budget="32" data-gcs-contrast-label="required-panel-2" data-gcs-contrast-fg="#777166" data-gcs-contrast-bg="#efede6" data-gcs-contrast-min="3.0">boundary_plan</span><span class="panel-tag" data-gcs-text-label="required-panel-3" data-gcs-text-budget="32" data-gcs-contrast-label="required-panel-3" data-gcs-contrast-fg="#777166" data-gcs-contrast-bg="#efede6" data-gcs-contrast-min="3.0">numeric_evidence</span><span class="panel-tag" data-gcs-text-label="required-panel-4" data-gcs-text-budget="32" data-gcs-contrast-label="required-panel-4" data-gcs-contrast-fg="#777166" data-gcs-contrast-bg="#efede6" data-gcs-contrast-min="3.0">gluing_and_diagnostics</span><span class="panel-tag" data-gcs-text-label="required-panel-5" data-gcs-text-budget="32" data-gcs-contrast-label="required-panel-5" data-gcs-contrast-fg="#777166" data-gcs-contrast-bg="#efede6" data-gcs-contrast-min="3.0">negative_variant</span><span class="panel-tag" data-gcs-text-label="required-panel-6" data-gcs-text-budget="32" data-gcs-contrast-label="required-panel-6" data-gcs-contrast-fg="#777166" data-gcs-contrast-bg="#efede6" data-gcs-contrast-min="3.0">gate_chain</span></div>
+      </div>
+    
+    </section>
+    
+      </div>
+    </article>
+  </main>
+</body>
+</html>

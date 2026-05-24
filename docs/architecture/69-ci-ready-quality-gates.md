@@ -1,6 +1,6 @@
 # CI-Ready Quality Gates
 
-Status: P6.2 showcase fixture evidence gate integrated.
+Status: P6.3 showcase HTML figure gate integrated.
 
 ## Purpose
 
@@ -40,22 +40,24 @@ The default gate runs:
 7. Python showcase-scene renderer unittest
 8. Python showcase fixture evidence metadata check
 9. Python showcase fixture evidence unittest
-10. Python browser-export unittest
-11. Python token lint and token-lint unittest
-12. Python text-overflow check and unittest
-13. Python overlap/contrast check and unittest
-14. Python screenshot-baseline check and unittest
-15. Python scene-schema algebra unittest
-16. Python history-replay unittest
-17. `cmake --preset clang-ninja`
-18. `cmake --build --preset clang-ninja`
-19. full CTest contract suite
-20. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
-21. explicit public-evidence-chain CTest selection for rank, diagnostics,
+10. Python showcase HTML compositor freshness check
+11. Python showcase HTML compositor unittest
+12. Python browser-export unittest
+13. Python token lint and token-lint unittest
+14. Python text-overflow check and unittest
+15. Python overlap/contrast check and unittest
+16. Python screenshot-baseline check and unittest
+17. Python scene-schema algebra unittest
+18. Python history-replay unittest
+19. `cmake --preset clang-ninja`
+20. `cmake --build --preset clang-ninja`
+21. full CTest contract suite
+22. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
+23. explicit public-evidence-chain CTest selection for rank, diagnostics,
     runtime, viewer, corpus, showcase, and replay-boundary evidence introduced
     in Steps 31 through 46
-22. CLI smoke on `fixtures/scene/basic/g1.txt`
-23. CLI smoke on
+24. CLI smoke on `fixtures/scene/basic/g1.txt`
+25. CLI smoke on
     `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
 
 The command exits nonzero on the first failed gate by default and prints a
@@ -116,6 +118,7 @@ A change is Step 18 complete when:
 - scene-generation tests are part of the default gate;
 - showcase-scene renderer tests are part of the default gate;
 - showcase fixture evidence metadata checks are part of the default gate;
+- showcase HTML compositor freshness checks are part of the default gate;
 - token, text-overflow, overlap/contrast, and screenshot-baseline visual
   integrity checks are part of the default gate;
 - Python scene-schema algebra tests are part of the default gate;

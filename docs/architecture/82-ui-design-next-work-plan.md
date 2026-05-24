@@ -49,6 +49,8 @@ Completed:
 - P6.2 is complete: showcase metadata now carries executable fixture evidence
   for rank/residual, gluing, diagnostics, replay boundary, panels, tokens, and
   negative rejection.
+- P6.3 is complete: Figure 72 now has a tokenized HTML production artifact and
+  default visual-integrity coverage.
 
 Active phase:
 
@@ -69,8 +71,8 @@ Active phase:
 | 9 | P5 phase close | Done | Decide default versus reviewer-only visual-integrity gates before P6. | Phase-close summary and downstream plan update committed. |
 | 10 | P6.1 Showcase brief | Done | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
 | 11 | P6.2 Showcase fixture | Done | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
-| 12 | P6.3 Showcase figure | Next | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
-| 13 | P6.4 Figma MCP decision | Pending | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
+| 12 | P6.3 Showcase figure | Done | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
+| 13 | P6.4 Figma MCP decision | Next | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
 
 ## P4.2 Completion Summary
 
@@ -187,9 +189,21 @@ Active phase:
   `python.showcase_fixture_evidence_tests` into default quality gates.
 - Added `docs/architecture/89-p6-2-showcase-fixture-evidence.md`.
 
+## P6.3 Completion Summary
+
+- Added `tools/architecture_visualization/specs/figure72.yaml`.
+- Added `tools/architecture_visualization/showcase_scene_html_compositor.py`
+  and generated
+  `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.html`.
+- Extended Figure 72 into the default text-overflow and overlap/contrast
+  checks.
+- Promoted compositor freshness and tests into default quality gates.
+- Updated the architecture atlas to make HTML the P6.3 production path, while
+  preserving the existing SVG as a legacy atlas artifact.
+
 ## Updated Next Move
 
-The next implementation step should be **P6.3 Showcase Figure**.
+The next implementation step should be **P6.4 Figma MCP Decision**.
 
 Reasoning:
 
@@ -209,8 +223,10 @@ Reasoning:
   gates.
 - P6.2 now makes the showcase fixture evidence directly consumable by P6.3
   figure production.
-- P6.3 should upgrade or justify the Figure 72 production path against the
-  brief, enriched metadata, and P5 visual-integrity gates.
+- P6.3 upgraded the Figure 72 production path against the brief, enriched
+  metadata, and P5 visual-integrity gates.
+- P6.4 should now decide whether Figma MCP is worth adding, using Figure 72
+  HTML as the repo-native comparison point.
 
 ## Opportunistic Cleanup
 
@@ -255,5 +271,6 @@ Reasoning:
 - Do not install or configure Figma MCP as the next move.
 - Do not introduce a new graph/chart package before P4.3 records the dependency
   decision.
-- Do not decide Figma MCP before P6.3 shows whether the repo-native showcase
-  figure still has a collaboration or editable-layout gap.
+- Do not install Figma MCP unless P6.4 records a concrete collaboration,
+  editable-layout, or review gap that the repo-native HTML pipeline does not
+  cover.

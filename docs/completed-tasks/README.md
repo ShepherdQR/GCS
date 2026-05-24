@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-24 | [P6.3 showcase figure pipeline](2026-05-24-p6-3-showcase-figure-pipeline/README.md) | done |
 | 2026-05-24 | [P6.2 showcase fixture evidence](2026-05-24-p6-2-showcase-fixture-evidence/README.md) | done |
 | 2026-05-24 | [P6.1 integrated showcase brief](2026-05-24-p6-1-integrated-showcase-brief/README.md) | done |
 | 2026-05-24 | [P5 visual integrity phase close](2026-05-24-p5-visual-integrity-phase-close/README.md) | done |

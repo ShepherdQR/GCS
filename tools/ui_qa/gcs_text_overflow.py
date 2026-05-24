@@ -16,6 +16,12 @@ DEFAULT_HTML_PATHS = [
     / "70-visualization"
     / "assets"
     / "figure71-gcs-step-1-40-evidence-map.html",
+    REPO_ROOT
+    / "docs"
+    / "architecture"
+    / "70-visualization"
+    / "assets"
+    / "figure72-gcs-integrated-showcase-scene.html",
 ]
 
 

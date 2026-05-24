@@ -59,6 +59,8 @@ class AgenticToolkitTests(unittest.TestCase):
                 "python.showcase_scene_renderer",
                 "python.showcase_fixture_evidence",
                 "python.showcase_fixture_evidence_tests",
+                "python.showcase_scene_html_compositor",
+                "python.showcase_scene_html_compositor_tests",
                 "python.browser_export",
                 "python.gcs_token_lint",
                 "python.gcs_token_lint_tests",
@@ -120,6 +122,8 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertNotIn("python.showcase_scene_renderer", gate_ids)
         self.assertNotIn("python.showcase_fixture_evidence", gate_ids)
         self.assertNotIn("python.showcase_fixture_evidence_tests", gate_ids)
+        self.assertNotIn("python.showcase_scene_html_compositor", gate_ids)
+        self.assertNotIn("python.showcase_scene_html_compositor_tests", gate_ids)
         self.assertNotIn("python.browser_export", gate_ids)
         self.assertNotIn("python.gcs_token_lint", gate_ids)
         self.assertNotIn("python.gcs_token_lint_tests", gate_ids)

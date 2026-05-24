@@ -566,8 +566,8 @@ external design-surface integration.
 | --- | --- | --- | --- |
 | P6.1 | Done | `88-p6-1-integrated-showcase-brief.md` defines the showcase claim, evidence vocabulary, panels, and review questions. | Brief review |
 | P6.2 | Done | Showcase fixture metadata now carries rank/residual, gluing, diagnostics, replay-boundary, panel, token, and rejection evidence. | Public gate |
-| P6.3 | Next | Produce showcase figure through the scientific figure pipeline and tokenized HTML compositor. | Visual integrity QA |
-| P6.4 | Pending | Decide whether to install/configure Figma MCP only after repo-native token and QA gates are reliable. | Governance decision |
+| P6.3 | Done | Figure 72 now has a tokenized HTML compositor, generated HTML artifact, freshness gate, and P5 visual-integrity coverage. | Visual integrity QA |
+| P6.4 | Next | Decide whether to install/configure Figma MCP only after repo-native token and QA gates are reliable. | Governance decision |
 
 Phase-close replanning requirement:
 
@@ -611,3 +611,22 @@ Updated P6 next steps after P6.2:
   facts in renderer code.
 - P6.4 should compare Figma MCP against a repo-native pipeline that now has
   executable fixture evidence plus visual-integrity gates.
+
+P6.3 completion summary:
+
+- Added `tools/architecture_visualization/specs/figure72.yaml`.
+- Added `tools/architecture_visualization/showcase_scene_html_compositor.py`
+  with `--check` freshness mode.
+- Generated
+  `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.html`.
+- Extended text-overflow and overlap/contrast gates to Figure 72 HTML.
+- Promoted `python.showcase_scene_html_compositor` and
+  `python.showcase_scene_html_compositor_tests` into default quality gates.
+- Updated the architecture atlas so HTML is the P6.3 production path and SVG
+  is the legacy atlas artifact.
+
+Updated P6 next steps after P6.3:
+
+- P6.4 should decide whether Figma MCP adds enough collaboration,
+  editable-layout, or review value beyond the repo-native Figure 72 HTML
+  pipeline.

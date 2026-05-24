@@ -1,0 +1,67 @@
+{
+  "id": "figure72",
+  "schema_version": "gcs.showcase_figure.v1",
+  "figure_label": "Figure 72",
+  "title": "GCS Integrated Showcase Evidence",
+  "subtitle": "One public constraint scene carries solve intent through decomposition, numeric evidence, gluing diagnostics, viewer projection, CLI smoke, and typed rejection evidence.",
+  "brief": "docs/architecture/88-p6-1-integrated-showcase-brief.md",
+  "source_scene": "fixtures/scene/showcase/integrated_feature_showcase.gcs.json",
+  "source_metadata": "fixtures/scene/showcase/integrated_feature_showcase.metadata.json",
+  "negative_metadata": "fixtures/scene/showcase/integrated_feature_showcase_missing_fixed.metadata.json",
+  "theme": "tools/architecture_visualization/figure1.theme.json",
+  "exports": {
+    "html": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.html",
+    "legacy_svg": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.svg",
+    "legacy_report": "docs/architecture/70-visualization/showcase-scene-report.md"
+  },
+  "quality": {
+    "min_font_px": 10,
+    "require_no_absolute_positioning": true,
+    "require_overflow_wrap": true,
+    "default_visual_gates": [
+      "python.showcase_fixture_evidence",
+      "python.showcase_scene_html_compositor",
+      "python.gcs_text_overflow",
+      "python.gcs_overlap_contrast",
+      "python.gcs_token_lint"
+    ],
+    "reviewer_only_gate": "GCS Art Director Review"
+  },
+  "panels": [
+    {
+      "id": "scene_contract",
+      "canonical_token": "evidence.domain",
+      "claim": "Public JSON carries durable solve intent and inspectable geometry."
+    },
+    {
+      "id": "constraint_graph",
+      "canonical_token": "evidence.graph",
+      "claim": "Two local components make the showcase a real decomposition scene."
+    },
+    {
+      "id": "boundary_plan",
+      "canonical_token": "evidence.planner",
+      "claim": "Fixed geometry propagates into cover and local numeric tasks."
+    },
+    {
+      "id": "numeric_evidence",
+      "canonical_token": "evidence.numeric",
+      "claim": "Rank and residual reports stay visible at the local-solve boundary."
+    },
+    {
+      "id": "gluing_and_diagnostics",
+      "canonical_token": "evidence.diagnostic",
+      "claim": "Local sections become a committed accepted state through diagnostics."
+    },
+    {
+      "id": "negative_variant",
+      "canonical_token": "evidence.failure",
+      "claim": "Invalid solve intent fails with a stable typed report code."
+    },
+    {
+      "id": "gate_chain",
+      "canonical_token": "evidence.boundary",
+      "claim": "The showcase is public evidence because fixture, viewer, replay, and CLI gates name it."
+    }
+  ]
+}
