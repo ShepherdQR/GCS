@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INVENTORY = ROOT / "tools" / "agentic_design" / "module_inventory.json"
 AGENTIC_TASK_DIR = ROOT / "docs" / "agentic" / "tasks"
 COMPLETED_TASK_DIR = ROOT / "docs" / "completed-tasks"
+E002_EXPERIENCE_DIR = ROOT / "docs" / "agentic" / "experience" / "002-phase-step-summary-update-commit-continue"
 
 
 @dataclass(frozen=True)
@@ -193,6 +194,20 @@ def section_body(text: str, heading: str) -> str:
         return ""
     start = match.end()
     next_match = re.search(r"^##\s+", text[start:], flags=re.MULTILINE)
+    end = start + next_match.start() if next_match else len(text)
+    return text[start:end].strip()
+
+
+def heading_body(text: str, heading: str) -> str:
+    match = re.search(rf"^{re.escape(heading)}\s*$", text, flags=re.MULTILINE)
+    if not match:
+        return ""
+    level_match = re.match(r"^(#+)\s+", heading)
+    if not level_match:
+        return ""
+    level = len(level_match.group(1))
+    start = match.end()
+    next_match = re.search(rf"^#{{1,{level}}}\s+", text[start:], flags=re.MULTILINE)
     end = start + next_match.start() if next_match else len(text)
     return text[start:end].strip()
 
@@ -1002,6 +1017,280 @@ def score_closure_report(args: argparse.Namespace) -> int:
     return 0
 
 
+E002_RECORD_REQUIREMENTS = {
+    "e002_phase_step_plan": {
+        "frontmatter": ["record_type", "task_id", "status", "current_phase", "current_step", "updated"],
+        "headings": [
+            "## Task Objective",
+            "## Phase Roadmap",
+            "## Current Phase",
+            "## Step Record",
+            "### Step Declaration",
+            "### Execution Evidence",
+            "### Step Summary",
+            "### Current Phase Update",
+            "### Commit Boundary",
+            "### Next Step Declaration",
+            "## Resume Pointer",
+        ],
+    },
+    "e002_step_closure": {
+        "frontmatter": ["record_type", "task_id", "phase_id", "step_id", "status", "updated"],
+        "headings": [
+            "## Step Declaration",
+            "## Execution Evidence",
+            "## Step Summary",
+            "## Current Phase Update",
+            "## Commit Boundary",
+            "## Next Step Declaration",
+        ],
+    },
+    "e002_phase_summary": {
+        "frontmatter": ["record_type", "task_id", "phase_id", "status", "updated"],
+        "headings": [
+            "## Phase Goal",
+            "## Completed Steps",
+            "## Phase Result",
+            "## Evidence",
+            "## Downstream Replanning",
+            "## Promotion Decision",
+        ],
+    },
+    "e002_current_status": {
+        "frontmatter": ["record_type", "task_id", "status", "current_phase", "current_step", "updated"],
+        "headings": [
+            "## Current Position",
+            "## Completed So Far",
+            "## Active Plan",
+            "## Next Step Declaration",
+            "## Resume Instructions",
+        ],
+    },
+}
+
+
+E002_PLACEHOLDERS = [
+    "replace-with",
+    "YYYY-MM-DD",
+    "Describe ",
+    "Fill ",
+    "TODO",
+    "TBD",
+    "<",
+]
+
+
+def phase_step_plan_template(args: argparse.Namespace) -> str:
+    today = args.date or _datetime.date.today().isoformat()
+    slug = normalize_slug(args.slug)
+    task_id = args.task_id or f"{today}-{slug}"
+    title = args.title or f"E002 Phase-Step Plan: {task_id}"
+    objective = args.objective.replace('"', '\\"')
+    owner = args.owner.replace('"', '\\"')
+    phase = args.phase
+    step = args.step
+
+    return f"""---
+record_type: e002_phase_step_plan
+task_id: {task_id}
+status: {args.status}
+current_phase: {phase}
+current_step: {step}
+owner: "{owner}"
+updated: {today}
+---
+
+# {title}
+
+## Task Objective
+
+- Objective: {objective}
+- Scope: Describe the work boundary.
+- Non-goals: Describe what is intentionally out of scope.
+- Acceptance evidence: Describe how completion will be recognized.
+- E001 closure target: Describe the final task archive or no-archive reason.
+
+## Phase Roadmap
+
+| Phase | Goal | Initial Steps | Completion Test | Status | Downstream Update Rule |
+| --- | --- | --- | --- | --- | --- |
+| {phase} | Describe the phase goal. | {step} | Describe the phase completion test. | planned | Replan downstream phases after summary. |
+
+## Current Phase
+
+- Phase id: {phase}
+- Phase goal: Describe the phase goal.
+- Phase status: planned
+- Starting branch: Describe current branch.
+- Dirty worktree notes: Describe unrelated worktree state.
+- Expected artifacts: Describe expected artifacts.
+- Phase completion test: Describe completion test.
+- Downstream replanning rule: Describe when downstream phases are updated.
+
+## Step Record
+
+### Step Declaration
+
+- Step id: {step}
+- Step status: declared
+- Step goal: Describe the step goal.
+- Target artifact: Describe target artifact.
+- First action: Describe first action.
+- Out of scope: Describe exclusions.
+- Expected verification: Describe smallest useful check.
+
+### Execution Evidence
+
+- Files changed: TBD
+- Commands run: TBD
+- Tool observations: TBD
+- Verification result: TBD
+- Skipped checks: TBD
+
+### Step Summary
+
+- What changed: TBD
+- What was learned: TBD
+- What remains uncertain: TBD
+- Skipped checks: TBD
+- Risks: TBD
+
+### Current Phase Update
+
+- Remaining steps before update: TBD
+- Changes to remaining steps: TBD
+- Newly added steps: TBD
+- Deferred steps: TBD
+- Superseded steps: TBD
+- Reason for update: TBD
+- Updated next step: TBD
+
+### Commit Boundary
+
+- Branch checked: TBD
+- Staged files inspected: TBD
+- Commit scope: TBD
+- Commit hash: TBD
+- No-commit reason: TBD
+- Commit message: TBD
+
+### Next Step Declaration
+
+- Next step id: {step}
+- Target artifact: Describe target artifact.
+- Purpose: Describe why this step matters.
+- First action: Describe first action.
+- Blockers or gates: Describe blockers or gates.
+
+## Phase Summary
+
+- Phase result: TBD
+- Evidence: TBD
+- What changed in downstream plans: TBD
+- Deferred work: TBD
+- Promotion target considered: TBD
+- Next phase: TBD
+- Downstream phase updates: TBD
+
+## Resume Pointer
+
+- Current phase: {phase}
+- Current step: {step}
+- Next action: Describe first action.
+- Required context: Describe files to read first.
+- Last commit: TBD
+"""
+
+
+def new_phase_step_plan(args: argparse.Namespace) -> int:
+    slug = normalize_slug(args.slug)
+    if not slug:
+        raise ValueError("--slug must contain at least one letter or number")
+    today = args.date or _datetime.date.today().isoformat()
+    task_id = args.task_id or f"{today}-{slug}"
+    target = repo_path(args.output) if args.output else AGENTIC_TASK_DIR / f"{task_id}.phase-step.md"
+    text = phase_step_plan_template(args)
+    if args.write:
+        write_text(target, text, args.force)
+        print(f"wrote {display_path(target)}")
+    else:
+        print(f"# target: {display_path(target)}")
+        print(text)
+    return 0
+
+
+def validate_phase_step_record_file(path: Path, allow_placeholders: bool = False) -> list[CheckResult]:
+    results: list[CheckResult] = []
+    if not path.exists():
+        return [CheckResult(False, f"phase-step-record: missing file {path}")]
+
+    text = read_text(path)
+    data = parse_frontmatter_values(text)
+    record_type = str(data.get("record_type", ""))
+    requirements = E002_RECORD_REQUIREMENTS.get(record_type)
+    if not requirements:
+        known = ", ".join(sorted(E002_RECORD_REQUIREMENTS))
+        results.append(CheckResult(False, f"{display_path(path)}: record_type must be one of {known}"))
+        return results
+
+    for field in requirements["frontmatter"]:
+        if field not in data or data[field] in ("", []):
+            results.append(CheckResult(False, f"{display_path(path)}: missing frontmatter field {field}"))
+
+    task_id = str(data.get("task_id", ""))
+    if task_id and not allow_placeholders and not re.match(r"^\d{4}-\d{2}-\d{2}-[a-z0-9][a-z0-9-]*$", task_id):
+        results.append(CheckResult(False, f"{display_path(path)}: task_id must look like YYYY-MM-DD-slug"))
+
+    for heading in requirements["headings"]:
+        body = heading_body(text, heading)
+        if not body:
+            results.append(CheckResult(False, f"{display_path(path)}: missing or empty heading {heading}"))
+
+    if not allow_placeholders:
+        for pattern in E002_PLACEHOLDERS:
+            if pattern in text:
+                results.append(CheckResult(False, f"{display_path(path)}: placeholder text remains: {pattern}"))
+
+    next_step = extract_next_step_declaration(text)
+    if "Next Step Declaration" in "\n".join(requirements["headings"]) and not next_step:
+        results.append(CheckResult(False, f"{display_path(path)}: missing next-step declaration body"))
+
+    if not results:
+        results.append(CheckResult(True, f"phase-step-record: {display_path(path)} passed"))
+    return results
+
+
+def validate_phase_step_plan_command(args: argparse.Namespace) -> int:
+    paths = [repo_path(path) if not Path(path).is_absolute() else Path(path) for path in args.paths]
+    results: list[CheckResult] = []
+    for path in paths:
+        results.extend(validate_phase_step_record_file(path, allow_placeholders=args.allow_placeholders))
+    return run_checks(results)
+
+
+def extract_next_step_declaration(text: str) -> str:
+    for heading in ["## Next Step Declaration", "### Next Step Declaration"]:
+        body = heading_body(text, heading)
+        if body:
+            return body
+    return ""
+
+
+def show_next_step(args: argparse.Namespace) -> int:
+    path = repo_path(args.path) if not Path(args.path).is_absolute() else Path(args.path)
+    if not path.exists():
+        print(f"missing file: {display_path(path)}")
+        return 1
+    next_step = extract_next_step_declaration(read_text(path))
+    if not next_step:
+        print(f"no next-step declaration found in {display_path(path)}")
+        return 1
+    print(f"Next step from {display_path(path)}")
+    print("==============================")
+    print(next_step)
+    return 0
+
+
 def run_checks(checks: list[CheckResult]) -> int:
     failed = False
     for check in checks:
@@ -1260,6 +1549,36 @@ def build_parser() -> argparse.ArgumentParser:
     score_closure.add_argument("path")
     score_closure.add_argument("--min-score", type=int, default=0)
 
+    new_phase_step = subparsers.add_parser(
+        "new-phase-step-plan",
+        help="Create an E002 phase-step plan skeleton",
+    )
+    new_phase_step.add_argument("--slug", required=True)
+    new_phase_step.add_argument("--objective", required=True)
+    new_phase_step.add_argument("--task-id", default="")
+    new_phase_step.add_argument("--title", default="")
+    new_phase_step.add_argument("--status", default="draft")
+    new_phase_step.add_argument("--owner", default="gcs-architecture-steward")
+    new_phase_step.add_argument("--phase", default="phase-1")
+    new_phase_step.add_argument("--step", default="step-1")
+    new_phase_step.add_argument("--date", default="")
+    new_phase_step.add_argument("--output", default="")
+    new_phase_step.add_argument("--write", action="store_true")
+    new_phase_step.add_argument("--force", action="store_true")
+
+    validate_phase_step = subparsers.add_parser(
+        "validate-phase-step-plan",
+        help="Validate E002 phase-step, step-closure, phase-summary, or current-status records",
+    )
+    validate_phase_step.add_argument("paths", nargs="+")
+    validate_phase_step.add_argument("--allow-placeholders", action="store_true")
+
+    show_next = subparsers.add_parser(
+        "show-next-step",
+        help="Print the next-step declaration from an E002 record",
+    )
+    show_next.add_argument("path")
+
     gates = subparsers.add_parser(
         "run-quality-gates",
         help="Run CI-ready build, test, scene, and architecture quality gates",
@@ -1312,6 +1631,12 @@ def main(argv: list[str]) -> int:
         return validate_completed_task_report_command(args)
     if args.command == "score-closure-report":
         return score_closure_report(args)
+    if args.command == "new-phase-step-plan":
+        return new_phase_step_plan(args)
+    if args.command == "validate-phase-step-plan":
+        return validate_phase_step_plan_command(args)
+    if args.command == "show-next-step":
+        return show_next_step(args)
     if args.command == "run-quality-gates":
         return run_quality_gates(args)
     if args.command == "emit-design-card":

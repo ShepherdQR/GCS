@@ -1,8 +1,3 @@
-# E002 Current Status Template
-
-Use this file as a compact handoff artifact during long E002 tasks.
-
-```yaml
 ---
 record_type: e002_current_status
 task_id: replace-with-task-id
@@ -11,7 +6,10 @@ current_phase: phase-1
 current_step: step-1
 updated: YYYY-MM-DD
 ---
-```
+
+# E002 Current Status Template
+
+Use this file as a compact handoff artifact during long E002 tasks.
 
 ## Current Position
 

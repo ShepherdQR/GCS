@@ -1,8 +1,3 @@
-# Phase-Step Plan Template
-
-Use this template when a task needs E002 continuation discipline.
-
-```yaml
 ---
 record_type: e002_phase_step_plan
 task_id: replace-with-task-id
@@ -12,7 +7,10 @@ current_step: step-1
 owner: replace-with-owner
 updated: YYYY-MM-DD
 ---
-```
+
+# Phase-Step Plan Template
+
+Use this template when a task needs E002 continuation discipline.
 
 ## Task Objective
 

@@ -1,9 +1,3 @@
-# E002 Step Closure Record Template
-
-Use this template after each E002 step. A completed record should let a future
-agent understand the step without reading chat history.
-
-```yaml
 ---
 record_type: e002_step_closure
 task_id: replace-with-task-id
@@ -12,7 +6,11 @@ step_id: step-1
 status: summarized
 updated: YYYY-MM-DD
 ---
-```
+
+# E002 Step Closure Record Template
+
+Use this template after each E002 step. A completed record should let a future
+agent understand the step without reading chat history.
 
 ## Step Declaration
 

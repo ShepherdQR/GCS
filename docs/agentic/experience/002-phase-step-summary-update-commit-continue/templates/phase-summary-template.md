@@ -1,9 +1,3 @@
-# E002 Phase Summary Template
-
-Use this template when all required steps in a phase are complete, deferred, or
-superseded.
-
-```yaml
 ---
 record_type: e002_phase_summary
 task_id: replace-with-task-id
@@ -11,7 +5,11 @@ phase_id: phase-1
 status: complete
 updated: YYYY-MM-DD
 ---
-```
+
+# E002 Phase Summary Template
+
+Use this template when all required steps in a phase are complete, deferred, or
+superseded.
 
 ## Phase Goal
 

@@ -142,3 +142,18 @@ Future hardening could add:
   `docs/agentic/tasks/`;
 - a completed-task scorer dimension for intermediate step closure;
 - a skill promotion that teaches module agents when to use E002.
+
+## Executable Tooling
+
+The first executable E002 layer lives in `tools/agentic_design/agentic_toolkit.py`:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py new-phase-step-plan --slug my-long-task --objective "Describe the long task"
+python tools\agentic_design\agentic_toolkit.py validate-phase-step-plan docs\agentic\tasks\<task>.phase-step.md
+python tools\agentic_design\agentic_toolkit.py show-next-step docs\agentic\tasks\<task>.phase-step.md
+```
+
+`new-phase-step-plan` creates a Markdown skeleton. `validate-phase-step-plan`
+checks E002 record structure for phase-step plans, step closures, phase
+summaries, and current-status records. `show-next-step` extracts the handoff
+point a fresh agent should execute next.

@@ -17,7 +17,7 @@ review pauses, handoff, and changing evidence.
 | --- | --- | --- | --- | --- |
 | 1 | Theory formalization | Define the formal model, state machine, invariants, boundaries, and failure taxonomy. | `research/02-phase-step-formal-model.md` | complete |
 | 2 | Templates and protocol | Make the model directly usable through durable step, phase, and status templates. | `templates/*.md` | complete |
-| 3 | Tooling | Add minimal generator, validator, and resume-query support to `agentic_toolkit.py`. | `tools/agentic_design/agentic_toolkit.py`, tests | planned |
+| 3 | Tooling | Add minimal generator, validator, and resume-query support to `agentic_toolkit.py`. | `tools/agentic_design/agentic_toolkit.py`, tests | complete |
 | 4 | Empirical validation | Test whether E002 improves resumption, reviewability, commit hygiene, and plan adaptation. | Pilot report and eval rubric | planned |
 | 5 | Promotion and gates | Decide whether E002 should become a project skill, task-card field, completed-task scorer dimension, or CI-quality gate. | Skill or gate proposal | planned |
 
@@ -165,6 +165,19 @@ The templates encode Phase 1's model into durable Markdown records with
 frontmatter, evidence sections, update sections, commit-boundary sections, and
 next-step declarations.
 
+## Phase 3 Summary
+
+Phase 3 added the first executable E002 tooling layer:
+
+- `new-phase-step-plan` creates a phase-step plan skeleton.
+- `validate-phase-step-plan` checks E002 phase-step, step-closure,
+  phase-summary, and current-status records.
+- `show-next-step` extracts the next-step declaration for resumable handoff.
+
+The validator is intentionally structural. It checks frontmatter, required
+headings, placeholder removal, and next-step presence, but it does not judge
+semantic plan quality.
+
 ## Step 0 Summary
 
 This roadmap defines the five-stage E002 research and implementation path. The
@@ -173,6 +186,5 @@ model, invariants, and failure taxonomy.
 
 ## Update To Remaining Work
 
-The initial five phases remain valid. Phase 3 should now implement only the
-minimal executable layer: generate a plan skeleton, validate required E002
-sections, and extract the next-step declaration for resumable handoff.
+The initial five phases remain valid. Phase 4 should now run empirical pilots
+before any CI gate or mandatory skill promotion is introduced.
