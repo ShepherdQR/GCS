@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 34:
+- Completed through Step 35:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -42,10 +42,13 @@ implementation step they describe.
     contexts;
   - session runtime now records post-local-solve diagnostic reports as
     transaction stages and rank projections prefer diagnostics-owned evidence;
+  - diagnostics residual conflicts now name both unsatisfied constraints and
+    entity subjects, and redundancy evidence now prefers exact duplicate
+    constraint signatures before broad over-constrained candidates;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline is 91 tests.
+  - CTest contract baseline is 92 tests.
 
 ## Execution Cadence Contract
 
@@ -446,13 +449,13 @@ Tests:
 
 Reassessment after Step 34:
 
-- Step 35 remains the next highest-leverage move. Runtime now carries
+- Step 35 was kept as the next highest-leverage move. Runtime now carried
   post-local diagnostic evidence, so diagnostics conflict/redundancy deepening
-  can operate on a better public handoff path.
+  could operate on a better public handoff path.
 - Viewer and promotion already consume rank projections; they do not need to
   move before the diagnostics conflict/redundancy batch.
 
-### Step 35: Diagnostics Conflict And Redundancy Deepening
+### Completed Step 35: Diagnostics Conflict And Redundancy Deepening
 
 Goal:
 
@@ -467,20 +470,49 @@ Expected shape:
   status precedence accidentally.
 - Preserve gluing obstruction conflicts separately from residual conflicts.
 
-Detailed plan:
+Decision:
 
-- Inspect current `find_conflicts`, `find_redundancies`, fixture corpus, and
-  golden report evidence.
-- Add contract tests for at least one residual conflict minimization case and
-  one redundancy evidence case.
-- Prefer reusable contract-tools fixtures over ad hoc local model construction.
-- Persist Step 35 summary and reassess numeric robustness needs.
+- Keep status precedence out of redundancy detection for this step. The change
+  improves report evidence, while solved/under/over/inconsistent precedence
+  remains governed by existing DOF, rank, numeric result, and residual
+  evidence.
+- Use the existing reusable redundant distance-pair fixture rather than adding
+  another ad hoc diagnostics-only model.
 
-Exit criteria:
+Delivered:
 
-- Diagnostics names smaller stable subject sets where current evidence supports
-  it.
-- Existing obstruction and status-precedence contracts remain stable.
+- Extend `ConflictSearchRequest` with `ModelSnapshot` so residual conflict
+  search can resolve entity subjects from numeric residual blocks.
+- Extend `RedundancySearchRequest` with `ModelSnapshot` so redundancy search
+  can compare constraint signatures inside the requested context.
+- Enrich `diagnostics.residual_conflict` with both constraint IDs and owning
+  entity IDs.
+- Add deterministic exact duplicate constraint detection and emit
+  `diagnostics.redundant_duplicate_distance` for duplicate distance
+  signatures.
+- Preserve broad `diagnostics.overconstrained_redundancy_candidate` evidence
+  when structural or numeric over-constrained reports support it.
+- Preserve gluing obstruction conflict evidence separately from residual
+  conflicts.
+
+Tests:
+
+- `DiagnosticsContract.PromotesNumericResidualBlocks` now asserts residual
+  conflict entity IDs.
+- `DiagnosticsContract.RedundancyCandidatesPreferExactDuplicateConstraints`
+  covers duplicate distance redundancy with the reusable contract-tools
+  fixture.
+- Focused diagnostics and contract-tools CTest suites pass.
+
+Reassessment after Step 35:
+
+- Step 36 is now the highest-leverage next move. Diagnostics can name smaller
+  responsible sets, so numeric robustness should improve the rank, condition,
+  residual, and stopping evidence those reports depend on.
+- Step 37 should remain fixture/corpus expansion after Step 36 clarifies which
+  numeric edge cases deserve durable reusable fixtures.
+- Step 38 remains viewer/GUI evidence surface work after diagnostics and
+  numeric evidence contracts settle further.
 
 ### Step 36: Numeric Robustness Batch
 
@@ -677,15 +709,15 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 31-40 planning update:
+As of the Step 35 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 30 have completed-step summaries in the roadmap and current
+- Steps 1 through 35 have completed-step summaries in the roadmap and current
   progress documents.
 - Steps 31 through 40 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 35 is the next implementation step.
+- Step 36 is the next implementation step.
 

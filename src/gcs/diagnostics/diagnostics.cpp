@@ -1,5 +1,6 @@
 module;
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <optional>
@@ -101,6 +102,85 @@ StatusEvidence make_evidence(SolveStatus status,
     return evidence;
 }
 
+bool constraint_id_less(ConstraintId lhs, ConstraintId rhs) {
+    return lhs.value < rhs.value;
+}
+
+bool entity_id_less(EntityId lhs, EntityId rhs) {
+    return lhs.value < rhs.value;
+}
+
+std::vector<EntityId> sorted_entity_ids(std::vector<EntityId> ids) {
+    std::sort(ids.begin(), ids.end(), entity_id_less);
+    return ids;
+}
+
+bool same_entity_set(const std::vector<EntityId>& lhs,
+                     const std::vector<EntityId>& rhs) {
+    if (lhs.size() != rhs.size()) return false;
+    return sorted_entity_ids(lhs) == sorted_entity_ids(rhs);
+}
+
+bool same_constraint_signature(const kernel::ConstraintDraft& lhs,
+                               const kernel::ConstraintDraft& rhs,
+                               double tolerance) {
+    return lhs.kind == rhs.kind &&
+           std::abs(lhs.value - rhs.value) <= tolerance &&
+           same_entity_set(lhs.entity_ids, rhs.entity_ids);
+}
+
+void push_unique_constraint(std::vector<ConstraintId>& ids, ConstraintId id) {
+    if (!kernel::contains_constraint(ids, id)) {
+        ids.push_back(id);
+    }
+}
+
+std::vector<ConstraintId> find_exact_duplicate_constraints(
+    const ModelSnapshot& model,
+    const ContextSnapshot& context) {
+    std::vector<ConstraintId> duplicate_ids;
+    for (std::size_t outer_index = 0;
+         outer_index < context.constraint_ids.size();
+         ++outer_index) {
+        const auto* lhs = kernel::find_constraint(
+            model,
+            context.constraint_ids[outer_index]);
+        if (lhs == nullptr) continue;
+
+        for (std::size_t inner_index = outer_index + 1;
+             inner_index < context.constraint_ids.size();
+             ++inner_index) {
+            const auto* rhs = kernel::find_constraint(
+                model,
+                context.constraint_ids[inner_index]);
+            if (rhs == nullptr) continue;
+
+            if (same_constraint_signature(*lhs, *rhs, model.tolerances.residual)) {
+                push_unique_constraint(duplicate_ids, lhs->id);
+                push_unique_constraint(duplicate_ids, rhs->id);
+            }
+        }
+    }
+
+    std::sort(duplicate_ids.begin(), duplicate_ids.end(), constraint_id_less);
+    return duplicate_ids;
+}
+
+std::string duplicate_redundancy_code(const ModelSnapshot& model,
+                                      const std::vector<ConstraintId>& ids) {
+    bool all_distance = !ids.empty();
+    for (ConstraintId id : ids) {
+        const auto* constraint = kernel::find_constraint(model, id);
+        all_distance = all_distance &&
+                       constraint != nullptr &&
+                       constraint->kind == kernel::ConstraintKind::distance;
+    }
+    if (all_distance) {
+        return "diagnostics.redundant_duplicate_distance";
+    }
+    return "diagnostics.redundant_duplicate_constraint";
+}
+
 }  // namespace
 
 gcs::kernel::ContractResult<DofReport> analyze_dof(DofAnalysisRequest request) {
@@ -185,10 +265,15 @@ gcs::kernel::ContractResult<std::vector<ConflictSet>> find_conflicts(
 
     for (const auto& residual : request.residual_report.constraints) {
         if (!residual.satisfied) {
+            std::vector<EntityId> entity_ids;
+            if (const auto* constraint =
+                    kernel::find_constraint(request.model, residual.constraint_id)) {
+                entity_ids = constraint->entity_ids;
+            }
             result.payload.push_back(
                 ConflictSet{
                     "diagnostics.residual_conflict",
-                    {},
+                    std::move(entity_ids),
                     {residual.constraint_id}});
         }
     }
@@ -208,6 +293,22 @@ gcs::kernel::ContractResult<std::vector<RedundancySet>> find_redundancies(
     RedundancySearchRequest request) {
     kernel::ContractResult<std::vector<RedundancySet>> result;
     result.report = kernel::make_stage_report("diagnostics.find_redundancies");
+
+    auto duplicate_ids = find_exact_duplicate_constraints(
+        request.model,
+        request.context);
+    if (!duplicate_ids.empty()) {
+        result.payload.push_back(
+            RedundancySet{
+                duplicate_redundancy_code(request.model, duplicate_ids),
+                std::move(duplicate_ids)});
+        kernel::append_report_message(
+            result.report,
+            kernel::make_report_message(
+                kernel::ReportSeverity::warning,
+                kernel::ReportCode{"diagnostics.redundancy.duplicate_constraint"},
+                "Exact duplicate constraint evidence produced a minimized redundancy candidate."));
+    }
 
     const bool structurally_over_constrained = request.dof_report.free_dof < 0;
     const bool numerically_over_constrained = request.rank_report.numeric_over_constrained;
@@ -306,7 +407,8 @@ DiagnosticOutput diagnose(const DiagnosticInput& input) {
                 input.numeric_report,
                 input.model.tolerances});
         output.residual_report = residuals.payload;
-        auto conflicts = find_conflicts(ConflictSearchRequest{output.residual_report});
+        auto conflicts = find_conflicts(
+            ConflictSearchRequest{input.model, output.residual_report});
         output.conflict_sets = std::move(conflicts.payload);
 
         if (input.numeric_report->result_code != SolveStatus::solved) {
@@ -343,7 +445,11 @@ DiagnosticOutput diagnose(const DiagnosticInput& input) {
     }
 
     auto redundancies = find_redundancies(
-        RedundancySearchRequest{context, output.dof_report, output.rank_report});
+        RedundancySearchRequest{
+            input.model,
+            context,
+            output.dof_report,
+            output.rank_report});
     output.redundancy_sets = std::move(redundancies.payload);
 
     auto precedence = resolve_status(StatusPrecedenceInput{std::move(evidence)});

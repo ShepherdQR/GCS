@@ -193,7 +193,7 @@ Status legend: `done`, `in_progress`, `pending`.
     SolveDAG evidence.
 34. `done` - add boundary-aware post-local-solve diagnostics to session
     runtime command results.
-35. `pending` - deepen diagnostics conflict and redundancy evidence toward
+35. `done` - deepen diagnostics conflict and redundancy evidence toward
     smaller responsible sets.
 36. `pending` - harden numeric robustness around scaling, rank tolerance,
     condition evidence, stopping, and boundary edge cases.
@@ -1211,13 +1211,54 @@ Implemented scope for Step 34:
 
 Reassessment after Step 34:
 
-- Step 35 is diagnostics conflict/redundancy deepening. Runtime now exposes
-  post-local diagnostics, so diagnostics can improve responsible-set evidence
-  through a public runtime handoff.
+- Step 35 completed diagnostics conflict/redundancy deepening. Runtime now
+  exposes post-local diagnostics, and diagnostics can name smaller
+  responsible sets through public reports.
 - Step 36 remains numeric robustness after diagnostics has richer conflict and
   redundancy contracts.
 - Step 37 remains fixture/corpus expansion after the next diagnostics and
   numeric evidence changes clarify which fixtures are durable.
+
+## Diagnostics Conflict And Redundancy Deepening Step Plan
+
+Implemented commit-level scope for Step 35:
+
+- Extend `ConflictSearchRequest` and `RedundancySearchRequest` with the model
+  snapshot needed to resolve subject IDs from public diagnostic reports.
+- Enrich residual conflict candidates so `diagnostics.residual_conflict`
+  names both the unsatisfied constraint and the owning entity IDs.
+- Add exact duplicate constraint-signature detection as a smaller redundancy
+  candidate before broad over-constrained context fallback.
+- Preserve `diagnostics.overconstrained_redundancy_candidate` for structural
+  or numeric over-constrained evidence.
+- Keep gluing obstruction conflicts on the gluing path and keep status
+  precedence unchanged.
+
+## Diagnostics Conflict And Redundancy Deepening Milestone
+
+Implemented scope for Step 35:
+
+- Residual conflict evidence now maps from numeric residual blocks through
+  `ModelSnapshot` to stable constraint and entity subjects.
+- Redundant distance-pair fixtures now produce
+  `diagnostics.redundant_duplicate_distance` without needing an
+  over-constrained rank/DOF condition.
+- Over-constrained duplicate-distance fixtures still expose the broader
+  `diagnostics.overconstrained_redundancy_candidate` evidence, preserving
+  existing corpus expectations.
+- Diagnostics contract coverage now includes residual conflict entity IDs and
+  exact duplicate distance redundancy evidence.
+- Contract test baseline increased to 92 CTest-discovered GTest cases.
+
+Reassessment after Step 35:
+
+- Step 36 is now the highest-leverage next move. Diagnostics can now report
+  smaller conflict/redundancy subject sets, so numeric robustness can focus on
+  making rank, condition, residual, and stopping evidence more trustworthy.
+- Step 37 should remain after Step 36 because fixture/corpus expansion will be
+  more useful once numeric robustness gaps are explicit.
+- Step 38 remains viewer/GUI evidence surface work after diagnostics and
+  numeric evidence contracts settle further.
 
 ## Damped Numeric Local Solve Step Plan
 

@@ -54,6 +54,13 @@ dimension after boundary variables are frozen, frozen variable dimension,
 residual dimension, rank, nullity, singularity, over-constraint,
 under-constraint, and condition evidence when available.
 
+`conflict_sets` and `redundancy_sets` must name the smallest stable subject
+sets known to diagnostics. Residual conflicts name unsatisfied constraint IDs
+and their owning entity IDs. Redundancy evidence first reports exact duplicate
+constraint signatures such as duplicate distance constraints, then preserves
+broader over-constrained context candidates when rank or DOF evidence supports
+them.
+
 ## Numeric Engine Contract
 
 ```text

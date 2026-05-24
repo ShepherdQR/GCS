@@ -110,10 +110,12 @@ struct RedundancySet {
 };
 
 struct ConflictSearchRequest {
+    ModelSnapshot model;
     ResidualReport residual_report;
 };
 
 struct RedundancySearchRequest {
+    ModelSnapshot model;
     ContextSnapshot context;
     DofReport dof_report;
     RankReport rank_report;

@@ -479,8 +479,11 @@ Structured inputs:
 - `DofAnalysisRequest`.
 - `ResidualAnalysisRequest`.
 - `GluingRequest`.
-- `ConflictSearchRequest`.
-- `RedundancySearchRequest`.
+- `ConflictSearchRequest`, carrying `ModelSnapshot` plus `ResidualReport` so
+  residual conflicts can be projected to entity subjects.
+- `RedundancySearchRequest`, carrying `ModelSnapshot`, `ContextSnapshot`,
+  `DofReport`, and `RankReport` so duplicate signatures and over-constrained
+  evidence remain separate.
 
 Structured outputs:
 
@@ -523,6 +526,10 @@ Implementation responsibilities:
 - Gauge consistency checks.
 - Conflict and redundancy search.
 - Residual conflict and over-constrained redundancy candidate generation.
+- Residual conflict subject minimization to unsatisfied constraints and their
+  owning entities.
+- Exact duplicate constraint redundancy detection before broad context-level
+  over-constrained fallback.
 - Obstruction classification and minimization.
 - Deterministic status precedence.
 
@@ -535,6 +542,7 @@ Contract tests:
 - `diagnostics_minimal_conflict_names_stable_ids`.
 - `diagnostics_status_precedence_is_deterministic`.
 - `diagnostics_redundancy_report_is_structured`.
+- `diagnostics_redundancy_prefers_exact_duplicate_constraints`.
 - `diagnostics_propagates_boundary_frozen_numeric_rank_evidence`.
 
 ## Session Runtime Target Design

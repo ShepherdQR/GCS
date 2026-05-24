@@ -443,6 +443,10 @@ Skill definition:
 - Use when failure explanation, gluing, obstruction, rank/DOF evidence, or
   report taxonomy changes.
 - Output the smallest known evidence set and required negative tests.
+- Residual conflict evidence must name both unsatisfied constraints and their
+  entity subjects when the model snapshot can resolve them.
+- Redundancy evidence must prefer exact duplicate constraint signatures before
+  falling back to broader over-constrained context candidates.
 
 Guardrails:
 

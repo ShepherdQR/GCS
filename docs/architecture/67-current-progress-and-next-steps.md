@@ -52,11 +52,13 @@ Completed algorithm-deepening steps:
   projection dependencies.
 - Step 34: added boundary-aware post-local diagnostics to session runtime
   command results and stage traces.
+- Step 35: deepened diagnostics conflict and redundancy evidence with
+  residual entity subjects and exact duplicate constraint signatures.
 
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 91 CTest-discovered GTest cases.
+- Contract test baseline is 92 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -351,17 +353,34 @@ Delivered:
   rank reports with numeric-report fallback for legacy/manual results.
 - Preserve rollback semantics for blocking post-local diagnostic statuses.
 
-## Next Step 35
+## Completed Step 35
 
-The next step is diagnostics conflict and redundancy deepening. Runtime now
-hands post-local diagnostics through public command results, so diagnostics can
-improve conflict/redundancy responsibility sets without forcing callers back
-to raw numeric reports.
+Step 35 deepened diagnostics conflict and redundancy evidence.
+
+Delivered:
+
+- Extend conflict and redundancy search requests with `ModelSnapshot` so
+  public diagnostic tools can resolve constraint/entity subjects and compare
+  constraint signatures.
+- Enrich `diagnostics.residual_conflict` with the unsatisfied constraint ID
+  and owning entity IDs.
+- Add exact duplicate distance redundancy evidence through
+  `diagnostics.redundant_duplicate_distance`.
+- Preserve broad `diagnostics.overconstrained_redundancy_candidate` evidence
+  for structurally or numerically over-constrained contexts.
+- Keep status precedence and gluing obstruction conflicts stable.
+
+## Next Step 36
+
+The next step is numeric robustness. Diagnostics now has smaller
+responsible-set evidence, so the next highest-leverage work is to harden
+numeric rank, condition, residual, stopping, scaling, and boundary/frozen
+edge-case behavior that diagnostics and runtime consume.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 34, the remaining steps were reconsidered;
-Step 35 is registered as the next highest-leverage move. A post-Step-40
+in the forward plan. After Step 35, the remaining steps were reconsidered;
+Step 36 is registered as the next highest-leverage move. A post-Step-40
 candidate is also recorded for an integrated feature showcase constraint graph.

@@ -156,6 +156,9 @@ TEST(DiagnosticsContract, PromotesNumericResidualBlocks) {
                                   "diagnostics.residual_out_of_tolerance"));
     ASSERT_EQ(output.conflict_sets.size(), 1U);
     EXPECT_TRUE(has_conflict_code(output, "diagnostics.residual_conflict"));
+    ASSERT_EQ(output.conflict_sets.front().entity_ids.size(), 2U);
+    EXPECT_EQ(output.conflict_sets.front().entity_ids[0].value, 0U);
+    EXPECT_EQ(output.conflict_sets.front().entity_ids[1].value, 1U);
     ASSERT_EQ(output.conflict_sets.front().constraint_ids.size(), 1U);
     EXPECT_EQ(output.conflict_sets.front().constraint_ids.front().value, 0U);
 }
@@ -202,6 +205,7 @@ TEST(DiagnosticsContract, RedundancyCandidatesNameContextConstraints) {
 
     auto result = diagnostics::find_redundancies(
         diagnostics::RedundancySearchRequest{
+            model,
             context,
             diagnostics::DofReport{6, 7, 0, -1, kernel::SolveStatus::over_constrained},
             diagnostics::RankReport{}});
@@ -211,6 +215,22 @@ TEST(DiagnosticsContract, RedundancyCandidatesNameContextConstraints) {
               "diagnostics.overconstrained_redundancy_candidate");
     ASSERT_EQ(result.payload.front().constraint_ids.size(), 1U);
     EXPECT_EQ(result.payload.front().constraint_ids.front().value, 0U);
+}
+
+TEST(DiagnosticsContract, RedundancyCandidatesPreferExactDuplicateConstraints) {
+    auto model = gcs::tools::make_redundant_distance_pair_model();
+    auto report = numeric::solve_local(make_task_for_model(model));
+
+    auto output = diagnose_after_local_solve(model, report);
+
+    ASSERT_EQ(output.redundancy_sets.size(), 1U);
+    EXPECT_EQ(output.redundancy_sets.front().code,
+              "diagnostics.redundant_duplicate_distance");
+    ASSERT_EQ(output.redundancy_sets.front().constraint_ids.size(), 2U);
+    EXPECT_EQ(output.redundancy_sets.front().constraint_ids[0].value, 0U);
+    EXPECT_EQ(output.redundancy_sets.front().constraint_ids[1].value, 1U);
+    EXPECT_FALSE(has_evidence_code(output.status_precedence_trace,
+                                   "diagnostics.redundancy.duplicate_constraint"));
 }
 
 TEST(DiagnosticsContract, AcceptsCompatibleProjectedOverlap) {
