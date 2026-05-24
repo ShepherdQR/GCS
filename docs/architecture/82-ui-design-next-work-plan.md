@@ -51,10 +51,12 @@ Completed:
   negative rejection.
 - P6.3 is complete: Figure 72 now has a tokenized HTML production artifact and
   default visual-integrity coverage.
+- P6.4 is complete: Figma MCP is deferred, with only a future explicit pilot
+  allowed if a concrete collaboration/editable-layout gap appears.
 
 Active phase:
 
-- P6 Showcase And Editorial Polish.
+- Post-P6 aesthetic review and Figure 72 review artifact hardening.
 
 ## Persisted Forward Plan
 
@@ -72,7 +74,7 @@ Active phase:
 | 10 | P6.1 Showcase brief | Done | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
 | 11 | P6.2 Showcase fixture | Done | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
 | 12 | P6.3 Showcase figure | Done | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
-| 13 | P6.4 Figma MCP decision | Next | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
+| 13 | P6.4 Figma MCP decision | Done | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
 
 ## P4.2 Completion Summary
 
@@ -201,9 +203,20 @@ Active phase:
 - Updated the architecture atlas to make HTML the P6.3 production path, while
   preserving the existing SVG as a legacy atlas artifact.
 
+## P6.4 Completion Summary
+
+- Added `docs/architecture/91-p6-4-figma-mcp-decision.md`.
+- Checked official Figma MCP documentation for remote and desktop server
+  guidance.
+- Deferred install/configuration now because Figure 72 already has a
+  repo-native HTML production path and default visual-integrity gates.
+- Recorded future pilot conditions: official provider choice, data boundary,
+  write policy, artifact comparison, rollback plan, and offline gate
+  preservation.
+
 ## Updated Next Move
 
-The next implementation step should be **P6.4 Figma MCP Decision**.
+The next implementation step should be **Figure 72 Browser Review Baseline**.
 
 Reasoning:
 
@@ -225,8 +238,9 @@ Reasoning:
   figure production.
 - P6.3 upgraded the Figure 72 production path against the brief, enriched
   metadata, and P5 visual-integrity gates.
-- P6.4 should now decide whether Figma MCP is worth adding, using Figure 72
-  HTML as the repo-native comparison point.
+- P6.4 now defers Figma MCP and names the repo-native next review path.
+- Figure 72 should gain a browser PNG/PDF review artifact and screenshot
+  baseline before external design tooling is reconsidered.
 
 ## Opportunistic Cleanup
 
@@ -271,6 +285,6 @@ Reasoning:
 - Do not install or configure Figma MCP as the next move.
 - Do not introduce a new graph/chart package before P4.3 records the dependency
   decision.
-- Do not install Figma MCP unless P6.4 records a concrete collaboration,
-  editable-layout, or review gap that the repo-native HTML pipeline does not
-  cover.
+- Do not install Figma MCP unless a future pilot request records a concrete
+  collaboration, editable-layout, or review gap that the repo-native HTML
+  pipeline does not cover.

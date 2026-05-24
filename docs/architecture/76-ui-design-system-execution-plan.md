@@ -47,7 +47,7 @@ commit message must name the step's purpose.
 | P3 | Viewer UI Implementation | Done | Apply the design system to the Python viewer without moving solver truth into UI. |
 | P4 | Scientific Figure Pipeline | Done | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
 | P5 | Visual Integrity QA | Done | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
-| P6 | Showcase And Editorial Polish | In progress | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
+| P6 | Showcase And Editorial Polish | Done | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
 
 ## P0: Convention Foundation
 
@@ -567,7 +567,7 @@ external design-surface integration.
 | P6.1 | Done | `88-p6-1-integrated-showcase-brief.md` defines the showcase claim, evidence vocabulary, panels, and review questions. | Brief review |
 | P6.2 | Done | Showcase fixture metadata now carries rank/residual, gluing, diagnostics, replay-boundary, panel, token, and rejection evidence. | Public gate |
 | P6.3 | Done | Figure 72 now has a tokenized HTML compositor, generated HTML artifact, freshness gate, and P5 visual-integrity coverage. | Visual integrity QA |
-| P6.4 | Next | Decide whether to install/configure Figma MCP only after repo-native token and QA gates are reliable. | Governance decision |
+| P6.4 | Done | `91-p6-4-figma-mcp-decision.md` defers install/configuration and records future pilot gates. | Governance decision |
 
 Phase-close replanning requirement:
 
@@ -630,3 +630,21 @@ Updated P6 next steps after P6.3:
 - P6.4 should decide whether Figma MCP adds enough collaboration,
   editable-layout, or review value beyond the repo-native Figure 72 HTML
   pipeline.
+
+P6.4 completion summary:
+
+- Added `docs/architecture/91-p6-4-figma-mcp-decision.md`.
+- Checked official Figma MCP documentation for remote and desktop guidance.
+- Recorded `ThirdPartyDecision`: defer install/configuration now; allow only a
+  future explicit pilot if a collaboration, editable-layout, or review gap is
+  observed.
+- Preserved offline default quality gates and added no MCP configuration,
+  package, binary, or repository dependency.
+
+Updated aesthetic next target after P6.4:
+
+- Prefer a repo-native Figure 72 browser PNG/PDF review artifact and screenshot
+  baseline before reopening Figma MCP.
+- Run `GCS Art Director Review` on Figure 72 HTML or browser output.
+- Revisit Figma MCP only with a scoped pilot request, official provider choice,
+  and data-boundary plan.
