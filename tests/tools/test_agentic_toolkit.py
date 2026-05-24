@@ -70,9 +70,12 @@ class AgenticToolkitTests(unittest.TestCase):
         for fragment in [
             r"NumericEngineContract\.",
             r"DiagnosticsContract\.",
+            r"DecompositionPlannerContract\.",
             r"SessionRuntimeContract\.",
-            r"ViewerBridgeContract\.OverlayProjects.*Evidence",
+            r"ViewerBridgeContract\.",
+            r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence",
             r"ContractToolsContract\.",
+            r"IntegratedShowcaseFixtureCarriesPublicEvidenceContract",
         ]:
             self.assertIn(fragment, pattern)
 

@@ -773,7 +773,7 @@ Reassessment after Step 40:
   corpus with structured expectations and should demonstrate the full public
   evidence chain.
 
-### Post-Step-40 Candidate: Integrated Feature Showcase Constraint Graph
+### Step 41: Integrated Feature Showcase Constraint Graph
 
 Goal:
 
@@ -804,12 +804,15 @@ Detailed plan:
 
 Candidate commit-level slices:
 
-1. Define the showcase graph contract and fixture expectations.
-2. Generate or author the positive showcase scene through public scene formats.
-3. Add a negative diagnostic variant for residual conflict or gluing
-   obstruction.
-4. Promote both variants through public gate reports and add corpus tests.
-5. Add viewer or atlas projection evidence for reporting and demo use.
+1. Define the showcase graph contract and fixture expectations in
+   `gcs.contract_tools`.
+2. Carry fixed solve-intent entities into planner/runtime boundary variables.
+3. Add positive showcase fixture coverage for decomposition, boundary-frozen
+   rank, post-local diagnostics, viewer projection, and corpus summary.
+4. Reassess whether JSON scene promotion and a negative diagnostic variant
+   should be split into Step 42.
+5. Add viewer or atlas projection evidence for reporting and demo use after
+   the executable fixture is stable.
 
 Exit criteria:
 
@@ -817,6 +820,55 @@ Exit criteria:
   expectations.
 - It demonstrates the Step 31 through Step 40 evidence path without requiring
   private implementation inspection.
+
+Completion summary:
+
+- Fixed solve-intent entities now flow into planner subproblem boundary
+  variables and therefore into runtime numeric tasks.
+- `gcs.contract_tools` exposes a deterministic integrated showcase fixture
+  with two local components, a fixed point-distance chain, and mixed
+  point/plane/line evidence.
+- GTest coverage checks planner boundary propagation, showcase fixture
+  provenance, viewer boundary-frozen rank projection, residual evidence, and
+  inclusion in the public evidence-chain gate.
+
+Reassessment after Step 41:
+
+- The positive executable C++ showcase path is stable.
+- Step 42 should promote this fixture into JSON scene/demo artifacts and add a
+  negative diagnostic variant for residual conflict or gluing obstruction.
+
+### Step 42: Showcase Scene Promotion And Negative Variant
+
+Goal:
+
+- Turn the executable showcase fixture into durable scene-facing demo assets.
+
+Expected shape:
+
+- A JSON scene or generated-scene promotion package for the positive showcase.
+- A negative variant that demonstrates residual conflict or gluing
+  obstruction without breaking the positive path.
+- Metadata and tests that make the scene/demo artifacts reproducible.
+
+Detailed plan:
+
+- Decide whether to extend JSON `solve_intent` support or store fixed-boundary
+  expectations in companion metadata.
+- Produce a positive showcase scene artifact from the C++ fixture or scene
+  generation tooling.
+- Produce one negative diagnostic variant with structured expectations.
+- Add scene or tool tests that load the artifacts and check stable IDs,
+  geometry/constraint counts, and expected evidence.
+- Add or update atlas/demo projection assets only after the scene artifacts
+  are stable.
+
+Exit criteria:
+
+- Showcase scene artifacts are committed with structured metadata.
+- Positive and negative variants are both covered by deterministic tests.
+- The atlas/demo path can reference the showcase without private C++ fixture
+  inspection.
 
 ## Reassessment Protocol
 
@@ -840,12 +892,10 @@ As of the Step 40 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 40 have completed-step summaries in the roadmap and current
+- Steps 1 through 41 have completed-step summaries in the roadmap and current
   progress documents.
-- Steps 31 through 40 are detailed in this forward plan with goal, expected
+- Steps 31 through 42 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
-- A post-Step-40 candidate is registered for an integrated feature showcase
-  constraint graph.
-- The Step 1-40 batch is complete; the showcase graph is the next registered
-  candidate.
+- Step 42 is registered as the showcase scene promotion and negative variant
+  step.
 

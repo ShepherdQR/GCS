@@ -243,6 +243,51 @@ TEST(ViewerBridgeContract, OverlayProjectsRedundancyEvidence) {
     ASSERT_EQ(summary.redundancy_evidence.size(), 1U);
 }
 
+TEST(ViewerBridgeContract, ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence) {
+    auto model = gcs::tools::make_integrated_feature_showcase_model();
+    runtime::SessionRuntime session(model);
+
+    auto result = session.solve(model.solve_intent);
+
+    EXPECT_TRUE(result.accepted);
+    EXPECT_EQ(result.user_visible_status, kernel::SolveStatus::accepted_with_warnings);
+    ASSERT_EQ(result.planner_output.subproblems.size(), 2U);
+    ASSERT_EQ(result.numeric_reports.size(), 2U);
+    ASSERT_EQ(result.post_local_diagnostics.size(), 2U);
+
+    auto overlay = viewer::build_overlay(
+        viewer::DiagnosticOverlayRequest{
+            session.current_snapshot(),
+            result,
+            viewer::DiagnosticVerbosity::detailed});
+
+    ASSERT_EQ(overlay.payload.rank_evidence.size(), 2U);
+    bool found_frozen_rank = false;
+    bool found_unfrozen_rank = false;
+    for (const auto& evidence : overlay.payload.rank_evidence) {
+        EXPECT_EQ(evidence.source, "runtime.post_local_diagnostics.rank_report");
+        if (evidence.numeric_frozen_variable_dimension > 0) {
+            found_frozen_rank = true;
+            EXPECT_EQ(evidence.numeric_variable_dimension, 9);
+            EXPECT_EQ(evidence.numeric_frozen_variable_dimension, 3);
+            EXPECT_EQ(evidence.numeric_free_variable_dimension, 6);
+        } else {
+            found_unfrozen_rank = true;
+        }
+    }
+    EXPECT_TRUE(found_frozen_rank);
+    EXPECT_TRUE(found_unfrozen_rank);
+
+    ASSERT_GE(overlay.payload.residual_evidence.size(), 2U);
+    EXPECT_TRUE(overlay.payload.redundancy_evidence.empty());
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.rank_evidence"));
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.residual_evidence"));
+
+    auto summary = viewer::summarize_command_result(session.current_snapshot(), result);
+    ASSERT_EQ(summary.rank_evidence.size(), 2U);
+    ASSERT_GE(summary.residual_evidence.size(), 2U);
+}
+
 TEST(ViewerBridgeContract, OverlayProjectsGluingObstructionEvidence) {
     auto model = gcs::tools::make_two_point_distance_model();
     runtime::CommandResult command_result;

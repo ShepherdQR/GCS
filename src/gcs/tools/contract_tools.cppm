@@ -28,6 +28,7 @@ enum class FixtureKind {
     boundary_frozen_distance,
     tolerated_multi_residual_distance,
     separator_chain_distance,
+    integrated_feature_showcase,
 };
 
 enum class FixtureClass {
@@ -42,6 +43,7 @@ enum class FixtureClass {
     boundary_frozen,
     tolerance_edge,
     separator,
+    showcase,
 };
 
 struct FixtureBuildRequest {
@@ -140,6 +142,7 @@ ModelSnapshot make_gluing_obstruction_pair_model();
 ModelSnapshot make_boundary_frozen_distance_model();
 ModelSnapshot make_tolerated_multi_residual_distance_model();
 ModelSnapshot make_separator_chain_distance_model();
+ModelSnapshot make_integrated_feature_showcase_model();
 ContextSnapshot make_whole_context_for(const ModelSnapshot& model);
 std::string to_string(FixtureKind kind);
 std::string to_string(FixtureClass fixture_class);

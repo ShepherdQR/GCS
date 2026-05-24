@@ -122,6 +122,28 @@ TEST(DecompositionPlannerContract, SolveDagExplainsBoundaryProjectionDependencie
     EXPECT_EQ(plan.solve_dag.edges.front().boundary_constraint_ids.size(), 1U);
 }
 
+TEST(DecompositionPlannerContract, SolveIntentFixedEntitiesBecomeBoundaryVariables) {
+    auto model = gcs::tools::make_integrated_feature_showcase_model();
+
+    auto plan = plan_for(model);
+
+    ASSERT_EQ(plan.subproblems.size(), 2U);
+    bool found_fixed_boundary = false;
+    bool found_oriented_component = false;
+    for (const auto& subproblem : plan.subproblems) {
+        if (kernel::contains_entity(subproblem.active_variables, kernel::EntityId{0})) {
+            ASSERT_EQ(subproblem.boundary_variables.size(), 1U);
+            EXPECT_EQ(subproblem.boundary_variables.front().value, 0U);
+            found_fixed_boundary = true;
+        } else {
+            EXPECT_TRUE(subproblem.boundary_variables.empty());
+            found_oriented_component = true;
+        }
+    }
+    EXPECT_TRUE(found_fixed_boundary);
+    EXPECT_TRUE(found_oriented_component);
+}
+
 TEST(DecompositionPlannerContract, SolveOrderValidationRejectsSkippedOrder) {
     auto model = gcs::tools::make_two_component_distance_model();
     auto plan = plan_for(model);

@@ -36,6 +36,8 @@ std::string fixture_id(FixtureKind kind) {
         case FixtureKind::tolerated_multi_residual_distance:
             return "tolerated_multi_residual_distance";
         case FixtureKind::separator_chain_distance: return "separator_chain_distance";
+        case FixtureKind::integrated_feature_showcase:
+            return "integrated_feature_showcase";
     }
     return "unknown";
 }
@@ -62,6 +64,8 @@ FixtureClass fixture_class(FixtureKind kind) {
             return FixtureClass::tolerance_edge;
         case FixtureKind::separator_chain_distance:
             return FixtureClass::separator;
+        case FixtureKind::integrated_feature_showcase:
+            return FixtureClass::showcase;
     }
     return FixtureClass::invalid;
 }
@@ -132,6 +136,12 @@ FixtureExpectation fixture_expectation(FixtureKind kind) {
             expectation.expected_status = kernel::SolveStatus::under_constrained;
             expectation.evidence_phase = "decomposition.separator_chain";
             break;
+        case FixtureKind::integrated_feature_showcase:
+            expectation.expected_status = kernel::SolveStatus::accepted_with_warnings;
+            expectation.expected_report_codes = {
+                "diagnostics.numeric_rank_under_constrained"};
+            expectation.evidence_phase = "showcase.integrated_public_evidence";
+            break;
     }
     return expectation;
 }
@@ -143,6 +153,7 @@ std::vector<FixtureKind> default_fixture_kinds(bool include_negative) {
         FixtureKind::boundary_frozen_distance,
         FixtureKind::tolerated_multi_residual_distance,
         FixtureKind::separator_chain_distance,
+        FixtureKind::integrated_feature_showcase,
     };
     if (!include_negative) return kinds;
     kinds.push_back(FixtureKind::unsatisfied_two_point_distance);
@@ -172,6 +183,29 @@ kernel::EntityDraft make_point(std::uint64_t entity_id,
     return point;
 }
 
+kernel::EntityDraft make_oriented_entity(std::uint64_t entity_id,
+                                         std::uint64_t rigid_set_id,
+                                         kernel::GeometryKind kind,
+                                         double x,
+                                         double y,
+                                         double z,
+                                         double dx,
+                                         double dy,
+                                         double dz) {
+    kernel::EntityDraft entity;
+    entity.id = kernel::EntityId{entity_id};
+    entity.kind = kind;
+    entity.rigid_set_id = kernel::RigidSetId{rigid_set_id};
+    entity.parameters.dimension = kernel::geometry_dof(entity.kind);
+    entity.parameters.values[0] = x;
+    entity.parameters.values[1] = y;
+    entity.parameters.values[2] = z;
+    entity.parameters.values[3] = dx;
+    entity.parameters.values[4] = dy;
+    entity.parameters.values[5] = dz;
+    return entity;
+}
+
 kernel::ConstraintDraft make_distance(std::uint64_t constraint_id,
                                       std::uint64_t first_entity_id,
                                       std::uint64_t second_entity_id,
@@ -185,6 +219,22 @@ kernel::ConstraintDraft make_distance(std::uint64_t constraint_id,
     };
     distance.value = value;
     return distance;
+}
+
+kernel::ConstraintDraft make_constraint(std::uint64_t constraint_id,
+                                        kernel::ConstraintKind kind,
+                                        std::uint64_t first_entity_id,
+                                        std::uint64_t second_entity_id,
+                                        double value = 0.0) {
+    kernel::ConstraintDraft constraint;
+    constraint.id = kernel::ConstraintId{constraint_id};
+    constraint.kind = kind;
+    constraint.entity_ids = {
+        kernel::EntityId{first_entity_id},
+        kernel::EntityId{second_entity_id},
+    };
+    constraint.value = value;
+    return constraint;
 }
 
 std::string join_report_codes(const std::vector<std::string>& codes) {
@@ -412,6 +462,32 @@ ModelSnapshot make_separator_chain_distance_model() {
     return model;
 }
 
+ModelSnapshot make_integrated_feature_showcase_model() {
+    ModelSnapshot model;
+    for (std::uint64_t id = 0; id < 6; ++id) {
+        model.rigid_sets.push_back(
+            kernel::RigidSetDraft{kernel::RigidSetId{id}, {kernel::EntityId{id}}});
+    }
+
+    model.entities.push_back(make_point(0, 0, 0.0, 0.0, 0.0));
+    model.entities.push_back(make_point(1, 1, 1.0, 0.0, 0.0));
+    model.entities.push_back(make_point(2, 2, 2.0, 0.0, 0.0));
+    model.entities.push_back(make_point(3, 3, 0.0, 2.0, 0.0));
+    model.entities.push_back(
+        make_oriented_entity(4, 4, kernel::GeometryKind::plane, 0.0, 2.0, -1.0, 0.0, 0.0, 1.0));
+    model.entities.push_back(
+        make_oriented_entity(5, 5, kernel::GeometryKind::line, 2.0, 2.0, 0.0, 1.0, 0.0, 0.0));
+
+    model.constraints.push_back(make_distance(0, 0, 1, 1.0));
+    model.constraints.push_back(make_distance(1, 1, 2, 1.0));
+    model.constraints.push_back(make_distance(2, 3, 4, 1.0));
+    model.constraints.push_back(
+        make_constraint(3, kernel::ConstraintKind::perpendicular, 5, 4));
+
+    model.solve_intent.fixed_entity_ids = {kernel::EntityId{0}};
+    return model;
+}
+
 ContextSnapshot make_whole_context_for(const ModelSnapshot& model) {
     return kernel::make_whole_model_context(model);
 }
@@ -433,6 +509,7 @@ std::string to_string(FixtureClass fixture_class) {
         case FixtureClass::boundary_frozen: return "boundary_frozen";
         case FixtureClass::tolerance_edge: return "tolerance_edge";
         case FixtureClass::separator: return "separator";
+        case FixtureClass::showcase: return "showcase";
     }
     return "unknown";
 }
@@ -480,6 +557,9 @@ gcs::kernel::ContractResult<FixtureBundle> build_fixture(FixtureBuildRequest req
             break;
         case FixtureKind::separator_chain_distance:
             result.payload.model = make_separator_chain_distance_model();
+            break;
+        case FixtureKind::integrated_feature_showcase:
+            result.payload.model = make_integrated_feature_showcase_model();
             break;
     }
 

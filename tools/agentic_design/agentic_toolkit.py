@@ -1048,16 +1048,25 @@ PUBLIC_EVIDENCE_CHAIN_CTEST_REGEX = "|".join(
             r"RedundancyCandidatesPreferExactDuplicateConstraints)"
         ),
         (
+            r"DecompositionPlannerContract\."
+            r"SolveIntentFixedEntitiesBecomeBoundaryVariables"
+        ),
+        (
             r"SessionRuntimeContract\."
             r"(ProjectsRankEvidenceFromAcceptedCommandResult|"
             r"PostLocalDiagnosticsPreserveNumericEvidence)"
         ),
-        r"ViewerBridgeContract\.OverlayProjects.*Evidence",
+        (
+            r"ViewerBridgeContract\."
+            r"(OverlayProjects.*Evidence|"
+            r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence)"
+        ),
         (
             r"ContractToolsContract\."
             r"(BoundaryFrozenFixtureCarriesSolveIntentHint|"
             r"ToleratedResidualFixtureExercisesMaxAbsStopping|"
-            r"SeparatorChainFixtureNamesSharedSeparatorEntity)"
+            r"SeparatorChainFixtureNamesSharedSeparatorEntity|"
+            r"IntegratedShowcaseFixtureCarriesPublicEvidenceContract)"
         ),
     ]
 )

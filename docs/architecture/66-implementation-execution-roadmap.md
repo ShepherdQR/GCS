@@ -205,11 +205,16 @@ Status legend: `done`, `in_progress`, `pending`.
     corpus evidence paths.
 40. `done` - resynchronize architecture atlas, roadmap, and next-batch
     planning after Steps 31 through 39.
+41. `done` - build the integrated feature showcase constraint graph
+    as a reusable contract fixture with decomposition, boundary, rank,
+    diagnostics, viewer, and quality evidence.
+42. `pending` - promote the showcase into durable JSON scene artifacts,
+    negative diagnostic variants, and atlas/demo projection assets.
 
 Next registered candidate:
 
-- Build an integrated feature showcase constraint graph now that Step 40
-  completed and the evidence path is stable.
+- Complete Step 42 by turning the executable C++ showcase fixture into
+  durable scene/demo assets with structured positive and negative evidence.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1450,6 +1455,48 @@ Reassessment after Step 40:
 - The next high-leverage implementation step is the integrated feature
   showcase constraint graph. It should enter the fixture or generated-scene
   corpus with structured expectations rather than remain a manual demo.
+
+## Integrated Feature Showcase Step Plan
+
+Implemented commit-level scope:
+
+- Carry `SolveIntent.fixed_entity_ids` into planner subproblem boundary
+  variables when those entities are active in a local context.
+- Add a reusable integrated showcase fixture in `gcs.contract_tools`.
+- Make the fixture exercise multiple rigid sets, multiple local components,
+  a separator-like distance chain, oriented constraints, boundary-frozen rank
+  evidence, post-local diagnostics, and viewer overlay projection.
+- Add focused GTest coverage for fixture provenance, planner boundary
+  propagation, runtime/viewer rank evidence, and the default corpus summary.
+- Reassess after the C++ fixture exists whether JSON scene promotion and atlas
+  rendering should be a separate Step 42.
+
+Exit criteria:
+
+- The showcase fixture is deterministic and available through public
+  contract-tool APIs.
+- Runtime/viewer evidence for the fixture shows frozen boundary dimensions and
+  multiple local reports.
+- The fixture is covered by GTest and the full quality gate.
+
+Implemented scope:
+
+- `decomposition_planner` now carries fixed solve-intent entities into local
+  subproblem `boundary_variables` when active.
+- `gcs.contract_tools` now exposes `FixtureKind::integrated_feature_showcase`
+  and `make_integrated_feature_showcase_model()`.
+- The showcase fixture includes two local components: a fixed point-distance
+  chain and a mixed point/plane/line component with distance and
+  perpendicular evidence.
+- Default contract-tool corpus size is now 14 fixture bundles.
+- `ctest.public_evidence_chain` now includes the showcase sentinel tests.
+
+Reassessment after Step 41:
+
+- The positive executable showcase path is stable in C++ contracts and viewer
+  projection.
+- Step 42 should promote the showcase into durable JSON scene fixtures,
+  negative diagnostic variants, and atlas/demo projection artifacts.
 
 ## Damped Numeric Local Solve Step Plan
 

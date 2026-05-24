@@ -461,17 +461,35 @@ Delivered:
 - Mark Step 40 complete in roadmap, forward-plan, progress, and reporting
   documents.
 
-## Next Candidate
+## Completed Step 41
 
-The next high-leverage implementation step is the integrated feature showcase
-constraint graph. It should be a reusable fixture or generated-scene promotion
-package that demonstrates decomposition, boundary variables, free/frozen rank,
-diagnostics, promotion gates, viewer projection, and quality gates together.
+Step 41 built the first executable integrated feature showcase constraint
+graph as a reusable C++ contract fixture.
+
+Delivered:
+
+- Propagate fixed entities from `SolveIntent` into planner/runtime boundary
+  variables for active local contexts.
+- Add `FixtureKind::integrated_feature_showcase` and
+  `make_integrated_feature_showcase_model()` to contract tools.
+- Build the fixture from two local components: a fixed point-distance chain
+  and a mixed point/plane/line component with distance and perpendicular
+  evidence.
+- Verify planner boundary propagation, contract-tool fixture provenance, and
+  viewer projection of boundary-frozen rank plus residual evidence.
+- Expand `ctest.public_evidence_chain` to include the showcase sentinels.
+- Contract test baseline is now 103 CTest-discovered GTest cases.
+
+## Next Step 42
+
+The next step should promote the executable showcase into durable JSON scene
+artifacts, add a negative diagnostic variant, and prepare an atlas/demo
+projection. The positive C++ fixture is stable; the scene-facing work should
+now make it inspectable outside C++ tests.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 40, the registered 1-40 batch is closed; the
-post-Step-40 candidate remains recorded for an integrated feature showcase
-constraint graph.
+in the forward plan. After Step 41, the executable C++ showcase fixture is in
+place; Step 42 is registered as the scene/demo promotion follow-up.

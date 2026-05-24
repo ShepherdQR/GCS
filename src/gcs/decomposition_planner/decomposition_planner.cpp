@@ -142,12 +142,19 @@ void append_dag_edge(PlannerOutput& output, const BoundaryProjection& projection
 void append_component_subproblem(PlannerOutput& output,
                                  const ModelSnapshot& model,
                                  const ContextSnapshot& context,
-                                 int subproblem_id) {
+                                 int subproblem_id,
+                                 const kernel::SolveIntent& solve_intent) {
     Subproblem subproblem;
     subproblem.id = subproblem_id;
     subproblem.context_id = context.id;
     subproblem.active_variables = context.entity_ids;
     subproblem.active_equations = context.constraint_ids;
+    for (EntityId fixed_entity_id : solve_intent.fixed_entity_ids) {
+        if (kernel::contains_entity(context.entity_ids, fixed_entity_id) &&
+            !kernel::contains_entity(subproblem.boundary_variables, fixed_entity_id)) {
+            subproblem.boundary_variables.push_back(fixed_entity_id);
+        }
+    }
     subproblem.expected_free_dof = compute_expected_free_dof(
         model,
         subproblem.active_variables,
@@ -171,7 +178,7 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
 
     const bool split_into_components = input.incidence.connected_components.size() > 1;
     if (!split_into_components) {
-        append_component_subproblem(output, input.model, root, 0);
+        append_component_subproblem(output, input.model, root, 0, input.solve_intent);
         append_dag_node(output, root.id, 0, true, false);
         auto cover_validation = validate_cover(input.model, output.cover_plan);
         auto order_validation = validate_solve_order(output);
@@ -206,7 +213,12 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
             static_cast<std::uint64_t>(output.boundary_projections.size() + 1));
         output.boundary_projections.push_back(projection);
         append_dag_edge(output, projection);
-        append_component_subproblem(output, input.model, context, subproblem_id);
+        append_component_subproblem(
+            output,
+            input.model,
+            context,
+            subproblem_id,
+            input.solve_intent);
         append_dag_node(output, context.id, subproblem_id, true, false);
         ++subproblem_id;
     }

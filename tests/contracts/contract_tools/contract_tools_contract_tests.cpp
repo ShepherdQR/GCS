@@ -98,7 +98,7 @@ TEST(ContractToolsContract, CorpusGenerationIncludesStructuredNegativeFixtures) 
     auto corpus = tools::generate_corpus(
         tools::CorpusGenerationRequest{{}, 700, true});
 
-    EXPECT_EQ(corpus.payload.fixtures.size(), 13U);
+    EXPECT_EQ(corpus.payload.fixtures.size(), 14U);
     EXPECT_EQ(corpus.payload.golden_report.report_name, "fixture_corpus");
     EXPECT_FALSE(corpus.payload.golden_report.digest.empty());
 
@@ -108,6 +108,8 @@ TEST(ContractToolsContract, CorpusGenerationIncludesStructuredNegativeFixtures) 
     EXPECT_NE(summary.find("tolerated_multi_residual_distance|tolerance_edge|"),
               std::string::npos);
     EXPECT_NE(summary.find("separator_chain_distance|separator|"),
+              std::string::npos);
+    EXPECT_NE(summary.find("integrated_feature_showcase|showcase|"),
               std::string::npos);
     EXPECT_NE(summary.find("missing_entity_reference|invalid|"), std::string::npos);
     EXPECT_NE(summary.find("inconsistent_distance_pair|inconsistent|"),
@@ -231,4 +233,28 @@ TEST(ContractToolsContract, SeparatorChainFixtureNamesSharedSeparatorEntity) {
     EXPECT_EQ(fixture.payload.model.constraints[1].entity_ids[0].value, 1U);
     EXPECT_EQ(fixture.payload.expectation.evidence_phase,
               "decomposition.separator_chain");
+}
+
+TEST(ContractToolsContract, IntegratedShowcaseFixtureCarriesPublicEvidenceContract) {
+    auto fixture = tools::build_fixture(
+        tools::FixtureBuildRequest{
+            tools::FixtureKind::integrated_feature_showcase, 41});
+
+    auto invariants = tools::check_invariants(
+        tools::InvariantCheckRequest{fixture.payload.model, fixture.payload.whole_context});
+
+    EXPECT_TRUE(invariants.payload.valid);
+    EXPECT_EQ(fixture.payload.provenance.fixture_class, "showcase");
+    EXPECT_EQ(fixture.payload.expectation.expected_status,
+              kernel::SolveStatus::accepted_with_warnings);
+    EXPECT_EQ(fixture.payload.expectation.evidence_phase,
+              "showcase.integrated_public_evidence");
+    EXPECT_TRUE(expectation_has_code(
+        fixture.payload.expectation,
+        "diagnostics.numeric_rank_under_constrained"));
+    ASSERT_EQ(fixture.payload.model.solve_intent.fixed_entity_ids.size(), 1U);
+    EXPECT_EQ(fixture.payload.model.solve_intent.fixed_entity_ids.front().value, 0U);
+    EXPECT_EQ(fixture.payload.model.rigid_sets.size(), 6U);
+    EXPECT_EQ(fixture.payload.model.entities.size(), 6U);
+    EXPECT_EQ(fixture.payload.model.constraints.size(), 4U);
 }

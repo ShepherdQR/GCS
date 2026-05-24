@@ -171,8 +171,8 @@ owning modules reach implementation.
 `run-quality-gates` is the Step 18 pre-push and CI entry point. By default it
 runs agentic design checks, scene-generation Python tests, agentic-toolkit
 Python tests, CMake configure and build, full CTest, the explicit
-`ContractToolsContract` fixture-corpus selection, the Step 31-38 public
-evidence-chain CTest selection, and a representative CLI smoke fixture.
+`ContractToolsContract` fixture-corpus selection, the Step 31 through Step 41
+public evidence-chain CTest selection, and a representative CLI smoke fixture.
 
 Use `--continue-on-failure` when collecting a complete failure report. Use
 skip flags only for narrow debugging or split CI jobs.
