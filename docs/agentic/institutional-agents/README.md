@@ -42,6 +42,39 @@ docs/agentic/institutional-agents/
 - 与模块 agent、经验库、完成任务档案、架构文档的交接方式；
 - 升级为正式制度所需的证据。
 
+使用和新增制度型 agent 时，遵守
+[`OPERATING-STANDARD.md`](OPERATING-STANDARD.md)。该规范定义调用条件、输入包、
+归档规则、新增门槛和升级等级。
+
+如果只有一段提示词或模糊描述，先使用
+[`GENERATION-PIPELINE.md`](GENERATION-PIPELINE.md) 和
+[`templates/role-card-generator-prompt.md`](templates/role-card-generator-prompt.md)，
+把原始描述生成角色卡、调用 prompt、产物模板和基本 eval，再决定是否创建 seed
+子目录。
+
+## 当前状态
+
+截至 2026-05-24，制度型 agent 体系已经建立，但还没有全部制作完成。
+
+已经完成：
+
+- 总览、命名范式、升级等级和候选角色体系；
+- `I001 刀匠: 淬炼-锻打` 的 seed 角色卡；
+- `I002 裁缝: 裁剪-缝合` 的 seed 角色卡；
+- 新增角色模板 `templates/standing-agent-card.md`；
+- 模糊描述到角色包的生成流程 `GENERATION-PIPELINE.md`；
+- 角色卡生成器 prompt `templates/role-card-generator-prompt.md`；
+- 使用与新增规范 `OPERATING-STANDARD.md`。
+
+尚未完成：
+
+- 候选角色表中的其他角色还没有创建独立子目录；
+- seed 角色还缺 prompts、templates、examples、evals；
+- 角色调用还没有接入自动化工具、runbook 强制步骤或质量门。
+
+这个状态是健康的：制度型 agent 应该由真实使用证据逐步升级，而不是一次性批量
+制造。
+
 ## 命名范式：GCS 工坊制
 
 推荐显示名采用：
