@@ -31,6 +31,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
 | `lifecycle-runbook.md` | Action guide for moving from request to push. |
 | `task-to-archive-checklist.md` | Compact closure checklist with a checked Step 47 example. |
+| `experience/001-task-scoped-session-closure/calibration/` | E001 closure-score calibration notes comparing machine scores with human review. |
 | `agile-pdca-roadmap.md` | Four-phase Agentic SE execution plan, PDCA cadence, current backlog, and next task. |
 | `near-term-agent-plan.md` | Immediate agent execution plan for roadmap sync, seed-agent verification, E001 validation, and opt-in gates. |
 | `long-term-agentic-se-plan.md` | Long-term target plan for lifecycle, review, self-evolution, institutional agents, and bounded automations. |

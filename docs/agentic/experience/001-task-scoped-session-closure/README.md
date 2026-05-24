@@ -149,6 +149,11 @@ with the rubric; it should guide review, not replace it.
 - `research/04-empirical-experiment-design.md`: pilot design for measuring
   whether structured closure improves future review and resumption.
 
+## Calibration Records
+
+- `calibration/2026-05-24-s1-05-first-archive-review.md`: first comparison of
+  E001 machine closure scores with human review notes across C001 and Step 47.
+
 ## Promotion Path
 
 This experience starts as a promoted process lesson. Future hardening can add:

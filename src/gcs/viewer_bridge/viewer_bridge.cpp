@@ -1,5 +1,8 @@
 module;
 
+#include <cstddef>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -99,6 +102,33 @@ std::string stage_summary_line(
            std::to_string(stage.after_version.value) +
            " durable=" + bool_text(stage.durable_mutation) +
            " code=" + stage.report_code;
+}
+
+std::string json_string(const std::string& value) {
+    std::string output = "\"";
+    for (unsigned char ch : value) {
+        switch (ch) {
+            case '"': output += "\\\""; break;
+            case '\\': output += "\\\\"; break;
+            case '\b': output += "\\b"; break;
+            case '\f': output += "\\f"; break;
+            case '\n': output += "\\n"; break;
+            case '\r': output += "\\r"; break;
+            case '\t': output += "\\t"; break;
+            default:
+                if (ch < 0x20) {
+                    std::ostringstream escape;
+                    escape << "\\u" << std::hex << std::setw(4)
+                           << std::setfill('0') << static_cast<int>(ch);
+                    output += escape.str();
+                } else {
+                    output.push_back(static_cast<char>(ch));
+                }
+                break;
+        }
+    }
+    output += "\"";
+    return output;
 }
 
 ResponsibilityEvidenceProjection make_conflict_projection(
@@ -398,6 +428,69 @@ std::string format_replay_evidence_summary(
         }
     }
     return text;
+}
+
+gcs::kernel::ContractResult<ReplayEvidenceReportArtifact>
+build_replay_evidence_report_artifact(
+    const runtime::RuntimeReplayEvidenceExport& evidence) {
+    kernel::ContractResult<ReplayEvidenceReportArtifact> result;
+    result.report = kernel::make_stage_report(
+        "viewer_bridge.build_replay_evidence_report_artifact");
+
+    auto summary = summarize_replay_evidence(evidence);
+    result.payload.summary = std::move(summary.payload);
+    for (auto message : summary.report.messages) {
+        kernel::append_report_message(result.report, std::move(message));
+    }
+    return result;
+}
+
+std::string format_replay_evidence_report_json(
+    const ReplayEvidenceReportArtifact& artifact) {
+    const auto& summary = artifact.summary;
+    std::ostringstream output;
+    output << "{\n";
+    output << "  \"schema\": " << json_string(artifact.schema_version) << ",\n";
+    output << "  \"content_type\": " << json_string(artifact.content_type) << ",\n";
+    output << "  \"found\": " << bool_text(summary.found) << ",\n";
+    output << "  \"command_id\": " << summary.command_id.value << ",\n";
+    output << "  \"artifact_kind\": "
+           << json_string(summary.replay_artifact_kind_text) << ",\n";
+    output << "  \"report_evidence\": " << bool_text(summary.report_evidence)
+           << ",\n";
+    output << "  \"scene_construction_history_entry\": "
+           << bool_text(summary.scene_construction_history_entry) << ",\n";
+    output << "  \"accepted\": " << bool_text(summary.accepted) << ",\n";
+    output << "  \"status\": " << json_string(summary.status) << ",\n";
+    output << "  \"base_version\": " << summary.base_version.value << ",\n";
+    output << "  \"final_version\": " << summary.final_version.value << ",\n";
+    output << "  \"committed\": " << bool_text(summary.committed) << ",\n";
+    output << "  \"rolled_back\": " << bool_text(summary.rolled_back) << ",\n";
+    output << "  \"report_codes\": [";
+    for (std::size_t index = 0; index < summary.report_codes.size(); ++index) {
+        if (index > 0) output << ", ";
+        output << json_string(summary.report_codes[index]);
+    }
+    output << "],\n";
+    output << "  \"stages\": [\n";
+    for (std::size_t index = 0; index < summary.stages.size(); ++index) {
+        const auto& stage = summary.stages[index];
+        output << "    {\"order\": " << stage.order
+               << ", \"stage\": " << json_string(stage.stage)
+               << ", \"stage_status\": " << json_string(stage.stage_status)
+               << ", \"status\": " << json_string(stage.status)
+               << ", \"before_version\": " << stage.before_version.value
+               << ", \"after_version\": " << stage.after_version.value
+               << ", \"durable_mutation\": "
+               << bool_text(stage.durable_mutation)
+               << ", \"report_code\": " << json_string(stage.report_code)
+               << "}";
+        if (index + 1 < summary.stages.size()) output << ",";
+        output << "\n";
+    }
+    output << "  ]\n";
+    output << "}\n";
+    return output.str();
 }
 
 SnapshotSummary summarize_snapshot(const ModelSnapshot& snapshot) {

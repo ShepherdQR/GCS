@@ -172,10 +172,10 @@ owning modules reach implementation.
 runs agentic design checks, scene-generation Python tests, agentic-toolkit
 Python tests, showcase-scene renderer Python tests, Python scene-schema tests,
 Python history-replay tests, CMake configure and build, full CTest, the explicit
-`ContractToolsContract` fixture-corpus selection, the Step 31 through Step 48
+`ContractToolsContract` fixture-corpus selection, the Step 31 through Step 49
 public evidence-chain CTest selection, a representative CLI smoke fixture, and
 the integrated showcase JSON scene CLI smoke, plus a CLI replay-evidence report
-smoke.
+smoke and saved-report artifact smoke.
 
 Use `--continue-on-failure` when collecting a complete failure report. Use
 skip flags only for narrow debugging or split CI jobs.

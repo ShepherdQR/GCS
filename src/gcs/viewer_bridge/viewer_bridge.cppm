@@ -182,6 +182,12 @@ struct ReplayEvidenceSummary {
     std::vector<ReplayEvidenceStageSummary> stages;
 };
 
+struct ReplayEvidenceReportArtifact {
+    std::string schema_version = "gcs.replay_evidence_report.v1";
+    std::string content_type = "application/vnd.gcs.replay-evidence+json";
+    ReplayEvidenceSummary summary;
+};
+
 struct SnapshotSummary {
     int rigid_set_count = 0;
     int entity_count = 0;
@@ -208,6 +214,11 @@ gcs::kernel::ContractResult<ReplayEvidenceSummary> summarize_replay_evidence(
     const runtime::RuntimeReplayEvidenceExport& evidence);
 std::string format_replay_evidence_summary(
     const ReplayEvidenceSummary& summary);
+gcs::kernel::ContractResult<ReplayEvidenceReportArtifact>
+build_replay_evidence_report_artifact(
+    const runtime::RuntimeReplayEvidenceExport& evidence);
+std::string format_replay_evidence_report_json(
+    const ReplayEvidenceReportArtifact& artifact);
 SnapshotSummary summarize_snapshot(const ModelSnapshot& snapshot);
 SnapshotSummary summarize_command_result(const ModelSnapshot& snapshot,
                                          const runtime::CommandResult& result);

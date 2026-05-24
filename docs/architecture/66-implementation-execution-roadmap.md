@@ -222,14 +222,16 @@ Status legend: `done`, `in_progress`, `pending`.
     on top of the Step 46 boundary without writing JSON scene `history`.
 48. `done` - connect runtime replay evidence export to a CLI or viewer-facing
     consumer path while preserving the runtime-report and scene-history split.
-49. `pending` - extend replay evidence consumption toward GUI or saved report
+49. `done` - extend replay evidence consumption toward GUI or saved report
     workflows after the CLI/report adapter boundary has proven stable.
+50. `pending` - decide whether saved replay evidence reports should feed a GUI
+    review surface, diagnostics package, or remain a CLI/report artifact only.
 
 Next registered candidate:
 
-- Complete Step 49 by deciding the next runtime replay evidence consumer:
-  GUI-facing projection, saved report artifact, or a broader diagnostics
-  integration, without changing JSON scene history.
+- Complete Step 50 by reviewing the saved replay evidence report artifact in a
+  real review workflow and deciding whether GUI or diagnostics integration is
+  justified without changing JSON scene history.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1711,6 +1713,29 @@ Reassessment after Step 48:
 - The consumer path remains a report surface, not a scene serialization format.
 - Step 49 should choose the next consumer deliberately: GUI projection, saved
   report artifact, or diagnostics integration.
+
+## Runtime Replay Evidence Saved Report Artifact Milestone
+
+Implemented scope:
+
+- Added `ReplayEvidenceReportArtifact` to `gcs.viewer_bridge`.
+- Added `build_replay_evidence_report_artifact` and
+  `format_replay_evidence_report_json` as deterministic report-artifact
+  formatting APIs.
+- Added `GCS.exe --save-replay-evidence <path>` to write an explicit saved
+  replay evidence report without writing runtime traces into JSON scene
+  `history`.
+- Added
+  `ViewerBridgeContract.ReplayEvidenceReportArtifactIsDeterministicAndSceneHistoryFree`.
+- Extended the public evidence-chain selection and default CLI quality gate
+  with the saved replay report artifact path.
+
+Reassessment after Step 49:
+
+- Saved replay evidence now has a deterministic, explicit report artifact path.
+- The artifact remains a report surface, not a scene serialization format.
+- Step 50 should decide whether the saved report should feed GUI review,
+  diagnostics packaging, or stay as a CLI/report artifact.
 
 ## Damped Numeric Local Solve Step Plan
 

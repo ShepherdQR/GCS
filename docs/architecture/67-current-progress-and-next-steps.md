@@ -615,17 +615,35 @@ Delivered:
 - Added the replay evidence summary test to the public evidence-chain
   selection and the CLI replay-evidence smoke to `run-quality-gates`.
 
-## Next Step 49
+## Completed Step 49
 
-The next step should decide the next replay evidence consumer deliberately:
-GUI-facing projection, saved report artifact, or diagnostics integration.
-`io_adapters` and JSON scene `history` should remain out of scope unless a
-future migration explicitly converts runtime traces into stable scene
-construction actions.
+Step 49 chose the next replay evidence consumer as a saved report artifact. The
+viewer bridge now formats deterministic replay evidence reports, and the CLI
+can write them with `--save-replay-evidence <path>`.
+
+Delivered:
+
+- Added `ReplayEvidenceReportArtifact` to `gcs.viewer_bridge`.
+- Added `build_replay_evidence_report_artifact` and
+  `format_replay_evidence_report_json`.
+- Added `GCS.exe --save-replay-evidence <path>` as an explicit saved-report
+  workflow.
+- Added contract coverage proving the report artifact is deterministic and
+  remains outside scene construction history.
+- Added the saved replay report artifact test to the public evidence-chain
+  selection and a CLI saved-report smoke to `run-quality-gates`.
+
+## Next Step 50
+
+The next step should use the saved replay evidence report in a real review
+workflow and decide whether the report should feed a GUI-facing projection, a
+diagnostics package, or remain a CLI/report artifact only. `io_adapters` and
+JSON scene `history` should remain out of scope unless a future migration
+explicitly converts runtime traces into stable scene construction actions.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-48 are registered in the implementation roadmap; Steps 31 through 49 are
+49 are registered in the implementation roadmap; Steps 31 through 50 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. Step 49 is registered as the next replay evidence
-consumer decision.
+in the forward plan. Step 50 is registered as the next replay evidence
+consumer review decision.

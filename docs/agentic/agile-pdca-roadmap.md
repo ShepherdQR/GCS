@@ -22,18 +22,16 @@ Current task counts:
 
 | Phase | Done | Next | Pending | Main remaining question |
 | --- | ---: | ---: | ---: | --- |
-| Phase 1: Lifecycle Closure | 4 | 1 | 1 | Do the first lifecycle archives transfer enough context under E001 review? |
+| Phase 1: Lifecycle Closure | 5 | 1 | 0 | Which low-risk tasks may stay chat-only without weakening project memory? |
 | Phase 2: Quality-Gate Adoption | 0 | 0 | 5 | Which checks become opt-in gates before any default enforcement? |
-| Phase 3: E001 Closure Experience Validation | 1 | 1 | 2 | Does E001 catch weak closure evidence in real work, not only in templates? |
+| Phase 3: E001 Closure Experience Validation | 2 | 1 | 1 | Does E001 catch weak closure evidence in real work, not only in templates? |
 | Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
 
 Priority order:
 
-1. Finish Phase 1 S1-05 by reviewing the first two lifecycle archives with
-   the E001 closure rubric.
-2. Use S1-03 checklist evidence to decide how strict future task-card/archive
-   validation should become.
-3. Add Phase 2 opt-in checks only after the lifecycle loop has two clean
+1. Add S3-02 negative E001 eval for false completion or archive pollution.
+2. Finish Phase 1 S1-04 by defining which low-risk tasks may stay chat-only.
+3. Add Phase 2 opt-in checks only after the lifecycle loop has multiple clean
    examples.
 4. Keep new institutional-agent examples tied to real requested work.
 
@@ -42,18 +40,18 @@ Priority order:
 ### Phase 1 Analysis
 
 Phase 1 is now proven on documentation work, a real solver-adjacent task, and
-a combined engineering/process task. C001 demonstrated the docs-only loop;
-C003 demonstrated a high-risk runtime contract change; C004 completed S1-03 by
+combined engineering/process tasks. C001 demonstrated the docs-only loop; C003
+demonstrated a high-risk runtime contract change; C004 completed S1-03 by
 turning the loop into a compact task-to-archive checklist while also advancing
-Step 48.
+Step 48. C005 completed S1-05 by reviewing the first two lifecycle archives
+against E001 while advancing Step 49.
 
 Stage conclusion:
 
-- Keep Phase 1 active.
-- Treat S1-05 as the next consolidation task: review the first lifecycle
-  archives against E001 rather than inventing new ceremony.
-- Do not start Phase 2 default-gate work until S1-05 clarifies which
-  checks are valuable rather than ceremonial.
+- Keep Phase 1 active only for S1-04's low-risk chat-only boundary.
+- Treat S1-05 as complete for the first two archives.
+- Do not start Phase 2 default-gate work until S3-02 adds a negative closure
+  eval.
 
 ### Phase 2 Analysis
 
@@ -70,16 +68,16 @@ Stage conclusion:
 
 ### Phase 3 Analysis
 
-E001 is promising and now has a real high-risk engineering sample. Step 47
-closed with a completed-task report and scored 37/40. The next risk is not
-whether E001 can score a good archive, but whether it can catch weak closure
-evidence and guide human review.
+E001 is promising and now has a real high-risk engineering sample plus a first
+calibration note. C001 scored 38/40 and Step 47 scored 37/40 under S1-05. The
+next risk is not whether E001 can score a good archive, but whether it can
+catch weak closure evidence and guide human review.
 
 Stage conclusion:
 
-- Use the Step 47 archive as the first high-risk E001 sample.
+- Use the S1-05 calibration note as the first human-review comparison sample.
 - Add one negative eval for archive pollution or false completion.
-- Compare the score with human review notes during S1-05.
+- Compare additional engineering samples after Step 49 closes.
 
 ### Phase 4 Analysis
 
@@ -142,8 +140,8 @@ Backlog:
 | S1-01 | Persist four-phase Agile PDCA roadmap and close this planning task. | done | This roadmap, task card, completed-task archive. |
 | S1-02 | Reconcile Step 46 lifecycle drift without fabricating a missing task card or archive. | done | `near-term-agent-plan.md` and this roadmap update. |
 | S1-03 | Add a lightweight task-to-archive cross-link checklist. | done | `task-to-archive-checklist.md`, runbook update, checked Step 47 example. |
-| S1-04 | Decide which low-risk tasks may stay chat-only. | pending | Entry-criteria table in lifecycle runbook. |
-| S1-05 | Review the first two archives with E001 closure rubric. | next | Scored closure notes or completed-task report updates. |
+| S1-04 | Decide which low-risk tasks may stay chat-only. | next | Entry-criteria table in lifecycle runbook. |
+| S1-05 | Review the first two archives with E001 closure rubric. | done | `experience/001-task-scoped-session-closure/calibration/2026-05-24-s1-05-first-archive-review.md`. |
 | S1-06 | Apply the lifecycle loop to Step 47 deterministic runtime replay evidence export tooling. | done | Task card, implementation evidence, completed-task report, roadmap C003 update, `刀匠` note. |
 
 ## Phase 2: Quality-Gate Adoption
@@ -188,7 +186,7 @@ Backlog:
 | --- | --- | --- | --- |
 | S3-01 | Use E001 on Step 47 or the next high-risk engineering closure. | done | Step 47 completed-task report and 37/40 closure score. |
 | S3-02 | Add one negative eval for archive pollution or false completion. | next | Eval note under E001 or `docs/agentic/evals`. |
-| S3-03 | Compare scorer output with human review on two archives. | pending | Calibration note. |
+| S3-03 | Compare scorer output with human review on two archives. | done | S1-05 calibration note. |
 | S3-04 | Decide whether to install a project skill for session closure. | pending | Promotion decision record. |
 
 ## Phase 4: Institutional Agents Become Verifiable
@@ -389,25 +387,76 @@ Act:
 - S1-05 is now the next Phase 1 task: review the first lifecycle archives with
   E001 and the new checklist.
 - S3-02 remains the next E001 hardening task.
-- Step 49 is the next implementation step for choosing the next runtime replay
-  evidence consumer.
+- At C004 close, Step 49 became the implementation step for choosing the next
+  runtime replay evidence consumer.
+
+Supersession note: C005 below completes S1-05 and Step 49, then moves the
+institutional queue to S3-02/S1-04 and the engineering queue to Step 50.
+
+### C005: S1-05 Archive Review And Step 49 Saved Report Artifact
+
+Plan:
+
+- complete S1-05 by scoring and reviewing the first two lifecycle archives;
+- choose the Step 49 replay evidence consumer direction;
+- implement the smallest public saved-report artifact path without changing
+  JSON scene `history`;
+- include the previously untracked `docs/research/OpusTime` materials in the
+  commit, as explicitly requested.
+
+Do:
+
+- scored C001 at 38/40 and Step 47 at 37/40 with the E001 closure scorer;
+- recorded a S1-05 calibration note under the E001 experience;
+- added `ReplayEvidenceReportArtifact` and deterministic JSON report artifact
+  formatting in `viewer_bridge`;
+- added `GCS.exe --save-replay-evidence <path>`;
+- added viewer-bridge contract coverage and default quality-gate CLI coverage
+  for the saved report artifact;
+- marked Step 49 complete and registered Step 50 as the next replay evidence
+  report workflow review.
+
+Check:
+
+- C001 and Step 47 completed-task reports validated;
+- task-card validation passed;
+- Python toolkit unit tests passed;
+- build passed after sandbox escalation for generated build output access;
+- focused `SessionRuntimeContract|ViewerBridgeContract` CTest selection passed
+  23/23;
+- CLI `--save-replay-evidence` smoke wrote a deterministic report artifact.
+- full CTest passed 115/115;
+- full `run-quality-gates` passed, including
+  `cli.replay_evidence_report_artifact`;
+- completed-task validation passed;
+- closure score passed at 37/40.
+
+Act:
+
+- S1-05 is complete.
+- S1-04 is now the remaining Phase 1 lifecycle-boundary task.
+- S3-02 is now the next E001 hardening task.
+- Step 50 is the next engineering task: decide whether saved replay evidence
+  reports should feed GUI review, diagnostics packaging, or remain CLI/report
+  artifacts.
 
 ## Next Agile Task
 
-S1-05 is the next task:
+S3-02 is the next E001 hardening task, with S1-04 as the remaining Phase 1
+boundary task:
 
-1. Score C001 and Step 47 with the E001 closure rubric.
-2. Compare the scores with human review notes and the S1-03 checklist.
-3. Record whether Step 48 should become the second engineering sample for
-   future S1-05 calibration.
-4. Decide which archive-quality checks are worth turning into opt-in tooling.
+1. Add one negative E001 eval for false completion or archive pollution.
+2. Define the low-risk task class that may stay chat-only.
+3. Use Step 49's saved report artifact in Step 50 before adding GUI or
+   diagnostics integration.
+4. Keep Phase 2 quality gates opt-in until negative eval evidence exists.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S1-05 first archive review | Tests whether E001 closure reports transfer enough context now that S1-03 exists. | Two archive scores plus review note. |
-| 2 | Step 49 replay evidence consumer decision | Extends Step 48's consumer path only after choosing the right public surface. | GUI projection, saved report artifact, or diagnostics integration selected with a task card. |
-| 3 | S3-02 negative E001 eval | Uses real closure evidence to guard against archive pollution or false completion. | One failing/passing eval note. |
-| 4 | S2-01 opt-in gate design | Only after the checklist and archive review clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
+| 1 | S3-02 negative E001 eval | Uses real closure evidence to guard against archive pollution or false completion. | One failing/passing eval note. |
+| 2 | S1-04 low-risk chat-only boundary | Completes the remaining Phase 1 lifecycle entry rule. | Entry-criteria table in lifecycle runbook. |
+| 3 | Step 50 replay evidence report workflow review | Uses the saved report artifact before adding another consumer surface. | GUI, diagnostics, or report-only direction selected. |
+| 4 | S2-01 opt-in gate design | Only after negative eval and chat-only boundary clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
 | 5 | S4-05 institutional-agent reassessment | `刀匠` and `裁缝` now each have one real example. | Candidate table update after additional real closures. |

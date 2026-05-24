@@ -437,3 +437,31 @@ TEST(ViewerBridgeContract, ReplayEvidenceSummaryPreservesRuntimeReportBoundary) 
     EXPECT_NE(text.find("scene_history: false"), std::string::npos);
     EXPECT_NE(text.find("runtime.commit"), std::string::npos);
 }
+
+TEST(ViewerBridgeContract, ReplayEvidenceReportArtifactIsDeterministicAndSceneHistoryFree) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::SessionRuntime session(model);
+    auto result = session.solve();
+    auto evidence = session.export_replay_evidence(
+        runtime::ReplayRequest{result.command_id});
+
+    auto first = viewer::build_replay_evidence_report_artifact(evidence);
+    auto second = viewer::build_replay_evidence_report_artifact(evidence);
+    auto first_json = viewer::format_replay_evidence_report_json(first.payload);
+    auto second_json = viewer::format_replay_evidence_report_json(second.payload);
+
+    EXPECT_EQ(first_json, second_json);
+    EXPECT_EQ(first.payload.schema_version, "gcs.replay_evidence_report.v1");
+    EXPECT_EQ(first.payload.summary.command_id.value, result.command_id.value);
+    EXPECT_TRUE(first.payload.summary.report_evidence);
+    EXPECT_FALSE(first.payload.summary.scene_construction_history_entry);
+    EXPECT_NE(first_json.find("\"artifact_kind\": \"runtime_transaction_trace\""),
+              std::string::npos);
+    EXPECT_NE(first_json.find("\"scene_construction_history_entry\": false"),
+              std::string::npos);
+    EXPECT_NE(first_json.find("\"report_evidence\": true"), std::string::npos);
+    EXPECT_NE(first_json.find("\"runtime.commit\""), std::string::npos);
+    EXPECT_EQ(first_json.find("\"history\""), std::string::npos);
+    EXPECT_EQ(first_json.find("AddGeometry"), std::string::npos);
+    EXPECT_EQ(first_json.find("AddConstraint"), std::string::npos);
+}

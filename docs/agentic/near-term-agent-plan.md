@@ -27,10 +27,12 @@ auditable, and useful in real project work.
 - Step 47 has now completed the full lifecycle: task card, implementation,
   tests, completed-task archive, roadmap update, closure score, and a real
   `刀匠` example. `裁缝` was intentionally skipped for that sample, then later
-used for an explicit local repository stitch timeline.
+  used for an explicit local repository stitch timeline.
 - Step 48 has now completed the paired engineering/process lifecycle:
   runtime replay evidence is exposed through a viewer/report adapter and CLI
   `--replay-evidence`, while S1-03 produced the task-to-archive checklist.
+- S1-05 has reviewed the first two lifecycle archives with E001, and Step 49
+  has chosen the next replay evidence consumer as a saved report artifact.
 
 ## Execution Principle
 
@@ -52,6 +54,7 @@ Goal: keep agentic roadmaps aligned with implementation reality.
 | A3 | Update the PDCA queue after A2. | done in this plan | Roadmap C002 update. |
 | A4 | Record Step 47 lifecycle completion and move the queue to S1-03. | done in this plan | Roadmap C003 update and this plan. |
 | A5 | Record Step 48 and S1-03 completion, then move the queue to S1-05 and Step 49. | done in this plan | Roadmap C004 update and Step 48 archive. |
+| A6 | Record S1-05 and Step 49 completion, then move the queue to S3-02, S1-04, and Step 50. | done in this plan | S1-05 calibration note and Step 49 archive. |
 
 Decision rule: do not fabricate lifecycle evidence. If no task card or archive
 exists, mark it as an escaped lifecycle sample and use the next high-risk task
@@ -86,8 +89,8 @@ the templates exist.
 | ID | Task | Status | Output |
 | --- | --- | --- | --- |
 | C1 | Identify two completed archives to score with E001. | done in this plan | C001 and Step 47 are the first candidate pair. |
-| C2 | Score the archives and compare with human review notes. | next | Calibration note. |
-| C3 | Add one negative eval for archive pollution or false completion. | pending | `docs/agentic/evals/` or E001 eval note. |
+| C2 | Score the archives and compare with human review notes. | done in this plan | `experience/001-task-scoped-session-closure/calibration/2026-05-24-s1-05-first-archive-review.md` |
+| C3 | Add one negative eval for archive pollution or false completion. | next | `docs/agentic/evals/` or E001 eval note. |
 | C4 | Decide whether to promote E001 into an installed project skill. | pending | Promotion decision. |
 
 ## Workstream D: Opt-In Agentic Quality Gates
@@ -115,16 +118,16 @@ the generator protocol.
 
 ## Immediate Next Task
 
-Start with S1-05, paired with the Step 49 engineering decision if engineering
-work continues in the same session:
+Start with S3-02 or S1-04, paired with Step 50 if engineering work continues
+in the same session:
 
-1. Review the first two lifecycle archives with the E001 closure rubric.
-2. Compare the checklist against the Step 48 archive and record whether it
-   prevented missing handoff evidence.
-3. Choose Step 49's next runtime replay evidence consumer: GUI-facing
-   projection, saved report artifact, or diagnostics integration.
-4. Keep Phase 2 quality-gate work opt-in until S1-05 shows which checks are
-   genuinely useful.
+1. Add a negative E001 eval for false completion or archive pollution.
+2. Define which low-risk tasks may stay chat-only without a completed-task
+   archive.
+3. Use the Step 49 saved report artifact in one review workflow before adding
+   GUI or diagnostics integration.
+4. Keep Phase 2 quality-gate work opt-in until the negative eval clarifies
+   which checks catch real closure failures.
 
 ## Superseded Immediate Task Note
 

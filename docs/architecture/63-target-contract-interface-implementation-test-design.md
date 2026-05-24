@@ -715,6 +715,7 @@ Structured outputs:
 - `InteractionCommandDraft`.
 - `HistoryFrameProjection`.
 - `ReplayEvidenceSummary`.
+- `ReplayEvidenceReportArtifact`.
 - `SnapshotSummary` with public rank, residual, conflict, redundancy, and
   obstruction evidence projections.
 
@@ -731,6 +732,10 @@ ContractResult<ReplayEvidenceSummary> summarize_replay_evidence(
     const runtime::RuntimeReplayEvidenceExport& evidence);
 std::string format_replay_evidence_summary(
     const ReplayEvidenceSummary& summary);
+ContractResult<ReplayEvidenceReportArtifact> build_replay_evidence_report_artifact(
+    const runtime::RuntimeReplayEvidenceExport& evidence);
+std::string format_replay_evidence_report_json(
+    const ReplayEvidenceReportArtifact& artifact);
 
 }
 ```
@@ -750,6 +755,8 @@ Implementation responsibilities:
   history entries.
 - Runtime replay evidence summary projection for CLI, GUI, or report consumers
   without taking ownership of scene IO or runtime mutation.
+- Deterministic runtime replay evidence report artifact formatting for explicit
+  saved-report workflows, while keeping JSON scene `history` out of scope.
 
 Contract tests:
 
@@ -764,6 +771,7 @@ Contract tests:
 - `viewer_history_frame_resolves_stable_ids`.
 - `viewer_runtime_history_frame_projects_as_report_evidence_only`.
 - `viewer_replay_evidence_summary_preserves_runtime_report_boundary`.
+- `viewer_replay_evidence_report_artifact_is_deterministic_and_scene_history_free`.
 
 ## Contract Tools Target Design
 

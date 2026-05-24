@@ -1274,6 +1274,55 @@ Exit criteria:
 - Runtime replay reports remain separate from scene construction history.
 - The public evidence path remains deterministic.
 
+Completed summary:
+
+- Chose the saved report artifact as the next runtime replay evidence
+  consumer.
+- Added `ReplayEvidenceReportArtifact` to `gcs.viewer_bridge`.
+- Added `build_replay_evidence_report_artifact` and
+  `format_replay_evidence_report_json`.
+- Added `GCS.exe --save-replay-evidence <path>` for explicit saved report
+  workflows.
+- Added
+  `ViewerBridgeContract.ReplayEvidenceReportArtifactIsDeterministicAndSceneHistoryFree`.
+- Extended the public evidence-chain CTest selection and default CLI quality
+  gate with the saved replay report artifact path.
+
+Reassessment after Step 49:
+
+- The saved report artifact is useful for review and CI because it is explicit
+  and deterministic.
+- It remains outside scene IO and does not redefine JSON scene `history`.
+- GUI or diagnostics integration should wait until a real review workflow
+  needs a richer consumer.
+
+### Step 50: Replay Evidence Report Workflow Review
+
+Goal:
+
+- Decide whether saved replay evidence reports should feed GUI review,
+  diagnostics packaging, or remain CLI/report artifacts only.
+
+Expected shape:
+
+- A short review or implementation step based on the saved Step 49 report
+  artifact.
+- No scene schema or JSON `history` changes unless a separate migration task is
+  explicitly approved.
+
+Detailed plan:
+
+- Inspect saved replay evidence report output from representative fixtures.
+- Identify whether reviewers need GUI overlay affordances, diagnostics
+  packaging, or only a durable report artifact.
+- Add the smallest consumer contract if a new public surface is justified.
+
+Exit criteria:
+
+- The next consumer direction is selected with rationale.
+- Any added consumer preserves runtime report semantics.
+- JSON scene construction history remains separate.
+
 ## Reassessment Protocol
 
 After each step:
@@ -1292,14 +1341,14 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 48 update:
+As of the Step 49 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 48 have completed-step summaries in the roadmap and current
+- Steps 1 through 49 have completed-step summaries in the roadmap and current
   progress documents.
-- Steps 31 through 49 are detailed in this forward plan with goal, expected
+- Steps 31 through 50 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
-- Step 49 is registered as the next runtime replay evidence consumer decision
-  step.
+- Step 50 is registered as the next runtime replay evidence report workflow
+  review step.
 

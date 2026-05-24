@@ -25,11 +25,11 @@ Current baseline:
 
 | Field | Value |
 | --- | --- |
-| Current completed step | Step 47 |
-| Next implementation step | Step 49 runtime replay evidence next consumer decision |
+| Current completed step | Step 49 |
+| Next implementation step | Step 50 replay evidence report workflow review |
 | Default gate | `python tools\agentic_design\agentic_toolkit.py run-quality-gates` |
-| Contract test baseline | 113 CTest-discovered GTest cases |
-| Public evidence sentinel | 26 selected CTest cases |
+| Contract test baseline | 115 CTest-discovered GTest cases |
+| Public evidence sentinel | 29 selected CTest cases |
 | Main new boundary | runtime transaction replay is deterministic report evidence, not scene construction history |
 
 ## Step Report
@@ -208,5 +208,8 @@ Postscript after Step 47:
 - Step 48 has exposed the runtime replay evidence export through a
   viewer/report adapter and CLI `--replay-evidence` path without changing JSON
   scene `history`.
-- The next registered implementation step is Step 49: decide the next replay
-  evidence consumer path.
+- Step 49 has added a deterministic saved report artifact path through
+  `ReplayEvidenceReportArtifact` and `GCS.exe --save-replay-evidence <path>`.
+- The next registered implementation step is Step 50: decide whether saved
+  replay evidence reports should feed GUI review, diagnostics packaging, or
+  remain CLI/report artifacts.

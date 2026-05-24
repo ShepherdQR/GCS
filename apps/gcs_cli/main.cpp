@@ -2,6 +2,7 @@ import gcs.io_adapters;
 import gcs.session_runtime;
 import gcs.viewer_bridge;
 
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -9,14 +10,26 @@ int main(int argc, char** argv) {
     std::string path = "fixtures/scene/basic/g1.txt";
     bool path_set = false;
     bool print_replay_evidence = false;
+    bool save_replay_evidence = false;
+    std::string replay_evidence_output_path;
     for (int index = 1; index < argc; ++index) {
         const std::string arg = argv[index];
         if (arg == "--help" || arg == "-h") {
-            std::cout << "Usage: GCS.exe [scene-path] [--replay-evidence]\n";
+            std::cout << "Usage: GCS.exe [scene-path] [--replay-evidence] "
+                         "[--save-replay-evidence <path>]\n";
             return 0;
         }
         if (arg == "--replay-evidence") {
             print_replay_evidence = true;
+            continue;
+        }
+        if (arg == "--save-replay-evidence") {
+            if (index + 1 >= argc) {
+                std::cerr << "--save-replay-evidence requires a path\n";
+                return 1;
+            }
+            save_replay_evidence = true;
+            replay_evidence_output_path = argv[++index];
             continue;
         }
         if (!path_set) {
@@ -54,13 +67,30 @@ int main(int argc, char** argv) {
         std::cout << "  " << message << "\n";
     }
 
-    if (print_replay_evidence) {
+    if (print_replay_evidence || save_replay_evidence) {
         auto replay_evidence = runtime.export_replay_evidence(
             gcs::runtime::ReplayRequest{result.command_id});
-        auto replay_summary =
-            gcs::viewer::summarize_replay_evidence(replay_evidence);
-        std::cout << gcs::viewer::format_replay_evidence_summary(
-            replay_summary.payload);
+        auto replay_artifact =
+            gcs::viewer::build_replay_evidence_report_artifact(replay_evidence);
+        if (print_replay_evidence) {
+            std::cout << gcs::viewer::format_replay_evidence_summary(
+                replay_artifact.payload.summary);
+        }
+        if (save_replay_evidence) {
+            std::ofstream output(replay_evidence_output_path);
+            if (!output) {
+                std::cerr << "Failed to open replay evidence output: "
+                          << replay_evidence_output_path << "\n";
+                return 1;
+            }
+            output << gcs::viewer::format_replay_evidence_report_json(
+                replay_artifact.payload);
+            if (!output) {
+                std::cerr << "Failed to write replay evidence output: "
+                          << replay_evidence_output_path << "\n";
+                return 1;
+            }
+        }
     }
 
     if (result.obstruction_report.present) {
