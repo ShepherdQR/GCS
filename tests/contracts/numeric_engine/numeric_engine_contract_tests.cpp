@@ -23,6 +23,13 @@ numeric::NumericTask make_task() {
     return make_task_for_model(gcs::tools::make_two_point_distance_model());
 }
 
+kernel::ModelSnapshot make_two_component_model_with_tiny_residuals() {
+    auto model = gcs::tools::make_two_component_distance_model();
+    model.entities[1].parameters.values[0] = 1.0 + 0.75e-8;
+    model.entities[3].parameters.values[0] = 11.0 + 0.75e-8;
+    return model;
+}
+
 bool has_code(const kernel::StageReport& report, const char* code) {
     for (const auto& message : report.messages) {
         if (message.code.value == code) return true;
@@ -146,6 +153,25 @@ TEST(NumericEngineContract, ReportsResidualMetricsForUnsatisfiedFixture) {
     EXPECT_NEAR(report.residual_report.blocks.front().norm, report.final_residual, 1.0e-12);
 }
 
+TEST(NumericEngineContract, ConvergesWhenEachResidualIsWithinTolerance) {
+    auto task = make_task_for_model(make_two_component_model_with_tiny_residuals());
+    task.solve_limits.max_iterations = 0;
+
+    auto report = numeric::solve_local(task);
+
+    EXPECT_EQ(report.result_code, kernel::SolveStatus::solved);
+    EXPECT_TRUE(report.local_section.valid);
+    EXPECT_GT(report.final_residual, task.tolerances.residual);
+    EXPECT_LE(report.residual_report.max_abs_value, task.tolerances.residual);
+    ASSERT_EQ(report.residual_report.blocks.size(), 2U);
+    EXPECT_LE(report.residual_report.blocks[0].max_abs_value,
+              task.tolerances.residual);
+    EXPECT_LE(report.residual_report.blocks[1].max_abs_value,
+              task.tolerances.residual);
+    ASSERT_EQ(report.iteration_trace.entries.size(), 2U);
+    EXPECT_EQ(report.iteration_trace.entries.back().phase, "converged");
+}
+
 TEST(NumericEngineContract, ReportsRankConditionEvidence) {
     auto task = make_task();
 
@@ -161,6 +187,18 @@ TEST(NumericEngineContract, ReportsRankConditionEvidence) {
     EXPECT_FALSE(report.rank_condition_report.over_constrained);
     EXPECT_TRUE(report.rank_condition_report.condition_estimate_available);
     EXPECT_NEAR(report.rank_condition_report.condition_estimate, 1.0, 1.0e-6);
+}
+
+TEST(NumericEngineContract, SingularRankDoesNotPublishFiniteConditionEstimate) {
+    auto task = make_task_for_model(gcs::tools::make_redundant_distance_pair_model());
+
+    auto report = numeric::solve_local(task);
+
+    EXPECT_EQ(report.result_code, kernel::SolveStatus::solved);
+    EXPECT_EQ(report.rank_condition_report.rank_estimate, 1);
+    EXPECT_TRUE(report.rank_condition_report.numerically_singular);
+    EXPECT_FALSE(report.rank_condition_report.condition_estimate_available);
+    EXPECT_NEAR(report.rank_condition_report.condition_estimate, 0.0, 1.0e-12);
 }
 
 TEST(NumericEngineContract, RankEvidenceUsesOnlyFreeBoundaryColumns) {

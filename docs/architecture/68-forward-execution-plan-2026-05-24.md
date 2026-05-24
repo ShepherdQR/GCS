@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 35:
+- Completed through Step 36:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -45,10 +45,13 @@ implementation step they describe.
   - diagnostics residual conflicts now name both unsatisfied constraints and
     entity subjects, and redundancy evidence now prefers exact duplicate
     constraint signatures before broad over-constrained candidates;
+  - numeric convergence now uses max-absolute residual tolerance while
+    residual norms remain report evidence, and condition estimates are
+    suppressed for singular free-Jacobian evidence;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline is 92 tests.
+  - CTest contract baseline is 94 tests.
 
 ## Execution Cadence Contract
 
@@ -514,7 +517,7 @@ Reassessment after Step 35:
 - Step 38 remains viewer/GUI evidence surface work after diagnostics and
   numeric evidence contracts settle further.
 
-### Step 36: Numeric Robustness Batch
+### Completed Step 36: Numeric Robustness Batch
 
 Goal:
 
@@ -529,19 +532,42 @@ Expected shape:
   contracts.
 - Keep local solve proposals separate from runtime commit decisions.
 
-Detailed plan:
+Decision:
 
-- Inspect residual/Jacobian assembly, damping, trust radius, rank tolerance,
-  and condition estimate code paths.
-- Add focused fixtures for near-singular, scaled, and boundary-frozen cases.
-- Update contract tests before or with implementation so robustness claims are
-  executable.
-- Persist Step 36 summary and reassess scene corpus expansion.
+- Keep the public numeric report shapes unchanged and harden interpretation
+  first. The highest immediate risk was not a missing solver backend, but
+  report semantics that could disagree with diagnostics tolerance handling or
+  publish misleading condition evidence for rank-deficient systems.
 
-Exit criteria:
+Delivered:
 
-- Numeric robustness improvements are covered by deterministic contract tests.
-- Diagnostics receives stable rank/condition evidence for the new cases.
+- Add a max-absolute residual convergence check so multiple residual blocks
+  that are each within tolerance do not fail only because the Euclidean norm
+  aggregates above tolerance.
+- Preserve residual norm as trend evidence in `NumericReport` and
+  `IterationTrace`.
+- Suppress `condition_estimate_available` when the effective free Jacobian is
+  numerically singular.
+- Preserve `NumericTask`, `NumericReport`, `RankConditionReport`, and runtime
+  commit semantics.
+
+Tests:
+
+- `NumericEngineContract.ConvergesWhenEachResidualIsWithinTolerance` covers
+  the tolerated multi-residual stopping criterion.
+- `NumericEngineContract.SingularRankDoesNotPublishFiniteConditionEstimate`
+  covers rank-deficient condition evidence suppression.
+- Focused numeric CTest suite passes with 15 tests.
+
+Reassessment after Step 36:
+
+- Step 37 is now the highest-leverage next move. The solver has stronger
+  residual and rank-condition semantics, so reusable fixture and scene corpus
+  expansion should capture boundary-frozen, rank-deficient, separator,
+  gluing-obstruction, and promotion-positive or promotion-negative scenarios.
+- Step 38 should remain viewer/GUI evidence surface work after the corpus gives
+  UI and overlay contracts richer public examples.
+- Step 39 remains quality gate hardening after new corpus evidence is in place.
 
 ### Step 37: Fixture And Scene Corpus Expansion
 
@@ -709,15 +735,15 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 35 update:
+As of the Step 36 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 35 have completed-step summaries in the roadmap and current
+- Steps 1 through 36 have completed-step summaries in the roadmap and current
   progress documents.
 - Steps 31 through 40 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 36 is the next implementation step.
+- Step 37 is the next implementation step.
 

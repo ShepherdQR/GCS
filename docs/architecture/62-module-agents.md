@@ -366,6 +366,10 @@ Skill definition:
 - Use when local solving, residual assembly, Jacobian, scaling, rank,
   conditioning, or numeric trace contracts change.
 - Output a local-section report and no runtime commit claim.
+- Convergence checks use max absolute residual against tolerance; residual
+  norms remain trend evidence.
+- Condition estimates are emitted only for non-rank-deficient free Jacobian
+  evidence.
 
 Guardrails:
 

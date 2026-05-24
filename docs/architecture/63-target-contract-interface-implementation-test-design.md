@@ -450,9 +450,12 @@ Implementation responsibilities:
 - Dense damped Gauss-Newton baseline with trust-region step clamp until a
   sparse or external backend is introduced through the same contracts.
 - Manifold retraction and update.
+- Convergence policy based on max absolute residual value, with residual norm
+  retained as report and trace evidence.
 - Rank and conditioning estimation over the free Jacobian columns that remain
   after boundary-variable policy is applied, while preserving full and frozen
   variable dimensions as report evidence.
+- Condition evidence suppression for rank-deficient free Jacobians.
 - Boundary variable handling.
 - Iteration trace recording.
 
@@ -465,6 +468,8 @@ Contract tests:
 - `numeric_reports_underconstrained_rank`.
 - `numeric_rank_evidence_uses_only_free_boundary_columns`.
 - `numeric_reports_condition_estimate`.
+- `numeric_does_not_publish_condition_estimate_for_singular_rank`.
+- `numeric_converges_when_each_residual_is_within_tolerance`.
 - `numeric_boundary_variables_are_not_silently_mutated`.
 - `numeric_trace_is_replayable`.
 

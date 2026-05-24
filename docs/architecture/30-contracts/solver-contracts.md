@@ -86,6 +86,11 @@ NumericReport:
 ```
 
 The engine returns a proposal and report. It does not commit durable state.
+Convergence is tested against the maximum absolute residual value so multiple
+individually tolerated residual blocks are not rejected only because their
+Euclidean norm aggregates above tolerance. Residual norms remain report and
+trace evidence. Condition estimates are reportable only when the effective
+free Jacobian is not rank deficient.
 
 ## Gluing Contract
 

@@ -84,6 +84,10 @@ double vector_norm(const std::vector<double>& values) {
     return std::sqrt(sum);
 }
 
+bool residual_within_tolerance(const EquationAssembly& assembly, double tolerance) {
+    return max_abs_value(assembly.residual_vector) <= tolerance;
+}
+
 std::vector<VariableColumn> build_variable_columns(const NumericTask& task,
                                                    int& variable_dimension) {
     std::vector<VariableColumn> columns;
@@ -413,7 +417,7 @@ RankConditionReport make_rank_condition_report(const NumericTask& task,
     report.over_constrained = assembly.residual_dimension > effective_variables;
     report.numerically_singular =
         report.rank_estimate < std::min(assembly.residual_dimension, effective_variables);
-    if (rank.rank > 0 && rank.min_pivot > 0.0) {
+    if (!report.numerically_singular && rank.rank > 0 && rank.min_pivot > 0.0) {
         report.condition_estimate_available = true;
         report.condition_estimate = rank.max_pivot / rank.min_pivot;
     }
@@ -772,7 +776,9 @@ NumericReport solve_local(const NumericTask& task) {
         task.problem_snapshot.state_version,
         report.initial_residual);
 
-    bool converged = current_residual <= task.tolerances.residual;
+    bool converged = residual_within_tolerance(
+        current_assembly,
+        task.tolerances.residual);
     bool failed = false;
     double last_step_norm = 0.0;
 
@@ -828,7 +834,9 @@ NumericReport solve_local(const NumericTask& task) {
             const double trial_residual =
                 residual_norm(trial_assembly.payload.residual_vector);
             if (trial_residual < current_residual ||
-                trial_residual <= task.tolerances.residual) {
+                residual_within_tolerance(
+                    trial_assembly.payload,
+                    task.tolerances.residual)) {
                 accepted = true;
                 accepted_snapshot = std::move(trial_snapshot);
                 accepted_assembly = std::move(trial_assembly.payload);
@@ -865,7 +873,9 @@ NumericReport solve_local(const NumericTask& task) {
                 current_residual,
                 accepted_step_norm,
                 true});
-        converged = current_residual <= task.tolerances.residual;
+        converged = residual_within_tolerance(
+            current_assembly,
+            task.tolerances.residual);
     }
 
     if (!converged && !failed) {

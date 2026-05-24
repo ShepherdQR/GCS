@@ -51,6 +51,10 @@ Current C++23 baseline:
   dimension and frozen dimension;
 - clamps steps to the task trust radius and accepts only residual-reducing
   trial states;
+- uses per-residual maximum absolute value for convergence against residual
+  tolerance, while still reporting residual norms for trend and trace review;
+- withholds finite condition estimates when the free Jacobian evidence is
+  rank deficient;
 - reports convergence, non-convergence, residuals, rank, boundary evidence,
   and replayable iteration trace through `NumericReport`.
 

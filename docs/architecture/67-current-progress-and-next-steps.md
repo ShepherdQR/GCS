@@ -54,11 +54,14 @@ Completed algorithm-deepening steps:
   command results and stage traces.
 - Step 35: deepened diagnostics conflict and redundancy evidence with
   residual entity subjects and exact duplicate constraint signatures.
+- Step 36: hardened numeric convergence and condition evidence by using
+  max-absolute residual tolerance and suppressing condition estimates for
+  singular free Jacobians.
 
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 92 CTest-discovered GTest cases.
+- Contract test baseline is 94 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -370,17 +373,32 @@ Delivered:
   for structurally or numerically over-constrained contexts.
 - Keep status precedence and gluing obstruction conflicts stable.
 
-## Next Step 36
+## Completed Step 36
 
-The next step is numeric robustness. Diagnostics now has smaller
-responsible-set evidence, so the next highest-leverage work is to harden
-numeric rank, condition, residual, stopping, scaling, and boundary/frozen
-edge-case behavior that diagnostics and runtime consume.
+Step 36 hardened numeric residual and condition evidence.
+
+Delivered:
+
+- Use maximum absolute residual value for convergence against residual
+  tolerance, while keeping residual norm as report and trace evidence.
+- Avoid publishing finite condition estimates when the effective free
+  Jacobian is rank deficient.
+- Preserve `NumericTask`, `NumericReport`, and `RankConditionReport` public
+  shapes.
+- Add numeric contract tests for tolerated multi-residual stopping and
+  singular-rank condition suppression.
+
+## Next Step 37
+
+The next step is fixture and scene corpus expansion. Numeric and diagnostics
+evidence now has stronger edge-case semantics, so reusable model/scene
+fixtures should capture boundary-frozen, rank-deficient, separator,
+gluing-obstruction, and promotion-positive or promotion-negative scenarios.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 35, the remaining steps were reconsidered;
-Step 36 is registered as the next highest-leverage move. A post-Step-40
+in the forward plan. After Step 36, the remaining steps were reconsidered;
+Step 37 is registered as the next highest-leverage move. A post-Step-40
 candidate is also recorded for an integrated feature showcase constraint graph.

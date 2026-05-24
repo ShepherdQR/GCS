@@ -195,7 +195,7 @@ Status legend: `done`, `in_progress`, `pending`.
     runtime command results.
 35. `done` - deepen diagnostics conflict and redundancy evidence toward
     smaller responsible sets.
-36. `pending` - harden numeric robustness around scaling, rank tolerance,
+36. `done` - harden numeric robustness around scaling, rank tolerance,
     condition evidence, stopping, and boundary edge cases.
 37. `pending` - expand reusable fixture and scene corpus for rank, separator,
     boundary, gluing, and promotion scenarios.
@@ -1252,13 +1252,54 @@ Implemented scope for Step 35:
 
 Reassessment after Step 35:
 
-- Step 36 is now the highest-leverage next move. Diagnostics can now report
-  smaller conflict/redundancy subject sets, so numeric robustness can focus on
-  making rank, condition, residual, and stopping evidence more trustworthy.
-- Step 37 should remain after Step 36 because fixture/corpus expansion will be
-  more useful once numeric robustness gaps are explicit.
+- Step 36 completed the first numeric robustness batch. Diagnostics can now
+  rely on max-absolute residual convergence semantics and condition evidence
+  that is not published for singular free Jacobians.
+- Step 37 should remain next because fixture/corpus expansion can now capture
+  the strengthened residual and rank-condition edge cases as reusable models
+  or scenes.
 - Step 38 remains viewer/GUI evidence surface work after diagnostics and
   numeric evidence contracts settle further.
+
+## Numeric Robustness Step Plan
+
+Implemented commit-level scope for Step 36:
+
+- Align numeric convergence with diagnostics residual tolerance by checking
+  maximum absolute residual values rather than Euclidean residual norm alone.
+- Preserve residual norm as report and iteration-trace trend evidence.
+- Suppress finite condition estimates when rank evidence shows the effective
+  free Jacobian is rank deficient.
+- Add deterministic numeric contract coverage for tolerated multi-residual
+  stopping and singular-rank condition suppression.
+- Keep `NumericTask`, `NumericReport`, and `RankConditionReport` public shapes
+  unchanged.
+
+## Numeric Robustness Milestone
+
+Implemented scope for Step 36:
+
+- `numeric::solve_local` now treats a task as converged when every residual
+  value is within the active residual tolerance, avoiding false failures for
+  multiple individually tolerated residual blocks.
+- `RankConditionReport.condition_estimate_available` is false for singular
+  effective free Jacobian evidence, even when a partial pivot ratio could be
+  computed.
+- Numeric engine contract coverage now includes
+  `NumericEngineContract.ConvergesWhenEachResidualIsWithinTolerance` and
+  `NumericEngineContract.SingularRankDoesNotPublishFiniteConditionEstimate`.
+- Contract test baseline increased to 94 CTest-discovered GTest cases.
+
+Reassessment after Step 36:
+
+- Step 37 is now the highest-leverage next move. The solver has stronger
+  residual and rank-condition semantics, so reusable fixture and scene corpus
+  expansion should capture boundary-frozen, rank-deficient, separator,
+  gluing-obstruction, and promotion scenarios for later batches.
+- Step 38 remains viewer/GUI evidence surface work after the corpus gives UI
+  and overlay contracts richer examples.
+- Step 39 remains quality gate hardening after the new corpus evidence is in
+  place.
 
 ## Damped Numeric Local Solve Step Plan
 
