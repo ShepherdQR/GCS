@@ -45,7 +45,7 @@ commit message must name the step's purpose.
 | P1 | Governance And Agents | Done | Give future work dedicated skills, agents, and review responsibilities. |
 | P2 | Token Unification | Done | Make GUI, figures, and reports consume the same semantic token vocabulary. |
 | P3 | Viewer UI Implementation | Done | Apply the design system to the Python viewer without moving solver truth into UI. |
-| P4 | Scientific Figure Pipeline | Pending | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
+| P4 | Scientific Figure Pipeline | In progress | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
 | P5 | Visual Integrity QA | Pending | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
 | P6 | Showcase And Editorial Polish | Pending | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
 
@@ -345,7 +345,7 @@ Pipeline`.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P4.1 | Pending | Upgrade execution-map figure specs from prototype JSON-compatible YAML into a stable schema with canonical token fields. | Spec QA |
+| P4.1 | Done | `execution-map-spec-schema.md`, `figure71.yaml`, compositor support, and `figure_qa.py` establish `gcs.execution_map.v1` with canonical token fields. | Spec QA |
 | P4.2 | Pending | Add browser-rendered export path for HTML to PNG/PDF/SVG where tooling is available. | Browser smoke |
 | P4.3 | Pending | Add graph/chart panel backends after third-party governance. | Dependency decision |
 | P4.4 | Pending | Rebuild the execution-map figure from the new pipeline and demote old SVG output to historical prototype. | `figure_qa.py` plus review artifact |
@@ -354,6 +354,26 @@ Phase-close replanning requirement:
 
 - Decide whether Figma MCP is needed for showcase polish after repo-native
   browser QA is stable.
+
+P4.1 completion summary:
+
+- Added `docs/architecture/70-visualization/execution-map-spec-schema.md`.
+- Upgraded `tools/architecture_visualization/specs/figure71.yaml` to
+  `gcs.execution_map.v1` with `expected_step_range`, `token_taxonomy`, and
+  per-arc `canonical_token` fields.
+- Updated `figure71_html_compositor.py` to prefer `canonical_token` while
+  preserving short-token compatibility.
+- Updated `figure_qa.py` to check schema version and canonical evidence-token
+  coverage.
+
+Updated P4 next steps:
+
+- P4.2 can now add browser export on top of a schema that already carries
+  canonical token fields.
+- P4.3 should defer chart/graph backends until dependency governance approves
+  any new renderer packages.
+- P4.4 should rebuild generated assets only after P4.2 export behavior is
+  stable.
 
 ## P5: Visual Integrity QA
 

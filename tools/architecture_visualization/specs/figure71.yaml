@@ -1,10 +1,13 @@
 {
   "id": "figure71",
+  "schema_version": "gcs.execution_map.v1",
   "title": "GCS Evidence-Boundary Flight Map",
   "subtitle": "Step 1-40 as a credibility-building procedure, not a flat checklist.",
   "source_report": "docs/architecture/71-step-1-40-execution-report.md",
+  "expected_step_range": [1, 40],
   "taste_guide": "docs/architecture/73-gcs-visual-taste-guide.md",
   "research_note": "docs/research/20260524/scientific-figure-production-paradigm/README.md",
+  "token_taxonomy": "docs/architecture/79-ui-token-taxonomy.md",
   "theme": "tools/architecture_visualization/figure1.theme.json",
   "exports": {
     "html": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html",
@@ -23,6 +26,7 @@
       "title": "Foundation Runway",
       "range": [1, 13],
       "token": "domain",
+      "canonical_token": "evidence.domain",
       "claim": "Kernel-to-viewer contracts become public evidence boundaries.",
       "panel_type": "module-grid"
     },
@@ -31,6 +35,7 @@
       "title": "Algorithm Lift",
       "range": [14, 18],
       "token": "numeric",
+      "canonical_token": "evidence.numeric",
       "claim": "The placeholder solver becomes executable evidence.",
       "panel_type": "stage-chain"
     },
@@ -39,6 +44,7 @@
       "title": "Scene-Generation Loop",
       "range": [19, 27],
       "token": "planner",
+      "canonical_token": "evidence.planner",
       "claim": "Generated candidates must pass public solver gates before becoming fixtures.",
       "panel_type": "loop"
     },
@@ -47,6 +53,7 @@
       "title": "Rank Evidence Spine",
       "range": [28, 35],
       "token": "diagnostic",
+      "canonical_token": "evidence.diagnostic",
       "claim": "Free/frozen rank evidence propagates through diagnostics, runtime, viewer, and promotion.",
       "panel_type": "evidence-spine"
     },
@@ -55,6 +62,7 @@
       "title": "Evidence Closure",
       "range": [36, 40],
       "token": "boundary",
+      "canonical_token": "evidence.boundary",
       "claim": "Robustness, corpus, viewer evidence, gates, and atlas sync close the batch.",
       "panel_type": "horizon"
     },
@@ -63,6 +71,7 @@
       "title": "Showcase Candidate",
       "range": [],
       "token": "planner",
+      "canonical_token": "evidence.planner",
       "claim": "The next visual should combine geometry, cover, rank, gluing, and diagnostic variants.",
       "panel_type": "domain-sketch"
     }

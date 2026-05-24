@@ -11,6 +11,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC_ROOT = ROOT / "tools" / "architecture_visualization" / "specs"
+SCHEMA_VERSION = "gcs.execution_map.v1"
+CANONICAL_EVIDENCE_TOKENS = {
+    "evidence.domain",
+    "evidence.graph",
+    "evidence.planner",
+    "evidence.numeric",
+    "evidence.diagnostic",
+    "evidence.failure",
+    "evidence.boundary",
+}
 
 
 def load_json(path: Path) -> dict[str, object]:
@@ -75,6 +85,37 @@ def arc_steps(spec: dict[str, object]) -> set[int]:
     return covered
 
 
+def schema_checks(spec: dict[str, object]) -> list[dict[str, object]]:
+    checks: list[dict[str, object]] = []
+    checks.append({
+        "name": "execution_map_schema_version",
+        "passed": spec.get("schema_version") == SCHEMA_VERSION,
+        "detail": f"Expected schema_version {SCHEMA_VERSION!r}.",
+    })
+
+    arcs = spec.get("arcs", [])
+    if not isinstance(arcs, list):
+        arcs = []
+    missing: list[str] = []
+    invalid: list[str] = []
+    for index, arc in enumerate(arcs):
+        if not isinstance(arc, dict):
+            invalid.append(f"arc[{index}]")
+            continue
+        arc_id = str(arc.get("id", f"arc[{index}]"))
+        canonical = arc.get("canonical_token")
+        if not isinstance(canonical, str):
+            missing.append(arc_id)
+        elif canonical not in CANONICAL_EVIDENCE_TOKENS:
+            invalid.append(f"{arc_id}:{canonical}")
+    checks.append({
+        "name": "arcs_have_canonical_tokens",
+        "passed": not missing and not invalid,
+        "detail": f"Missing: {missing}; invalid: {invalid}",
+    })
+    return checks
+
+
 def html_checks(html_path: Path, spec: dict[str, object]) -> list[dict[str, object]]:
     checks: list[dict[str, object]] = []
     html = html_path.read_text(encoding="utf-8") if html_path.exists() else ""
@@ -119,7 +160,7 @@ def run_qa(spec_path: Path) -> dict[str, object]:
     covered_steps = arc_steps(spec)
     expected = expected_steps(spec)
 
-    checks: list[dict[str, object]] = [
+    checks: list[dict[str, object]] = schema_checks(spec) + [
         {
             "name": "report_has_expected_steps",
             "passed": expected.issubset(report_steps),

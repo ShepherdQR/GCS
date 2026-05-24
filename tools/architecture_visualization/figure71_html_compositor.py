@@ -61,6 +61,8 @@ EVIDENCE_TOKEN_ALIASES = {
     "boundary": "evidence.boundary",
 }
 
+SCHEMA_VERSION = "gcs.execution_map.v1"
+
 
 @dataclass(frozen=True)
 class Step:
@@ -182,7 +184,7 @@ def root_path(path_value: object) -> Path:
 
 
 def token_style(token: str, colors: dict[str, str]) -> str:
-    canonical = EVIDENCE_TOKEN_ALIASES.get(token, token)
+    canonical = canonical_token_name(token)
     fill = colors.get(f"{canonical}.fill", colors.get(token, colors["surface.panel"]))
     stroke = colors.get(f"{canonical}.stroke", colors.get(f"{token}_stroke", colors["rule.default"]))
     return (
@@ -191,6 +193,14 @@ def token_style(token: str, colors: dict[str, str]) -> str:
         "--token-fill:var(--gcs-token-fill);"
         "--token-stroke:var(--gcs-token-stroke);"
     )
+
+
+def canonical_token_name(token: str) -> str:
+    return EVIDENCE_TOKEN_ALIASES.get(token, token)
+
+
+def arc_token(arc: dict[str, object]) -> str:
+    return str(arc.get("canonical_token", arc.get("token", "evidence.boundary")))
 
 
 def render_step(step: Step, colors: dict[str, str]) -> str:
@@ -213,8 +223,8 @@ def render_step(step: Step, colors: dict[str, str]) -> str:
 
 
 def render_arc(arc: dict[str, object], arc_steps: list[Step], colors: dict[str, str]) -> str:
-    token = str(arc.get("token", "boundary"))
-    canonical_token = EVIDENCE_TOKEN_ALIASES.get(token, token)
+    token = arc_token(arc)
+    canonical_token = canonical_token_name(token)
     panel_type = str(arc.get("panel_type", "module-grid"))
     title = str(arc.get("title", "Untitled"))
     claim = str(arc.get("claim", ""))
@@ -574,7 +584,7 @@ def render_html(spec: dict[str, object], steps: list[Step], colors: dict[str, st
   <style>{css(colors)}</style>
 </head>
 <body>
-  <main class="figure-shell" data-figure-id="{escape(spec.get('id', 'figure'))}">
+  <main class="figure-shell" data-figure-id="{escape(spec.get('id', 'figure'))}" data-schema-version="{escape(spec.get('schema_version', SCHEMA_VERSION))}">
     <header class="figure-title">
       <div>
         <h1>{escape(figure_label)} | {escape(title)}</h1>
