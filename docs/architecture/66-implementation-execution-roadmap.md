@@ -210,13 +210,16 @@ Status legend: `done`, `in_progress`, `pending`.
     diagnostics, viewer, and quality evidence.
 42. `done` - promote the showcase into durable JSON scene artifacts,
     negative diagnostic variants, and atlas/demo-ready metadata.
-43. `pending` - build the scene-backed showcase atlas/demo projection and
+43. `done` - build the scene-backed showcase atlas/demo projection and
     public report package from the Step 42 scene assets.
+44. `pending` - harden cross-language JSON scene behavior round-trip between
+    C++ IO and Python visualization schemas.
 
 Next registered candidate:
 
-- Complete Step 43 by rendering and documenting a public showcase projection
-  from the durable Step 42 scene assets.
+- Complete Step 44 by proving that scene-facing behavior intent remains
+  aligned across C++ IO, Python visualization serialization, and durable
+  fixtures.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1546,6 +1549,29 @@ Reassessment after Step 42:
 - Step 43 should use these public scene assets to produce the atlas/demo
   projection and report package without reading private contract-tool
   internals.
+
+## Scene-Backed Showcase Atlas Step Plan
+
+Implemented scope:
+
+- Added a dedicated dependency-free renderer,
+  `tools/architecture_visualization/render_showcase_scene.py`, that reads the
+  public showcase JSON scene and metadata.
+- Generated `figure72-gcs-integrated-showcase-scene.svg` and
+  `showcase-scene-report.md` under the architecture atlas.
+- Updated the atlas to reference Figure 72 and its regeneration command.
+- Added Python renderer tests that load public scene IDs, validate negative
+  metadata evidence, parse generated SVG XML, and check deterministic SVG
+  rendering.
+- Added the showcase-scene renderer test to the default quality gate.
+
+Reassessment after Step 43:
+
+- The showcase is now public at three layers: executable scene, generated
+  atlas figure, and Markdown evidence report.
+- Step 44 should harden cross-language scene behavior compatibility because
+  Python visualization now writes `gcs-0.3` behavior fields while legacy saved
+  GUI fixtures still include older JSON shape.
 
 ## Damped Numeric Local Solve Step Plan
 

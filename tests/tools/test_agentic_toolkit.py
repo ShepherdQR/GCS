@@ -55,6 +55,7 @@ class AgenticToolkitTests(unittest.TestCase):
                 "agentic.check-dependencies",
                 "python.scene_generation_explorer",
                 "python.agentic_toolkit",
+                "python.showcase_scene_renderer",
                 "cmake.configure",
                 "cmake.build",
                 "ctest.contracts",
@@ -99,6 +100,7 @@ class AgenticToolkitTests(unittest.TestCase):
         gate_ids = [gate.gate_id for gate in commands]
         self.assertNotIn("python.scene_generation_explorer", gate_ids)
         self.assertNotIn("python.agentic_toolkit", gate_ids)
+        self.assertNotIn("python.showcase_scene_renderer", gate_ids)
         self.assertNotIn("ctest.contracts", gate_ids)
         self.assertNotIn("ctest.public_evidence_chain", gate_ids)
         self.assertNotIn("cli.basic_scene", gate_ids)

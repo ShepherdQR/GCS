@@ -36,15 +36,17 @@ The default gate runs:
 3. `validate-skills`
 4. `check-dependencies`
 5. Python scene auto explorer unittest
-6. `cmake --preset clang-ninja`
-7. `cmake --build --preset clang-ninja`
-8. full CTest contract suite
-9. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
-10. explicit public-evidence-chain CTest selection for rank, diagnostics,
+6. Python agentic toolkit unittest
+7. Python showcase-scene renderer unittest
+8. `cmake --preset clang-ninja`
+9. `cmake --build --preset clang-ninja`
+10. full CTest contract suite
+11. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
+12. explicit public-evidence-chain CTest selection for rank, diagnostics,
     runtime, viewer, corpus, and showcase evidence introduced in Steps 31
     through 42
-11. CLI smoke on `fixtures/scene/basic/g1.txt`
-12. CLI smoke on
+13. CLI smoke on `fixtures/scene/basic/g1.txt`
+14. CLI smoke on
     `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
 
 The command exits nonzero on the first failed gate by default and prints a
@@ -100,6 +102,7 @@ A change is Step 18 complete when:
   Step 31 through Step 42 rank, diagnostics, runtime, viewer, corpus, and
   showcase sentinel tests;
 - scene-generation tests are part of the default gate;
+- showcase-scene renderer tests are part of the default gate;
 - the agentic toolkit gate sequence is unit-tested as a Python tools contract;
 - representative basic and showcase CLI fixtures are part of the default gate;
 - the implementation roadmap records the latest quality-gate extension step.

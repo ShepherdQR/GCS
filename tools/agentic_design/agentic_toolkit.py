@@ -1119,6 +1119,10 @@ def build_quality_gate_commands(args: argparse.Namespace,
             "python.agentic_toolkit",
             [python, "-m", "unittest", "tests.tools.test_agentic_toolkit"],
         ))
+        commands.append(GateCommand(
+            "python.showcase_scene_renderer",
+            [python, "-m", "unittest", "tests.tools.test_showcase_scene_renderer"],
+        ))
 
     if not args.skip_build:
         commands.append(GateCommand("cmake.configure", ["cmake", "--preset", args.preset]))

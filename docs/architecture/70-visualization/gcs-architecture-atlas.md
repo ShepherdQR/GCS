@@ -118,6 +118,37 @@ Figure 71 should be regenerated when one of these source documents changes:
 - `docs/architecture/68-forward-execution-plan-2026-05-24.md`;
 - the visual taste guide or Figure 71 layout controls.
 
+## Editorial Figure 72
+
+Figure 72 is the public scene-backed integrated showcase. It reads the
+durable Step 42 scene assets under `fixtures/scene/showcase/` and visualizes
+the fixed-boundary solve intent, two local components, mixed point/line/plane
+constraints, positive runtime expectations, and the negative missing-fixed-ID
+validation boundary.
+
+![Figure 72 - GCS Integrated Showcase Scene](assets/figure72-gcs-integrated-showcase-scene.svg)
+
+Generated assets:
+
+- `assets/figure72-gcs-integrated-showcase-scene.svg`
+- `showcase-scene-report.md`
+
+Design controls:
+
+- `tools/architecture_visualization/render_showcase_scene.py`
+- `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
+- `fixtures/scene/showcase/integrated_feature_showcase.metadata.json`
+- `fixtures/scene/showcase/integrated_feature_showcase_missing_fixed.metadata.json`
+
+Rebuild command:
+
+```powershell
+python -B tools\architecture_visualization\render_showcase_scene.py
+```
+
+Figure 72 should be regenerated when the showcase scene, metadata, behavior
+schema, or public evidence expectations change.
+
 ## Editorial Aesthetic Direction
 
 The Figure 1 aesthetic should follow a Claude-influenced scientific editorial

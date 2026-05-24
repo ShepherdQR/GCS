@@ -11,3 +11,14 @@ the Step 41 C++ contract-tool model.
 The JSON `behavior` object is the source of truth for scene-facing solve
 intent. Companion metadata records provenance and expected evidence, but does
 not carry solver behavior by itself.
+
+Scene-backed showcase visualization:
+
+- `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.svg`
+- `docs/architecture/70-visualization/showcase-scene-report.md`
+
+Regenerate with:
+
+```bat
+python tools\architecture_visualization\render_showcase_scene.py
+```

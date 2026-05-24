@@ -498,16 +498,37 @@ Delivered:
 - Add the positive showcase JSON scene as a default CLI smoke.
 - Contract test baseline is now 108 CTest-discovered GTest cases.
 
-## Next Step 43
+## Completed Step 43
 
-The next step should render and document a scene-backed showcase atlas/demo
-projection from the public Step 42 assets. The rendering/report path should
-consume `fixtures/scene/showcase/integrated_feature_showcase.gcs.json` and
-its metadata rather than reconstructing the graph from private C++ fixtures.
+Step 43 rendered and documented a scene-backed showcase atlas/demo projection
+from the public Step 42 assets.
+
+Delivered:
+
+- Add a deterministic showcase-scene renderer under
+  `tools/architecture_visualization/`.
+- Emit an SVG and Markdown report under `docs/architecture/70-visualization/`.
+- Add Python tool tests that verify the renderer reads public scene IDs,
+  preserves provenance, and emits valid XML.
+- Add the renderer test to the default quality gate.
+- Update atlas/progress docs and reassess the next implementation step.
+
+Artifacts:
+
+- `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.svg`
+- `docs/architecture/70-visualization/showcase-scene-report.md`
+
+## Next Step 44
+
+The next step should harden cross-language JSON scene behavior round-trip
+between C++ IO and Python visualization schemas. Step 42 made `behavior`
+solver-owned scene input, and Step 43 made it public in the atlas; Step 44
+should ensure Python-authored `gcs-0.3` scenes preserve the same fixed,
+driven, and target intent fields expected by C++.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-42 are registered in the implementation roadmap; Steps 31 through 42 are
+43 are registered in the implementation roadmap; Steps 31 through 43 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. Step 43 is registered as the scene-backed showcase
-atlas/demo follow-up.
+in the forward plan. Step 44 is registered as the cross-language scene
+behavior compatibility follow-up.

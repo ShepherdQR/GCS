@@ -937,11 +937,69 @@ Detailed plan:
 - Update atlas and progress documents, then reassess the next implementation
   step.
 
+Execution decision:
+
+- Add a dedicated showcase-scene renderer. Figure 71 remains the Step 1-40
+  evidence-boundary map; Figure 72 should be sourced directly from the public
+  showcase JSON scene and metadata.
+- Keep the renderer dependency-free and deterministic so it can run inside the
+  default quality gate.
+
 Exit criteria:
 
 - The showcase projection can be regenerated from public scene assets.
 - The artifact is referenced from the architecture atlas or fixture README.
 - Validation covers deterministic rendering and source-scene provenance.
+
+Completion summary:
+
+- Added `tools/architecture_visualization/render_showcase_scene.py` as a
+  dependency-free public-scene renderer.
+- Generated Figure 72 and the showcase scene report from
+  `fixtures/scene/showcase/integrated_feature_showcase.gcs.json` and metadata.
+- Updated the architecture atlas with Figure 72, generated assets, source
+  files, and rebuild command.
+- Added Python renderer tests for scene loading, negative metadata evidence,
+  deterministic SVG content, XML validity, and output writing.
+- Added the renderer unittest to the default quality gate sequence.
+
+Reassessment after Step 43:
+
+- The showcase can now be inspected without C++ fixture internals.
+- Python visualization schema compatibility is now the next risk because
+  Python authoring and C++ loading must agree on `gcs-0.3` behavior fields.
+
+### Step 44: Cross-Language Scene Behavior Compatibility
+
+Goal:
+
+- Prove and harden C++/Python agreement for JSON scene behavior intent.
+
+Expected shape:
+
+- Python-side tests for writing `gcs-0.3` scenes with `behavior`.
+- C++ or tool-level checks that public JSON scenes use the same field names
+  and intent semantics.
+- Documentation for legacy `format_version: 1` saved GUI scenes versus current
+  `gcs-0.3` public scenes.
+
+Detailed plan:
+
+- Inspect Python `gcs_viz.algebra` serialization and existing saved GUI JSON
+  fixtures.
+- Add Python tests for `BehaviorModel` and `GCSGraph.to_dict()` using
+  `gcs-0.3` format/version fields.
+- If feasible, add a small cross-language fixture or report check that
+  confirms C++-loadable behavior field names from Python output.
+- Update scene behavior documentation and quality gate expectations.
+- Reassess whether GUI replay/history migration should become the next step.
+
+Exit criteria:
+
+- Python-authored current scenes preserve fixed, driven, and target behavior
+  intent in the same schema consumed by C++.
+- Legacy GUI scene status is documented without silently changing its meaning.
+- The default quality gate covers the Python scene behavior contract.
 
 ## Reassessment Protocol
 

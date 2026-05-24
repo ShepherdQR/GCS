@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title">
+<title id="title">GCS Integrated Showcase Scene</title>
+<rect x="0" y="0" width="1200" height="760" fill="#f7f4ec"/>
+<text x="54.0" y="58.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="30" font-weight="650" fill="#181715" text-anchor="start">Figure 72 | GCS Integrated Showcase Scene</text>
+<text x="54.0" y="88.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#5f5b53" text-anchor="start">Scene-backed public demo from fixtures/scene/showcase, with behavior intent and negative validation evidence.</text>
+<text x="1146.0" y="88.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="end">Source: fixtures/scene/showcase/integrated_feature_showcase.gcs.json</text>
+<rect x="54" y="132" width="770" height="500" rx="8" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<rect x="850" y="132" width="296" height="500" rx="8" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="78.0" y="168.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#181715" text-anchor="start">Public scene graph</text>
+<text x="874.0" y="168.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#181715" text-anchor="start">Evidence contract</text>
+<rect x="122.7" y="478.0" width="387.3" height="108.0" rx="10" fill="#e7edf8" stroke="#d8d1c4" stroke-dasharray="6 5" opacity="0.55"/>
+<text x="134.7" y="500.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#5f5b53" text-anchor="start">local component 1</text>
+<rect x="92.0" y="168.0" width="443.1" height="169.4" rx="10" fill="#e3f0e4" stroke="#d8d1c4" stroke-dasharray="6 5" opacity="0.55"/>
+<text x="104.0" y="190.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#5f5b53" text-anchor="start">local component 2</text>
+<line id="constraint-0" x1="176.7" y1="532.0" x2="316.4" y2="532.0" stroke="#b97834" stroke-width="2.4"/>
+<text x="246.5" y="522.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#b97834" text-anchor="middle">C0 Distance</text>
+<line id="constraint-1" x1="316.4" y1="532.0" x2="456.0" y2="532.0" stroke="#b97834" stroke-width="2.4"/>
+<text x="386.2" y="522.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#b97834" text-anchor="middle">C1 Distance</text>
+<line id="constraint-2" x1="146.0" y1="277.9" x2="221.4" y2="222.0" stroke="#b97834" stroke-width="2.4"/>
+<text x="183.7" y="239.9" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#b97834" text-anchor="middle">C2 Distance</text>
+<line id="constraint-3" x1="481.1" y1="283.4" x2="221.4" y2="222.0" stroke="#b97834" stroke-width="2.4"/>
+<text x="351.3" y="242.7" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#b97834" text-anchor="middle">C3 Perpendicular</text>
+<circle id="entity-0" cx="176.7" cy="532.0" r="16" fill="#334c78"/>
+<circle cx="176.7" cy="532.0" r="24" fill="none" stroke="#c8643f" stroke-width="3"/>
+<text x="176.7" y="498.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#c8643f" text-anchor="middle">fixed</text>
+<text x="176.7" y="570.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="middle">G0 Point</text>
+<circle id="entity-1" cx="316.4" cy="532.0" r="16" fill="#334c78"/>
+<text x="316.4" y="570.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="middle">G1 Point</text>
+<circle id="entity-2" cx="456.0" cy="532.0" r="16" fill="#334c78"/>
+<text x="456.0" y="570.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="middle">G2 Point</text>
+<circle id="entity-3" cx="146.0" cy="277.9" r="16" fill="#334c78"/>
+<text x="146.0" y="315.9" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="middle">G3 Point</text>
+<polygon id="entity-4" points="221.4,202.0 243.4,222.0 221.4,242.0 199.4,222.0" fill="#765d87"/>
+<text x="221.4" y="260.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="middle">G4 Plane</text>
+<rect id="entity-5" x="459.1" y="270.4" width="44" height="26" rx="5" fill="#477861"/>
+<text x="481.1" y="321.4" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="middle">G5 Line</text>
+<rect x="874.0" y="198.0" width="248.0" height="32" rx="6" fill="#efede6" stroke="#d8d1c4" stroke-width="1"/><text x="884.0" y="211.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="700" fill="#5f5b53" text-anchor="start">schema</text><text x="1112.0" y="221.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#181715" text-anchor="end">gcs-0.3</text>
+<rect x="874.0" y="240.0" width="118.0" height="32" rx="6" fill="#efede6" stroke="#d8d1c4" stroke-width="1"/><text x="884.0" y="253.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="700" fill="#5f5b53" text-anchor="start">geometries</text><text x="982.0" y="263.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#181715" text-anchor="end">6</text>
+<rect x="1004.0" y="240.0" width="118.0" height="32" rx="6" fill="#efede6" stroke="#d8d1c4" stroke-width="1"/><text x="1014.0" y="253.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="700" fill="#5f5b53" text-anchor="start">constraints</text><text x="1112.0" y="263.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#181715" text-anchor="end">4</text>
+<rect x="874.0" y="282.0" width="248.0" height="32" rx="6" fill="#efede6" stroke="#d8d1c4" stroke-width="1"/><text x="884.0" y="295.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="700" fill="#5f5b53" text-anchor="start">fixed ids</text><text x="1112.0" y="305.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#181715" text-anchor="end">0</text>
+<rect x="874.0" y="324.0" width="118.0" height="32" rx="6" fill="#efede6" stroke="#d8d1c4" stroke-width="1"/><text x="884.0" y="337.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="700" fill="#5f5b53" text-anchor="start">subproblems</text><text x="982.0" y="347.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#181715" text-anchor="end">2</text>
+<rect x="1004.0" y="324.0" width="118.0" height="32" rx="6" fill="#efede6" stroke="#d8d1c4" stroke-width="1"/><text x="1014.0" y="337.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="700" fill="#5f5b53" text-anchor="start">numeric reports</text><text x="1112.0" y="347.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#181715" text-anchor="end">2</text>
+<rect x="874.0" y="366.0" width="248.0" height="32" rx="6" fill="#efede6" stroke="#d8d1c4" stroke-width="1"/><text x="884.0" y="379.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="700" fill="#5f5b53" text-anchor="start">solve status</text><text x="1112.0" y="389.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#181715" text-anchor="end">AcceptedWithWarnings</text>
+<rect x="874.0" y="428.0" width="248" height="112" rx="7" fill="#f3ddd7" stroke="#a94c43" stroke-width="1.1"/>
+<text x="890.0" y="454.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#a94c43" text-anchor="start">negative behavior boundary</text>
+<text x="890.0" y="482.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="start">kernel.solve_intent_missing_fixed_entity</text>
+<text x="890.0" y="506.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">missing fixed ids: [999]</text>
+<text x="54.0" y="714.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">Regenerate: python tools/architecture_visualization/render_showcase_scene.py</text>
+</svg>
