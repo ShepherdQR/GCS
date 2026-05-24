@@ -16,6 +16,88 @@ The first four phases are intentionally narrow:
 3. validate E001 task-scoped session closure through real use;
 4. make the first institutional agents verifiable instead of decorative.
 
+## Roadmap Task Inventory
+
+Current task counts:
+
+| Phase | Done | Next | Pending | Main remaining question |
+| --- | ---: | ---: | ---: | --- |
+| Phase 1: Lifecycle Closure | 1 | 1 | 3 | Can a real solver task close cleanly through task card, evidence, archive, and roadmap update? |
+| Phase 2: Quality-Gate Adoption | 0 | 0 | 5 | Which checks become opt-in gates before any default enforcement? |
+| Phase 3: E001 Closure Experience Validation | 0 | 0 | 4 | Does E001 catch weak closure evidence in real work, not only in templates? |
+| Phase 4: Institutional Agents Become Verifiable | 0 | 0 | 5 | Can `刀匠` and `裁缝` produce testable artifacts rather than role prose? |
+
+Priority order:
+
+1. Finish Phase 1 S1-02 because it supplies the second real lifecycle sample.
+2. Use S1-02 results to decide S1-03 and S1-05 details.
+3. Add Phase 2 opt-in checks only after the lifecycle loop has two clean
+   examples.
+4. Validate E001 and institutional agents through real closure artifacts before
+   promoting them into stronger process rules.
+
+## Phase Analysis Snapshot
+
+### Phase 1 Analysis
+
+Phase 1 is partially proven. C001 demonstrated that a documentation-only
+Agentic SE task can create a task card, run checks, archive itself, and update
+the roadmap. The next risk is whether the same loop remains useful for a real
+solver-adjacent task with higher semantic risk and more handoffs.
+
+Stage conclusion:
+
+- Keep Phase 1 active.
+- Treat S1-02 as the first serious test of the lifecycle contract.
+- Do not start Phase 2 default-gate work until S1-02 closes.
+
+### Phase 2 Analysis
+
+Phase 2 should remain opt-in. The repository already has validation commands,
+but automatic enforcement can become ceremony or break legacy records if it is
+enabled too early. The right next move is design and tests for optional gates,
+not default enforcement.
+
+Stage conclusion:
+
+- Start with `--include-task-cards` and `--include-completed-reports` design.
+- Test only new-format artifacts first.
+- Keep legacy archives exempt until a migration decision exists.
+
+### Phase 3 Analysis
+
+E001 is promising but still under-sampled. The closure tooling validated C001
+and its own implementation archive, but that is not enough to prove the method
+under solver-task ambiguity. Step 46 should become the next E001 sample.
+
+Stage conclusion:
+
+- Use E001 on the next high-risk engineering task.
+- Compare the score with human review notes.
+- Add negative evals only after one real miss or review concern is observed.
+
+### Phase 4 Analysis
+
+Institutional agents have useful role cards, but they are not yet operational
+agents. Their next step is not more names. It is one template, one example, and
+one refusal-oriented eval per seed role.
+
+Stage conclusion:
+
+- Freeze new institutional-agent creation for now.
+- Make `刀匠: 淬炼-锻打` and `裁缝: 裁剪-缝合` verifiable.
+- Use real C001/S1-02 closure artifacts as examples instead of invented cases.
+
+## Operating Adjustments
+
+- Evidence is written after validators run; planned evidence is only allowed in
+  a task card before work begins.
+- A PDCA task is not complete until this roadmap has an Act update.
+- High-risk solver tasks must create the task card before touching code.
+- Quality-gate adoption must start as opt-in and path-scoped.
+- Institutional-agent promotion requires at least one real artifact and one
+  eval that can fail.
+
 ## Agile Cadence
 
 Every Agentic SE task uses one PDCA loop:
@@ -176,3 +258,13 @@ S1-02 is the next task:
 3. Require `gcs-session-runtime-steward`, plus IO/viewer handoffs if needed.
 4. Execute only after preserving the current dirty worktree state.
 5. Close with a completed-task archive and update this roadmap again.
+
+## Next PDCA Queue
+
+| Order | Task | Why now | Exit condition |
+| --- | --- | --- | --- |
+| 1 | S1-02 Step 46 lifecycle loop | Proves the lifecycle on a real high-risk engineering boundary. | Step 46 task card, implementation evidence, archive, roadmap C002 update. |
+| 2 | S1-03 task-to-archive checklist | Converts C001/C002 lessons into a compact checklist. | Runbook checklist and one checked example. |
+| 3 | S1-05 first archive review | Tests whether E001 closure reports transfer enough context. | Two archive scores plus review note. |
+| 4 | S2-01 opt-in gate design | Only after two lifecycle examples exist. | Gate policy proposal, no default enforcement yet. |
+| 5 | S4-01/S4-02 seed-role templates | Makes institutional agents verifiable with real examples. | One template and one example for each seed role. |
