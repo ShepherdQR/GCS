@@ -29,6 +29,8 @@ Completed:
   tooling is available.
 - P5.1 is complete: token lint now prevents raw hex drift outside approved
   token sources and fails unknown token references before asset rebuilds.
+- P4.3 is complete: graph/chart backends are deferred for P4.4, so no new
+  renderer dependency is approved before the execution-map asset rebuild.
 
 Active phase:
 
@@ -40,8 +42,8 @@ Active phase:
 | --- | --- | --- | --- | --- |
 | 1 | P4.2 Browser-rendered export path | Done | Export tokenized HTML figures to reviewable image/PDF artifacts when browser tooling is available. | Browser smoke renders the figure and proves `--gcs-*` variables survive export. |
 | 2 | P5.1 Token lint gate | Done | Enforce the P2/P3 rule that raw hex values belong only in token sources and unknown tokens fail fast. | Forced raw-hex fixture fails; current code passes. |
-| 3 | P4.3 Graph/chart backend decision | Next | Decide whether execution-map panels need new graph/chart backends or can stay repo-native for now. | Dependency decision recorded before any new renderer package is added. |
-| 4 | P4.4 Rebuild execution-map figure | Pending | Regenerate execution-map assets through the stable spec/compositor/QA path and demote old SVG output to prototype history. | `figure_qa.py` passes and generated artifacts are linked from architecture docs. |
+| 3 | P4.3 Graph/chart backend decision | Done | Decide whether execution-map panels need new graph/chart backends or can stay repo-native for now. | Dependency decision recorded before any new renderer package is added. |
+| 4 | P4.4 Rebuild execution-map figure | Next | Regenerate execution-map assets through the stable spec/compositor/QA path and demote old SVG output to prototype history. | `figure_qa.py` passes and generated artifacts are linked from architecture docs. |
 | 5 | P4 phase close | Pending | Reassess whether repo-native figure production is stable enough before considering Figma MCP. | Phase-close summary and downstream plan update committed. |
 | 6 | P5.2 Text overflow gate | Pending | Catch text that would spill from figure panels or compact UI surfaces. | Forced overflow fixture fails. |
 | 7 | P5.3 Overlap and contrast gates | Pending | Catch critical text/shape overlap and weak contrast in status/evidence surfaces. | Forced overlap fails and contrast report is produced. |
@@ -74,18 +76,27 @@ Active phase:
 - Promoted `python.gcs_token_lint` and `python.gcs_token_lint_tests` into the
   default agentic quality-gate sequence.
 
+## P4.3 Completion Summary
+
+- Added `docs/architecture/84-p4-3-graph-chart-backend-decision.md`.
+- Deferred external graph/chart backends for P4.4.
+- Recorded that future Graphviz/D2/ELK/Vega-style candidates need dependency
+  metadata, provider order, offline behavior, CMake or CLI boundary, and audit
+  gates before adoption.
+- Preserved the immediate P4.4 path as repo-native semantic spec, theme,
+  HTML/CSS compositor, browser smoke, figure QA, and token lint.
+
 ## Updated Next Move
 
-The next implementation step should be **P4.3 Graph/Chart Backend Decision**.
+The next implementation step should be **P4.4 Rebuild Execution-Map Figure**.
 
 Reasoning:
 
 - P4.2 proved HTML-to-review-artifact export is feasible.
 - P5.1 now guards token drift before any final asset rebuild.
-- P4.3 should stay a small governance decision and should not introduce a
-  renderer package unless P4.4 demonstrably needs it.
-- P4.4 can follow immediately after P4.3, using token lint plus Figure 71 QA as
-  its rebuild guardrail.
+- P4.3 now confirms P4.4 should not add graph/chart dependencies.
+- P4.4 can rebuild the execution-map assets with token lint plus Figure 71 QA
+  as its guardrail.
 
 ## Opportunistic Cleanup
 

@@ -347,7 +347,7 @@ Pipeline`.
 | --- | --- | --- | --- |
 | P4.1 | Done | `execution-map-spec-schema.md`, `figure71.yaml`, compositor support, and `figure_qa.py` establish `gcs.execution_map.v1` with canonical token fields. | Spec QA |
 | P4.2 | Done | `browser_export.py`, Figure 71 browser manifest, and review PNG/PDF artifacts add a thin browser-rendered export smoke. | Browser smoke plus figure QA |
-| P4.3 | Pending | Add graph/chart panel backends after third-party governance. | Dependency decision |
+| P4.3 | Done | `84-p4-3-graph-chart-backend-decision.md` defers graph/chart panel backends for P4.4. | Dependency decision |
 | P4.4 | Pending | Rebuild the execution-map figure from the new pipeline and demote old SVG output to historical prototype. | `figure_qa.py` plus review artifact |
 
 Phase-close replanning requirement:
@@ -393,6 +393,22 @@ Updated P4 next steps:
   new graph/chart backend becomes necessary.
 - P4.4 should rebuild and demote historical SVG output only after P5.1 is in
   place.
+
+P4.3 completion summary:
+
+- Added `docs/architecture/84-p4-3-graph-chart-backend-decision.md`.
+- Recorded `ThirdPartyDecision`: defer external graph/chart backends for P4.4.
+- Preserved repo-native Figure 71 production through semantic spec,
+  `figure1.theme.json`, HTML/CSS compositor, browser export smoke, figure QA,
+  and token lint.
+- Recorded future provider order and dependency metadata requirements for any
+  later Graphviz/D2/ELK/Vega-style request.
+
+Updated P4 next steps after P4.3:
+
+- P4.4 should now rebuild Figure 71 assets without adding new dependencies.
+- P4 phase close should evaluate repo-native pipeline stability after P4.4,
+  before P5.2/P5.3 and before any Figma MCP decision.
 
 Current next-work plan:
 
