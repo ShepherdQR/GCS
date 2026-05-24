@@ -30,6 +30,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
 | `lifecycle-runbook.md` | Action guide for moving from request to push. |
+| `agile-pdca-roadmap.md` | Four-phase Agentic SE execution plan, PDCA cadence, current backlog, and next task. |
 | `evals/module-agent-evals.md` | Seed eval tasks for module agents. |
 | `evals/review-rubrics.md` | Independent review rubrics by change type. |
 | `tasks/` | Checked-in task cards that are large enough to persist. |
