@@ -64,6 +64,9 @@ order, not by historical source order. Background research notes live under
      for publication-quality, auto-laid-out, QA-checked project and research
      figures; full research notes are stored under
      `docs/research/20260524/scientific-figure-production-paradigm/`.
+   - `75-ui-design-system-conventions.md`: named UI design system conventions
+     for GCS taste, tokens, evidence grammar, figure production, visual QA, and
+     art-direction review.
 9. `90-references/`
    - Commercial and research notes used as background material.
 
