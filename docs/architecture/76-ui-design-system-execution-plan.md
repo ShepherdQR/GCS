@@ -44,7 +44,7 @@ commit message must name the step's purpose.
 | P0 | Convention Foundation | In progress | Name the UI design system and make it governable. |
 | P1 | Governance And Agents | Done | Give future work dedicated skills, agents, and review responsibilities. |
 | P2 | Token Unification | Done | Make GUI, figures, and reports consume the same semantic token vocabulary. |
-| P3 | Viewer UI Implementation | In progress | Apply the design system to the Python viewer without moving solver truth into UI. |
+| P3 | Viewer UI Implementation | Done | Apply the design system to the Python viewer without moving solver truth into UI. |
 | P4 | Scientific Figure Pipeline | Pending | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
 | P5 | Visual Integrity QA | Pending | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
 | P6 | Showcase And Editorial Polish | Pending | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
@@ -313,6 +313,30 @@ Updated P3 phase-close work:
 - P3 can close after a short review against `72-ui-aesthetic-roadmap.md`.
 - P4 should now proceed on the figure pipeline; P5 should later add screenshot
   baselines for the viewer rail states touched here.
+
+P3 phase-close summary:
+
+- Closed P3 after viewer token audit, canonical state aliases, inspector layout
+  audit, and replay/solve rail polish.
+- The active Tk viewer now has a token-governed model inspector, state-colored
+  transient replay/solve evidence, and no known raw hex values outside
+  `color_scheme.py`.
+- Solver/runtime/viewer ownership boundaries stayed intact: no solver command,
+  scene schema, history persistence, or renderer mutation ownership changes
+  were introduced.
+- Validation remained lightweight because this environment lacks the full GUI
+  dependency/display path; P5 should add screenshot baselines for visual proof.
+
+Post-P3 replanning:
+
+- P4.1 should upgrade execution-map specs so canonical token fields are present
+  in specs before regenerating assets.
+- P4.2 should add browser export only after the schema can drive canonical
+  `--gcs-*` token output consistently.
+- P5.1 should encode the P3 raw-hex rule as an automated lint before broader
+  screenshot and overlap gates.
+- P6 should remain blocked on a stable figure pipeline and visual integrity
+  gates; external Figma MCP remains a later governance decision.
 
 ## P4: Scientific Figure Pipeline
 
