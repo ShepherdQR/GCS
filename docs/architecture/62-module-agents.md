@@ -743,6 +743,9 @@ Acceptance gates:
 
 - Generated snapshots validate through public contracts.
 - Fixtures are deterministic.
+- Corpus fixtures cover valid, invalid, under-constrained, over-constrained,
+  redundant, inconsistent, singular, gluing, boundary-frozen,
+  tolerance-edge, and separator cases.
 - Tests consume tools through public modules.
 
 Deep design backlog:

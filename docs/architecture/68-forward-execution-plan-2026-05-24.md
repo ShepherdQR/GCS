@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 36:
+- Completed through Step 37:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -48,10 +48,13 @@ implementation step they describe.
   - numeric convergence now uses max-absolute residual tolerance while
     residual norms remain report evidence, and condition estimates are
     suppressed for singular free-Jacobian evidence;
+  - contract-tools fixture corpus now includes reusable boundary-frozen,
+    tolerance-edge, and separator-chain fixtures in addition to existing
+    redundant, inconsistent, singular, and gluing-obstruction scenarios;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline is 94 tests.
+  - CTest contract baseline is 97 tests.
 
 ## Execution Cadence Contract
 
@@ -569,7 +572,7 @@ Reassessment after Step 36:
   UI and overlay contracts richer public examples.
 - Step 39 remains quality gate hardening after new corpus evidence is in place.
 
-### Step 37: Fixture And Scene Corpus Expansion
+### Completed Step 37: Fixture And Scene Corpus Expansion
 
 Goal:
 
@@ -583,18 +586,42 @@ Expected shape:
 - Add golden/report digest coverage where stable.
 - Avoid leaving one-off validation data outside tests or scene repositories.
 
-Detailed plan:
+Decision:
 
-- Inventory existing contract-tools fixture kinds and scene-generation outputs.
-- Add only fixtures that support current or immediately next contract tests.
-- Promote generated scenes through public gates when they enter fixture
-  storage.
-- Persist Step 37 summary and reassess quality gate hardening.
+- Expand `gcs.contract_tools` first rather than adding loose scene files. The
+  immediate gap was reusable model-level evidence for numeric, diagnostics,
+  decomposition, and later viewer contracts; generated-scene promotion can
+  build on these fixtures later.
 
-Exit criteria:
+Delivered:
 
-- New fixtures are reusable, documented by expectations, and covered by tests.
-- Scene corpus supports the next solver/decomposition/diagnostics steps.
+- Add `FixtureKind::boundary_frozen_distance` and fixture class
+  `boundary_frozen` with solve-intent fixed entity hints.
+- Add `FixtureKind::tolerated_multi_residual_distance` and fixture class
+  `tolerance_edge` for max-absolute residual stopping evidence.
+- Add `FixtureKind::separator_chain_distance` and fixture class `separator`
+  for a three-point chain with a stable shared separator entity.
+- Promote the Step 36 tolerated multi-residual model from a numeric-test local
+  helper into the public fixture builder.
+- Increase the default generated fixture corpus from 10 to 13 bundles.
+
+Tests:
+
+- `ContractToolsContract.BoundaryFrozenFixtureCarriesSolveIntentHint`.
+- `ContractToolsContract.ToleratedResidualFixtureExercisesMaxAbsStopping`.
+- `ContractToolsContract.SeparatorChainFixtureNamesSharedSeparatorEntity`.
+- Focused contract-tools and numeric CTest suites pass.
+
+Reassessment after Step 37:
+
+- Step 38 is now the highest-leverage next move. The corpus now contains
+  boundary-frozen, tolerance-edge, separator, redundancy, singular, and gluing
+  cases, so viewer and GUI evidence surfaces can be built against public
+  examples.
+- Step 39 should remain quality gate hardening after viewer evidence surfaces
+  settle.
+- Step 40 remains atlas and roadmap resynchronization for the close of this
+  implementation batch.
 
 ### Step 38: Viewer And GUI Evidence Surface
 
@@ -735,15 +762,15 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 36 update:
+As of the Step 37 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 36 have completed-step summaries in the roadmap and current
+- Steps 1 through 37 have completed-step summaries in the roadmap and current
   progress documents.
 - Steps 31 through 40 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 37 is the next implementation step.
+- Step 38 is the next implementation step.
 

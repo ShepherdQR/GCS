@@ -98,11 +98,17 @@ TEST(ContractToolsContract, CorpusGenerationIncludesStructuredNegativeFixtures) 
     auto corpus = tools::generate_corpus(
         tools::CorpusGenerationRequest{{}, 700, true});
 
-    EXPECT_EQ(corpus.payload.fixtures.size(), 10U);
+    EXPECT_EQ(corpus.payload.fixtures.size(), 13U);
     EXPECT_EQ(corpus.payload.golden_report.report_name, "fixture_corpus");
     EXPECT_FALSE(corpus.payload.golden_report.digest.empty());
 
     const std::string& summary = corpus.payload.golden_report.canonical_summary;
+    EXPECT_NE(summary.find("boundary_frozen_distance|boundary_frozen|"),
+              std::string::npos);
+    EXPECT_NE(summary.find("tolerated_multi_residual_distance|tolerance_edge|"),
+              std::string::npos);
+    EXPECT_NE(summary.find("separator_chain_distance|separator|"),
+              std::string::npos);
     EXPECT_NE(summary.find("missing_entity_reference|invalid|"), std::string::npos);
     EXPECT_NE(summary.find("inconsistent_distance_pair|inconsistent|"),
               std::string::npos);
@@ -167,4 +173,62 @@ TEST(ContractToolsContract, OverConstrainedFixtureProducesRedundancyEvidence) {
     EXPECT_TRUE(has_redundancy_code(
         output,
         "diagnostics.overconstrained_redundancy_candidate"));
+}
+
+TEST(ContractToolsContract, BoundaryFrozenFixtureCarriesSolveIntentHint) {
+    auto fixture = tools::build_fixture(
+        tools::FixtureBuildRequest{
+            tools::FixtureKind::boundary_frozen_distance, 11});
+
+    ASSERT_EQ(fixture.payload.model.solve_intent.fixed_entity_ids.size(), 1U);
+    EXPECT_EQ(fixture.payload.model.solve_intent.fixed_entity_ids.front().value, 0U);
+
+    auto task = numeric::make_numeric_task(
+        fixture.payload.model,
+        fixture.payload.whole_context,
+        fixture.payload.whole_context.entity_ids,
+        fixture.payload.whole_context.constraint_ids,
+        kernel::GaugePolicy{});
+    task.boundary_variables = fixture.payload.model.solve_intent.fixed_entity_ids;
+    auto report = numeric::solve_local(task);
+
+    EXPECT_EQ(report.rank_condition_report.variable_dimension, 6);
+    EXPECT_EQ(report.rank_condition_report.free_variable_dimension, 3);
+    EXPECT_EQ(report.rank_condition_report.frozen_variable_dimension, 3);
+    EXPECT_TRUE(report.rank_condition_report.under_constrained);
+}
+
+TEST(ContractToolsContract, ToleratedResidualFixtureExercisesMaxAbsStopping) {
+    auto fixture = tools::build_fixture(
+        tools::FixtureBuildRequest{
+            tools::FixtureKind::tolerated_multi_residual_distance, 12});
+    auto task = numeric::make_numeric_task(
+        fixture.payload.model,
+        fixture.payload.whole_context,
+        fixture.payload.whole_context.entity_ids,
+        fixture.payload.whole_context.constraint_ids,
+        kernel::GaugePolicy{});
+    task.solve_limits.max_iterations = 0;
+
+    auto report = numeric::solve_local(task);
+
+    EXPECT_EQ(report.result_code, kernel::SolveStatus::solved);
+    EXPECT_GT(report.final_residual, task.tolerances.residual);
+    EXPECT_LE(report.residual_report.max_abs_value, task.tolerances.residual);
+}
+
+TEST(ContractToolsContract, SeparatorChainFixtureNamesSharedSeparatorEntity) {
+    auto fixture = tools::build_fixture(
+        tools::FixtureBuildRequest{
+            tools::FixtureKind::separator_chain_distance, 13});
+
+    EXPECT_EQ(fixture.payload.provenance.fixture_class, "separator");
+    EXPECT_EQ(fixture.payload.model.entities.size(), 3U);
+    ASSERT_EQ(fixture.payload.model.constraints.size(), 2U);
+    ASSERT_EQ(fixture.payload.model.constraints[0].entity_ids.size(), 2U);
+    ASSERT_EQ(fixture.payload.model.constraints[1].entity_ids.size(), 2U);
+    EXPECT_EQ(fixture.payload.model.constraints[0].entity_ids[1].value, 1U);
+    EXPECT_EQ(fixture.payload.model.constraints[1].entity_ids[0].value, 1U);
+    EXPECT_EQ(fixture.payload.expectation.evidence_phase,
+              "decomposition.separator_chain");
 }

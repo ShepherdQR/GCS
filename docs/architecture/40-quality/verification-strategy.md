@@ -32,7 +32,10 @@ fixtures/
   redundant/
   inconsistent/
   singular/
+  boundary_frozen/
+  tolerance_edge/
   decomposable/
+  separator/
   gluing/
   rigid_sets/
   interaction_modes/

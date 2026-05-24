@@ -773,6 +773,9 @@ Implementation responsibilities:
 
 - Deterministic fixture generation.
 - Fixture provenance metadata.
+- Reusable fixture classes for boundary-frozen rank evidence,
+  tolerance-edge residual stopping, separator-chain decomposition structure,
+  redundant rank-deficient equations, and gluing obstruction scenarios.
 - Invariant checking through public contracts.
 - Golden report generation.
 - Module dependency scanning.
@@ -783,6 +786,9 @@ Contract tests:
 - `tools_fixture_generation_is_seed_deterministic`.
 - `tools_generated_fixture_passes_kernel_validation`.
 - `tools_invariant_report_names_all_failures`.
+- `tools_boundary_frozen_fixture_carries_solve_intent_hint`.
+- `tools_tolerated_residual_fixture_exercises_max_abs_stopping`.
+- `tools_separator_chain_fixture_names_shared_separator_entity`.
 - `tools_dependency_audit_rejects_forbidden_imports`.
 
 ## Contract Test Architecture

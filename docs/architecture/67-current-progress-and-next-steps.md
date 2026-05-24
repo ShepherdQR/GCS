@@ -57,11 +57,13 @@ Completed algorithm-deepening steps:
 - Step 36: hardened numeric convergence and condition evidence by using
   max-absolute residual tolerance and suppressing condition estimates for
   singular free Jacobians.
+- Step 37: expanded reusable contract-tools fixtures for boundary-frozen,
+  tolerance-edge, and separator-chain scenarios.
 
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 94 CTest-discovered GTest cases.
+- Contract test baseline is 97 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -388,17 +390,34 @@ Delivered:
 - Add numeric contract tests for tolerated multi-residual stopping and
   singular-rank condition suppression.
 
-## Next Step 37
+## Completed Step 37
 
-The next step is fixture and scene corpus expansion. Numeric and diagnostics
-evidence now has stronger edge-case semantics, so reusable model/scene
-fixtures should capture boundary-frozen, rank-deficient, separator,
-gluing-obstruction, and promotion-positive or promotion-negative scenarios.
+Step 37 expanded the reusable fixture corpus.
+
+Delivered:
+
+- Add `boundary_frozen_distance`, `tolerated_multi_residual_distance`, and
+  `separator_chain_distance` fixture kinds.
+- Add `boundary_frozen`, `tolerance_edge`, and `separator` fixture classes.
+- Encode boundary-frozen solve hints through `ModelSnapshot.solve_intent`.
+- Promote the tolerated multi-residual numeric robustness scenario out of a
+  local test helper and into public contract tools.
+- Increase default generated corpus coverage from 10 to 13 fixture bundles.
+- Add contract-tool tests for boundary-frozen solve hints, max-absolute
+  residual stopping evidence, and separator-chain subject structure.
+
+## Next Step 38
+
+The next step is viewer and GUI evidence surface. The fixture corpus now has
+public examples for boundary-frozen rank, tolerance-edge residuals,
+separator-chain structure, redundancy, singularity, and gluing obstruction, so
+viewer contracts can expose richer structured evidence without private
+test-only models.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 36, the remaining steps were reconsidered;
-Step 37 is registered as the next highest-leverage move. A post-Step-40
+in the forward plan. After Step 37, the remaining steps were reconsidered;
+Step 38 is registered as the next highest-leverage move. A post-Step-40
 candidate is also recorded for an integrated feature showcase constraint graph.

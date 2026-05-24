@@ -25,6 +25,9 @@ enum class FixtureKind {
     inconsistent_distance_pair,
     singular_coincident_points,
     gluing_obstruction_pair,
+    boundary_frozen_distance,
+    tolerated_multi_residual_distance,
+    separator_chain_distance,
 };
 
 enum class FixtureClass {
@@ -36,6 +39,9 @@ enum class FixtureClass {
     inconsistent,
     singular,
     gluing_obstruction,
+    boundary_frozen,
+    tolerance_edge,
+    separator,
 };
 
 struct FixtureBuildRequest {
@@ -131,6 +137,9 @@ ModelSnapshot make_redundant_distance_pair_model();
 ModelSnapshot make_inconsistent_distance_pair_model();
 ModelSnapshot make_singular_coincident_points_model();
 ModelSnapshot make_gluing_obstruction_pair_model();
+ModelSnapshot make_boundary_frozen_distance_model();
+ModelSnapshot make_tolerated_multi_residual_distance_model();
+ModelSnapshot make_separator_chain_distance_model();
 ContextSnapshot make_whole_context_for(const ModelSnapshot& model);
 std::string to_string(FixtureKind kind);
 std::string to_string(FixtureClass fixture_class);

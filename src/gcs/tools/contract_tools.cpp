@@ -32,6 +32,10 @@ std::string fixture_id(FixtureKind kind) {
         case FixtureKind::inconsistent_distance_pair: return "inconsistent_distance_pair";
         case FixtureKind::singular_coincident_points: return "singular_coincident_points";
         case FixtureKind::gluing_obstruction_pair: return "gluing_obstruction_pair";
+        case FixtureKind::boundary_frozen_distance: return "boundary_frozen_distance";
+        case FixtureKind::tolerated_multi_residual_distance:
+            return "tolerated_multi_residual_distance";
+        case FixtureKind::separator_chain_distance: return "separator_chain_distance";
     }
     return "unknown";
 }
@@ -52,6 +56,12 @@ FixtureClass fixture_class(FixtureKind kind) {
         case FixtureKind::singular_coincident_points: return FixtureClass::singular;
         case FixtureKind::gluing_obstruction_pair:
             return FixtureClass::gluing_obstruction;
+        case FixtureKind::boundary_frozen_distance:
+            return FixtureClass::boundary_frozen;
+        case FixtureKind::tolerated_multi_residual_distance:
+            return FixtureClass::tolerance_edge;
+        case FixtureKind::separator_chain_distance:
+            return FixtureClass::separator;
     }
     return FixtureClass::invalid;
 }
@@ -108,6 +118,20 @@ FixtureExpectation fixture_expectation(FixtureKind kind) {
                 "gluing.boundary_projection_mismatch"};
             expectation.evidence_phase = "diagnostics.gluing";
             break;
+        case FixtureKind::boundary_frozen_distance:
+            expectation.expected_status = kernel::SolveStatus::under_constrained;
+            expectation.expected_report_codes = {
+                "diagnostics.numeric_rank_under_constrained"};
+            expectation.evidence_phase = "numeric.boundary_frozen_rank";
+            break;
+        case FixtureKind::tolerated_multi_residual_distance:
+            expectation.expected_status = kernel::SolveStatus::solved;
+            expectation.evidence_phase = "numeric.max_abs_residual_tolerance";
+            break;
+        case FixtureKind::separator_chain_distance:
+            expectation.expected_status = kernel::SolveStatus::under_constrained;
+            expectation.evidence_phase = "decomposition.separator_chain";
+            break;
     }
     return expectation;
 }
@@ -116,6 +140,9 @@ std::vector<FixtureKind> default_fixture_kinds(bool include_negative) {
     std::vector<FixtureKind> kinds = {
         FixtureKind::two_point_distance,
         FixtureKind::two_component_distance,
+        FixtureKind::boundary_frozen_distance,
+        FixtureKind::tolerated_multi_residual_distance,
+        FixtureKind::separator_chain_distance,
     };
     if (!include_negative) return kinds;
     kinds.push_back(FixtureKind::unsatisfied_two_point_distance);
@@ -354,6 +381,37 @@ ModelSnapshot make_gluing_obstruction_pair_model() {
     return make_two_point_distance_model();
 }
 
+ModelSnapshot make_boundary_frozen_distance_model() {
+    ModelSnapshot model = make_two_point_distance_model();
+    model.solve_intent.fixed_entity_ids = {kernel::EntityId{0}};
+    return model;
+}
+
+ModelSnapshot make_tolerated_multi_residual_distance_model() {
+    ModelSnapshot model = make_two_component_distance_model();
+    model.entities[1].parameters.values[0] = 1.0 + 0.75e-8;
+    model.entities[3].parameters.values[0] = 11.0 + 0.75e-8;
+    return model;
+}
+
+ModelSnapshot make_separator_chain_distance_model() {
+    ModelSnapshot model;
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{0}, {kernel::EntityId{0}}});
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{1}, {kernel::EntityId{1}}});
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{2}, {kernel::EntityId{2}}});
+
+    model.entities.push_back(make_point(0, 0, 0.0, 0.0, 0.0));
+    model.entities.push_back(make_point(1, 1, 1.0, 0.0, 0.0));
+    model.entities.push_back(make_point(2, 2, 2.0, 0.0, 0.0));
+
+    model.constraints.push_back(make_distance(0, 0, 1, 1.0));
+    model.constraints.push_back(make_distance(1, 1, 2, 1.0));
+    return model;
+}
+
 ContextSnapshot make_whole_context_for(const ModelSnapshot& model) {
     return kernel::make_whole_model_context(model);
 }
@@ -372,6 +430,9 @@ std::string to_string(FixtureClass fixture_class) {
         case FixtureClass::inconsistent: return "inconsistent";
         case FixtureClass::singular: return "singular";
         case FixtureClass::gluing_obstruction: return "gluing_obstruction";
+        case FixtureClass::boundary_frozen: return "boundary_frozen";
+        case FixtureClass::tolerance_edge: return "tolerance_edge";
+        case FixtureClass::separator: return "separator";
     }
     return "unknown";
 }
@@ -410,6 +471,15 @@ gcs::kernel::ContractResult<FixtureBundle> build_fixture(FixtureBuildRequest req
             break;
         case FixtureKind::gluing_obstruction_pair:
             result.payload.model = make_gluing_obstruction_pair_model();
+            break;
+        case FixtureKind::boundary_frozen_distance:
+            result.payload.model = make_boundary_frozen_distance_model();
+            break;
+        case FixtureKind::tolerated_multi_residual_distance:
+            result.payload.model = make_tolerated_multi_residual_distance_model();
+            break;
+        case FixtureKind::separator_chain_distance:
+            result.payload.model = make_separator_chain_distance_model();
             break;
     }
 

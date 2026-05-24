@@ -23,13 +23,6 @@ numeric::NumericTask make_task() {
     return make_task_for_model(gcs::tools::make_two_point_distance_model());
 }
 
-kernel::ModelSnapshot make_two_component_model_with_tiny_residuals() {
-    auto model = gcs::tools::make_two_component_distance_model();
-    model.entities[1].parameters.values[0] = 1.0 + 0.75e-8;
-    model.entities[3].parameters.values[0] = 11.0 + 0.75e-8;
-    return model;
-}
-
 bool has_code(const kernel::StageReport& report, const char* code) {
     for (const auto& message : report.messages) {
         if (message.code.value == code) return true;
@@ -154,7 +147,8 @@ TEST(NumericEngineContract, ReportsResidualMetricsForUnsatisfiedFixture) {
 }
 
 TEST(NumericEngineContract, ConvergesWhenEachResidualIsWithinTolerance) {
-    auto task = make_task_for_model(make_two_component_model_with_tiny_residuals());
+    auto task = make_task_for_model(
+        gcs::tools::make_tolerated_multi_residual_distance_model());
     task.solve_limits.max_iterations = 0;
 
     auto report = numeric::solve_local(task);

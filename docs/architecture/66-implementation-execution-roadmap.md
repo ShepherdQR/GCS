@@ -197,7 +197,7 @@ Status legend: `done`, `in_progress`, `pending`.
     smaller responsible sets.
 36. `done` - harden numeric robustness around scaling, rank tolerance,
     condition evidence, stopping, and boundary edge cases.
-37. `pending` - expand reusable fixture and scene corpus for rank, separator,
+37. `done` - expand reusable fixture and scene corpus for rank, separator,
     boundary, gluing, and promotion scenarios.
 38. `pending` - expose structured evidence through viewer bridge and GUI
     surfaces.
@@ -1292,14 +1292,57 @@ Implemented scope for Step 36:
 
 Reassessment after Step 36:
 
-- Step 37 is now the highest-leverage next move. The solver has stronger
-  residual and rank-condition semantics, so reusable fixture and scene corpus
-  expansion should capture boundary-frozen, rank-deficient, separator,
-  gluing-obstruction, and promotion scenarios for later batches.
+- Step 37 completed fixture/corpus expansion for boundary-frozen rank,
+  max-absolute residual tolerance, and separator-chain structure. These
+  examples are now reusable through `gcs.contract_tools`.
 - Step 38 remains viewer/GUI evidence surface work after the corpus gives UI
   and overlay contracts richer examples.
 - Step 39 remains quality gate hardening after the new corpus evidence is in
   place.
+
+## Fixture And Scene Corpus Expansion Step Plan
+
+Implemented commit-level scope for Step 37:
+
+- Add reusable `FixtureKind` entries for boundary-frozen distance,
+  tolerated multi-residual distance, and separator-chain distance scenarios.
+- Add fixture classes for `boundary_frozen`, `tolerance_edge`, and
+  `separator`.
+- Encode boundary-frozen solve intent through `ModelSnapshot.solve_intent`
+  fixed entity IDs so numeric tests can construct boundary-variable tasks
+  from public fixture data.
+- Promote the Step 36 tolerated multi-residual model from a test-local helper
+  into `gcs.contract_tools`.
+- Extend corpus golden summaries and contract-tool tests for the new fixture
+  classes.
+
+## Fixture And Scene Corpus Expansion Milestone
+
+Implemented scope for Step 37:
+
+- `make_boundary_frozen_distance_model` returns a valid distance model with a
+  fixed-entity solve-intent hint for boundary-frozen rank evidence tests.
+- `make_tolerated_multi_residual_distance_model` returns a two-component
+  model whose residual norm exceeds tolerance while every residual block's
+  max absolute value is within tolerance.
+- `make_separator_chain_distance_model` returns a three-point chain where the
+  middle entity is the stable separator subject shared by adjacent distance
+  constraints.
+- Default generated fixture corpus size increased from 10 to 13 bundles.
+- Contract-tool coverage now verifies boundary-frozen solve hints, tolerated
+  residual stopping evidence, and separator-chain subject structure.
+- Contract test baseline increased to 97 CTest-discovered GTest cases.
+
+Reassessment after Step 37:
+
+- Step 38 is now the highest-leverage next move. The corpus now contains
+  boundary-frozen, tolerance-edge, separator, redundancy, singular, and gluing
+  cases, so viewer and GUI contracts can expose richer structured evidence
+  without inventing private examples.
+- Step 39 should remain quality gate hardening after viewer evidence surfaces
+  stabilize.
+- Step 40 remains atlas and roadmap resynchronization for the close of the
+  Step 31 through Step 39 batch.
 
 ## Damped Numeric Local Solve Step Plan
 
