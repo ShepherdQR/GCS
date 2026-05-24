@@ -216,13 +216,16 @@ Status legend: `done`, `in_progress`, `pending`.
     C++ IO and Python visualization schemas.
 45. `done` - define and test JSON history/replay compatibility policy for
     current and legacy GUI-authored scenes.
-46. `pending` - decide runtime-owned replay export boundaries between
+46. `done` - decide runtime-owned replay export boundaries between
     session history events and scene-embedded construction history.
+47. `pending` - build deterministic runtime replay evidence export tooling
+    on top of the Step 46 boundary without writing JSON scene `history`.
 
 Next registered candidate:
 
-- Complete Step 46 by specifying how runtime history events should be exported
-  or projected without conflating them with scene construction history.
+- Complete Step 47 by producing a report-oriented runtime replay export path
+  that keeps command transaction traces separate from saved scene construction
+  history.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1624,6 +1627,33 @@ Reassessment after Step 45:
   history events, while scene `history` stores construction/replay actions.
   Step 46 should define their projection boundary before they accidentally
   merge.
+
+## Runtime Replay Export Boundary Step Plan
+
+Implemented scope:
+
+- Added `ReplayArtifactKind::runtime_transaction_trace` to
+  `gcs.session_runtime` as the public name for runtime command replay
+  artifacts.
+- Marked runtime `HistoryEvent`, `ReplayReport`, and viewer
+  `HistoryFrameProjection` outputs as report evidence, not scene construction
+  history entries.
+- Added session-runtime and viewer-bridge contract tests proving runtime replay
+  projections do not masquerade as JSON scene `history` actions such as
+  `AddGeometry`, `AddConstraint`, `UpdateConstraint`, or `Solve`.
+- Extended the public evidence-chain CTest selection so the runtime replay
+  boundary remains part of the default quality gate.
+- Documented that future export work belongs to runtime/viewer report evidence
+  unless an explicit IO migration converts command traces into stable scene
+  action payloads.
+
+Reassessment after Step 46:
+
+- The runtime replay and saved scene replay domains now have distinct public
+  contract names, ownership, and tests.
+- The next implementation risk is export packaging: a future tool or CLI path
+  should emit runtime replay evidence as deterministic reports without writing
+  solver transaction stages into scene JSON `history`.
 
 ## Damped Numeric Local Solve Step Plan
 

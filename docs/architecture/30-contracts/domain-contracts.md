@@ -103,5 +103,11 @@ to stable entity or constraint IDs in the same scene.
 
 The scene-facing `history` array is replay metadata, not solver structure.
 Python viewer tooling owns current history reconstruction. C++ scene IO should
-tolerate history fields while keeping them outside `ModelSnapshot` until a
-runtime-owned replay contract is introduced.
+tolerate history fields while keeping them outside `ModelSnapshot`.
+
+Runtime replay uses a separate contract. `session_runtime` history events and
+replay reports are `runtime_transaction_trace` artifacts: they are report
+evidence for command execution, transaction stages, rollback, commit, and
+diagnostics. They are not scene construction history entries and must not be
+written into JSON `history` unless a future migration explicitly converts them
+into stable scene action payloads.

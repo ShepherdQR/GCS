@@ -272,6 +272,10 @@ gcs::kernel::ContractResult<HistoryFrameProjection> project_history_frame(
     result.payload.valid = request.frame_index >= 0 &&
                            request.frame_index <
                                static_cast<int>(request.event.transaction_trace.stages.size());
+    result.payload.replay_artifact_kind = request.event.replay_artifact_kind;
+    result.payload.scene_construction_history_entry =
+        request.event.scene_construction_history_entry;
+    result.payload.report_evidence = request.event.report_evidence;
     result.payload.command_id = request.event.command_id;
     result.payload.base_version = request.event.base_version;
     result.payload.new_state_version = request.event.new_state_version;

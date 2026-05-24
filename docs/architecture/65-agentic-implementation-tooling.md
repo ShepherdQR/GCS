@@ -172,7 +172,7 @@ owning modules reach implementation.
 runs agentic design checks, scene-generation Python tests, agentic-toolkit
 Python tests, showcase-scene renderer Python tests, Python scene-schema tests,
 Python history-replay tests, CMake configure and build, full CTest, the explicit
-`ContractToolsContract` fixture-corpus selection, the Step 31 through Step 42
+`ContractToolsContract` fixture-corpus selection, the Step 31 through Step 46
 public evidence-chain CTest selection, a representative CLI smoke fixture, and
 the integrated showcase JSON scene CLI smoke.
 

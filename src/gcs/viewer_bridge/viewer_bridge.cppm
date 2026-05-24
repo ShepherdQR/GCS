@@ -141,6 +141,10 @@ struct HistoryFrameRequest {
 
 struct HistoryFrameProjection {
     bool valid = false;
+    runtime::ReplayArtifactKind replay_artifact_kind =
+        runtime::ReplayArtifactKind::runtime_transaction_trace;
+    bool scene_construction_history_entry = false;
+    bool report_evidence = true;
     CommandId command_id;
     StateVersionId base_version;
     StateVersionId new_state_version;

@@ -1075,6 +1075,8 @@ Reassessment after Step 45:
 
 ### Step 46: Runtime Replay Export Boundary
 
+Status: done.
+
 Goal:
 
 - Define how C++ runtime history events relate to scene-embedded construction
@@ -1108,6 +1110,62 @@ Exit criteria:
 - Tests cover the chosen projection boundary.
 - Future export work has a documented owner and non-goal list.
 
+Completed summary:
+
+- `gcs.session_runtime` now names runtime command replay artifacts as
+  `ReplayArtifactKind::runtime_transaction_trace`.
+- Runtime `HistoryEvent`, `ReplayReport`, and viewer
+  `HistoryFrameProjection` outputs mark these artifacts as report evidence and
+  not scene construction history entries.
+- New `SessionRuntimeContract` and `ViewerBridgeContract` coverage proves
+  runtime replay projections do not masquerade as scene `history` actions.
+- The public evidence-chain CTest selection includes the replay-boundary
+  contract tests.
+- Future export work is assigned to runtime/viewer report evidence unless an
+  explicit IO migration converts traces into stable scene action payloads.
+
+Reassessment after Step 46:
+
+- Runtime replay and scene replay are now separate public domains.
+- The highest-leverage next step is to package runtime replay evidence in a
+  deterministic report/export tool so traces can be consumed by diagnostics,
+  CLI, or GUI code without corrupting saved scenes.
+
+### Step 47: Runtime Replay Evidence Export Package
+
+Goal:
+
+- Build a deterministic runtime replay evidence export path on top of the
+  Step 46 boundary.
+
+Expected shape:
+
+- A structured export contract for command transaction traces, frame
+  projections, report codes, state versions, and stage ordering.
+- Tooling or CLI-facing report output that can be regenerated deterministically
+  from runtime history.
+- Tests proving the export contains runtime replay evidence while leaving JSON
+  scene `history` untouched.
+
+Detailed plan:
+
+- Inspect existing CLI/report surfaces and choose whether the first export
+  belongs in `session_runtime`, `viewer_bridge`, or a test-support/report tool.
+- Define a compact structured export DTO that includes command ID, artifact
+  kind, report-evidence flag, state-version range, status, and ordered stages.
+- Add contract or tool tests for deterministic ordering, missing-command
+  handling, and no scene-history writes.
+- Update quality-gate sentinels if a new public export test is introduced.
+- Reassess whether GUI replay should consume this report export or continue to
+  use scene construction `history` for topology reconstruction.
+
+Exit criteria:
+
+- Runtime replay evidence can be exported or summarized deterministically.
+- The export contract preserves the Step 46 separation from scene construction
+  history.
+- The next consumer path, CLI or GUI, is documented with a clear owner.
+
 ## Reassessment Protocol
 
 After each step:
@@ -1126,14 +1184,13 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 40 update:
+As of the Step 46 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 41 have completed-step summaries in the roadmap and current
+- Steps 1 through 46 have completed-step summaries in the roadmap and current
   progress documents.
-- Steps 31 through 42 are detailed in this forward plan with goal, expected
+- Steps 31 through 47 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
-- Step 42 is registered as the showcase scene promotion and negative variant
-  step.
+- Step 47 is registered as the runtime replay evidence export package step.
 

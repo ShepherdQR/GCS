@@ -29,6 +29,10 @@ enum class CommandKind {
     solve,
 };
 
+enum class ReplayArtifactKind {
+    runtime_transaction_trace,
+};
+
 struct Command {
     CommandId id;
     CommandKind kind = CommandKind::solve;
@@ -72,6 +76,10 @@ struct RollbackReport {
 };
 
 struct HistoryEvent {
+    ReplayArtifactKind replay_artifact_kind =
+        ReplayArtifactKind::runtime_transaction_trace;
+    bool scene_construction_history_entry = false;
+    bool report_evidence = true;
     CommandId command_id;
     bool accepted = false;
     SolveStatus status = SolveStatus::not_run;
@@ -87,6 +95,10 @@ struct ReplayRequest {
 
 struct ReplayReport {
     bool found = false;
+    ReplayArtifactKind replay_artifact_kind =
+        ReplayArtifactKind::runtime_transaction_trace;
+    bool scene_construction_history_entry = false;
+    bool report_evidence = true;
     CommandId command_id;
     bool accepted = false;
     SolveStatus status = SolveStatus::not_run;

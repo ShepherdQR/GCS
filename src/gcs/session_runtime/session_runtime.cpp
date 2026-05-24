@@ -152,6 +152,10 @@ StageReport make_post_local_diagnostics_report(
 
 HistoryEvent make_history_event(const CommandResult& result) {
     HistoryEvent event;
+    event.replay_artifact_kind =
+        ReplayArtifactKind::runtime_transaction_trace;
+    event.scene_construction_history_entry = false;
+    event.report_evidence = true;
     event.command_id = result.command_id;
     event.accepted = result.accepted;
     event.status = result.user_visible_status;
@@ -464,6 +468,10 @@ ReplayReport SessionRuntime::replay(ReplayRequest request) const {
     for (const auto& event : history_) {
         if (event.command_id == request.command_id) {
             report.found = true;
+            report.replay_artifact_kind = event.replay_artifact_kind;
+            report.scene_construction_history_entry =
+                event.scene_construction_history_entry;
+            report.report_evidence = event.report_evidence;
             report.accepted = event.accepted;
             report.status = event.status;
             report.transaction_trace = event.transaction_trace;

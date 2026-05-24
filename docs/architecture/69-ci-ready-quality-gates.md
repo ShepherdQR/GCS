@@ -1,6 +1,6 @@
 # CI-Ready Quality Gates
 
-Status: Step 45 scene history/replay gate integrated.
+Status: Step 46 runtime replay boundary gate integrated.
 
 ## Purpose
 
@@ -45,8 +45,8 @@ The default gate runs:
 12. full CTest contract suite
 13. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
 14. explicit public-evidence-chain CTest selection for rank, diagnostics,
-    runtime, viewer, corpus, and showcase evidence introduced in Steps 31
-    through 44
+    runtime, viewer, corpus, showcase, and replay-boundary evidence introduced
+    in Steps 31 through 46
 15. CLI smoke on `fixtures/scene/basic/g1.txt`
 16. CLI smoke on
     `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
@@ -73,7 +73,9 @@ paths that must remain visible across modules:
   separator-chain scenarios;
 - integrated showcase evidence for solve-intent boundary propagation,
   JSON behavior round-trip, boundary-frozen rank projection, viewer residual
-  projection, positive CLI smoke, and negative scene behavior rejection.
+  projection, positive CLI smoke, and negative scene behavior rejection;
+- runtime replay boundary evidence proving command transaction traces project
+  as report evidence, not JSON scene construction history actions.
 
 ## CI Parameters
 
@@ -102,12 +104,13 @@ A change is Step 18 complete when:
 - fixture corpus coverage is named as an explicit gate and actually selects
   the contract-tools fixture tests;
 - public evidence-chain coverage is named as an explicit gate and selects the
-  Step 31 through Step 42 rank, diagnostics, runtime, viewer, corpus, and
-  showcase sentinel tests;
+  Step 31 through Step 46 rank, diagnostics, runtime, viewer, corpus,
+  showcase, and replay-boundary sentinel tests;
 - scene-generation tests are part of the default gate;
 - showcase-scene renderer tests are part of the default gate;
 - Python scene-schema algebra tests are part of the default gate;
 - Python history-replay tests are part of the default gate;
 - the agentic toolkit gate sequence is unit-tested as a Python tools contract;
 - representative basic and showcase CLI fixtures are part of the default gate;
-- the implementation roadmap records the latest quality-gate extension step.
+- the implementation roadmap records the latest quality-gate extension step;
+- runtime replay-boundary tests remain in the public evidence-chain sentinel.

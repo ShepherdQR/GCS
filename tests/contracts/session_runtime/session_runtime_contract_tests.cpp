@@ -180,3 +180,25 @@ TEST(SessionRuntimeContract, ReplayReturnsStoredStageTrace) {
     auto missing = session.replay(runtime::ReplayRequest{kernel::CommandId{999}});
     EXPECT_FALSE(missing.found);
 }
+
+TEST(SessionRuntimeContract, ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::SessionRuntime session(model);
+
+    auto result = session.solve();
+    ASSERT_EQ(session.history().size(), 1U);
+    const auto& event = session.history().front();
+
+    EXPECT_EQ(event.replay_artifact_kind,
+              runtime::ReplayArtifactKind::runtime_transaction_trace);
+    EXPECT_TRUE(event.report_evidence);
+    EXPECT_FALSE(event.scene_construction_history_entry);
+
+    auto replay = session.replay(runtime::ReplayRequest{result.command_id});
+    EXPECT_TRUE(replay.found);
+    EXPECT_EQ(replay.replay_artifact_kind,
+              runtime::ReplayArtifactKind::runtime_transaction_trace);
+    EXPECT_TRUE(replay.report_evidence);
+    EXPECT_FALSE(replay.scene_construction_history_entry);
+    EXPECT_EQ(replay.transaction_trace.command_id.value, result.command_id.value);
+}

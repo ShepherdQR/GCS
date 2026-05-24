@@ -354,3 +354,29 @@ TEST(ViewerBridgeContract, HistoryFrameResolvesStableIds) {
     EXPECT_EQ(frame.payload.new_state_version.value, 1U);
     EXPECT_FALSE(frame.payload.stages.empty());
 }
+
+TEST(ViewerBridgeContract, RuntimeHistoryFrameProjectsAsReportEvidenceOnly) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::SessionRuntime session(model);
+    auto result = session.solve();
+    ASSERT_EQ(session.history().size(), 1U);
+
+    auto frame = viewer::project_history_frame(
+        viewer::HistoryFrameRequest{session.history().front(), 0});
+
+    EXPECT_TRUE(frame.payload.valid);
+    EXPECT_EQ(frame.payload.command_id.value, result.command_id.value);
+    EXPECT_EQ(frame.payload.replay_artifact_kind,
+              runtime::ReplayArtifactKind::runtime_transaction_trace);
+    EXPECT_TRUE(frame.payload.report_evidence);
+    EXPECT_FALSE(frame.payload.scene_construction_history_entry);
+
+    ASSERT_FALSE(frame.payload.stages.empty());
+    for (const auto& stage : frame.payload.stages) {
+        EXPECT_NE(stage.stage, "AddRigidSet");
+        EXPECT_NE(stage.stage, "AddGeometry");
+        EXPECT_NE(stage.stage, "AddConstraint");
+        EXPECT_NE(stage.stage, "UpdateConstraint");
+        EXPECT_NE(stage.stage, "Solve");
+    }
+}

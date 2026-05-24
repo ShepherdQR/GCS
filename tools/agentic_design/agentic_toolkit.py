@@ -1066,12 +1066,14 @@ PUBLIC_EVIDENCE_CHAIN_CTEST_REGEX = "|".join(
         (
             r"SessionRuntimeContract\."
             r"(ProjectsRankEvidenceFromAcceptedCommandResult|"
-            r"PostLocalDiagnosticsPreserveNumericEvidence)"
+            r"PostLocalDiagnosticsPreserveNumericEvidence|"
+            r"ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory)"
         ),
         (
             r"ViewerBridgeContract\."
             r"(OverlayProjects.*Evidence|"
-            r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence)"
+            r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence|"
+            r"RuntimeHistoryFrameProjectsAsReportEvidenceOnly)"
         ),
         (
             r"ContractToolsContract\."

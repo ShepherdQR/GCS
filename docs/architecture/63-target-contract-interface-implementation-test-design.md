@@ -567,6 +567,7 @@ Structured outputs:
 - `CommandResult`.
 - `TransactionTrace`.
 - `HistoryEvent`.
+- `ReplayArtifactKind`.
 - `RollbackReport`.
 - `ReplayReport`.
 - `RankEvidenceProjection`.
@@ -613,6 +614,9 @@ Implementation responsibilities:
 - Atomic commit and rollback.
 - Undo/redo history.
 - Replay artifact generation.
+- Runtime replay artifact separation from scene construction history. Current
+  runtime history is `runtime_transaction_trace` report evidence and is not a
+  JSON scene `history` action.
 - Post-commit verification.
 
 Contract tests:
@@ -626,6 +630,7 @@ Contract tests:
 - `runtime_projects_rank_evidence_from_accepted_command_result`.
 - `runtime_post_local_diagnostics_preserve_numeric_evidence`.
 - `runtime_replay_reconstructs_stage_trace`.
+- `runtime_replay_artifact_is_runtime_trace_not_scene_construction_history`.
 - `runtime_undo_redo_preserves_history_order`.
 
 ## IO Adapters Target Design
@@ -728,7 +733,9 @@ Implementation responsibilities:
   overlays and summaries.
 - Selection and hit-test mapping.
 - Interaction-to-runtime-command drafting.
-- History frame projection.
+- History frame projection that preserves the runtime replay artifact kind and
+  marks runtime frames as report evidence rather than scene construction
+  history entries.
 
 Contract tests:
 
@@ -741,6 +748,7 @@ Contract tests:
 - `viewer_overlay_projects_gluing_obstruction_evidence`.
 - `viewer_command_draft_validates_against_runtime_contract`.
 - `viewer_history_frame_resolves_stable_ids`.
+- `viewer_runtime_history_frame_projects_as_report_evidence_only`.
 
 ## Contract Tools Target Design
 

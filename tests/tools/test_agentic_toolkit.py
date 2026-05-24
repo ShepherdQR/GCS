@@ -83,7 +83,9 @@ class AgenticToolkitTests(unittest.TestCase):
             r"LoadsPythonAuthoredJsonBehaviorScene",
             r"RejectsShowcaseSceneWithMissingFixedEntity",
             r"RejectsSolveIntentMissingReferences",
+            r"ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory",
             r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence",
+            r"RuntimeHistoryFrameProjectsAsReportEvidenceOnly",
             r"ContractToolsContract\.",
             r"IntegratedShowcaseFixtureCarriesPublicEvidenceContract",
         ]:

@@ -556,16 +556,36 @@ Delivered:
 - Make `viewer_bridge` replay helpers lightweight by lazy-loading visualizer
   dependencies only when rendering is requested.
 
-## Next Step 46
+## Completed Step 46
 
-The next step should decide runtime-owned replay export boundaries. C++
-`session_runtime` already records command history events, while scene JSON
-`history` records construction/replay actions. Step 46 should define how these
-two histories are projected or exported without merging their semantics.
+Step 46 defined the runtime replay export boundary. C++
+`session_runtime` command history is now typed as
+`runtime_transaction_trace` report evidence, while scene JSON `history` remains
+construction/replay metadata owned by scene behavior tooling.
+
+Delivered:
+
+- Added `ReplayArtifactKind::runtime_transaction_trace` to runtime history and
+  replay report outputs.
+- Projected the same artifact kind through viewer history frames.
+- Marked runtime replay artifacts as report evidence and explicitly not scene
+  construction history entries.
+- Added contract tests for both runtime replay reports and viewer history-frame
+  projections.
+- Added the new replay-boundary contract tests to the public evidence-chain
+  quality gate.
+
+## Next Step 47
+
+The next step should build deterministic runtime replay evidence export
+tooling. The export should package command transaction traces and viewer
+history-frame evidence as reports, not write them into JSON scene `history`.
+`io_adapters` should remain out of scope unless a future migration explicitly
+converts runtime traces into stable scene construction actions.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-45 are registered in the implementation roadmap; Steps 31 through 45 are
+46 are registered in the implementation roadmap; Steps 31 through 46 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. Step 46 is registered as the runtime replay export
-boundary follow-up.
+in the forward plan. Step 47 is registered as the runtime replay evidence
+export follow-up.
