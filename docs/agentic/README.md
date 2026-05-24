@@ -35,7 +35,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `evals/review-rubrics.md` | Independent review rubrics by change type. |
 | `tasks/` | Checked-in task cards that are large enough to persist. |
 | `experience/` | Folder-per-experience library for promoted agentic-SE lessons, candidate skills, agent role cards, and templates. |
-| `institutional-agents/` | Standing role-level agents for recurring project memory, review, timeline, and governance practices. |
+| `institutional-agents/` | Standing role-level agents for recurring project memory, review, timeline, and governance practices; see `institutional-agents/OPERATING-STANDARD.md` for use and creation rules. |
 
 ## Minimum Workflow
 
