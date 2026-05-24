@@ -45,6 +45,10 @@ Current C++23 baseline:
 - solves dense damped normal equations without an external linear algebra
   dependency;
 - freezes declared boundary variables during updates;
+- computes rank, nullity, singularity, over-constraint, under-constraint, and
+  condition evidence from the free Jacobian columns that remain after boundary
+  variables are frozen, while still reporting the full active variable
+  dimension and frozen dimension;
 - clamps steps to the task trust radius and accepts only residual-reducing
   trial states;
 - reports convergence, non-convergence, residuals, rank, boundary evidence,
@@ -68,6 +72,8 @@ Each numeric report should include:
 - residual norm before and after;
 - step norm;
 - rank estimate;
+- free, frozen, and full active variable dimensions used to interpret rank and
+  nullity;
 - condition estimate when available;
 - active tolerance values;
 - iteration count;

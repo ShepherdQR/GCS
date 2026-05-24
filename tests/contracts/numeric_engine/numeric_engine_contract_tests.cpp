@@ -152,6 +152,8 @@ TEST(NumericEngineContract, ReportsRankConditionEvidence) {
     auto report = numeric::solve_local(task);
 
     EXPECT_EQ(report.rank_condition_report.variable_dimension, 6);
+    EXPECT_EQ(report.rank_condition_report.free_variable_dimension, 6);
+    EXPECT_EQ(report.rank_condition_report.frozen_variable_dimension, 0);
     EXPECT_EQ(report.rank_condition_report.residual_dimension, 1);
     EXPECT_EQ(report.rank_condition_report.rank_estimate, 1);
     EXPECT_EQ(report.rank_condition_report.nullity_estimate, 5);
@@ -159,6 +161,21 @@ TEST(NumericEngineContract, ReportsRankConditionEvidence) {
     EXPECT_FALSE(report.rank_condition_report.over_constrained);
     EXPECT_TRUE(report.rank_condition_report.condition_estimate_available);
     EXPECT_NEAR(report.rank_condition_report.condition_estimate, 1.0, 1.0e-6);
+}
+
+TEST(NumericEngineContract, RankEvidenceUsesOnlyFreeBoundaryColumns) {
+    auto task = make_task();
+    task.boundary_variables.push_back(kernel::EntityId{0});
+
+    auto report = numeric::solve_local(task);
+
+    EXPECT_EQ(report.rank_condition_report.variable_dimension, 6);
+    EXPECT_EQ(report.rank_condition_report.free_variable_dimension, 3);
+    EXPECT_EQ(report.rank_condition_report.frozen_variable_dimension, 3);
+    EXPECT_EQ(report.rank_condition_report.rank_estimate, 1);
+    EXPECT_EQ(report.rank_condition_report.nullity_estimate, 2);
+    EXPECT_TRUE(report.rank_condition_report.under_constrained);
+    EXPECT_FALSE(report.rank_condition_report.over_constrained);
 }
 
 TEST(NumericEngineContract, ReportsBoundaryVariablesWithoutMutation) {

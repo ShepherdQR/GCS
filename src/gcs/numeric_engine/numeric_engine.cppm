@@ -105,6 +105,8 @@ struct EquationAssembly {
 
 struct RankConditionReport {
     int variable_dimension = 0;
+    int free_variable_dimension = 0;
+    int frozen_variable_dimension = 0;
     int residual_dimension = 0;
     int rank_estimate = 0;
     int nullity_estimate = 0;

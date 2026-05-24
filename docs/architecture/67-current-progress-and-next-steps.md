@@ -31,11 +31,19 @@ Completed algorithm-deepening steps:
 - Step 23: extracted parameterization and reporting helpers with deterministic
   structured tests.
 - Step 24: extracted repair policy with structured edit-list tests.
+- Step 25: split scene-generation explorer and promotion orchestration from
+  the CLI facade.
+- Step 26: contained scene-generation scratch-store and path policy behind
+  `SceneGenerationStore`.
+- Step 27: hardened public promotion gates so structured runtime/diagnostics
+  evidence is preferred before executable smoke fallback.
+- Step 28: refined numeric rank/nullity evidence so boundary-frozen variables
+  are excluded from rank estimation while full variable shape remains reported.
 
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 84 CTest-discovered GTest cases.
+- Contract test baseline is 85 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -218,15 +226,30 @@ Delivered:
 - Extend focused unittest coverage so structured runtime evidence passes public
   gates even when the fallback executable is missing.
 
-## Next Step 28
+## Completed Step 28
 
-The next step is solver algorithm deepening reassessment. The best current
-candidate remains choosing among numeric engine, diagnostics, or decomposition
-planner based on which module can now produce the most actionable failing or
-incomplete evidence from the contract tools and generated scene corpus.
+Step 28 resumed solver algorithm deepening in `gcs.numeric_engine`.
+
+Delivered:
+
+- Extend `RankConditionReport` with `free_variable_dimension` and
+  `frozen_variable_dimension`.
+- Estimate rank, nullity, singularity, under-constrained evidence,
+  over-constrained evidence, and condition evidence from only the Jacobian
+  columns that are free after applying boundary-variable policy.
+- Preserve full `variable_dimension` in the same report so diagnostics can
+  distinguish active model shape from numeric solve degrees of freedom.
+- Extend numeric engine contract tests with boundary-frozen rank evidence.
+
+## Next Step 29
+
+The next step is architecture atlas synchronization. The atlas should now be
+checked against the implemented solver modules, scene-generation package split,
+promotion gate evidence, and numeric free-column rank contract before the next
+algorithm batch starts.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 25 through
-29 were registered there and in the implementation roadmap. After Step 25, the
-remaining steps were reconsidered; Steps 28 through 29 remain registered, with
-Step 28 now the next highest-leverage move.
+29 were registered there and in the implementation roadmap. After Step 28, the
+remaining steps were reconsidered; Step 29 remains registered as the next
+highest-leverage move.

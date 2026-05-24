@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 25:
+- Completed through Step 28:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -24,10 +24,13 @@ implementation step they describe.
     contained behind `gcs_scene_generation.storage.SceneGenerationStore`;
   - promotion public gates now prefer structured runtime/diagnostics reports
     before executable smoke fallback;
+  - numeric rank/nullity evidence is computed over free Jacobian columns after
+    declared boundary variables are frozen, while full variable dimension and
+    frozen dimension remain visible in the public report;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline remains 84 tests.
+  - CTest contract baseline is 85 tests.
 
 ## Registered Next Steps
 
@@ -117,24 +120,40 @@ Reassessment after Step 27:
 - Step 29 should remain after Step 28 so the atlas reflects both the solver
   algorithm step and the completed generation/promotion boundaries.
 
-### Step 28: Solver Algorithm Deepening Reassessment
+### Completed Step 28: Numeric Free-Column Rank Evidence
 
-Goal:
+Decision:
 
-- Return to the C++ solver modules and choose the next highest-leverage
-  algorithm-deepening step.
+- The highest-leverage solver-deepening move was in `gcs.numeric_engine`.
+  Decomposition planning already had cover/order evidence, while numeric rank
+  evidence still estimated rank and nullity over the full Jacobian even when
+  boundary variables were frozen.
 
-Candidate areas:
+Delivered:
 
-- Numeric engine: stronger damping, scaling, stopping criteria, rank evidence,
-  and boundary-variable handling.
-- Diagnostics: richer conflict/redundancy/gluing obstruction extraction.
-- Decomposition planner: stronger separator, cover, and solve-DAG evidence.
+- Extend `RankConditionReport` with `free_variable_dimension` and
+  `frozen_variable_dimension`.
+- Estimate rank, nullity, under-constrained evidence, over-constrained
+  evidence, singular evidence, and condition evidence from the Jacobian columns
+  that are actually free under the task boundary policy.
+- Preserve `variable_dimension` as the full active variable dimension so
+  downstream diagnostics can distinguish model shape from numeric solve
+  degrees of freedom.
+- Add numeric contract coverage for boundary-frozen rank evidence.
 
-Decision rule:
+Tests:
 
-- Pick the module where current contract tools and scene corpus can produce
-  the most actionable failing or incomplete evidence.
+- Focused `NumericEngineContract` CTest suite passes with 13 tests.
+- Full quality gate remains the pre-push validation command.
+
+Reassessment after Step 28:
+
+- Step 29 is now the highest-leverage next move. The solver, scene-generation,
+  promotion, and numeric evidence boundaries changed enough that the
+  architecture atlas should be synchronized before starting the next algorithm
+  batch.
+- No new evidence requires inserting another solver implementation step before
+  the atlas synchronization.
 
 ### Step 29: Architecture Atlas Synchronization
 
@@ -169,6 +188,6 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 27 completion update, the active planned steps are registered
-as Step 28 through Step 29. Step 28 is the next implementation step.
+As of the Step 28 completion update, the active planned step is Step 29.
+Step 29 is the next implementation step.
 

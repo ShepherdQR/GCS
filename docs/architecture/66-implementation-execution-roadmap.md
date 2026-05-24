@@ -173,13 +173,13 @@ Status legend: `done`, `in_progress`, `pending`.
     with deterministic structured tests.
 24. `done` - extract scene-generation repair policy with structured edit-list
     tests.
-25. `pending` - split scene-generation explorer and promotion orchestration
+25. `done` - split scene-generation explorer and promotion orchestration
     from the CLI facade.
-26. `pending` - contain scene-generation flat store access behind a store
+26. `done` - contain scene-generation flat store access behind a store
     adapter.
-27. `pending` - harden promotion public gates from executable smoke toward
+27. `done` - harden promotion public gates from executable smoke toward
     direct public adapters.
-28. `pending` - reassess and resume solver algorithm deepening in the highest
+28. `done` - reassess and resume solver algorithm deepening in the highest
     leverage C++ module.
 29. `pending` - synchronize the architecture atlas and tracked visualization
     assets with the current module state.
@@ -920,6 +920,46 @@ Reassessment after Step 27:
 - Step 29 remains architecture atlas synchronization after the next solver
   algorithm move, unless Step 28 changes only documentation and the atlas can
   be synchronized immediately afterward.
+
+## Numeric Free-Column Rank Evidence Step Plan
+
+Implemented commit-level scope for Step 28:
+
+- Reassess the current solver algorithm surface across decomposition planner,
+  diagnostics, and numeric engine.
+- Choose the module with the clearest incomplete evidence behind an existing
+  public contract.
+- Extend numeric rank/condition evidence so declared boundary variables are
+  treated as frozen degrees of freedom instead of active rank columns.
+- Preserve full active variable dimension in `RankConditionReport`, while also
+  reporting free and frozen variable dimensions.
+- Add contract tests that make boundary-frozen rank/nullity evidence explicit.
+
+## Numeric Free-Column Rank Evidence Milestone
+
+Implemented scope for Step 28:
+
+- `gcs.numeric_engine` now derives a free-column set from
+  `NumericTask.boundary_variables` and the assembled active-variable ordering.
+- `RankConditionReport` reports `variable_dimension`,
+  `free_variable_dimension`, and `frozen_variable_dimension`.
+- Rank, nullity, under-constrained evidence, over-constrained evidence,
+  singular evidence, and condition evidence are computed from the free-column
+  Jacobian actually solved by the local numeric task.
+- Full variable dimension remains available for downstream diagnostics that
+  need model-shape evidence separate from solve degrees of freedom.
+- `NumericEngineContract.RankEvidenceUsesOnlyFreeBoundaryColumns` verifies the
+  boundary-frozen rank contract.
+
+Reassessment after Step 28:
+
+- Step 29 is now architecture atlas synchronization. The implemented module
+  boundaries have changed across scene-generation orchestration, store
+  containment, promotion gates, and numeric evidence; the atlas should be made
+  current before the next algorithm-deepening batch.
+- Decomposition and diagnostics remain viable future algorithm-deepening
+  candidates, but no new evidence requires inserting them before the atlas
+  synchronization step.
 
 ## Damped Numeric Local Solve Step Plan
 

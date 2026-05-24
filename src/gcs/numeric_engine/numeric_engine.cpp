@@ -207,6 +207,23 @@ std::vector<int> build_free_columns(const NumericTask& task,
     return columns;
 }
 
+std::vector<double> select_columns(const std::vector<double>& matrix,
+                                   int row_count,
+                                   int column_count,
+                                   const std::vector<int>& selected_columns) {
+    std::vector<double> selected;
+    selected.reserve(static_cast<std::size_t>(row_count) * selected_columns.size());
+    for (int row = 0; row < row_count; ++row) {
+        for (int column : selected_columns) {
+            if (column >= 0 && column < column_count) {
+                selected.push_back(
+                    matrix[static_cast<std::size_t>(row * column_count + column)]);
+            }
+        }
+    }
+    return selected;
+}
+
 bool solve_dense_linear_system(std::vector<double> matrix,
                                std::vector<double> rhs,
                                int dimension,
@@ -364,23 +381,33 @@ ResidualReport make_residual_report(const EquationAssembly& assembly) {
     return report;
 }
 
-RankConditionReport make_rank_condition_report(const EquationAssembly& assembly,
-                                               const GaugePolicy& gauge_policy,
+RankConditionReport make_rank_condition_report(const NumericTask& task,
+                                               const EquationAssembly& assembly,
                                                double rank_tolerance) {
     RankConditionReport report;
     report.variable_dimension = assembly.variable_dimension;
     report.residual_dimension = assembly.residual_dimension;
 
-    const auto rank = estimate_rank(
+    const auto free_columns = build_free_columns(task, assembly);
+    report.free_variable_dimension = static_cast<int>(free_columns.size());
+    report.frozen_variable_dimension =
+        std::max(0, report.variable_dimension - report.free_variable_dimension);
+
+    const auto free_jacobian = select_columns(
         assembly.jacobian_report.values,
         assembly.jacobian_report.row_count,
         assembly.jacobian_report.column_count,
+        free_columns);
+    const auto rank = estimate_rank(
+        free_jacobian,
+        assembly.jacobian_report.row_count,
+        report.free_variable_dimension,
         rank_tolerance);
     report.rank_estimate = rank.rank;
 
     const int effective_variables = std::max(
         0,
-        assembly.variable_dimension - gauge_policy.removed_dof);
+        report.free_variable_dimension - task.gauge_policy.removed_dof);
     report.nullity_estimate = std::max(0, effective_variables - report.rank_estimate);
     report.under_constrained = report.nullity_estimate > 0;
     report.over_constrained = assembly.residual_dimension > effective_variables;
@@ -868,8 +895,8 @@ NumericReport solve_local(const NumericTask& task) {
 
     report.residual_report = make_residual_report(report.equation_assembly);
     report.rank_condition_report = make_rank_condition_report(
+        task,
         report.equation_assembly,
-        task.gauge_policy,
         task.tolerances.rank);
     report.rank_estimate = report.rank_condition_report.rank_estimate;
     report.condition_estimate = report.rank_condition_report.condition_estimate;
