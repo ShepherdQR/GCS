@@ -131,7 +131,7 @@ Goal: make `GCS Warm Evidence Tokens` executable across figures and the viewer.
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
 | P2.1 | Done | `78-ui-token-inventory.md` inventories current GUI colors, figure tokens, Matplotlib styles, state colors, renderer fallbacks, and terminal/Rich styles. | Inventory doc |
-| P2.2 | Pending | Define canonical token names and cross-surface mappings for surface, text, rule, evidence, state, geometry, constraint, rigid-set, figure, and viewer roles. | Token table diff |
+| P2.2 | Done | `79-ui-token-taxonomy.md` defines canonical token names and cross-surface mappings for surface, text, rule, evidence, state, geometry, constraint, rigid-set, figure, and viewer roles. | Token table diff |
 | P2.3 | Pending | Mirror figure tokens into `python/gcs_viz/color_scheme.py` without changing interaction logic. | Python syntax check |
 | P2.4 | Pending | Align CSS/HTML figure compositor token usage and add notes for future renderers. | Figure QA smoke |
 
@@ -159,6 +159,25 @@ Updated P2 next steps:
   boundaries.
 - P2.4 should align the HTML/CSS compositor and document renderer token use
   after the Python mirror exists.
+
+P2.2 completion summary:
+
+- Added `79-ui-token-taxonomy.md` as the canonical `GCS Warm Evidence Tokens`
+  naming and mapping table.
+- Defined lowercase dot-path token names for surface, text, rule, evidence,
+  state, geometry, constraint, rigid-set, figure, and viewer style roles.
+- Recorded alias rules for the Python viewer mirror in P2.3 and CSS/HTML
+  compositor alignment in P2.4.
+
+Updated P2 next steps:
+
+- P2.3 should add a canonical token layer to
+  `python/gcs_viz/color_scheme.py`, then keep existing `GCS_THEME`,
+  `RIGID_SET_COLORS`, and `CONSTRAINT_COLORS` as compatibility aliases.
+- P2.3 may move viewer marker and line-style tokens only if it can do so
+  without changing renderer behavior.
+- P2.4 should consume the canonical names from the figure compositor side after
+  the Python mirror has landed.
 
 ## P3: Viewer UI Implementation
 
