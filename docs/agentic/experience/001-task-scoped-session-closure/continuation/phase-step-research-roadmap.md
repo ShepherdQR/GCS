@@ -74,8 +74,8 @@ of accountable micro-closures.
 | --- | --- | --- |
 | 1.1 | `continuation/phase-step-research-roadmap.md` | completed |
 | 1.2 | `continuation/phase-step-state-machine.md` | completed |
-| 1.3 | `continuation/step-closure-record-template.md` | next |
-| 1.4 | `continuation/phase-01-summary.md` | planned |
+| 1.3 | `continuation/step-closure-record-template.md` | completed |
+| 1.4 | `continuation/phase-01-summary.md` | next |
 
 ### Step 1.1 Summary
 
@@ -111,6 +111,23 @@ Updated Phase 1 sequence:
 
 1. Create the step closure record template.
 2. Summarize Phase 1 and replan later phases.
+
+### Step 1.3 Summary
+
+This step created `continuation/step-closure-record-template.md`. The template
+encodes the state machine into a reusable record format with objective,
+artifact, state transition, phase update, commit boundary, evidence, residual
+risk, and next-step declaration sections.
+
+### Step 1.3 Update To Remaining Phase 1 Steps
+
+Only the Phase 1 summary remains. It should evaluate whether the roadmap, state
+machine, and template are enough to open Phase 2, then replan the Phase 2
+steps using what Phase 1 learned.
+
+Updated Phase 1 sequence:
+
+1. Summarize Phase 1 and replan later phases.
 
 ## Phase 2: Templates And Tooling Ideas
 
