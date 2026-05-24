@@ -78,6 +78,32 @@ bool contains_step_context(const std::vector<SolveStep>& solve_order,
     return false;
 }
 
+bool contains_dag_node(const SolveDag& dag, ContextId context_id) {
+    for (const auto& node : dag.nodes) {
+        if (node.context_id == context_id) return true;
+    }
+    return false;
+}
+
+const SolveDagNode* find_dag_node(const SolveDag& dag, ContextId context_id) {
+    for (const auto& node : dag.nodes) {
+        if (node.context_id == context_id) return &node;
+    }
+    return nullptr;
+}
+
+bool contains_cover_projection(const CoverPlan& cover_plan,
+                               const SolveDagEdge& edge) {
+    for (const auto& projection : cover_plan.boundary_projections) {
+        if (projection.id == edge.projection_id &&
+            projection.source_context_id == edge.source_context_id &&
+            projection.target_context_id == edge.target_context_id) {
+            return true;
+        }
+    }
+    return false;
+}
+
 BoundaryProjection make_component_projection(const ContextSnapshot& component_context,
                                              ContextId root_context_id,
                                              std::uint64_t projection_index) {
@@ -88,6 +114,29 @@ BoundaryProjection make_component_projection(const ContextSnapshot& component_co
     projection.entity_ids = component_context.entity_ids;
     projection.constraint_ids = component_context.constraint_ids;
     return projection;
+}
+
+void append_dag_node(PlannerOutput& output,
+                     ContextId context_id,
+                     int topological_order,
+                     bool solved_locally,
+                     bool aggregation_context) {
+    output.solve_dag.nodes.push_back(
+        SolveDagNode{
+            context_id,
+            topological_order,
+            solved_locally,
+            aggregation_context});
+}
+
+void append_dag_edge(PlannerOutput& output, const BoundaryProjection& projection) {
+    output.solve_dag.edges.push_back(
+        SolveDagEdge{
+            projection.source_context_id,
+            projection.target_context_id,
+            projection.id,
+            projection.entity_ids,
+            projection.constraint_ids});
 }
 
 void append_component_subproblem(PlannerOutput& output,
@@ -123,12 +172,17 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
     const bool split_into_components = input.incidence.connected_components.size() > 1;
     if (!split_into_components) {
         append_component_subproblem(output, input.model, root, 0);
+        append_dag_node(output, root.id, 0, true, false);
         auto cover_validation = validate_cover(input.model, output.cover_plan);
         auto order_validation = validate_solve_order(output);
+        auto dag_validation = validate_solve_dag(output);
         for (auto message : cover_validation.report.messages) {
             kernel::append_report_message(output.structural_report, std::move(message));
         }
         for (auto message : order_validation.report.messages) {
+            kernel::append_report_message(output.structural_report, std::move(message));
+        }
+        for (auto message : dag_validation.report.messages) {
             kernel::append_report_message(output.structural_report, std::move(message));
         }
         return output;
@@ -146,14 +200,23 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
         context.rigid_set_ids = component.rigid_set_ids;
         output.cover_plan.contexts.push_back(context);
 
-        output.boundary_projections.push_back(make_component_projection(
+        auto projection = make_component_projection(
             context,
             output.cover_plan.root_context_id,
-            static_cast<std::uint64_t>(output.boundary_projections.size() + 1)));
+            static_cast<std::uint64_t>(output.boundary_projections.size() + 1));
+        output.boundary_projections.push_back(projection);
+        append_dag_edge(output, projection);
         append_component_subproblem(output, input.model, context, subproblem_id);
+        append_dag_node(output, context.id, subproblem_id, true, false);
         ++subproblem_id;
     }
     output.cover_plan.boundary_projections = output.boundary_projections;
+    append_dag_node(
+        output,
+        output.cover_plan.root_context_id,
+        subproblem_id,
+        false,
+        true);
 
     if (output.subproblems.empty()) {
         kernel::append_report_message(
@@ -166,10 +229,14 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
 
     auto cover_validation = validate_cover(input.model, output.cover_plan);
     auto order_validation = validate_solve_order(output);
+    auto dag_validation = validate_solve_dag(output);
     for (auto message : cover_validation.report.messages) {
         kernel::append_report_message(output.structural_report, std::move(message));
     }
     for (auto message : order_validation.report.messages) {
+        kernel::append_report_message(output.structural_report, std::move(message));
+    }
+    for (auto message : dag_validation.report.messages) {
         kernel::append_report_message(output.structural_report, std::move(message));
     }
     return output;
@@ -386,6 +453,92 @@ gcs::kernel::ContractResult<SolveOrderValidationReport> validate_solve_order(
                     kernel::ReportSeverity::error,
                     "planner.solve_order_missing_subproblem",
                     "Solve order does not contain a subproblem context.",
+                    {kernel::StableId{"context", subproblem.context_id.value}}));
+        }
+    }
+
+    return result;
+}
+
+gcs::kernel::ContractResult<SolveDagValidationReport> validate_solve_dag(
+    const PlannerOutput& output) {
+    kernel::ContractResult<SolveDagValidationReport> result;
+    result.report = kernel::make_stage_report("decomposition_planner.validate_solve_dag");
+    result.payload.node_count = static_cast<int>(output.solve_dag.nodes.size());
+    result.payload.edge_count = static_cast<int>(output.solve_dag.edges.size());
+
+    for (const auto& node : output.solve_dag.nodes) {
+        if (!contains_context(output.cover_plan.contexts, node.context_id)) {
+            result.payload.valid = false;
+            result.payload.nodes_reference_known_contexts = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.solve_dag_unknown_context",
+                    "Solve DAG node references a context absent from the cover.",
+                    {kernel::StableId{"context", node.context_id.value}}));
+        }
+    }
+
+    for (const auto& edge : output.solve_dag.edges) {
+        const SolveDagNode* source =
+            find_dag_node(output.solve_dag, edge.source_context_id);
+        const SolveDagNode* target =
+            find_dag_node(output.solve_dag, edge.target_context_id);
+        if (source == nullptr || target == nullptr) {
+            result.payload.valid = false;
+            result.payload.edges_reference_known_nodes = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.solve_dag_edge_unknown_node",
+                    "Solve DAG edge references a context absent from the DAG nodes.",
+                    {kernel::StableId{"projection", edge.projection_id.value}}));
+        }
+
+        if (!contains_cover_projection(output.cover_plan, edge)) {
+            result.payload.valid = false;
+            result.payload.edge_projections_reference_known_cover_projections = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.solve_dag_projection_mismatch",
+                    "Solve DAG edge must correspond to a cover boundary projection.",
+                    {kernel::StableId{"projection", edge.projection_id.value}}));
+        }
+
+        if (source != nullptr && target != nullptr &&
+            source->topological_order >= target->topological_order) {
+            result.payload.valid = false;
+            result.payload.acyclic = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.solve_dag_cycle_or_backward_edge",
+                    "Solve DAG edges must point from earlier local solves to later aggregation contexts.",
+                    {kernel::StableId{"projection", edge.projection_id.value}}));
+        }
+    }
+
+    for (const auto& subproblem : output.subproblems) {
+        if (!contains_dag_node(output.solve_dag, subproblem.context_id)) {
+            result.payload.valid = false;
+            result.payload.covers_all_subproblems = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.solve_dag_missing_subproblem",
+                    "Solve DAG does not contain a subproblem context.",
                     {kernel::StableId{"context", subproblem.context_id.value}}));
         }
     }

@@ -96,6 +96,32 @@ TEST(DecompositionPlannerContract, SolveOrderValidationAcceptsDeterministicPlan)
     EXPECT_EQ(validation.payload.step_count, 2);
 }
 
+TEST(DecompositionPlannerContract, SolveDagExplainsBoundaryProjectionDependencies) {
+    auto model = gcs::tools::make_two_component_distance_model();
+
+    auto plan = plan_for(model);
+    auto validation = planning::validate_solve_dag(plan);
+
+    EXPECT_TRUE(validation.payload.valid);
+    EXPECT_TRUE(validation.payload.nodes_reference_known_contexts);
+    EXPECT_TRUE(validation.payload.edges_reference_known_nodes);
+    EXPECT_TRUE(validation.payload.edge_projections_reference_known_cover_projections);
+    EXPECT_TRUE(validation.payload.acyclic);
+    EXPECT_TRUE(validation.payload.covers_all_subproblems);
+    EXPECT_EQ(validation.payload.node_count, 3);
+    EXPECT_EQ(validation.payload.edge_count, 2);
+    ASSERT_EQ(plan.solve_dag.nodes.size(), 3U);
+    EXPECT_FALSE(plan.solve_dag.nodes.back().solved_locally);
+    EXPECT_TRUE(plan.solve_dag.nodes.back().aggregation_context);
+    ASSERT_EQ(plan.solve_dag.edges.size(), plan.boundary_projections.size());
+    EXPECT_EQ(plan.solve_dag.edges.front().source_context_id.value, 1U);
+    EXPECT_EQ(plan.solve_dag.edges.front().target_context_id.value, 0U);
+    EXPECT_EQ(plan.solve_dag.edges.front().projection_id.value,
+              plan.boundary_projections.front().id.value);
+    EXPECT_EQ(plan.solve_dag.edges.front().boundary_entity_ids.size(), 2U);
+    EXPECT_EQ(plan.solve_dag.edges.front().boundary_constraint_ids.size(), 1U);
+}
+
 TEST(DecompositionPlannerContract, SolveOrderValidationRejectsSkippedOrder) {
     auto model = gcs::tools::make_two_component_distance_model();
     auto plan = plan_for(model);
@@ -109,6 +135,19 @@ TEST(DecompositionPlannerContract, SolveOrderValidationRejectsSkippedOrder) {
     EXPECT_TRUE(has_code(validation.report, "planner.solve_order_not_strict"));
 }
 
+TEST(DecompositionPlannerContract, SolveDagValidationRejectsBackwardDependency) {
+    auto model = gcs::tools::make_two_component_distance_model();
+    auto plan = plan_for(model);
+    ASSERT_FALSE(plan.solve_dag.nodes.empty());
+    plan.solve_dag.nodes.front().topological_order = 7;
+
+    auto validation = planning::validate_solve_dag(plan);
+
+    EXPECT_FALSE(validation.payload.valid);
+    EXPECT_FALSE(validation.payload.acyclic);
+    EXPECT_TRUE(has_code(validation.report, "planner.solve_dag_cycle_or_backward_edge"));
+}
+
 TEST(DecompositionPlannerContract, PlannerOutputIsDeterministic) {
     auto model = gcs::tools::make_two_component_distance_model();
 
@@ -120,5 +159,7 @@ TEST(DecompositionPlannerContract, PlannerOutputIsDeterministic) {
     EXPECT_EQ(first.cover_plan.contexts[1].id.value, second.cover_plan.contexts[1].id.value);
     EXPECT_EQ(first.boundary_projections[0].id.value, second.boundary_projections[0].id.value);
     EXPECT_EQ(first.solve_order[0].context_id.value, second.solve_order[0].context_id.value);
+    EXPECT_EQ(first.solve_dag.edges[0].projection_id.value,
+              second.solve_dag.edges[0].projection_id.value);
     EXPECT_FALSE(first.unsupported_report.unsupported);
 }

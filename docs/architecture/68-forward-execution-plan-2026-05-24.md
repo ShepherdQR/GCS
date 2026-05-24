@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 32:
+- Completed through Step 33:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -37,10 +37,13 @@ implementation step they describe.
     consumers to inspect numeric reports directly;
   - scene-generation promotion gates now consume structured rank evidence from
     public runtime/viewer reports through a dedicated `rank_evidence` gate;
+  - decomposition planning now exposes a typed `SolveDag` whose edges explain
+    boundary-projection dependencies from local component solves to aggregation
+    contexts;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline is 88 tests.
+  - CTest contract baseline is 90 tests.
 
 ## Execution Cadence Contract
 
@@ -349,7 +352,7 @@ Reassessment after Step 32:
   diagnostics so the rank projection can eventually be backed by diagnostics
   rather than raw numeric reports.
 
-### Step 33: Decomposition Separator And Solve-DAG Deepening
+### Completed Step 33: Decomposition Separator And Solve-DAG Deepening
 
 Goal:
 
@@ -364,21 +367,43 @@ Expected shape:
   causes.
 - Keep planner policy separate from numeric solve iteration.
 
-Detailed plan:
+Decision:
 
-- Inspect incidence graph component/BCC evidence and current planner
-  `CoverPlan`, `Subproblem`, `BoundaryProjection`, and solve order contracts.
-- Add a focused contract for a graph where separator structure should produce
-  a stable boundary projection or solve-order dependency.
-- Add or promote a reusable fixture if test-local construction would hide the
-  graph semantics.
-- Persist Step 33 summary and reassess diagnostics/runtime follow-up needs.
+- Deepen the SolveDAG and boundary-dependency evidence first. Incidence-level
+  articulation or biconnected separator algorithms remain valuable, but the
+  immediate public gap was that component boundary projections had no typed
+  dependency graph explaining how local solves feed aggregation.
 
-Exit criteria:
+Delivered:
 
-- Planner output exposes stronger separator or SolveDAG evidence through
-  deterministic public contracts.
-- Contract tests cover both accepted and unsupported/degraded plan evidence.
+- Add `SolveDagNode`, `SolveDagEdge`, and `SolveDag` to
+  `gcs.decomposition_planner`.
+- Extend `PlannerOutput` with `solve_dag`.
+- Derive DAG edges directly from `BoundaryProjection` records so component
+  subproblems point to the root aggregation context through stable projection
+  IDs and boundary subject IDs.
+- Add `SolveDagValidationReport` and `validate_solve_dag`.
+- Validate DAG node coverage, edge node references, projection-to-cover
+  consistency, acyclic topological order, and subproblem coverage.
+
+Tests:
+
+- `DecompositionPlannerContract.SolveDagExplainsBoundaryProjectionDependencies`
+  verifies component boundary projections are visible as deterministic DAG
+  edges.
+- `DecompositionPlannerContract.SolveDagValidationRejectsBackwardDependency`
+  verifies backward/cyclic dependency evidence is rejected with a stable report
+  code.
+- Focused Decomposition Planner CTest suite passes with 9 tests.
+
+Reassessment after Step 33:
+
+- Step 34 is now the highest-leverage next move. Runtime still carries raw
+  numeric reports and pre-solve diagnostics, while Step 31 and Step 33 have
+  made public projections richer; runtime should now add post-local diagnostic
+  evidence as a transaction stage.
+- Incidence-level separator or biconnected reports remain queued for a later
+  planner/graph batch once post-local diagnostics are in place.
 
 ### Step 34: Boundary-Aware Runtime Diagnostics Pass
 
@@ -645,5 +670,5 @@ As of the Step 31-40 planning update:
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 33 is the next implementation step.
+- Step 34 is the next implementation step.
 

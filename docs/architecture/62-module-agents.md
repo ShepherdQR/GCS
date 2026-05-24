@@ -268,6 +268,7 @@ Structured output:
 - `BoundaryProjection[]`;
 - `Subproblem[]`;
 - `SolveStep[]`;
+- `SolveDag`;
 - `GaugePolicy`;
 - structural report.
 
@@ -277,6 +278,7 @@ Tools:
 - boundary projection builder;
 - gauge-policy selector;
 - solve DAG builder;
+- solve DAG validator;
 - cycle checker;
 - expected DOF estimator;
 - connected-component cover planner;

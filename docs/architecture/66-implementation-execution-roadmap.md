@@ -189,7 +189,7 @@ Status legend: `done`, `in_progress`, `pending`.
     projection contracts.
 32. `done` - make scene-generation promotion gates consume structured rank
     evidence from public reports.
-33. `pending` - deepen decomposition separator, boundary projection, and
+33. `done` - deepen decomposition separator, boundary projection, and
     SolveDAG evidence.
 34. `pending` - add boundary-aware post-local-solve diagnostics to session
     runtime command results.
@@ -1147,6 +1147,41 @@ Reassessment after Step 32:
   projection can later consume diagnostics-owned evidence.
 - Step 35 remains diagnostics conflict/redundancy deepening after runtime has
   richer post-local diagnostic stages.
+
+## Decomposition SolveDAG Evidence Step Plan
+
+Implemented commit-level scope for Step 33:
+
+- Add typed SolveDAG structures to `gcs.decomposition_planner`.
+- Derive DAG edges from public `BoundaryProjection` records so component
+  subproblems explicitly feed the root aggregation context.
+- Preserve existing cover and solve-order contracts while adding a richer DAG
+  validation surface.
+- Add accepted and negative contract tests for boundary dependency evidence.
+- Keep residual evaluation, numeric iteration, gluing acceptance, and runtime
+  commit policy outside the planner.
+
+## Decomposition SolveDAG Evidence Milestone
+
+Implemented scope for Step 33:
+
+- `PlannerOutput` now carries `SolveDag`.
+- `SolveDagNode` distinguishes local solve nodes from aggregation contexts.
+- `SolveDagEdge` names source context, target context, projection ID, boundary
+  entity IDs, and boundary constraint IDs.
+- `validate_solve_dag` verifies known contexts, known nodes, projection/cover
+  consistency, acyclic order, and subproblem coverage.
+- Decomposition planner contract coverage now includes accepted DAG boundary
+  dependencies and a rejected backward dependency case.
+
+Reassessment after Step 33:
+
+- Step 34 is boundary-aware runtime diagnostics. Runtime should now expose
+  post-local diagnostic evidence as a transaction stage so public projections
+  can eventually consume diagnostics-owned rank and residual reports.
+- Separator/articulation algorithms remain useful but can be deepened after
+  runtime carries richer post-local evidence.
+- Step 35 remains diagnostics conflict/redundancy deepening after Step 34.
 
 ## Damped Numeric Local Solve Step Plan
 

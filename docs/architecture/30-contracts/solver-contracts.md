@@ -12,6 +12,7 @@ PlannerInput:
 PlannerOutput:
   cover_plan
   solve_plan
+  solve_dag
   subproblems
   overlap_contexts
   boundary_projections
@@ -19,7 +20,10 @@ PlannerOutput:
   structural_report
 ```
 
-The planner chooses a strategy. It does not mutate geometry.
+The planner chooses a strategy. It does not mutate geometry. `solve_dag`
+records local solve nodes, aggregation contexts, and boundary-projection edges
+so downstream runtime and diagnostics can explain local-to-global dependency
+order without reinterpreting planner internals.
 
 ## Diagnostic Contract
 

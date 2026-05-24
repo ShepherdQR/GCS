@@ -48,11 +48,13 @@ Completed algorithm-deepening steps:
   viewer overlay/summary contracts.
 - Step 32: made scene-generation promotion gates consume structured rank
   evidence from public runtime/viewer reports.
+- Step 33: added typed SolveDAG evidence for decomposition boundary
+  projection dependencies.
 
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 88 CTest-discovered GTest cases.
+- Contract test baseline is 90 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -316,17 +318,33 @@ Delivered:
 - Preserve executable smoke fallback when no structured runtime report is
   supplied.
 
-## Next Step 33
+## Completed Step 33
 
-The next step is decomposition separator and SolveDAG deepening. Rank evidence
-now flows through numeric, diagnostics, runtime, viewer, and promotion
-boundaries, so planner work can focus on stronger separator, boundary
-projection, solve-order dependency, and unsupported-plan evidence.
+Step 33 deepened decomposition planner SolveDAG evidence.
+
+Delivered:
+
+- Add `SolveDagNode`, `SolveDagEdge`, `SolveDag`, and
+  `SolveDagValidationReport`.
+- Extend `PlannerOutput` with `solve_dag`.
+- Map component boundary projections into DAG edges from local component
+  contexts to the root aggregation context.
+- Validate DAG node references, edge node references, projection-to-cover
+  consistency, acyclic topological order, and subproblem coverage.
+- Add contract coverage for accepted boundary-projection dependencies and
+  rejected backward dependency evidence.
+
+## Next Step 34
+
+The next step is boundary-aware runtime diagnostics. Runtime should record
+post-local diagnostic evidence as a structured transaction stage so command
+results expose diagnostics-owned rank/residual evidence instead of requiring
+callers to inspect raw numeric reports.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 32, the remaining steps were reconsidered;
-Step 33 is registered as the next highest-leverage move. A post-Step-40
+in the forward plan. After Step 33, the remaining steps were reconsidered;
+Step 34 is registered as the next highest-leverage move. A post-Step-40
 candidate is also recorded for an integrated feature showcase constraint graph.

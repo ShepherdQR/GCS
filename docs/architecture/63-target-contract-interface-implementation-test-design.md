@@ -352,6 +352,7 @@ Structured outputs:
 - `BoundaryProjection[]`.
 - `Subproblem[]`.
 - `SolveDag`.
+- `SolveDagValidationReport`.
 - `GaugePolicy`.
 - `UnsupportedPlanReport`.
 
@@ -368,7 +369,7 @@ ContractResult<CoverValidationReport> validate_cover(
     const kernel::ModelSnapshot& snapshot,
     const CoverPlan& cover);
 ContractResult<SolveDagValidationReport> validate_solve_dag(
-    const SolveDag& dag);
+    const PlannerOutput& output);
 
 }
 ```
@@ -388,6 +389,7 @@ Contract tests:
 - `planner_component_cover_keeps_components_disjoint`.
 - `planner_overlap_contexts_have_boundary_projections`.
 - `planner_solve_dag_is_acyclic`.
+- `planner_solve_dag_explains_boundary_projection_dependencies`.
 - `planner_gauge_policy_is_explicit`.
 - `planner_returns_unsupported_for_unknown_capability_gap`.
 - `planner_output_is_deterministic`.

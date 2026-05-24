@@ -18,6 +18,7 @@ using gcs::kernel::CoverPlan;
 using gcs::kernel::EntityId;
 using gcs::kernel::GaugePolicy;
 using gcs::kernel::ModelSnapshot;
+using gcs::kernel::ProjectionId;
 using gcs::kernel::ReportMessage;
 using gcs::kernel::SolveIntent;
 using gcs::kernel::StageReport;
@@ -43,6 +44,26 @@ struct SolveStep {
     ContextId context_id;
 };
 
+struct SolveDagNode {
+    ContextId context_id;
+    int topological_order = 0;
+    bool solved_locally = true;
+    bool aggregation_context = false;
+};
+
+struct SolveDagEdge {
+    ContextId source_context_id;
+    ContextId target_context_id;
+    ProjectionId projection_id;
+    std::vector<EntityId> boundary_entity_ids;
+    std::vector<ConstraintId> boundary_constraint_ids;
+};
+
+struct SolveDag {
+    std::vector<SolveDagNode> nodes;
+    std::vector<SolveDagEdge> edges;
+};
+
 struct UnsupportedPlanReport {
     bool unsupported = false;
     std::string code;
@@ -55,6 +76,7 @@ struct PlannerOutput {
     std::vector<BoundaryProjection> boundary_projections;
     std::vector<Subproblem> subproblems;
     std::vector<SolveStep> solve_order;
+    SolveDag solve_dag;
     GaugePolicy gauge_policy;
     StageReport structural_report;
     UnsupportedPlanReport unsupported_report;
@@ -80,11 +102,25 @@ struct SolveOrderValidationReport {
     std::vector<ReportMessage> messages;
 };
 
+struct SolveDagValidationReport {
+    bool valid = true;
+    bool nodes_reference_known_contexts = true;
+    bool edges_reference_known_nodes = true;
+    bool edge_projections_reference_known_cover_projections = true;
+    bool acyclic = true;
+    bool covers_all_subproblems = true;
+    int node_count = 0;
+    int edge_count = 0;
+    std::vector<ReportMessage> messages;
+};
+
 PlannerOutput plan_decomposition(const PlannerInput& input);
 gcs::kernel::ContractResult<CoverValidationReport> validate_cover(
     const ModelSnapshot& model,
     const CoverPlan& cover_plan);
 gcs::kernel::ContractResult<SolveOrderValidationReport> validate_solve_order(
+    const PlannerOutput& output);
+gcs::kernel::ContractResult<SolveDagValidationReport> validate_solve_dag(
     const PlannerOutput& output);
 
 }
