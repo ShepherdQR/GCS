@@ -8,11 +8,11 @@
     "pdf"
   ],
   "status": "exported",
-  "reason": "Browser CLI produced all supported requested artifacts.",
+  "reason": "Existing browser artifacts were reused for manifest refresh.",
   "browser": {
-    "backend": "chromium-cli",
-    "executable": "chrome.exe",
-    "version": "version unavailable from browser CLI"
+    "backend": "existing-artifacts",
+    "executable": "",
+    "version": ""
   },
   "html_token_checks": [
     {
@@ -44,7 +44,7 @@
       "exists": true,
       "bytes": 281703,
       "exit_code": 0,
-      "diagnostic": "281703 bytes written to file <repo>\\docs\\architecture\\70-visualization\\assets\\figure71-gcs-step-1-40-evidence-map.review.png"
+      "diagnostic": "reused existing artifact"
     },
     {
       "format": "pdf",
@@ -52,7 +52,7 @@
       "exists": true,
       "bytes": 191329,
       "exit_code": 0,
-      "diagnostic": "191329 bytes written to file <repo>\\docs\\architecture\\70-visualization\\assets\\figure71-gcs-step-1-40-evidence-map.review.pdf"
+      "diagnostic": "reused existing artifact"
     }
   ],
   "unsupported_formats": []

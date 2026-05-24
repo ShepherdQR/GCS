@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-24 | [P4.4 execution-map figure rebuild](2026-05-24-p4-4-execution-map-rebuild/README.md) | done |
 | 2026-05-24 | [P4.3 graph/chart backend decision](2026-05-24-p4-3-graph-chart-backend-decision/README.md) | done |
 | 2026-05-24 | [P5.1 token lint gate](2026-05-24-p5-1-token-lint-gate/README.md) | done |
 | 2026-05-24 | [Step 47 runtime replay evidence export](2026-05-24-step-47-runtime-replay-evidence-export/README.md) | done |

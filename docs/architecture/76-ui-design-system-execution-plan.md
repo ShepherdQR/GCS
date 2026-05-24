@@ -348,7 +348,7 @@ Pipeline`.
 | P4.1 | Done | `execution-map-spec-schema.md`, `figure71.yaml`, compositor support, and `figure_qa.py` establish `gcs.execution_map.v1` with canonical token fields. | Spec QA |
 | P4.2 | Done | `browser_export.py`, Figure 71 browser manifest, and review PNG/PDF artifacts add a thin browser-rendered export smoke. | Browser smoke plus figure QA |
 | P4.3 | Done | `84-p4-3-graph-chart-backend-decision.md` defers graph/chart panel backends for P4.4. | Dependency decision |
-| P4.4 | Pending | Rebuild the execution-map figure from the new pipeline and demote old SVG output to historical prototype. | `figure_qa.py` plus review artifact |
+| P4.4 | Done | Rebuilt Figure 71 from the repo-native pipeline and demoted old SVG output to historical prototype. | `figure_qa.py` plus review artifact |
 
 Phase-close replanning requirement:
 
@@ -409,6 +409,23 @@ Updated P4 next steps after P4.3:
 - P4.4 should now rebuild Figure 71 assets without adding new dependencies.
 - P4 phase close should evaluate repo-native pipeline stability after P4.4,
   before P5.2/P5.3 and before any Figma MCP decision.
+
+P4.4 completion summary:
+
+- Rebuilt the Figure 71 display path around the browser-rendered review PNG,
+  editable HTML, review PDF, browser manifest, and structural QA artifact.
+- Updated `71-step-1-40-execution-report.md` so the Procedure Figure embeds
+  the review PNG and keeps the old coordinate-drawn SVG only as historical
+  prototype.
+- Added `--reuse-existing-artifacts` to `browser_export.py` and unit coverage
+  for manifest refresh when browser artifacts exist but browser CLI shutdown is
+  unreliable.
+- Added `85-p4-4-execution-map-rebuild.md` with rebuild evidence and follow-up.
+
+Updated P4 phase-close work:
+
+- P4 can now close with a phase summary and downstream plan update.
+- P5.2 should begin after P4 close and focus on rendered text overflow.
 
 Current next-work plan:
 

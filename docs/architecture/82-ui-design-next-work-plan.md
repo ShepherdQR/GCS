@@ -31,6 +31,9 @@ Completed:
   token sources and fails unknown token references before asset rebuilds.
 - P4.3 is complete: graph/chart backends are deferred for P4.4, so no new
   renderer dependency is approved before the execution-map asset rebuild.
+- P4.4 is complete: Figure 71 is displayed from the browser-rendered review
+  PNG, with editable HTML, review PDF, manifest, QA evidence, and old SVG
+  prototype demotion recorded.
 
 Active phase:
 
@@ -43,8 +46,8 @@ Active phase:
 | 1 | P4.2 Browser-rendered export path | Done | Export tokenized HTML figures to reviewable image/PDF artifacts when browser tooling is available. | Browser smoke renders the figure and proves `--gcs-*` variables survive export. |
 | 2 | P5.1 Token lint gate | Done | Enforce the P2/P3 rule that raw hex values belong only in token sources and unknown tokens fail fast. | Forced raw-hex fixture fails; current code passes. |
 | 3 | P4.3 Graph/chart backend decision | Done | Decide whether execution-map panels need new graph/chart backends or can stay repo-native for now. | Dependency decision recorded before any new renderer package is added. |
-| 4 | P4.4 Rebuild execution-map figure | Next | Regenerate execution-map assets through the stable spec/compositor/QA path and demote old SVG output to prototype history. | `figure_qa.py` passes and generated artifacts are linked from architecture docs. |
-| 5 | P4 phase close | Pending | Reassess whether repo-native figure production is stable enough before considering Figma MCP. | Phase-close summary and downstream plan update committed. |
+| 4 | P4.4 Rebuild execution-map figure | Done | Regenerate execution-map assets through the stable spec/compositor/QA path and demote old SVG output to prototype history. | `figure_qa.py` passes and generated artifacts are linked from architecture docs. |
+| 5 | P4 phase close | Next | Reassess whether repo-native figure production is stable enough before considering Figma MCP. | Phase-close summary and downstream plan update committed. |
 | 6 | P5.2 Text overflow gate | Pending | Catch text that would spill from figure panels or compact UI surfaces. | Forced overflow fixture fails. |
 | 7 | P5.3 Overlap and contrast gates | Pending | Catch critical text/shape overlap and weak contrast in status/evidence surfaces. | Forced overlap fails and contrast report is produced. |
 | 8 | P5.4 Screenshot baselines | Pending | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
@@ -86,17 +89,31 @@ Active phase:
 - Preserved the immediate P4.4 path as repo-native semantic spec, theme,
   HTML/CSS compositor, browser smoke, figure QA, and token lint.
 
+## P4.4 Completion Summary
+
+- Updated `71-step-1-40-execution-report.md` to display
+  `figure71-gcs-step-1-40-evidence-map.review.png`.
+- Kept the editable HTML, review PDF, browser manifest, and Figure 71 QA JSON
+  as first-class linked artifacts.
+- Retained `figure71-gcs-step-1-40-evidence-map.svg` only as a historical
+  prototype.
+- Added `--reuse-existing-artifacts` to `browser_export.py` for truthful
+  manifest refresh when browser artifacts exist but a local browser process
+  does not exit cleanly.
+
 ## Updated Next Move
 
-The next implementation step should be **P4.4 Rebuild Execution-Map Figure**.
+The next implementation step should be **P4 Phase Close**.
 
 Reasoning:
 
 - P4.2 proved HTML-to-review-artifact export is feasible.
 - P5.1 now guards token drift before any final asset rebuild.
 - P4.3 now confirms P4.4 should not add graph/chart dependencies.
-- P4.4 can rebuild the execution-map assets with token lint plus Figure 71 QA
-  as its guardrail.
+- P4.4 rebuilt the execution-map display artifact and recorded the remaining
+  browser-process caveat.
+- P4 should now close before P5.2 starts, so downstream visual-integrity work
+  begins from an explicit phase summary.
 
 ## Opportunistic Cleanup
 

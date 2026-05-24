@@ -38,18 +38,27 @@ Current baseline:
 
 ## Procedure Figure
 
-![Figure 71 - GCS Evidence-Boundary Flight Map](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.svg)
+![Figure 71 - GCS Evidence-Boundary Flight Map](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.png)
 
 This figure groups Steps 1 through 40 by evidence boundary rather than showing
 them as a flat checklist: foundation contracts, executable solver evidence,
 scene-generation promotion gates, rank-evidence propagation, the next batch,
 and the post-Step-40 showcase candidate.
 
-The original SVG remains the prototype artifact. The first production-pipeline
-landing is now the HTML/CSS compositor output:
-[`figure71-gcs-step-1-40-evidence-map.html`](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html),
+The displayed artifact is now the browser-rendered review PNG from the
+production pipeline. The editable source remains the HTML/CSS compositor
+output:
+[`figure71-gcs-step-1-40-evidence-map.html`](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html).
+Review exports are also available as
+[`PDF`](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.pdf)
+and manifest evidence in
+[`figure71-gcs-step-1-40-browser-export.json`](70-visualization/assets/figure71-gcs-step-1-40-browser-export.json),
 with structural QA recorded in
 [`figure71-gcs-step-1-40-evidence-map.qa.json`](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.qa.json).
+
+The older coordinate-drawn
+[`figure71-gcs-step-1-40-evidence-map.svg`](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.svg)
+is retained only as a historical prototype.
 
 ## Step Report
 

@@ -40,7 +40,20 @@ The new skill forces figure work through:
 
 ## Figure 71 Status
 
-`figure71-gcs-step-1-40-evidence-map.svg` is a prototype that revealed the
-right content direction but the wrong production paradigm. Its replacement
-should evolve from the HTML/CSS compositor and QA pipeline described in the
-research folder.
+P4.4 rebuilt the displayed Figure 71 artifact through the repo-native
+production pipeline:
+
+- editable HTML:
+  `docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html`
+- browser-rendered review PNG:
+  `docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.png`
+- browser-rendered review PDF:
+  `docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.pdf`
+- browser export manifest:
+  `docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-browser-export.json`
+- structural QA:
+  `docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.qa.json`
+
+`figure71-gcs-step-1-40-evidence-map.svg` is retained only as a historical
+prototype that revealed the right content direction but the wrong production
+paradigm.

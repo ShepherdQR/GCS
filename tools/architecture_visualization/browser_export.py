@@ -61,7 +61,10 @@ def root_path(path_value: object) -> Path:
 
 
 def display_path(path: Path) -> str:
-    return path.relative_to(ROOT).as_posix()
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def resolve_spec(args: argparse.Namespace) -> Path:
@@ -254,24 +257,30 @@ def build_manifest(
     unsupported: list[dict[str, object]],
     token_checks: list[dict[str, object]],
     require_browser: bool,
+    backend: str | None = None,
 ) -> dict[str, object]:
     token_passed = all(bool(check["passed"]) for check in token_checks)
     exported = [artifact for artifact in artifacts if artifact.get("exists")]
     failed = [artifact for artifact in artifacts if not artifact.get("exists")]
 
-    if browser is None:
+    if exported and not failed:
+        status = "exported"
+        reason = (
+            "Existing browser artifacts were reused for manifest refresh."
+            if backend == "existing-artifacts"
+            else "Browser CLI produced all supported requested artifacts."
+        )
+    elif browser is None:
         status = "failed" if require_browser else "skipped"
         reason = "No Chrome/Edge/Chromium executable was found."
     elif failed:
         status = "failed" if require_browser else "partial"
         reason = "At least one requested browser export did not produce an artifact."
-    elif exported:
-        status = "exported"
-        reason = "Browser CLI produced all supported requested artifacts."
     else:
         status = "skipped"
         reason = "No supported formats were requested."
 
+    backend_name = backend or ("chromium-cli" if browser is not None else "none")
     return {
         "figure": spec.get("id", spec_path.stem),
         "schema_version": spec.get("schema_version"),
@@ -281,7 +290,7 @@ def build_manifest(
         "status": status,
         "reason": reason,
         "browser": {
-            "backend": "chromium-cli" if browser is not None else "none",
+            "backend": backend_name,
             "executable": browser.name if browser is not None else "",
             "version": browser_version(browser) if browser is not None else "",
         },
@@ -301,6 +310,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--manifest", type=Path, help="Output manifest path. Defaults to spec exports.browser_manifest.")
     parser.add_argument("--render-html", action="store_true", help="Regenerate the HTML source before export.")
     parser.add_argument("--require-browser", action="store_true", help="Fail when browser artifacts cannot be produced.")
+    parser.add_argument(
+        "--reuse-existing-artifacts",
+        action="store_true",
+        help="Refresh the manifest from existing review artifacts without launching a browser.",
+    )
     parser.add_argument("--viewport", default="1600x2200", help="Viewport as WIDTHxHEIGHT for PNG export.")
     parser.add_argument("--timeout-seconds", type=int, default=60, help="Per-export browser timeout.")
     return parser.parse_args()
@@ -319,6 +333,32 @@ def parse_viewport(value: str) -> tuple[int, int]:
         return int(raw_width), int(raw_height)
     except ValueError:
         return DEFAULT_VIEWPORT
+
+
+def reuse_existing_artifacts(
+    outputs: dict[str, Path],
+    formats: Iterable[str],
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    artifacts: list[dict[str, object]] = []
+    unsupported: list[dict[str, object]] = []
+    for fmt in formats:
+        if fmt not in outputs:
+            unsupported.append({
+                "format": fmt,
+                "reason": "No existing artifact path is declared for this format.",
+            })
+            continue
+        out_path = outputs[fmt]
+        exists = out_path.exists()
+        artifacts.append({
+            "format": fmt,
+            "path": display_path(out_path),
+            "exists": exists,
+            "bytes": out_path.stat().st_size if exists else 0,
+            "exit_code": 0 if exists else -1,
+            "diagnostic": "reused existing artifact" if exists else "existing artifact is missing",
+        })
+    return artifacts, unsupported
 
 
 def main() -> int:
@@ -345,7 +385,12 @@ def main() -> int:
 
     artifacts: list[dict[str, object]] = []
     unsupported: list[dict[str, object]] = []
-    if browser is not None:
+    backend: str | None = None
+    if args.reuse_existing_artifacts:
+        browser = None
+        backend = "existing-artifacts"
+        artifacts, unsupported = reuse_existing_artifacts(outputs, formats)
+    elif browser is not None:
         artifacts, unsupported = export_with_chromium_cli(
             browser,
             html_path,
@@ -373,6 +418,7 @@ def main() -> int:
         unsupported,
         token_checks,
         args.require_browser,
+        backend,
     )
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")

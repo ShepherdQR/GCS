@@ -57,6 +57,7 @@ class AgenticToolkitTests(unittest.TestCase):
                 "python.scene_generation_explorer",
                 "python.agentic_toolkit",
                 "python.showcase_scene_renderer",
+                "python.browser_export",
                 "python.gcs_token_lint",
                 "python.gcs_token_lint_tests",
                 "python.gcs_viz_algebra",
@@ -109,6 +110,7 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertNotIn("python.scene_generation_explorer", gate_ids)
         self.assertNotIn("python.agentic_toolkit", gate_ids)
         self.assertNotIn("python.showcase_scene_renderer", gate_ids)
+        self.assertNotIn("python.browser_export", gate_ids)
         self.assertNotIn("python.gcs_token_lint", gate_ids)
         self.assertNotIn("python.gcs_token_lint_tests", gate_ids)
         self.assertNotIn("python.gcs_viz_algebra", gate_ids)
