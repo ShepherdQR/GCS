@@ -643,6 +643,8 @@ Structured output:
 - `SnapshotSummary`;
 - `DiagnosticOverlay`;
 - runtime rank-evidence projection in overlays and summaries;
+- structured residual, conflict, redundancy, and obstruction evidence
+  projections in overlays and summaries;
 - `InteractionCommandDraft`;
 - `HistoryFrameProjection`.
 
@@ -652,6 +654,8 @@ Tools:
 - report summarizer;
 - diagnostic overlay generator;
 - rank-evidence overlay projector;
+- residual evidence projector;
+- conflict/redundancy/obstruction projector;
 - selection mapper;
 - hit-test mapper;
 - command-draft validator.
@@ -675,6 +679,8 @@ Handoffs:
 - Diagnostic status mapping goes to `diagnostics-certification-agent`.
 - Rank evidence consumption goes through
   `runtime::RankEvidenceProjection`.
+- Residual, conflict, redundancy, and obstruction evidence consumption goes
+  through public `CommandResult` diagnostics and gluing reports.
 
 Acceptance gates:
 

@@ -702,7 +702,8 @@ Structured outputs:
 - `DiagnosticOverlay`.
 - `InteractionCommandDraft`.
 - `HistoryFrameProjection`.
-- `SnapshotSummary` with public rank-evidence projection.
+- `SnapshotSummary` with public rank, residual, conflict, redundancy, and
+  obstruction evidence projections.
 
 Target public API:
 
@@ -722,6 +723,9 @@ Implementation responsibilities:
 - Stable ID projection.
 - Diagnostic overlay mapping from reports.
 - Runtime rank-evidence projection mapping into overlays and summaries.
+- Post-local residual evidence projection mapping into overlays and summaries.
+- Conflict, redundancy, and obstruction responsibility evidence mapping into
+  overlays and summaries.
 - Selection and hit-test mapping.
 - Interaction-to-runtime-command drafting.
 - History frame projection.
@@ -732,6 +736,9 @@ Contract tests:
 - `viewer_projection_contains_state_version`.
 - `viewer_overlay_derives_status_from_reports`.
 - `viewer_overlay_projects_boundary_frozen_rank_evidence`.
+- `viewer_overlay_projects_residual_and_conflict_evidence`.
+- `viewer_overlay_projects_redundancy_evidence`.
+- `viewer_overlay_projects_gluing_obstruction_evidence`.
 - `viewer_command_draft_validates_against_runtime_contract`.
 - `viewer_history_frame_resolves_stable_ids`.
 

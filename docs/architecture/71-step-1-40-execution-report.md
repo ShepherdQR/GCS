@@ -10,16 +10,17 @@ forward plan for Steps 31 through 40 remains
 
 ## Executive Summary
 
-Steps 1 through 37 are completed and pushed. They established the C++23 module
+Steps 1 through 38 are completed and pushed. They established the C++23 module
 solver architecture, contract-tested kernel-to-viewer boundaries, JSON IO,
 CI-ready quality gates, scene-generation promotion tooling, free-column rank
 evidence, diagnostics propagation, runtime/viewer rank evidence projection,
 promotion rank-evidence gates, SolveDAG boundary dependency evidence,
 post-local runtime diagnostics, diagnostics conflict/redundancy
 responsible-set deepening, numeric robustness improvements, reusable
-boundary/tolerance/separator fixtures, and the architecture atlas.
+boundary/tolerance/separator fixtures, structured viewer evidence surfaces,
+and the architecture atlas.
 
-Steps 38 through 40 are registered as the next evidence-boundary and
+Steps 39 through 40 are registered as the next evidence-boundary and
 algorithm-deepening batch. Their theme is making the richer rank, diagnostics,
 promotion, decomposition, fixture, viewer, and quality-gate evidence visible
 through public contracts before the next major algorithm batch.
@@ -29,11 +30,20 @@ Current baseline:
 | Field | Value |
 | --- | --- |
 | Branch | `master` |
-| Current completed step | Step 37 |
-| Next implementation step | Step 38 |
+| Current completed step | Step 38 |
+| Next implementation step | Step 39 |
 | Default gate | `python tools\agentic_design\agentic_toolkit.py run-quality-gates` |
-| Contract test baseline | 97 CTest-discovered GTest cases |
+| Contract test baseline | 100 CTest-discovered GTest cases |
 | Post-Step-40 candidate | Integrated feature showcase constraint graph |
+
+## Procedure Figure
+
+![Figure 71 - GCS Evidence-Boundary Flight Map](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.svg)
+
+This figure groups Steps 1 through 40 by evidence boundary rather than showing
+them as a flat checklist: foundation contracts, executable solver evidence,
+scene-generation promotion gates, rank-evidence propagation, the next batch,
+and the post-Step-40 showcase candidate.
 
 ## Step Report
 
@@ -76,7 +86,7 @@ Current baseline:
 | 35 | Done | Diagnostics conflict/redundancy deepening | Added residual conflict entity subjects and exact duplicate distance redundancy evidence while preserving over-constrained fallback and status precedence. | Makes failed solves more actionable and reportable. |
 | 36 | Done | Numeric robustness batch | Convergence now uses max-absolute residual tolerance and singular free-Jacobian evidence no longer publishes finite condition estimates. | Improves trustworthiness of dense numeric baseline reports. |
 | 37 | Done | Fixture and scene corpus expansion | Added reusable boundary-frozen, tolerance-edge, and separator-chain contract-tool fixtures and promoted tolerated residual evidence into the corpus. | Gives later algorithm work durable regression scenes. |
-| 38 | Pending | Viewer and GUI evidence surface | Expose rank, residual, gluing, obstruction, conflict, and boundary mismatch evidence through viewer/GUI contracts. | Makes solver evidence visible to humans without parsing free-form text. |
+| 38 | Done | Viewer and GUI evidence surface | Added structured residual, conflict, redundancy, and obstruction projections to viewer overlays and summaries while preserving rank evidence. | Makes solver evidence visible to humans without parsing free-form text. |
 | 39 | Pending | Quality gate hardening | Add deterministic gates for rank projection, promotion evidence, and expanded corpus checks. | Protects the Step 31-38 evidence paths by default. |
 | 40 | Pending | Atlas and roadmap resynchronization | Update diagrams, roadmap, maturity lens, and next-batch planning after Steps 31-39. | Re-closes the documentation, visualization, code, and test loop. |
 
@@ -88,7 +98,7 @@ Current baseline:
 | Algorithm and IO deepening | 14-18 | Numeric solving, JSON IO, diagnostics candidates, fixture corpus, and CI gates moved from scaffolding into executable contracts. |
 | Scene-generation and promotion architecture | 19-27 | Generated scenes now flow through structured package modules, store adapters, public solver artifacts, and hardened promotion gates. |
 | Rank evidence correctness | 28-31 | Rank/nullity now respect boundary-frozen variables and propagate from numeric engine to diagnostics, runtime, and viewer projections. |
-| Public evidence boundary batch | 38-40 | The remaining batch surfaces evidence in viewer/GUI contracts, hardens quality gates, and then resynchronizes the architecture. |
+| Public evidence boundary batch | 39-40 | The remaining batch hardens quality gates and then resynchronizes the architecture. |
 
 ## Post-Step-40 Showcase Candidate
 

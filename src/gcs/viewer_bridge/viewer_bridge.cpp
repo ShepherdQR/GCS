@@ -12,6 +12,7 @@ import gcs.session_runtime;
 namespace gcs::viewer {
 
 namespace kernel = gcs::kernel;
+namespace diagnostics = gcs::diagnostics;
 
 namespace {
 
@@ -70,6 +71,45 @@ std::string rank_evidence_message(
            std::to_string(evidence.numeric_nullity_estimate);
 }
 
+std::string residual_evidence_message(
+    const ResidualEvidenceProjection& evidence) {
+    return "residuals " + std::to_string(evidence.residual_dimension) +
+           ", norm " + std::to_string(evidence.total_residual) +
+           ", max " + std::to_string(evidence.max_residual);
+}
+
+ResponsibilityEvidenceProjection make_conflict_projection(
+    std::string source,
+    const diagnostics::ConflictSet& conflict) {
+    ResponsibilityEvidenceProjection projection;
+    projection.source = std::move(source);
+    projection.code = conflict.code;
+    projection.entity_ids = conflict.entity_ids;
+    projection.constraint_ids = conflict.constraint_ids;
+    return projection;
+}
+
+ResponsibilityEvidenceProjection make_redundancy_projection(
+    std::string source,
+    const diagnostics::RedundancySet& redundancy) {
+    ResponsibilityEvidenceProjection projection;
+    projection.source = std::move(source);
+    projection.code = redundancy.code;
+    projection.constraint_ids = redundancy.constraint_ids;
+    return projection;
+}
+
+ResponsibilityEvidenceProjection make_obstruction_projection(
+    std::string source,
+    const diagnostics::ObstructionReport& obstruction) {
+    ResponsibilityEvidenceProjection projection;
+    projection.source = std::move(source);
+    projection.code = obstruction.code;
+    projection.entity_ids = obstruction.entity_ids;
+    projection.constraint_ids = obstruction.constraint_ids;
+    return projection;
+}
+
 }  // namespace
 
 gcs::kernel::ContractResult<ViewerSceneProjection> project_scene(
@@ -117,6 +157,14 @@ gcs::kernel::ContractResult<DiagnosticOverlay> build_overlay(
     result.payload.state_version = request.snapshot.state_version;
     result.payload.rank_evidence =
         runtime::project_rank_evidence(request.command_result);
+    result.payload.residual_evidence =
+        project_residual_evidence(request.command_result);
+    result.payload.conflict_evidence =
+        project_conflict_evidence(request.command_result);
+    result.payload.redundancy_evidence =
+        project_redundancy_evidence(request.command_result);
+    result.payload.obstruction_evidence =
+        project_obstruction_evidence(request.command_result);
 
     OverlayItem status_item;
     status_item.code = "viewer.status";
@@ -146,6 +194,40 @@ gcs::kernel::ContractResult<DiagnosticOverlay> build_overlay(
             rank_item.message = rank_evidence_message(evidence);
             rank_item.status = evidence.result_status;
             result.payload.items.push_back(std::move(rank_item));
+        }
+        for (const auto& evidence : result.payload.residual_evidence) {
+            OverlayItem residual_item;
+            residual_item.code = "viewer.residual_evidence";
+            residual_item.message = residual_evidence_message(evidence);
+            residual_item.status = request.command_result.user_visible_status;
+            result.payload.items.push_back(std::move(residual_item));
+        }
+        for (const auto& evidence : result.payload.conflict_evidence) {
+            OverlayItem conflict_item;
+            conflict_item.code = "viewer.conflict_evidence";
+            conflict_item.message = evidence.code;
+            conflict_item.status = request.command_result.user_visible_status;
+            conflict_item.entity_ids = evidence.entity_ids;
+            conflict_item.constraint_ids = evidence.constraint_ids;
+            result.payload.items.push_back(std::move(conflict_item));
+        }
+        for (const auto& evidence : result.payload.redundancy_evidence) {
+            OverlayItem redundancy_item;
+            redundancy_item.code = "viewer.redundancy_evidence";
+            redundancy_item.message = evidence.code;
+            redundancy_item.status = request.command_result.user_visible_status;
+            redundancy_item.entity_ids = evidence.entity_ids;
+            redundancy_item.constraint_ids = evidence.constraint_ids;
+            result.payload.items.push_back(std::move(redundancy_item));
+        }
+        for (const auto& evidence : result.payload.obstruction_evidence) {
+            OverlayItem obstruction_item;
+            obstruction_item.code = "viewer.obstruction_evidence";
+            obstruction_item.message = evidence.code;
+            obstruction_item.status = request.command_result.user_visible_status;
+            obstruction_item.entity_ids = evidence.entity_ids;
+            obstruction_item.constraint_ids = evidence.constraint_ids;
+            result.payload.items.push_back(std::move(obstruction_item));
         }
     }
 
@@ -222,9 +304,26 @@ SnapshotSummary summarize_command_result(const ModelSnapshot& snapshot,
     SnapshotSummary summary = summarize_snapshot(snapshot);
     summary.last_status = result.user_visible_status;
     summary.rank_evidence = runtime::project_rank_evidence(result);
+    summary.residual_evidence = project_residual_evidence(result);
+    summary.conflict_evidence = project_conflict_evidence(result);
+    summary.redundancy_evidence = project_redundancy_evidence(result);
+    summary.obstruction_evidence = project_obstruction_evidence(result);
     for (const auto& evidence : summary.rank_evidence) {
         summary.messages.push_back(
             evidence.source + ": " + rank_evidence_message(evidence));
+    }
+    for (const auto& evidence : summary.residual_evidence) {
+        summary.messages.push_back(
+            evidence.source + ": " + residual_evidence_message(evidence));
+    }
+    for (const auto& evidence : summary.conflict_evidence) {
+        summary.messages.push_back(evidence.source + ": " + evidence.code);
+    }
+    for (const auto& evidence : summary.redundancy_evidence) {
+        summary.messages.push_back(evidence.source + ": " + evidence.code);
+    }
+    for (const auto& evidence : summary.obstruction_evidence) {
+        summary.messages.push_back(evidence.source + ": " + evidence.code);
     }
     for (const auto& report : result.stage_reports) {
         summary.messages.push_back(report.stage + ": " + kernel::to_string(report.status));
@@ -237,6 +336,100 @@ SnapshotSummary summarize_command_result(const ModelSnapshot& snapshot,
                                    result.obstruction_report.message);
     }
     return summary;
+}
+
+std::vector<ResidualEvidenceProjection> project_residual_evidence(
+    const runtime::CommandResult& result) {
+    std::vector<ResidualEvidenceProjection> projections;
+    for (const auto& post_local : result.post_local_diagnostics) {
+        const auto& report = post_local.diagnostic_output.residual_report;
+        if (!report.from_numeric_report && report.constraints.empty()) {
+            continue;
+        }
+
+        ResidualEvidenceProjection projection;
+        projection.local_report_index = post_local.local_report_index;
+        projection.source = "runtime.post_local_diagnostics.residual_report";
+        projection.context_id = post_local.context_id;
+        projection.residual_dimension = report.residual_dimension;
+        projection.total_residual = report.total_residual;
+        projection.max_residual = report.max_residual;
+        projection.within_tolerance = report.within_tolerance;
+        for (const auto& residual : report.constraints) {
+            projection.constraints.push_back(
+                ConstraintResidualProjection{
+                    residual.constraint_id,
+                    residual.dimension,
+                    residual.residual,
+                    residual.max_abs_value,
+                    residual.tolerance,
+                    residual.satisfied});
+        }
+        projections.push_back(std::move(projection));
+    }
+    return projections;
+}
+
+std::vector<ResponsibilityEvidenceProjection> project_conflict_evidence(
+    const runtime::CommandResult& result) {
+    std::vector<ResponsibilityEvidenceProjection> projections;
+    for (const auto& conflict : result.pre_solve_diagnostics.conflict_sets) {
+        projections.push_back(make_conflict_projection(
+            "runtime.pre_solve_diagnostics.conflict_sets",
+            conflict));
+    }
+    for (const auto& post_local : result.post_local_diagnostics) {
+        for (const auto& conflict : post_local.diagnostic_output.conflict_sets) {
+            projections.push_back(make_conflict_projection(
+                "runtime.post_local_diagnostics.conflict_sets",
+                conflict));
+        }
+    }
+    for (const auto& conflict : result.gluing_report.conflict_sets) {
+        projections.push_back(make_conflict_projection(
+            "runtime.gluing.conflict_sets",
+            conflict));
+    }
+    return projections;
+}
+
+std::vector<ResponsibilityEvidenceProjection> project_redundancy_evidence(
+    const runtime::CommandResult& result) {
+    std::vector<ResponsibilityEvidenceProjection> projections;
+    for (const auto& redundancy : result.pre_solve_diagnostics.redundancy_sets) {
+        projections.push_back(make_redundancy_projection(
+            "runtime.pre_solve_diagnostics.redundancy_sets",
+            redundancy));
+    }
+    for (const auto& post_local : result.post_local_diagnostics) {
+        for (const auto& redundancy : post_local.diagnostic_output.redundancy_sets) {
+            projections.push_back(make_redundancy_projection(
+                "runtime.post_local_diagnostics.redundancy_sets",
+                redundancy));
+        }
+    }
+    for (const auto& redundancy : result.gluing_report.redundancy_sets) {
+        projections.push_back(make_redundancy_projection(
+            "runtime.gluing.redundancy_sets",
+            redundancy));
+    }
+    return projections;
+}
+
+std::vector<ResponsibilityEvidenceProjection> project_obstruction_evidence(
+    const runtime::CommandResult& result) {
+    std::vector<ResponsibilityEvidenceProjection> projections;
+    if (result.obstruction_report.present) {
+        projections.push_back(make_obstruction_projection(
+            "runtime.obstruction_report",
+            result.obstruction_report));
+    }
+    if (result.gluing_report.obstruction_report.present) {
+        projections.push_back(make_obstruction_projection(
+            "runtime.gluing.obstruction_report",
+            result.gluing_report.obstruction_report));
+    }
+    return projections;
 }
 
 std::string solve_status_text(SolveStatus status) {

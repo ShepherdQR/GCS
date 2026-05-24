@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 37:
+- Completed through Step 38:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -51,10 +51,13 @@ implementation step they describe.
   - contract-tools fixture corpus now includes reusable boundary-frozen,
     tolerance-edge, and separator-chain fixtures in addition to existing
     redundant, inconsistent, singular, and gluing-obstruction scenarios;
+  - viewer bridge overlays and summaries now expose structured residual,
+    conflict, redundancy, and obstruction evidence in addition to rank
+    evidence;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline is 97 tests.
+  - CTest contract baseline is 100 tests.
 
 ## Execution Cadence Contract
 
@@ -623,7 +626,7 @@ Reassessment after Step 37:
 - Step 40 remains atlas and roadmap resynchronization for the close of this
   implementation batch.
 
-### Step 38: Viewer And GUI Evidence Surface
+### Completed Step 38: Viewer And GUI Evidence Surface
 
 Goal:
 
@@ -638,19 +641,39 @@ Expected shape:
 - Keep Python GUI as a consumer of public viewer/runtime contracts, not a
   solver-truth owner.
 
-Detailed plan:
+Decision:
 
-- Inspect `viewer_bridge`, Python `gcs_viz`, and history/replay UI boundaries.
-- Add or refine viewer contract tests before GUI consumption.
-- Update Python GUI only if the public bridge contract is ready and the change
-  stays small.
-- Persist Step 38 summary and reassess CI/quality gates.
+- Stabilize the C++ viewer bridge contract before touching Python GUI code.
+  GUI can consume the structured projection later without becoming a solver
+  truth owner.
 
-Exit criteria:
+Delivered:
 
-- Viewer bridge exposes structured evidence that can drive UI without parsing
-  free-form text.
-- GUI changes, if any, are covered by local behavior or bridge tests.
+- Add `ConstraintResidualProjection` and `ResidualEvidenceProjection` for
+  post-local residual reports.
+- Add `ResponsibilityEvidenceProjection` for conflict, redundancy, and
+  obstruction subject sets.
+- Extend `DiagnosticOverlay` and `SnapshotSummary` with residual, conflict,
+  redundancy, and obstruction evidence arrays.
+- Add public projection helpers for residual, conflict, redundancy, and
+  obstruction evidence.
+- Preserve existing overlay message items and add detailed `viewer.*_evidence`
+  items for human-facing review.
+
+Tests:
+
+- `ViewerBridgeContract.OverlayProjectsResidualAndConflictEvidence`.
+- `ViewerBridgeContract.OverlayProjectsRedundancyEvidence`.
+- `ViewerBridgeContract.OverlayProjectsGluingObstructionEvidence`.
+- Focused viewer bridge CTest suite passes with 9 tests.
+
+Reassessment after Step 38:
+
+- Step 39 is now the highest-leverage next move. Rank, diagnostics,
+  promotion, corpus, and viewer evidence paths are public, so deterministic
+  affordable checks should move into the default quality gate where useful.
+- Step 40 remains atlas and roadmap resynchronization after quality gate
+  behavior is finalized.
 
 ### Step 39: Quality Gate Hardening
 
@@ -762,15 +785,15 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 37 update:
+As of the Step 38 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 37 have completed-step summaries in the roadmap and current
+- Steps 1 through 38 have completed-step summaries in the roadmap and current
   progress documents.
 - Steps 31 through 40 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 38 is the next implementation step.
+- Step 39 is the next implementation step.
 

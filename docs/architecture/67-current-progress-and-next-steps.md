@@ -59,11 +59,13 @@ Completed algorithm-deepening steps:
   singular free Jacobians.
 - Step 37: expanded reusable contract-tools fixtures for boundary-frozen,
   tolerance-edge, and separator-chain scenarios.
+- Step 38: exposed residual, conflict, redundancy, and obstruction evidence
+  through structured viewer overlays and summaries.
 
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 97 CTest-discovered GTest cases.
+- Contract test baseline is 100 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -406,18 +408,34 @@ Delivered:
 - Add contract-tool tests for boundary-frozen solve hints, max-absolute
   residual stopping evidence, and separator-chain subject structure.
 
-## Next Step 38
+## Completed Step 38
 
-The next step is viewer and GUI evidence surface. The fixture corpus now has
-public examples for boundary-frozen rank, tolerance-edge residuals,
-separator-chain structure, redundancy, singularity, and gluing obstruction, so
-viewer contracts can expose richer structured evidence without private
-test-only models.
+Step 38 exposed structured viewer evidence surfaces.
+
+Delivered:
+
+- Add viewer residual evidence projections with per-constraint residual,
+  max-absolute residual, tolerance, and satisfaction fields.
+- Add viewer responsibility evidence projections for conflicts,
+  redundancies, and obstructions.
+- Populate `DiagnosticOverlay` and `SnapshotSummary` with those structured
+  projections from post-local diagnostics and gluing/obstruction reports.
+- Add detailed overlay item codes for residual, conflict, redundancy, and
+  obstruction evidence while preserving existing message items.
+- Keep Python GUI unchanged for now; the stable C++ viewer bridge contract is
+  ready for GUI consumption.
+
+## Next Step 39
+
+The next step is quality gate hardening. Rank, diagnostics, promotion,
+fixture corpus, and viewer evidence paths are now public, so deterministic and
+affordable checks should be promoted into the default gate where they protect
+the Step 31-38 evidence chain.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 37, the remaining steps were reconsidered;
-Step 38 is registered as the next highest-leverage move. A post-Step-40
+in the forward plan. After Step 38, the remaining steps were reconsidered;
+Step 39 is registered as the next highest-leverage move. A post-Step-40
 candidate is also recorded for an integrated feature showcase constraint graph.

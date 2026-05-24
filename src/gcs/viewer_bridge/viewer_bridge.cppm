@@ -14,6 +14,7 @@ export namespace gcs::viewer {
 using gcs::kernel::CommandId;
 using gcs::kernel::ConstraintId;
 using gcs::kernel::ConstraintKind;
+using gcs::kernel::ContextId;
 using gcs::kernel::EntityId;
 using gcs::kernel::GeometryKind;
 using gcs::kernel::ModelSnapshot;
@@ -81,11 +82,42 @@ struct OverlayItem {
     std::vector<ConstraintId> constraint_ids;
 };
 
+struct ConstraintResidualProjection {
+    ConstraintId constraint_id;
+    int dimension = 0;
+    double residual = 0.0;
+    double max_abs_value = 0.0;
+    double tolerance = 0.0;
+    bool satisfied = true;
+};
+
+struct ResidualEvidenceProjection {
+    int local_report_index = 0;
+    std::string source;
+    ContextId context_id;
+    int residual_dimension = 0;
+    double total_residual = 0.0;
+    double max_residual = 0.0;
+    bool within_tolerance = true;
+    std::vector<ConstraintResidualProjection> constraints;
+};
+
+struct ResponsibilityEvidenceProjection {
+    std::string source;
+    std::string code;
+    std::vector<EntityId> entity_ids;
+    std::vector<ConstraintId> constraint_ids;
+};
+
 struct DiagnosticOverlay {
     SolveStatus status = SolveStatus::not_run;
     bool accepted = false;
     StateVersionId state_version;
     std::vector<runtime::RankEvidenceProjection> rank_evidence;
+    std::vector<ResidualEvidenceProjection> residual_evidence;
+    std::vector<ResponsibilityEvidenceProjection> conflict_evidence;
+    std::vector<ResponsibilityEvidenceProjection> redundancy_evidence;
+    std::vector<ResponsibilityEvidenceProjection> obstruction_evidence;
     std::vector<OverlayItem> items;
 };
 
@@ -123,6 +155,10 @@ struct SnapshotSummary {
     std::uint64_t state_version = 0;
     SolveStatus last_status = SolveStatus::not_run;
     std::vector<runtime::RankEvidenceProjection> rank_evidence;
+    std::vector<ResidualEvidenceProjection> residual_evidence;
+    std::vector<ResponsibilityEvidenceProjection> conflict_evidence;
+    std::vector<ResponsibilityEvidenceProjection> redundancy_evidence;
+    std::vector<ResponsibilityEvidenceProjection> obstruction_evidence;
     std::vector<std::string> messages;
 };
 
@@ -137,6 +173,14 @@ gcs::kernel::ContractResult<HistoryFrameProjection> project_history_frame(
 SnapshotSummary summarize_snapshot(const ModelSnapshot& snapshot);
 SnapshotSummary summarize_command_result(const ModelSnapshot& snapshot,
                                          const runtime::CommandResult& result);
+std::vector<ResidualEvidenceProjection> project_residual_evidence(
+    const runtime::CommandResult& result);
+std::vector<ResponsibilityEvidenceProjection> project_conflict_evidence(
+    const runtime::CommandResult& result);
+std::vector<ResponsibilityEvidenceProjection> project_redundancy_evidence(
+    const runtime::CommandResult& result);
+std::vector<ResponsibilityEvidenceProjection> project_obstruction_evidence(
+    const runtime::CommandResult& result);
 std::string solve_status_text(SolveStatus status);
 
 }

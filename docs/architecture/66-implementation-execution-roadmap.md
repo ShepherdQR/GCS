@@ -199,7 +199,7 @@ Status legend: `done`, `in_progress`, `pending`.
     condition evidence, stopping, and boundary edge cases.
 37. `done` - expand reusable fixture and scene corpus for rank, separator,
     boundary, gluing, and promotion scenarios.
-38. `pending` - expose structured evidence through viewer bridge and GUI
+38. `done` - expose structured evidence through viewer bridge and GUI
     surfaces.
 39. `pending` - harden default quality gates for the new rank, promotion, and
     corpus evidence paths.
@@ -1335,14 +1335,53 @@ Implemented scope for Step 37:
 
 Reassessment after Step 37:
 
-- Step 38 is now the highest-leverage next move. The corpus now contains
-  boundary-frozen, tolerance-edge, separator, redundancy, singular, and gluing
-  cases, so viewer and GUI contracts can expose richer structured evidence
-  without inventing private examples.
+- Step 38 completed viewer evidence surface expansion. Viewer overlays and
+  summaries can now expose residual, conflict, redundancy, and obstruction
+  evidence as structured projections rather than only message strings.
 - Step 39 should remain quality gate hardening after viewer evidence surfaces
   stabilize.
 - Step 40 remains atlas and roadmap resynchronization for the close of the
   Step 31 through Step 39 batch.
+
+## Viewer Evidence Surface Step Plan
+
+Implemented commit-level scope for Step 38:
+
+- Extend `DiagnosticOverlay` and `SnapshotSummary` with structured residual,
+  conflict, redundancy, and obstruction evidence projections.
+- Project residual evidence from post-local diagnostics, including per
+  constraint residual values, max absolute values, tolerances, and
+  satisfaction flags.
+- Project conflict and redundancy responsibility sets from pre-solve,
+  post-local diagnostics, and gluing reports.
+- Project obstruction evidence from command and gluing obstruction reports.
+- Keep Python GUI untouched until it can consume the stable viewer bridge
+  contract in a separate small change.
+
+## Viewer Evidence Surface Milestone
+
+Implemented scope for Step 38:
+
+- Added `ConstraintResidualProjection`, `ResidualEvidenceProjection`, and
+  `ResponsibilityEvidenceProjection` to `gcs.viewer_bridge`.
+- Added public projection helpers:
+  `project_residual_evidence`, `project_conflict_evidence`,
+  `project_redundancy_evidence`, and `project_obstruction_evidence`.
+- Detailed overlays now include `viewer.residual_evidence`,
+  `viewer.conflict_evidence`, `viewer.redundancy_evidence`, and
+  `viewer.obstruction_evidence` items while preserving existing status and
+  rank items.
+- Viewer bridge contract coverage now checks residual/conflict projection,
+  duplicate redundancy projection, and gluing obstruction projection.
+- Contract test baseline increased to 100 CTest-discovered GTest cases.
+
+Reassessment after Step 38:
+
+- Step 39 is now the highest-leverage next move. Rank, diagnostics,
+  promotion, corpus, and viewer evidence paths are now public and should be
+  protected by deterministic default quality gates where affordable.
+- Step 40 remains atlas and roadmap resynchronization after quality gate
+  behavior is finalized.
 
 ## Damped Numeric Local Solve Step Plan
 

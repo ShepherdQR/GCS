@@ -158,6 +158,11 @@ Rank evidence is exposed through `runtime::project_rank_evidence` returning
 tools should consume this public projection rather than reading
 numeric-engine reports directly.
 
+Viewer-facing evidence should remain structured. Diagnostic overlays and
+snapshot summaries expose rank evidence, residual evidence, conflict evidence,
+redundancy evidence, and obstruction evidence as typed projections; GUI code
+must not parse free-form stage messages to recover solver truth.
+
 ## Boundary Contract
 
 IO and visualization must use public runtime or report APIs. They must not

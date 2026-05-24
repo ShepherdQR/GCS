@@ -1,3 +1,4 @@
+import gcs.diagnostics;
 import gcs.contract_tools;
 import gcs.kernel;
 import gcs.numeric_engine;
@@ -9,6 +10,7 @@ import gcs.viewer_bridge;
 namespace {
 
 namespace kernel = gcs::kernel;
+namespace diagnostics = gcs::diagnostics;
 namespace numeric = gcs::numeric;
 namespace runtime = gcs::runtime;
 namespace viewer = gcs::viewer;
@@ -30,6 +32,35 @@ numeric::NumericTask make_boundary_frozen_task(kernel::ModelSnapshot model) {
         kernel::GaugePolicy{});
     task.boundary_variables.push_back(kernel::EntityId{0});
     return task;
+}
+
+diagnostics::DiagnosticOutput diagnose_after_local_solve(
+    const kernel::ModelSnapshot& model,
+    const numeric::NumericTask& task,
+    const numeric::NumericReport& numeric_report) {
+    diagnostics::DiagnosticInput input;
+    input.phase = diagnostics::DiagnosticPhase::post_local_solve;
+    input.model = model;
+    input.context = task.context_snapshot;
+    input.numeric_report = numeric_report;
+    input.gauge_policy = kernel::GaugePolicy{};
+    return diagnostics::diagnose(input);
+}
+
+runtime::CommandResult make_post_local_command_result(
+    const numeric::NumericTask& task,
+    const numeric::NumericReport& numeric_report,
+    diagnostics::DiagnosticOutput diagnostic_output) {
+    runtime::CommandResult command_result;
+    command_result.accepted = numeric_report.result_code == kernel::SolveStatus::solved;
+    command_result.user_visible_status = diagnostic_output.status_code;
+    command_result.numeric_reports.push_back(numeric_report);
+    command_result.post_local_diagnostics.push_back(
+        runtime::PostLocalDiagnosticReport{
+            0,
+            task.context_snapshot.id,
+            diagnostic_output});
+    return command_result;
 }
 
 }  // namespace
@@ -123,6 +154,127 @@ TEST(ViewerBridgeContract, OverlayProjectsBoundaryFrozenRankEvidence) {
     ASSERT_EQ(summary.rank_evidence.size(), 1U);
     EXPECT_EQ(summary.rank_evidence.front().numeric_frozen_variable_dimension, 3);
     ASSERT_FALSE(summary.messages.empty());
+}
+
+TEST(ViewerBridgeContract, OverlayProjectsResidualAndConflictEvidence) {
+    auto model = gcs::tools::make_unsatisfied_two_point_distance_model();
+    auto context = gcs::tools::make_whole_context_for(model);
+    auto task = numeric::make_numeric_task(
+        model,
+        context,
+        context.entity_ids,
+        context.constraint_ids,
+        kernel::GaugePolicy{});
+    task.solve_limits.max_iterations = 0;
+    auto numeric_report = numeric::solve_local(task);
+    auto diagnostic_output =
+        diagnose_after_local_solve(model, task, numeric_report);
+    auto command_result = make_post_local_command_result(
+        task,
+        numeric_report,
+        diagnostic_output);
+
+    auto overlay = viewer::build_overlay(
+        viewer::DiagnosticOverlayRequest{
+            model,
+            command_result,
+            viewer::DiagnosticVerbosity::detailed});
+
+    ASSERT_EQ(overlay.payload.residual_evidence.size(), 1U);
+    const auto& residual = overlay.payload.residual_evidence.front();
+    EXPECT_EQ(residual.source, "runtime.post_local_diagnostics.residual_report");
+    EXPECT_FALSE(residual.within_tolerance);
+    EXPECT_EQ(residual.residual_dimension, 1);
+    ASSERT_EQ(residual.constraints.size(), 1U);
+    EXPECT_EQ(residual.constraints.front().constraint_id.value, 0U);
+    EXPECT_FALSE(residual.constraints.front().satisfied);
+
+    ASSERT_EQ(overlay.payload.conflict_evidence.size(), 1U);
+    const auto& conflict = overlay.payload.conflict_evidence.front();
+    EXPECT_EQ(conflict.source, "runtime.post_local_diagnostics.conflict_sets");
+    EXPECT_EQ(conflict.code, "diagnostics.residual_conflict");
+    ASSERT_EQ(conflict.entity_ids.size(), 2U);
+    EXPECT_EQ(conflict.entity_ids[0].value, 0U);
+    EXPECT_EQ(conflict.entity_ids[1].value, 1U);
+    ASSERT_EQ(conflict.constraint_ids.size(), 1U);
+    EXPECT_EQ(conflict.constraint_ids.front().value, 0U);
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.residual_evidence"));
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.conflict_evidence"));
+
+    auto summary = viewer::summarize_command_result(model, command_result);
+    ASSERT_EQ(summary.residual_evidence.size(), 1U);
+    ASSERT_EQ(summary.conflict_evidence.size(), 1U);
+}
+
+TEST(ViewerBridgeContract, OverlayProjectsRedundancyEvidence) {
+    auto model = gcs::tools::make_redundant_distance_pair_model();
+    auto context = gcs::tools::make_whole_context_for(model);
+    auto task = numeric::make_numeric_task(
+        model,
+        context,
+        context.entity_ids,
+        context.constraint_ids,
+        kernel::GaugePolicy{});
+    auto numeric_report = numeric::solve_local(task);
+    auto diagnostic_output =
+        diagnose_after_local_solve(model, task, numeric_report);
+    auto command_result = make_post_local_command_result(
+        task,
+        numeric_report,
+        diagnostic_output);
+
+    auto overlay = viewer::build_overlay(
+        viewer::DiagnosticOverlayRequest{
+            model,
+            command_result,
+            viewer::DiagnosticVerbosity::detailed});
+
+    ASSERT_EQ(overlay.payload.redundancy_evidence.size(), 1U);
+    const auto& redundancy = overlay.payload.redundancy_evidence.front();
+    EXPECT_EQ(redundancy.source,
+              "runtime.post_local_diagnostics.redundancy_sets");
+    EXPECT_EQ(redundancy.code, "diagnostics.redundant_duplicate_distance");
+    ASSERT_EQ(redundancy.constraint_ids.size(), 2U);
+    EXPECT_EQ(redundancy.constraint_ids[0].value, 0U);
+    EXPECT_EQ(redundancy.constraint_ids[1].value, 1U);
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.redundancy_evidence"));
+
+    auto summary = viewer::summarize_command_result(model, command_result);
+    ASSERT_EQ(summary.redundancy_evidence.size(), 1U);
+}
+
+TEST(ViewerBridgeContract, OverlayProjectsGluingObstructionEvidence) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::CommandResult command_result;
+    command_result.user_visible_status = kernel::SolveStatus::inconsistent;
+    command_result.obstruction_report.present = true;
+    command_result.obstruction_report.code = "gluing.boundary_projection_mismatch";
+    command_result.obstruction_report.message =
+        "Local sections disagree on a declared boundary projection.";
+    command_result.obstruction_report.entity_ids = {kernel::EntityId{0}};
+    command_result.obstruction_report.constraint_ids = {kernel::ConstraintId{0}};
+    command_result.gluing_report.conflict_sets.push_back(
+        diagnostics::ConflictSet{
+            "gluing.boundary_projection_mismatch",
+            {kernel::EntityId{0}},
+            {kernel::ConstraintId{0}}});
+
+    auto overlay = viewer::build_overlay(
+        viewer::DiagnosticOverlayRequest{
+            model,
+            command_result,
+            viewer::DiagnosticVerbosity::detailed});
+
+    ASSERT_EQ(overlay.payload.obstruction_evidence.size(), 1U);
+    EXPECT_EQ(overlay.payload.obstruction_evidence.front().source,
+              "runtime.obstruction_report");
+    EXPECT_EQ(overlay.payload.obstruction_evidence.front().code,
+              "gluing.boundary_projection_mismatch");
+    ASSERT_EQ(overlay.payload.conflict_evidence.size(), 1U);
+    EXPECT_EQ(overlay.payload.conflict_evidence.front().source,
+              "runtime.gluing.conflict_sets");
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.obstruction_evidence"));
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.conflict_evidence"));
 }
 
 TEST(ViewerBridgeContract, CommandDraftValidatesAgainstRuntimeContract) {
