@@ -425,17 +425,36 @@ Delivered:
 - Keep Python GUI unchanged for now; the stable C++ viewer bridge contract is
   ready for GUI consumption.
 
-## Next Step 39
+## Completed Step 39
 
-The next step is quality gate hardening. Rank, diagnostics, promotion,
-fixture corpus, and viewer evidence paths are now public, so deterministic and
-affordable checks should be promoted into the default gate where they protect
-the Step 31-38 evidence chain.
+Step 39 hardened the default quality gate for the public evidence chain.
+
+Delivered:
+
+- Refactor `run-quality-gates` command construction into a pure command-list
+  builder that can be unit-tested without invoking build or CTest.
+- Add the `python.agentic_toolkit` default gate for command-sequence and
+  skip-flag coverage.
+- Add `ctest.public_evidence_chain` as a named sentinel over numeric
+  free/frozen rank evidence, max-absolute residual convergence, diagnostics
+  promotion evidence, runtime projection evidence, viewer overlay evidence,
+  and the new contract-tool corpus fixtures.
+- Keep full CTest and `ctest.fixture_corpus` as the broad and corpus-specific
+  contract gates.
+- Update the CI-ready quality-gate contract to describe the Step 39 hardened
+  sequence.
+
+## Next Step 40
+
+The next step is architecture atlas and roadmap resynchronization. The Step
+31-39 evidence path is now public and gate-protected, so diagrams, reporting
+tables, maturity status, and next-batch planning should be reconciled against
+the actual implementation.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 38, the remaining steps were reconsidered;
-Step 39 is registered as the next highest-leverage move. A post-Step-40
-candidate is also recorded for an integrated feature showcase constraint graph.
+in the forward plan. After Step 39, the remaining steps were reconsidered;
+Step 40 is registered as the next highest-leverage move. A post-Step-40
+candidate remains recorded for an integrated feature showcase constraint graph.

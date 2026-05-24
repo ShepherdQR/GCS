@@ -42,6 +42,12 @@ class GateResult:
 
 
 @dataclass(frozen=True)
+class GateCommand:
+    gate_id: str
+    command: list[str | os.PathLike[str]]
+
+
+@dataclass(frozen=True)
 class ScoreDimension:
     name: str
     score: int
@@ -1027,6 +1033,100 @@ def run_process_gate(gate_id: str,
     )
 
 
+PUBLIC_EVIDENCE_CHAIN_CTEST_REGEX = "|".join(
+    [
+        (
+            r"NumericEngineContract\."
+            r"(ConvergesWhenEachResidualIsWithinTolerance|"
+            r"SingularRankDoesNotPublishFiniteConditionEstimate|"
+            r"RankEvidenceUsesOnlyFreeBoundaryColumns)"
+        ),
+        (
+            r"DiagnosticsContract\."
+            r"(PropagatesBoundaryFrozenNumericRankEvidence|"
+            r"PromotesNumericResidualBlocks|"
+            r"RedundancyCandidatesPreferExactDuplicateConstraints)"
+        ),
+        (
+            r"SessionRuntimeContract\."
+            r"(ProjectsRankEvidenceFromAcceptedCommandResult|"
+            r"PostLocalDiagnosticsPreserveNumericEvidence)"
+        ),
+        r"ViewerBridgeContract\.OverlayProjects.*Evidence",
+        (
+            r"ContractToolsContract\."
+            r"(BoundaryFrozenFixtureCarriesSolveIntentHint|"
+            r"ToleratedResidualFixtureExercisesMaxAbsStopping|"
+            r"SeparatorChainFixtureNamesSharedSeparatorEntity)"
+        ),
+    ]
+)
+
+
+def ctest_selection_command(build_dir: Path, pattern: str) -> list[str | os.PathLike[str]]:
+    return [
+        "ctest",
+        "--test-dir",
+        build_dir,
+        "-R",
+        pattern,
+        "--output-on-failure",
+        "--no-tests=error",
+    ]
+
+
+def build_quality_gate_commands(args: argparse.Namespace,
+                                script: Path,
+                                python: str,
+                                build_dir: Path,
+                                cli_exe: Path) -> list[GateCommand]:
+    commands: list[GateCommand] = []
+    if not args.skip_agentic:
+        for command in [
+            "validate-docs",
+            "validate-inventory",
+            "validate-skills",
+            "check-dependencies",
+        ]:
+            commands.append(GateCommand(f"agentic.{command}", [python, script, command]))
+
+    if not args.skip_python_tools:
+        commands.append(GateCommand(
+            "python.scene_generation_explorer",
+            [python, "-m", "unittest", "tests.tools.test_scene_generation_explorer"],
+        ))
+        commands.append(GateCommand(
+            "python.agentic_toolkit",
+            [python, "-m", "unittest", "tests.tools.test_agentic_toolkit"],
+        ))
+
+    if not args.skip_build:
+        commands.append(GateCommand("cmake.configure", ["cmake", "--preset", args.preset]))
+        commands.append(GateCommand("cmake.build", ["cmake", "--build", "--preset", args.preset]))
+
+    if not args.skip_ctest:
+        commands.append(GateCommand(
+            "ctest.contracts",
+            ["ctest", "--test-dir", build_dir, "--output-on-failure", "--no-tests=error"],
+        ))
+        commands.append(GateCommand(
+            "ctest.fixture_corpus",
+            ctest_selection_command(build_dir, "ContractToolsContract"),
+        ))
+        commands.append(GateCommand(
+            "ctest.public_evidence_chain",
+            ctest_selection_command(build_dir, PUBLIC_EVIDENCE_CHAIN_CTEST_REGEX),
+        ))
+
+    if not args.skip_cli:
+        commands.append(GateCommand(
+            "cli.basic_scene",
+            [cli_exe, repo_path("fixtures/scene/basic/g1.txt")],
+        ))
+
+    return commands
+
+
 def run_quality_gates(args: argparse.Namespace) -> int:
     script = Path(__file__).resolve()
     python = sys.executable
@@ -1035,52 +1135,10 @@ def run_quality_gates(args: argparse.Namespace) -> int:
     cli_exe = build_dir / exe_name
     results: list[GateResult] = []
 
-    commands: list[tuple[str, list[str | os.PathLike[str]]]] = []
-    if not args.skip_agentic:
-        for command in [
-            "validate-docs",
-            "validate-inventory",
-            "validate-skills",
-            "check-dependencies",
-        ]:
-            commands.append((f"agentic.{command}", [python, script, command]))
+    commands = build_quality_gate_commands(args, script, python, build_dir, cli_exe)
 
-    if not args.skip_python_tools:
-        commands.append((
-            "python.scene_generation_explorer",
-            [python, "-m", "unittest", "tests.tools.test_scene_generation_explorer"],
-        ))
-
-    if not args.skip_build:
-        commands.append(("cmake.configure", ["cmake", "--preset", args.preset]))
-        commands.append(("cmake.build", ["cmake", "--build", "--preset", args.preset]))
-
-    if not args.skip_ctest:
-        commands.append((
-            "ctest.contracts",
-            ["ctest", "--test-dir", build_dir, "--output-on-failure", "--no-tests=error"],
-        ))
-        commands.append((
-            "ctest.fixture_corpus",
-            [
-                "ctest",
-                "--test-dir",
-                build_dir,
-                "-R",
-                "ContractToolsContract",
-                "--output-on-failure",
-                "--no-tests=error",
-            ],
-        ))
-
-    if not args.skip_cli:
-        commands.append((
-            "cli.basic_scene",
-            [cli_exe, repo_path("fixtures/scene/basic/g1.txt")],
-        ))
-
-    for gate_id, command in commands:
-        result = run_process_gate(gate_id, command)
+    for gate in commands:
+        result = run_process_gate(gate.gate_id, gate.command)
         results.append(result)
         if not result.ok and not args.continue_on_failure:
             break

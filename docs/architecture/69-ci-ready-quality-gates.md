@@ -1,6 +1,6 @@
 # CI-Ready Quality Gates
 
-Status: Step 18 implementation contract.
+Status: Step 39 hardened implementation contract.
 
 ## Purpose
 
@@ -40,12 +40,28 @@ The default gate runs:
 7. `cmake --build --preset clang-ninja`
 8. full CTest contract suite
 9. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
-10. CLI smoke on `fixtures/scene/basic/g1.txt`
+10. explicit public-evidence-chain CTest selection for rank, diagnostics,
+    runtime, viewer, and corpus evidence introduced in Steps 31 through 38
+11. CLI smoke on `fixtures/scene/basic/g1.txt`
 
 The command exits nonzero on the first failed gate by default and prints a
 stable summary. `--continue-on-failure` runs the remaining gates before
 returning failure. CTest gates use `--no-tests=error` so a broken selection is
 treated as a failed quality gate.
+
+The public evidence chain gate is intentionally redundant with full CTest. The
+full suite remains the broad correctness boundary, while
+`ctest.public_evidence_chain` is a named, affordable sentinel for the evidence
+paths that must remain visible across modules:
+
+- numeric max-absolute residual and free/frozen rank evidence;
+- diagnostics promotion of numeric residual/rank evidence and duplicate
+  redundancy subjects;
+- runtime rank and post-local diagnostic projections;
+- viewer overlay projections for rank, residual, conflict, redundancy, and
+  gluing obstruction evidence;
+- reusable contract-tool fixtures for boundary-frozen, tolerance-edge, and
+  separator-chain scenarios.
 
 ## CI Parameters
 
@@ -73,6 +89,10 @@ A change is Step 18 complete when:
 - CMake build and CTest are part of the default gate;
 - fixture corpus coverage is named as an explicit gate and actually selects
   the contract-tools fixture tests;
+- public evidence-chain coverage is named as an explicit gate and selects the
+  Step 31 through Step 38 rank, diagnostics, runtime, viewer, and corpus
+  sentinel tests;
 - scene-generation tests are part of the default gate;
+- the agentic toolkit gate sequence is unit-tested as a Python tools contract;
 - a representative CLI fixture is part of the default gate;
-- the implementation roadmap records Step 18 as complete.
+- the implementation roadmap records Step 39 as complete.

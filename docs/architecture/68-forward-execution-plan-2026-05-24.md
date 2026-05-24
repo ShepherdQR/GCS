@@ -704,6 +704,26 @@ Exit criteria:
 - Default quality gate catches rank projection, promotion evidence, and corpus
   regressions relevant to Steps 31 through 38.
 
+Completion summary:
+
+- `run-quality-gates` command construction is now a unit-tested structured
+  tools contract.
+- The default gate includes `python.agentic_toolkit` for command ordering and
+  skip-flag composition.
+- The default CTest phase includes `ctest.public_evidence_chain`, a named
+  sentinel over numeric rank/residual robustness, diagnostics promotion and
+  redundancy evidence, runtime projection evidence, viewer overlay evidence,
+  and reusable corpus fixtures.
+- The existing full CTest and `ctest.fixture_corpus` gates remain the broad
+  and corpus-specific quality boundaries.
+
+Reassessment after Step 39:
+
+- Step 40 is now the only remaining registered step in this batch.
+- The architecture atlas, Step 1-40 report, roadmap, and current-progress
+  documents should be resynchronized with the hardened gate vocabulary before
+  opening the integrated showcase-graph work.
+
 ### Step 40: Architecture Atlas And Roadmap Resynchronization
 
 Goal:
@@ -785,15 +805,15 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 38 update:
+As of the Step 39 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 38 have completed-step summaries in the roadmap and current
+- Steps 1 through 39 have completed-step summaries in the roadmap and current
   progress documents.
 - Steps 31 through 40 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 39 is the next implementation step.
+- Step 40 is the next implementation step.
 

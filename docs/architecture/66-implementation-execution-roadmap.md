@@ -201,7 +201,7 @@ Status legend: `done`, `in_progress`, `pending`.
     boundary, gluing, and promotion scenarios.
 38. `done` - expose structured evidence through viewer bridge and GUI
     surfaces.
-39. `pending` - harden default quality gates for the new rank, promotion, and
+39. `done` - harden default quality gates for the new rank, promotion, and
     corpus evidence paths.
 40. `pending` - resynchronize architecture atlas, roadmap, and next-batch
     planning after Steps 31 through 39.
@@ -1382,6 +1382,40 @@ Reassessment after Step 38:
   protected by deterministic default quality gates where affordable.
 - Step 40 remains atlas and roadmap resynchronization after quality gate
   behavior is finalized.
+
+## Quality Gate Hardening Step Plan
+
+Implemented commit-level scope:
+
+- Refactor `run-quality-gates` command construction into a pure, unit-tested
+  command sequence so the gate itself has a stable tools contract.
+- Add `python.agentic_toolkit` to the default quality gate to protect that
+  command sequence.
+- Keep full CTest as the broad contract boundary, and add a named
+  `ctest.public_evidence_chain` sentinel for the Step 31-38 public evidence
+  path.
+- Keep the existing `ctest.fixture_corpus` gate as the explicit corpus
+  boundary.
+- Document the hardened gate sequence and acceptance contract.
+
+Implemented scope:
+
+- `ctest.public_evidence_chain` selects numeric free/frozen rank and
+  max-absolute residual tests, diagnostics residual/rank promotion and
+  duplicate-redundancy tests, runtime rank/post-local diagnostic projection
+  tests, viewer overlay evidence tests, and contract-tool corpus fixture
+  tests.
+- `python.agentic_toolkit` asserts default gate ordering and skip-flag
+  composition without invoking build or CTest.
+- The default gate remains deterministic and affordable; slow exploratory
+  generation remains outside the default path.
+
+Reassessment after Step 39:
+
+- The Step 31 through Step 38 evidence chain is now protected by both the full
+  contract suite and a named sentinel gate.
+- Step 40 is the next highest-leverage move: resynchronize atlas, roadmap,
+  maturity lens, and next-batch planning against the hardened gate behavior.
 
 ## Damped Numeric Local Solve Step Plan
 
