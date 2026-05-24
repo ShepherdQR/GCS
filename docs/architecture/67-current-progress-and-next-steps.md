@@ -39,6 +39,9 @@ Completed algorithm-deepening steps:
   evidence is preferred before executable smoke fallback.
 - Step 28: refined numeric rank/nullity evidence so boundary-frozen variables
   are excluded from rank estimation while full variable shape remains reported.
+- Step 29: synchronized the architecture atlas and Figure 1 assets with
+  scene-generation promotion boundaries, contract tools, and free/frozen rank
+  evidence.
 
 Current validation baseline:
 
@@ -241,15 +244,32 @@ Delivered:
   distinguish active model shape from numeric solve degrees of freedom.
 - Extend numeric engine contract tests with boundary-frozen rank evidence.
 
-## Next Step 29
+## Completed Step 29
 
-The next step is architecture atlas synchronization. The atlas should now be
-checked against the implemented solver modules, scene-generation package split,
-promotion gate evidence, and numeric free-column rank contract before the next
-algorithm batch starts.
+Step 29 synchronized the architecture atlas and generated Figure 1 artifacts.
+
+Delivered:
+
+- Update the Mermaid atlas with `contract_tools`, scene-generation package
+  boundaries, `SceneGenerationStore`, public promotion gates, and free/frozen
+  numeric rank evidence.
+- Add a dedicated scene-generation and promotion tooling diagram.
+- Document canonical generated SVG assets separately from tracked review
+  artifacts.
+- Update the Figure 1 renderer and layout so the rank card reports full
+  variables, free columns, frozen columns, and nullity.
+- Regenerate the main Figure 1 SVG and residual/rank panel SVG.
+
+## Next Step 30
+
+The next step is diagnostics free/frozen rank propagation. The numeric engine
+now exposes full/free/frozen rank dimensions, but diagnostics still exposes
+only the legacy numeric variable dimension. Propagating those fields will make
+runtime, viewer, and promotion evidence preserve the new rank contract end to
+end.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 25 through
-29 were registered there and in the implementation roadmap. After Step 28, the
-remaining steps were reconsidered; Step 29 remains registered as the next
+30 were registered there and in the implementation roadmap. After Step 29, the
+remaining steps were reconsidered; Step 30 is registered as the next
 highest-leverage move.

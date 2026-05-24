@@ -17,6 +17,7 @@ Figure 1 has four layers, ordered from most durable to most editorial:
 | Fixture evidence | `fixtures/scene/saved/triangle_003_graph.json` | contract / scene tools | Stable example used to compute geometry, residuals, and rank evidence. |
 | Design controls | `tools/architecture_visualization/figure1.theme.json` and `tools/architecture_visualization/figure1.layout.json` | human designer and Codex | Palette, fonts, radii, panel positions, and key box geometry. |
 | Editorial artifact | `docs/architecture/70-visualization/assets/figure1-gcs-local-to-global.svg` | generator | The committed SVG shown in docs and README. |
+| Review artifacts | `docs/architecture/70-visualization/assets/figure1-gcs-local-to-global.inkscape.svg`, `figure1-gcs-local-to-global-V1.svg`, `figure1-gcs-local-to-global-V2.svg` | architecture steward | Tracked comparison snapshots, not the canonical rebuild target. |
 
 The Python renderer is not the design surface. It is the deterministic bridge
 between fixture evidence, architecture vocabulary, design controls, and SVG.
@@ -94,8 +95,9 @@ not only the SVG.
   ranks, IDs, or constraint counts inside the SVG.
 - Keep architecture semantics in the atlas and renderer. Do not create an
   attractive diagram that contradicts dependency direction or runtime contracts.
-- Do not commit scratch `*.inkscape.svg` files unless a future design review
-  explicitly needs them as source evidence.
+- Do not commit new scratch `*.inkscape.svg` files unless a future design
+  review explicitly needs them as source evidence. The existing tracked
+  Inkscape and V1/V2 SVG files are review artifacts, not canonical outputs.
 
 ## Acceptance Checklist
 
@@ -104,6 +106,8 @@ not only the SVG.
 - Text sits inside its containing rounded rectangles at desktop and README scale.
 - Panel labels `a` through `f` remain visible and ordered.
 - The topos panel still maps mathematical language to concrete GCS contracts.
+- The rank card distinguishes full variables, free columns, frozen columns, and
+  nullity.
 - The SVG opens in a browser and Inkscape without missing markers or fonts.
 
 ## Future Extensions

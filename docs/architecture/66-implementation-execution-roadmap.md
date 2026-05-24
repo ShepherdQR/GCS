@@ -181,8 +181,10 @@ Status legend: `done`, `in_progress`, `pending`.
     direct public adapters.
 28. `done` - reassess and resume solver algorithm deepening in the highest
     leverage C++ module.
-29. `pending` - synchronize the architecture atlas and tracked visualization
+29. `done` - synchronize the architecture atlas and tracked visualization
     assets with the current module state.
+30. `pending` - propagate numeric free/frozen rank dimensions through
+    diagnostics rank evidence.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -960,6 +962,47 @@ Reassessment after Step 28:
 - Decomposition and diagnostics remain viable future algorithm-deepening
   candidates, but no new evidence requires inserting them before the atlas
   synchronization step.
+
+## Architecture Atlas Synchronization Step Plan
+
+Implemented commit-level scope for Step 29:
+
+- Synchronize the Mermaid architecture atlas with the current C++ module
+  topology, contract tools, scene-generation package split, store adapter,
+  promotion gates, and numeric free/frozen rank evidence.
+- Keep canonical generated SVG assets separate from intentionally tracked
+  review artifacts.
+- Update the deterministic Figure 1 renderer instead of manually editing SVG
+  evidence text.
+- Regenerate the main Figure 1 SVG and residual/rank panel SVG from the
+  canonical saved scene fixture.
+- Validate docs, SVG XML parseability, and the full quality gate before
+  committing.
+
+## Architecture Atlas Synchronization Milestone
+
+Implemented scope for Step 29:
+
+- `docs/architecture/70-visualization/gcs-architecture-atlas.md` now names
+  `contract_tools`, scene-generation promotion gates, `SceneGenerationStore`,
+  public scene artifacts, and free/frozen numeric rank evidence.
+- The atlas adds a dedicated scene-generation and promotion tooling diagram.
+- `docs/architecture/70-visualization/svg-editing-workflow.md` documents
+  canonical SVG outputs separately from tracked review artifacts and adds the
+  free/frozen rank-card acceptance check.
+- `tools/architecture_visualization/render_gcs_figure1.py` now renders the
+  rank card using full variables, free columns, frozen columns, and nullity.
+- Figure 1 generated assets are refreshed from
+  `fixtures/scene/saved/triangle_003_graph.json`.
+
+Reassessment after Step 29:
+
+- Step 30 is diagnostics free/frozen rank propagation. Numeric evidence is now
+  correctly produced and visualized, but diagnostics must preserve that
+  evidence in its public rank report before viewer/runtime/promotion consumers
+  can rely on it end to end.
+- Decomposition separator and solve-DAG deepening should wait until the rank
+  evidence vocabulary is consistent across numeric and diagnostics.
 
 ## Damped Numeric Local Solve Step Plan
 

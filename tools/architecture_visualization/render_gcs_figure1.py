@@ -197,6 +197,8 @@ class Scene:
     rank: int
     residual_dimension: int
     variable_dimension: int
+    free_variable_dimension: int
+    frozen_variable_dimension: int
 
 
 def escape(value: object) -> str:
@@ -230,13 +232,16 @@ def load_scene(path: Path) -> Scene:
     evidence = compute_evidence(constraints, by_id)
     jacobian = distance_jacobian(constraints, by_id, geometries)
     rank = matrix_rank(jacobian)
+    variable_dimension = 3 * len(geometries)
     return Scene(
         geometries=sorted(geometries, key=lambda item: item.id),
         constraints=sorted(constraints, key=lambda item: item.id),
         evidence=evidence,
         rank=rank,
         residual_dimension=len(jacobian),
-        variable_dimension=3 * len(geometries),
+        variable_dimension=variable_dimension,
+        free_variable_dimension=variable_dimension,
+        frozen_variable_dimension=0,
     )
 
 
@@ -580,17 +585,17 @@ def evidence_panel(scene: Scene, width: int = 520, height: int = 300) -> str:
     rank_x = lf(f"{panel}.rank_card.x", 342)
     rank_y = lf(f"{panel}.rank_card.y", 76)
     rank_w = lf(f"{panel}.rank_card.width", 154)
-    rank_h = lf(f"{panel}.rank_card.height", 160)
-    nullity = max(scene.variable_dimension - scene.rank, 0)
-    gauge_dof = min(nullity, 6)
+    rank_h = lf(f"{panel}.rank_card.height", 176)
+    nullity = max(scene.free_variable_dimension - scene.rank, 0)
     parts.append(svg_rect(rank_x, rank_y, rank_w, rank_h, COLORS["numeric"], COLORS["numeric_stroke"], rx=8, element_id="panel-c-rank-card", layout_key="panels.evidence.rank_card"))
-    parts.append(svg_text("Jacobian evidence", rank_x + 16, rank_y + 25, size=11, fill=COLORS["muted"]))
+    parts.append(svg_text("Free-column rank", rank_x + 16, rank_y + 25, size=11, fill=COLORS["muted"]))
     parts.append(svg_text(f"{scene.rank}", rank_x + 16, rank_y + 61, size=34, weight=700, fill=COLORS["numeric_stroke"]))
     parts.append(svg_text(f"/ {scene.residual_dimension} eqs", rank_x + 63, rank_y + 56, size=11, fill=COLORS["muted"]))
     parts.append(svg_line(rank_x + 16, rank_y + 76, rank_x + rank_w - 16, rank_y + 76, "#d7dfc8", width=1.0))
-    parts.append(svg_text(f"variables {scene.variable_dimension}", rank_x + 16, rank_y + 100, size=11, fill=COLORS["muted"]))
-    parts.append(svg_text(f"nullity {nullity}", rank_x + 16, rank_y + 121, size=11, fill=COLORS["muted"]))
-    parts.append(svg_text(f"gauge dof {gauge_dof}", rank_x + 16, rank_y + 142, size=11, fill=COLORS["muted"]))
+    parts.append(svg_text(f"full vars {scene.variable_dimension}", rank_x + 16, rank_y + 98, size=10, fill=COLORS["muted"]))
+    parts.append(svg_text(f"free cols {scene.free_variable_dimension}", rank_x + 16, rank_y + 119, size=10, fill=COLORS["muted"]))
+    parts.append(svg_text(f"frozen cols {scene.frozen_variable_dimension}", rank_x + 16, rank_y + 140, size=10, fill=COLORS["muted"]))
+    parts.append(svg_text(f"nullity {nullity}", rank_x + 16, rank_y + 161, size=10, fill=COLORS["muted"]))
     parts.append(svg_text("numeric evidence is a report, not a commit", lf(f"{panel}.footer.x", 30), height - lf(f"{panel}.footer.bottom", 18), size=12, fill=COLORS["muted"]))
     return "\n".join(parts)
 
@@ -836,7 +841,7 @@ def final_figure(scene: Scene, fixture_label: str) -> str:
             weight=li("final.claim.weight", 650),
         ),
         svg_text(
-            "Residuals, rank, boundary projections, gluing, obstruction, and transaction status are first-class reports.",
+            "Residuals, free/frozen rank evidence, boundary projections, gluing, obstruction, and transaction status are first-class reports.",
             lf("final.note.x", 48),
             lf("final.note.y", 932),
             size=li("final.note.size", 13),

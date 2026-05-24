@@ -1,6 +1,6 @@
 # GCS Architecture Atlas
 
-Research snapshot: 2026-05-23.
+Research snapshot: 2026-05-24.
 
 This atlas turns the GCS architecture source of truth into a small set of
 reviewable diagrams. The diagrams intentionally use Mermaid source instead of
@@ -50,6 +50,14 @@ Generated assets:
 - `assets/figure1-panel-b-incidence.svg`
 - `assets/figure1-panel-c-residual-rank.svg`
 
+Tracked review artifacts:
+
+- `assets/figure1-gcs-local-to-global.inkscape.svg` is retained as the last
+  curated Inkscape review artifact.
+- `assets/figure1-gcs-local-to-global-V1.svg` and
+  `assets/figure1-gcs-local-to-global-V2.svg` are retained as historical visual
+  comparison artifacts.
+
 Design controls:
 
 - Design controls live in
@@ -71,8 +79,10 @@ ways:
 - the target runtime pipeline gains, removes, or renames a stage;
 - decomposition changes the meaning of contexts, overlaps, boundary variables,
   or gluing;
-- diagnostics changes the residual, rank, DOF, obstruction, or transaction
-  evidence that makes a command acceptable;
+- numeric or diagnostics changes residual, free/frozen rank, DOF, obstruction,
+  or transaction evidence that makes a command acceptable;
+- scene-generation promotion gates change how public IO, runtime, diagnostics,
+  or viewer evidence is collected;
 - the fixture corpus gains a better canonical local-to-global example.
 
 ## Editorial Aesthetic Direction
@@ -103,6 +113,7 @@ flowchart LR
     user["Human designer / engineer"]
     fixtures["Fixture corpus<br/>verification scenes"]
     tests["Contract tests<br/>GTest / CTest"]
+    scenegen["tools/scene_generation<br/>explorer / store / promotion gates"]
     cli["apps/gcs_cli<br/>thin executable shell"]
     gui["python/gcs_viz<br/>local viewer app"]
 
@@ -120,16 +131,25 @@ flowchart LR
         planner["decomposition_planner<br/>CoverPlan / BoundaryProjection"]
         numeric["numeric_engine<br/>NumericTask / LocalSection"]
         diag["diagnostics<br/>GluingReport / ObstructionReport"]
+        contract["contract_tools<br/>fixtures / invariants / digests"]
     end
 
     user --> gui
     user --> cli
+    user --> scenegen
     fixtures --> io
     tests -. contract evidence .-> core
+    tests --> contract
+    scenegen --> fixtures
+    scenegen -. public scene gate .-> io
+    scenegen -. runtime gate .-> runtime
+    scenegen -. diagnostics gate .-> diag
+    scenegen -. viewer gate .-> viewer
     cli --> io
     cli --> runtime
     gui --> viewer
     io --> kernel
+    contract --> kernel
     runtime --> kernel
     runtime --> catalog
     runtime --> graph
@@ -144,9 +164,9 @@ flowchart LR
     classDef orchestrate fill:#fff4db,stroke:#b7791f,color:#402500;
     classDef boundary fill:#f3f4f6,stroke:#4b5563,color:#111827;
     class kernel domain;
-    class catalog,graph,planner,numeric,diag solve;
+    class catalog,graph,planner,numeric,diag,contract solve;
     class runtime orchestrate;
-    class io,viewer,cli,gui,fixtures,tests,user boundary;
+    class io,viewer,cli,gui,fixtures,tests,user,scenegen boundary;
 ```
 
 Invariants:
@@ -154,6 +174,8 @@ Invariants:
 - `kernel` is the durable truth boundary.
 - `session_runtime` is the only full command orchestrator.
 - `io_adapters` and `viewer_bridge` consume public contracts only.
+- `tools/scene_generation` is a design and corpus tool; promoted candidates
+  must pass public IO/runtime/diagnostics/viewer gates before fixture use.
 - Tests assert contracts and reports, not private implementation details.
 
 ## 2. Module Dependency Topology
@@ -173,6 +195,7 @@ flowchart TB
     numeric["numeric_engine"]
     graph["incidence_graph"]
     catalog["constraint_catalog"]
+    contract["contract_tools"]
     kernel["kernel"]
 
     catalog --> kernel
@@ -195,20 +218,23 @@ flowchart TB
     viewer --> runtime
     viewer --> diag
     viewer --> kernel
+    contract --> kernel
     app --> io
     app --> runtime
     app --> viewer
+    app --> contract
 
     diag -. diagnostic hints .-> planner
     planner -. planned contexts .-> numeric
-    numeric -. rank / residual evidence .-> diag
+    numeric -. free-column rank / residual evidence .-> diag
+    contract -. fixtures / golden reports .-> app
 
     classDef kernel fill:#e8f0ff,stroke:#3157a4,color:#0b1c3d;
     classDef math fill:#e5fbf6,stroke:#0f766e,color:#063b35;
     classDef orchestrate fill:#fff4db,stroke:#b7791f,color:#402500;
     classDef boundary fill:#f3f4f6,stroke:#4b5563,color:#111827;
     class kernel kernel;
-    class catalog,graph,planner,numeric,diag math;
+    class catalog,graph,planner,numeric,diag,contract math;
     class runtime orchestrate;
     class io,viewer,app boundary;
 ```
@@ -217,6 +243,9 @@ Invariants:
 
 - Lower mathematical layers never import UI, IO, app lifecycle, or viewer code.
 - Numeric success is evidence, not a commit.
+- Numeric rank/nullity evidence is interpreted over free solve columns after
+  boundary variables are frozen; full variable dimension remains separate model
+  shape evidence.
 - Diagnostics may explain planner and numeric results; the runtime decides
   whether a command is accepted.
 - Any future cycle must be split into smaller contracts or report primitives.
@@ -241,8 +270,8 @@ flowchart LR
 
     cover["CoverPlan<br/>chosen context family"]
     project["BoundaryProjection<br/>restriction maps"]
-    tasks["NumericTask[]<br/>prepared local problems"]
-    sections["LocalSection[]<br/>local solve proposals"]
+    tasks["NumericTask[]<br/>prepared local problems / frozen boundary vars"]
+    sections["LocalSection[]<br/>local solve proposals / rank evidence"]
     glue["GluingReport<br/>boundary agreement"]
     global["ProposedState<br/>global section"]
     obstruction["ObstructionReport<br/>failed gluing / singularity"]
@@ -282,6 +311,8 @@ Invariants:
 - Assembly is gluing over declared overlaps, not coordinate concatenation.
 - Gauge fixing selects representatives; it must not silently erase degrees of
   freedom.
+- Boundary variables freeze solve columns; rank/nullity reports must name full,
+  free, and frozen dimensions.
 - Failed gluing produces an obstruction report with stable IDs.
 
 ## 4. Runtime Contract Pipeline
@@ -300,13 +331,13 @@ flowchart LR
     decompose["5 Decompose<br/>contexts / overlaps"]
     diagnose1["6 Diagnose<br/>DOF / rank hints"]
     plan["7 Plan<br/>CoverPlan / gauge policy"]
-    solve["8 Solve<br/>NumericTask -> LocalSection"]
+    solve["8 Solve<br/>free-column rank / LocalSection"]
     assemble["9 Assemble<br/>GluingReport"]
     verify["10 Verify<br/>residual / reliability"]
     commit["11 Commit or reject<br/>state version"]
     report["12 Report<br/>user/API/fixture explanation"]
 
-    reports["StageReport bundle<br/>validation / decomposition / numeric / diagnostics"]
+    reports["StageReport bundle<br/>validation / decomposition / numeric / diagnostics / promotion"]
     reject["Specific rejection<br/>invalid / unsupported / inconsistent / singular"]
 
     intake --> normalize --> validate --> index --> decompose --> diagnose1 --> plan --> solve --> assemble --> verify --> commit --> report
@@ -337,6 +368,8 @@ Invariants:
 
 - A command is not accepted until post-solve verification and gluing pass.
 - Every stage contributes a structured report.
+- Numeric reports distinguish residual dimension, full variable dimension, free
+  variable dimension, and frozen variable dimension.
 - The smallest known responsible entity, constraint, context, or boundary
   should be named on failure.
 - Rejected commands preserve the previous durable state version.
@@ -367,6 +400,7 @@ flowchart TB
     end
 
     tools["deterministic tools<br/>validators / fixture builders / audits"]
+    scenegenTools["scene-generation tools<br/>explorer / store / promotion package"]
     evals["eval gates<br/>contract tests / traces / regression reports"]
     tasks["accepted architecture or implementation tasks"]
     solver["C++23 solver modules<br/>runtime remains dependency-clean"]
@@ -375,6 +409,8 @@ flowchart TB
     inventory --> steward
     steward --> specialists
     specialists --> tools
+    tools --> scenegenTools
+    scenegenTools --> evals
     tools --> evals
     evals --> tasks
     tasks --> solver
@@ -387,7 +423,7 @@ flowchart TB
     classDef boundary fill:#f3f4f6,stroke:#4b5563,color:#111827;
     class docs,inventory domain;
     class steward,specialists,kernelAgent,constraintAgent,graphAgent,plannerAgent,numericAgent,diagAgent,runtimeAgent,ioAgent,viewerAgent solve;
-    class tools,evals,tasks orchestrate;
+    class tools,scenegenTools,evals,tasks orchestrate;
     class solver boundary;
 ```
 
@@ -398,7 +434,77 @@ Invariants:
 - Module agents produce structured design reports, not prose-only advice.
 - Evals and contract tests are the acceptance gate for generated work.
 
-## 6. Module Maturity Lens
+## 6. Scene Generation And Promotion Tooling
+
+Viewpoint: corpus generation and promotion maintainer.
+
+Concern: show how generated candidates become public solver fixtures without
+leaking generator-local graph policy into C++ runtime modules.
+
+```mermaid
+flowchart LR
+    facade["tools.py<br/>CLI compatibility facade"]
+
+    subgraph generator["gcs_scene_generation package"]
+        contracts["contracts<br/>type maps / signatures"]
+        storage["storage<br/>SceneGenerationStore"]
+        topology["topology<br/>components / BCC evidence"]
+        model["gcs_model<br/>rigid sets / geometry graph"]
+        validation["validation<br/>IDs / arity / degeneracy"]
+        projection["projection<br/>public graph views"]
+        parameterization["parameterization<br/>deterministic values"]
+        reporting["reporting<br/>summaries / histograms"]
+        repair["repair<br/>structured edit list"]
+        explorer["explorer<br/>candidate gates / coverage"]
+        promotion["promotion<br/>public scene conversion"]
+        package["promotion_package<br/>gate reports / artifacts"]
+    end
+
+    publicScene["public_scene.gcs.json"]
+    publicGates["public promotion gates<br/>IO / runtime / diagnostics / viewer"]
+    fixtures["fixture corpus"]
+    quality["run-quality-gates<br/>Python + CMake + CTest + CLI"]
+
+    facade --> explorer
+    facade --> package
+    explorer --> contracts
+    explorer --> storage
+    explorer --> topology
+    explorer --> model
+    explorer --> validation
+    explorer --> projection
+    explorer --> parameterization
+    explorer --> reporting
+    explorer --> repair
+    package --> storage
+    package --> promotion
+    package --> publicGates
+    promotion --> publicScene
+    publicScene --> publicGates
+    publicGates --> fixtures
+    fixtures --> quality
+    publicGates -. structured runtime report .-> quality
+
+    classDef boundary fill:#f3f4f6,stroke:#4b5563,color:#111827;
+    classDef tool fill:#efe7f3,stroke:#765d87,color:#2e1c37;
+    classDef orchestrate fill:#fff4db,stroke:#b7791f,color:#402500;
+    classDef domain fill:#e8f0ff,stroke:#3157a4,color:#0b1c3d;
+    class facade,fixtures,quality boundary;
+    class contracts,storage,topology,model,validation,projection,parameterization,reporting,repair,promotion tool;
+    class explorer,package,publicGates orchestrate;
+    class publicScene domain;
+```
+
+Invariants:
+
+- `tools.py` is a compatibility facade, not the owner of generation policy.
+- `SceneGenerationStore` owns scratch-store path policy and graph IO.
+- Promotion packages must prefer structured runtime/diagnostics evidence when
+  available and use executable smoke only as fallback.
+- Generated candidates become fixtures only through public scene artifacts and
+  public adapter gates.
+
+## 7. Module Maturity Lens
 
 Viewpoint: implementation planner.
 
@@ -409,13 +515,14 @@ Concern: choose the next work by contract maturity and blast radius.
 | `kernel` | L2 | Highlight stable IDs, context validation, report registry. |
 | `constraint_catalog` | L1-L2 | Show residual/Jacobian ownership and degeneracy reports. |
 | `incidence_graph` | L1-L2 | Show hypergraph, reverse indices, body graph, separators. |
-| `decomposition_planner` | L1 | Show coverage, overlaps, boundary projections, gauge, solve DAG. |
-| `numeric_engine` | L1 | Show `NumericTask`, residual assembly, rank/condition, iteration trace. |
+| `decomposition_planner` | L1-L2 | Show coverage, overlaps, boundary projections, gauge, solve DAG. |
+| `numeric_engine` | L2 | Show `NumericTask`, residual assembly, free/frozen rank evidence, iteration trace. |
 | `diagnostics` | L1-L2 | Show phase-specific DOF/rank/residual/gluing/obstruction evidence. |
 | `session_runtime` | L2 | Show transaction boundary, rollback, replay, post-commit verification. |
-| `io_adapters` | L1 | Show schema registry, migration, canonical output, round-trip diff. |
+| `io_adapters` | L1-L2 | Show schema registry, migration, canonical output, round-trip diff. |
 | `viewer_bridge` | L1 | Show read-only projection, overlays, command drafts, hit-test mapping. |
-| `contract_tools` | L1 | Show fixture provenance, invariant checks, dependency audits. |
+| `contract_tools` | L1-L2 | Show fixture provenance, invariant checks, dependency audits. |
+| `scene_generation` | L2 tooling | Show explorer, store adapter, promotion gates, public scene artifacts. |
 
 ## Diagram Maintenance Rules
 
@@ -426,5 +533,7 @@ Concern: choose the next work by contract maturity and blast radius.
   same PR.
 - If a pipeline stage gains a new report, update Diagram 4 and the quality
   acceptance gates together.
+- If scene-generation promotion boundaries change, update Diagram 6 and the
+  renderer labels that mention public gates or fixture evidence.
 - Do not add UI, IO, file path, process-launch, or visualization policy to
   lower solver layers to make a diagram simpler.

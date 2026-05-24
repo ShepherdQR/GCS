@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 28:
+- Completed through Step 29:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -27,6 +27,9 @@ implementation step they describe.
   - numeric rank/nullity evidence is computed over free Jacobian columns after
     declared boundary variables are frozen, while full variable dimension and
     frozen dimension remain visible in the public report;
+  - the visualization architecture atlas and generated Figure 1 assets now
+    show scene-generation promotion boundaries, contract tools, and
+    free/frozen numeric rank evidence;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
@@ -155,20 +158,54 @@ Reassessment after Step 28:
 - No new evidence requires inserting another solver implementation step before
   the atlas synchronization.
 
-### Step 29: Architecture Atlas Synchronization
+### Completed Step 29: Architecture Atlas Synchronization
+
+Delivered:
+
+- Synchronize the Mermaid architecture atlas with current C++ module
+  boundaries, contract tools, scene-generation package boundaries, promotion
+  gates, and numeric free-column rank evidence.
+- Add an explicit scene-generation and promotion tooling diagram covering the
+  CLI facade, package modules, `SceneGenerationStore`, public scene artifacts,
+  and public IO/runtime/diagnostics/viewer gates.
+- Document intentionally tracked Figure 1 review artifacts separately from the
+  canonical generated SVG assets.
+- Update the Figure 1 renderer, layout tokens, and generated SVG assets so the
+  residual/rank panel distinguishes full variables, free columns, frozen
+  columns, and nullity.
+
+Tests:
+
+- `python tools\architecture_visualization\render_gcs_figure1.py --fixture
+  fixtures\scene\saved\triangle_003_graph.json --out-dir
+  docs\architecture\70-visualization\assets`
+- XML parse checks for the main Figure 1 SVG and residual/rank panel SVG.
+- `python tools\agentic_design\agentic_toolkit.py validate-docs`
+- `python tools\agentic_design\agentic_toolkit.py run-quality-gates`
+
+Reassessment after Step 29:
+
+- Step 30 should propagate the new free/frozen numeric rank evidence into
+  diagnostics reports. The numeric engine now exposes the right fields, but
+  diagnostics still reports only the legacy numeric variable dimension.
+- Decomposition separator deepening remains useful after diagnostics can
+  preserve the new rank evidence end to end.
+
+### Step 30: Diagnostics Free/Frozen Rank Propagation
 
 Goal:
 
-- Synchronize the visualization architecture atlas with the current module and
-  tooling state.
+- Extend diagnostics rank reporting so downstream runtime, viewer, and
+  promotion evidence can distinguish full active variables from free and frozen
+  numeric solve dimensions.
 
 Expected shape:
 
-- Ensure architecture diagrams match the implemented module boundaries.
-- Keep SVG/InkScape source assets and rendered figure assets intentionally
-  tracked or intentionally ignored.
-- Keep UI aesthetic work separate from solver/scene-generation implementation
-  steps unless a step explicitly crosses that boundary.
+- Add free/frozen numeric dimension fields to diagnostics rank reports.
+- Populate those fields from `numeric::RankConditionReport`.
+- Add diagnostics contract tests using a boundary-frozen numeric task.
+- Keep status precedence unchanged unless new evidence exposes a concrete
+  ordering bug.
 
 ## Reassessment Protocol
 
@@ -188,6 +225,6 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 28 completion update, the active planned step is Step 29.
-Step 29 is the next implementation step.
+As of the Step 29 completion update, the active planned step is Step 30.
+Step 30 is the next implementation step.
 
