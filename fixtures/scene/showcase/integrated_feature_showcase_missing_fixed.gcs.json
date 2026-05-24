@@ -1,0 +1,32 @@
+{
+  "format_version": "gcs-0.3",
+  "state_version": 0,
+  "rigid_sets": [
+    {"id": 0},
+    {"id": 1},
+    {"id": 2},
+    {"id": 3},
+    {"id": 4},
+    {"id": 5}
+  ],
+  "geometries": [
+    {"id": 0, "type": 0, "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
+    {"id": 1, "type": 0, "rigid_set_id": 1, "v": [1, 0, 0, 0, 0, 0]},
+    {"id": 2, "type": 0, "rigid_set_id": 2, "v": [2, 0, 0, 0, 0, 0]},
+    {"id": 3, "type": 0, "rigid_set_id": 3, "v": [0, 2, 0, 0, 0, 0]},
+    {"id": 4, "type": 2, "rigid_set_id": 4, "v": [0, 2, -1, 0, 0, 1]},
+    {"id": 5, "type": 1, "rigid_set_id": 5, "v": [2, 2, 0, 1, 0, 0]}
+  ],
+  "constraints": [
+    {"id": 0, "type": 3, "geometry_ids": [0, 1], "value": 1},
+    {"id": 1, "type": 3, "geometry_ids": [1, 2], "value": 1},
+    {"id": 2, "type": 3, "geometry_ids": [3, 4], "value": 1},
+    {"id": 3, "type": 2, "geometry_ids": [5, 4], "value": 0}
+  ],
+  "behavior": {
+    "mode": 0,
+    "fixed_geometry_ids": [999],
+    "driven_geometry_ids": [],
+    "target_constraint_ids": []
+  }
+}

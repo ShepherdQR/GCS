@@ -134,6 +134,46 @@ TEST(IoAdaptersContract, JsonRoundTripPreservesStableIds) {
               model.constraints.front().value);
 }
 
+TEST(IoAdaptersContract, JsonRoundTripPreservesSolveIntentBehavior) {
+    auto model = gcs::tools::make_integrated_feature_showcase_model();
+
+    const auto json = io::canonical_json(model);
+    auto result = io::round_trip(io::SceneRoundTripRequest{model, io::SceneFormat::json});
+
+    EXPECT_NE(json.find("\"behavior\""), std::string::npos);
+    EXPECT_NE(json.find("\"fixed_geometry_ids\": [0]"), std::string::npos);
+    EXPECT_TRUE(result.payload.equivalent);
+    ASSERT_EQ(result.payload.loaded_snapshot.solve_intent.fixed_entity_ids.size(), 1U);
+    EXPECT_EQ(result.payload.loaded_snapshot.solve_intent.fixed_entity_ids.front().value, 0U);
+}
+
+TEST(IoAdaptersContract, ShowcaseJsonSceneCarriesSolveIntentBehavior) {
+    auto result = io::load_scene(io::SceneLoadRequest{
+        source_path("fixtures/scene/showcase/integrated_feature_showcase.gcs.json")});
+
+    ASSERT_TRUE(result.ok);
+    EXPECT_EQ(result.format, io::SceneFormat::json);
+    EXPECT_TRUE(result.validation_report.valid);
+    EXPECT_EQ(result.snapshot.rigid_sets.size(), 6U);
+    EXPECT_EQ(result.snapshot.entities.size(), 6U);
+    EXPECT_EQ(result.snapshot.constraints.size(), 4U);
+    ASSERT_EQ(result.snapshot.solve_intent.fixed_entity_ids.size(), 1U);
+    EXPECT_EQ(result.snapshot.solve_intent.fixed_entity_ids.front().value, 0U);
+    EXPECT_EQ(result.snapshot.solve_intent.mode, gcs::kernel::SolveMode::update);
+}
+
+TEST(IoAdaptersContract, RejectsShowcaseSceneWithMissingFixedEntity) {
+    auto result = io::load_scene(io::SceneLoadRequest{
+        source_path("fixtures/scene/showcase/integrated_feature_showcase_missing_fixed.gcs.json")});
+
+    EXPECT_FALSE(result.ok);
+    EXPECT_TRUE(has_issue_code(
+        result.validation_report.issues,
+        "kernel.solve_intent_missing_fixed_entity"));
+    ASSERT_EQ(result.snapshot.solve_intent.fixed_entity_ids.size(), 1U);
+    EXPECT_EQ(result.snapshot.solve_intent.fixed_entity_ids.front().value, 999U);
+}
+
 TEST(IoAdaptersContract, SchemaRegistryNamesTextAndJsonPaths) {
     const auto& registry = io::builtin_schema_registry();
 

@@ -1,0 +1,18 @@
+{
+  "schema": "gcs-showcase-fixture-metadata-v1",
+  "fixture_id": "integrated_feature_showcase_missing_fixed",
+  "model_path": "fixtures/scene/showcase/integrated_feature_showcase_missing_fixed.gcs.json",
+  "source": {
+    "step": 42,
+    "derived_from": "integrated_feature_showcase with an invalid behavior fixed ID",
+    "promotion_reason": "Exercise negative scene behavior validation through public IO and kernel reports."
+  },
+  "expected_public_evidence": {
+    "load": "rejected",
+    "report_code": "kernel.solve_intent_missing_fixed_entity",
+    "missing_fixed_geometry_ids": [999]
+  },
+  "quality_gates": [
+    "IoAdaptersContract.RejectsShowcaseSceneWithMissingFixedEntity"
+  ]
+}

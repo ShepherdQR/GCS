@@ -652,6 +652,39 @@ bool parse_entity_ids_array(const JsonValue& array,
     return true;
 }
 
+bool parse_constraint_ids_array(const JsonValue& array,
+                                std::vector<kernel::ConstraintId>& constraint_ids,
+                                SceneLoadResult& result,
+                                const char* field_name) {
+    if (array.kind != JsonValue::Kind::array) {
+        append_issue(
+            result,
+            make_issue(
+                ReportSeverity::error,
+                "io.json.invalid_field_type",
+                std::string("JSON field must be an array: ") + field_name));
+        return false;
+    }
+
+    for (const auto& element : array.array) {
+        if (element.kind != JsonValue::Kind::number ||
+            element.number < 0.0 ||
+            std::floor(element.number) != element.number) {
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.invalid_integer",
+                    std::string("JSON ID array contains a non-integer value: ") +
+                        field_name));
+            return false;
+        }
+        constraint_ids.push_back(kernel::ConstraintId{
+            static_cast<std::uint64_t>(element.number)});
+    }
+    return true;
+}
+
 bool parse_parameter_array(const JsonValue& object,
                            kernel::EntityDraft& entity,
                            SceneLoadResult& result,
@@ -702,6 +735,77 @@ bool parse_parameter_array(const JsonValue& object,
         }
         entity.parameters.values[index] = value.number;
     }
+    return true;
+}
+
+bool parse_solve_mode(std::uint64_t mode, kernel::SolveIntent& intent, SceneLoadResult& result) {
+    switch (mode) {
+        case 0:
+            intent.mode = kernel::SolveMode::update;
+            return true;
+        case 1:
+            intent.mode = kernel::SolveMode::drag;
+            return true;
+        case 2:
+            intent.mode = kernel::SolveMode::simulation;
+            return true;
+        default:
+            append_issue(
+                result,
+                make_issue(
+                    ReportSeverity::error,
+                    "io.json.invalid_solve_mode",
+                    "Behavior mode must be 0, 1, or 2."));
+            return false;
+    }
+}
+
+bool parse_behavior_model(const JsonValue& root,
+                          kernel::SolveIntent& intent,
+                          SceneLoadResult& result,
+                          CompatibilityMode compatibility) {
+    const auto* behavior = object_field(root, "behavior");
+    if (behavior == nullptr) return true;
+    if (!require_object(
+            *behavior,
+            result,
+            "io.json.behavior",
+            "Behavior JSON field must be an object.")) {
+        return false;
+    }
+
+    std::uint64_t mode = 0;
+    if (!read_uint_field(*behavior, "mode", mode, result, false)) return false;
+    if (!parse_solve_mode(mode, intent, result)) return false;
+
+    const JsonValue* fixed_ids = object_field(*behavior, "fixed_geometry_ids");
+    if (fixed_ids == nullptr && compatibility == CompatibilityMode::migration_allowed) {
+        fixed_ids = object_field(*behavior, "fixed_entity_ids");
+    }
+    if (fixed_ids != nullptr &&
+        !parse_entity_ids_array(*fixed_ids, intent.fixed_entity_ids, result, "fixed_geometry_ids")) {
+        return false;
+    }
+
+    const JsonValue* driven_ids = object_field(*behavior, "driven_geometry_ids");
+    if (driven_ids == nullptr && compatibility == CompatibilityMode::migration_allowed) {
+        driven_ids = object_field(*behavior, "driven_entity_ids");
+    }
+    if (driven_ids != nullptr &&
+        !parse_entity_ids_array(*driven_ids, intent.driven_entity_ids, result, "driven_geometry_ids")) {
+        return false;
+    }
+
+    const JsonValue* target_ids = object_field(*behavior, "target_constraint_ids");
+    if (target_ids != nullptr &&
+        !parse_constraint_ids_array(
+            *target_ids,
+            intent.target_constraint_ids,
+            result,
+            "target_constraint_ids")) {
+        return false;
+    }
+
     return true;
 }
 
@@ -892,6 +996,9 @@ bool parse_json_scene_bytes(const std::string& bytes,
     }
 
     populate_rigid_set_memberships(result.snapshot);
+    if (!parse_behavior_model(root, result.snapshot.solve_intent, result, compatibility)) {
+        return false;
+    }
     return true;
 }
 
@@ -1089,6 +1196,19 @@ std::string canonical_text(const ModelSnapshot& snapshot) {
 std::string canonical_json(const ModelSnapshot& snapshot) {
     std::ostringstream output;
     output << std::setprecision(17);
+    auto emit_entity_id_array = [&output](const std::vector<kernel::EntityId>& ids) {
+        for (std::size_t i = 0; i < ids.size(); ++i) {
+            if (i > 0) output << ", ";
+            output << ids[i].value;
+        }
+    };
+    auto emit_constraint_id_array = [&output](const std::vector<kernel::ConstraintId>& ids) {
+        for (std::size_t i = 0; i < ids.size(); ++i) {
+            if (i > 0) output << ", ";
+            output << ids[i].value;
+        }
+    };
+
     output << "{\n";
     output << "  \"format_version\": \"" << snapshot.schema_version << "\",\n";
     output << "  \"state_version\": " << snapshot.state_version.value << ",\n";
@@ -1126,7 +1246,15 @@ std::string canonical_json(const ModelSnapshot& snapshot) {
         }
         output << "], \"value\": " << constraint.value << "}";
     }
-    output << "]\n";
+    output << "],\n";
+    output << "  \"behavior\": {\"mode\": " << static_cast<int>(snapshot.solve_intent.mode)
+           << ", \"fixed_geometry_ids\": [";
+    emit_entity_id_array(snapshot.solve_intent.fixed_entity_ids);
+    output << "], \"driven_geometry_ids\": [";
+    emit_entity_id_array(snapshot.solve_intent.driven_entity_ids);
+    output << "], \"target_constraint_ids\": [";
+    emit_constraint_id_array(snapshot.solve_intent.target_constraint_ids);
+    output << "]}\n";
     output << "}\n";
     return output.str();
 }

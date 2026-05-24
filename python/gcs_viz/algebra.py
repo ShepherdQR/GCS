@@ -276,7 +276,8 @@ class GCSGraph:
 
     def to_dict(self) -> dict:
         return {
-            "format_version": 1,
+            "format_version": "gcs-0.3",
+            "state_version": 0,
             "rigid_sets": [rs.to_dict() for rs in self.rigid_sets],
             "geometries": [g.to_dict() for g in self.geometries],
             "constraints": [c.to_dict() for c in self.constraints],

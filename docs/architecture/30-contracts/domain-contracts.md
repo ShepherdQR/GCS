@@ -91,6 +91,12 @@ Scenes and fixtures should be versioned. A serialized model should identify:
 - entities and parameter values;
 - constraints and parameters;
 - groups or rigid sets;
-- behavior intent only when needed for replay.
+- behavior intent when the scene is meant to be solved, replayed, or used as a
+  public demo.
 
 Serialization must round-trip stable IDs and produce deterministic output.
+For `gcs-0.3` JSON, the scene-facing `behavior` object maps to
+`ModelSnapshot.solve_intent`: `mode`, `fixed_geometry_ids`,
+`driven_geometry_ids`, and `target_constraint_ids` are solver inputs, not
+viewer annotations. Loaders must reject behavior references that do not resolve
+to stable entity or constraint IDs in the same scene.

@@ -4,7 +4,8 @@ This folder contains the C++ solver core, local scene fixtures, tests, and the l
 
 ## Model
 
-The C++ model is stored in `gcs::Manager`.
+The C++ model is stored as immutable `gcs::kernel::ModelSnapshot` values
+during solver execution.
 
 Structural model:
 
@@ -23,7 +24,9 @@ Behavior model:
 - `SolveMode::Update`: solve the current constraint graph.
 - `SolveMode::Drag`: reserved for interactive movement along remaining DOF.
 - `SolveMode::Simulation`: reserved for target-driven motion.
-- `fixedGeometryIds`, `drivenGeometryIds`, `targetConstraintIds`: lightweight intent lists for future behavior.
+- `fixed_geometry_ids`, `driven_geometry_ids`, `target_constraint_ids` in JSON
+  `behavior`: scene-facing intent lists that map to
+  `ModelSnapshot.solve_intent`.
 
 ## Text Scene Format
 
@@ -44,7 +47,9 @@ constraintId value
 ...
 ```
 
-Text scenes carry the structural model only. JSON scenes can also carry `behavior` and `history`.
+Text scenes carry the structural model only. JSON scenes can also carry
+`behavior` and `history`; current C++ IO treats `behavior` as solver input and
+validates that every fixed, driven, or target ID resolves inside the scene.
 
 ## Module Boundary
 

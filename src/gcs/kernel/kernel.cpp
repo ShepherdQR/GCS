@@ -43,6 +43,60 @@ bool same_entity_payload(const EntityDraft& lhs, const EntityDraft& rhs) {
            lhs.parameters == rhs.parameters;
 }
 
+void append_solve_intent_entity_findings(const ModelSnapshot& snapshot,
+                                         const std::vector<EntityId>& ids,
+                                         const char* duplicate_code,
+                                         const char* missing_code,
+                                         const char* role,
+                                         StageReport& report) {
+    std::vector<EntityId> seen;
+    for (EntityId id : ids) {
+        if (already_seen(seen, id)) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{duplicate_code},
+                std::string("Solve intent contains a duplicate ") + role + " entity ID.",
+                {subject(entity_domain, id.value)}));
+        }
+        seen.push_back(id);
+
+        if (find_entity(snapshot, id) == nullptr) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{missing_code},
+                std::string("Solve intent references a missing ") + role + " entity.",
+                {subject(entity_domain, id.value)}));
+        }
+    }
+}
+
+void append_solve_intent_constraint_findings(const ModelSnapshot& snapshot,
+                                             const std::vector<ConstraintId>& ids,
+                                             const char* duplicate_code,
+                                             const char* missing_code,
+                                             const char* role,
+                                             StageReport& report) {
+    std::vector<ConstraintId> seen;
+    for (ConstraintId id : ids) {
+        if (already_seen(seen, id)) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{duplicate_code},
+                std::string("Solve intent contains a duplicate ") + role + " constraint ID.",
+                {subject(constraint_domain, id.value)}));
+        }
+        seen.push_back(id);
+
+        if (find_constraint(snapshot, id) == nullptr) {
+            append_report_message(report, make_report_message(
+                ReportSeverity::error,
+                ReportCode{missing_code},
+                std::string("Solve intent references a missing ") + role + " constraint.",
+                {subject(constraint_domain, id.value)}));
+        }
+    }
+}
+
 void append_validation_findings(const ModelSnapshot& snapshot, StageReport& report) {
     if (snapshot.schema_version.empty()) {
         append_report_message(report, make_report_message(
@@ -141,6 +195,28 @@ void append_validation_findings(const ModelSnapshot& snapshot, StageReport& repo
             }
         }
     }
+
+    append_solve_intent_entity_findings(
+        snapshot,
+        snapshot.solve_intent.fixed_entity_ids,
+        "kernel.solve_intent_duplicate_fixed_entity",
+        "kernel.solve_intent_missing_fixed_entity",
+        "fixed",
+        report);
+    append_solve_intent_entity_findings(
+        snapshot,
+        snapshot.solve_intent.driven_entity_ids,
+        "kernel.solve_intent_duplicate_driven_entity",
+        "kernel.solve_intent_missing_driven_entity",
+        "driven",
+        report);
+    append_solve_intent_constraint_findings(
+        snapshot,
+        snapshot.solve_intent.target_constraint_ids,
+        "kernel.solve_intent_duplicate_target_constraint",
+        "kernel.solve_intent_missing_target_constraint",
+        "target",
+        report);
 }
 
 }

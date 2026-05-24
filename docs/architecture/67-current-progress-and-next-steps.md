@@ -480,16 +480,34 @@ Delivered:
 - Expand `ctest.public_evidence_chain` to include the showcase sentinels.
 - Contract test baseline is now 103 CTest-discovered GTest cases.
 
-## Next Step 42
+## Completed Step 42
 
-The next step should promote the executable showcase into durable JSON scene
-artifacts, add a negative diagnostic variant, and prepare an atlas/demo
-projection. The positive C++ fixture is stable; the scene-facing work should
-now make it inspectable outside C++ tests.
+Step 42 promoted the executable showcase into durable JSON scene artifacts and
+added a negative behavior-intent diagnostic variant.
+
+Delivered:
+
+- Extend JSON scene IO so `behavior` round-trips into
+  `ModelSnapshot.solve_intent`.
+- Validate fixed, driven, and target solve-intent references in the kernel with
+  stable report codes.
+- Add positive and negative showcase scene fixtures with provenance metadata
+  under `fixtures/scene/showcase/`.
+- Cover the new artifacts through IO/kernel contract tests and the public
+  evidence-chain quality gate.
+- Add the positive showcase JSON scene as a default CLI smoke.
+- Contract test baseline is now 108 CTest-discovered GTest cases.
+
+## Next Step 43
+
+The next step should render and document a scene-backed showcase atlas/demo
+projection from the public Step 42 assets. The rendering/report path should
+consume `fixtures/scene/showcase/integrated_feature_showcase.gcs.json` and
+its metadata rather than reconstructing the graph from private C++ fixtures.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-40 are registered in the implementation roadmap; Steps 31 through 40 are
+42 are registered in the implementation roadmap; Steps 31 through 42 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 41, the executable C++ showcase fixture is in
-place; Step 42 is registered as the scene/demo promotion follow-up.
+in the forward plan. Step 43 is registered as the scene-backed showcase
+atlas/demo follow-up.

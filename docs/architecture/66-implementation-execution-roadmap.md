@@ -208,13 +208,15 @@ Status legend: `done`, `in_progress`, `pending`.
 41. `done` - build the integrated feature showcase constraint graph
     as a reusable contract fixture with decomposition, boundary, rank,
     diagnostics, viewer, and quality evidence.
-42. `pending` - promote the showcase into durable JSON scene artifacts,
-    negative diagnostic variants, and atlas/demo projection assets.
+42. `done` - promote the showcase into durable JSON scene artifacts,
+    negative diagnostic variants, and atlas/demo-ready metadata.
+43. `pending` - build the scene-backed showcase atlas/demo projection and
+    public report package from the Step 42 scene assets.
 
 Next registered candidate:
 
-- Complete Step 42 by turning the executable C++ showcase fixture into
-  durable scene/demo assets with structured positive and negative evidence.
+- Complete Step 43 by rendering and documenting a public showcase projection
+  from the durable Step 42 scene assets.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1497,6 +1499,53 @@ Reassessment after Step 41:
   projection.
 - Step 42 should promote the showcase into durable JSON scene fixtures,
   negative diagnostic variants, and atlas/demo projection artifacts.
+
+## Showcase Scene Promotion Step Plan
+
+Commit-level scope:
+
+- Extend current `gcs-0.3` JSON scene IO so `behavior.fixed_geometry_ids`,
+  `behavior.driven_geometry_ids`, and `behavior.target_constraint_ids`
+  round-trip into `ModelSnapshot.solve_intent`.
+- Add kernel validation for solve-intent references so scene files with stale
+  fixed/driven/target IDs produce structured report codes instead of silently
+  entering the runtime.
+- Promote the integrated showcase into durable positive and negative scene
+  fixtures with companion metadata.
+- Add C++ contract tests for JSON behavior round-trip, positive showcase scene
+  loading, and negative fixed-entity rejection.
+- Add the positive showcase CLI smoke and new scene/IO sentinel tests to the
+  default quality gate.
+
+Step 42 working decision:
+
+- Fixed-boundary expectations belong in the JSON `behavior` model, not only in
+  companion metadata, because they are runtime solve intent rather than display
+  annotation.
+- Companion metadata should describe provenance and expected public evidence;
+  it should not be the only carrier of solver behavior.
+
+Implemented scope:
+
+- `gcs.io_adapters` now writes and reads JSON `behavior` as
+  `ModelSnapshot.solve_intent`.
+- `gcs.kernel` validates fixed, driven, and target solve-intent references
+  and emits stable report codes for missing or duplicate IDs.
+- `fixtures/scene/showcase/` now contains a positive integrated showcase JSON
+  scene, a missing-fixed-entity negative variant, metadata files, and a
+  manifest.
+- C++ contract tests cover JSON behavior round-trip, showcase scene load, and
+  negative behavior rejection.
+- The default quality gate now includes kernel/IO showcase sentinels and a
+  showcase JSON CLI smoke.
+
+Reassessment after Step 42:
+
+- The showcase is no longer only a private C++ fixture; it is now a durable
+  scene asset with executable positive and negative evidence.
+- Step 43 should use these public scene assets to produce the atlas/demo
+  projection and report package without reading private contract-tool
+  internals.
 
 ## Damped Numeric Local Solve Step Plan
 

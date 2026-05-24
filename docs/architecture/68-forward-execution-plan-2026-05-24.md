@@ -863,12 +863,85 @@ Detailed plan:
 - Add or update atlas/demo projection assets only after the scene artifacts
   are stable.
 
+Execution decision:
+
+- Extend JSON behavior support now. `behavior.fixed_geometry_ids` is the
+  durable scene-facing carrier for `ModelSnapshot.solve_intent.fixed_entity_ids`.
+- Use companion metadata for provenance, evidence expectations, and demo
+  routing only. Metadata must not be the sole place that records solver
+  behavior.
+
+Commit-level work items:
+
+- Add JSON read/write support for behavior fields in the C++ IO adapter.
+- Add kernel validation report codes for missing fixed/driven entities and
+  missing target constraints.
+- Add a positive integrated showcase scene and a negative missing-fixed-entity
+  variant under `fixtures/scene/showcase/`.
+- Add contract tests that load both artifacts and verify stable counts,
+  solve-intent IDs, and structured rejection.
+- Extend the default quality gate with a showcase CLI smoke and the new
+  public scene/IO sentinels.
+
 Exit criteria:
 
 - Showcase scene artifacts are committed with structured metadata.
 - Positive and negative variants are both covered by deterministic tests.
 - The atlas/demo path can reference the showcase without private C++ fixture
   inspection.
+
+Completion summary:
+
+- JSON scene IO now round-trips `behavior` into
+  `ModelSnapshot.solve_intent`.
+- Kernel validation now rejects missing or duplicate fixed, driven, and target
+  solve-intent references with stable report codes.
+- `fixtures/scene/showcase/` contains the positive integrated showcase scene,
+  a missing-fixed-entity negative variant, metadata, and a manifest.
+- Contract tests cover behavior round-trip, positive scene loading, and
+  negative behavior rejection.
+- The public evidence-chain gate and CLI smoke path include the showcase scene.
+
+Reassessment after Step 42:
+
+- The public scene assets are stable enough for atlas/demo projection work.
+- Rendering should now be driven from the scene file and metadata, not from
+  hard-coded graph reconstruction in a documentation script.
+
+### Step 43: Scene-Backed Showcase Atlas And Demo Report
+
+Goal:
+
+- Produce a public showcase projection and report package from the Step 42
+  scene assets.
+
+Expected shape:
+
+- A deterministic visualization/report artifact under the architecture atlas
+  or showcase fixture directory.
+- A small renderer or adapter that reads the public JSON scene/metadata and
+  emits an inspectable SVG/Markdown report.
+- Contract or tool tests that verify the artifact references the public scene
+  IDs and expected evidence.
+
+Detailed plan:
+
+- Inspect the current architecture visualization tool and decide whether to
+  extend it or add a dedicated showcase-scene renderer.
+- Read `fixtures/scene/showcase/integrated_feature_showcase.gcs.json` and
+  metadata as the source of truth.
+- Emit a compact scene-backed SVG/report that labels fixed geometry, local
+  components, oriented constraints, residual evidence, and the negative
+  validation boundary.
+- Add Python tool tests or XML/schema checks for deterministic output.
+- Update atlas and progress documents, then reassess the next implementation
+  step.
+
+Exit criteria:
+
+- The showcase projection can be regenerated from public scene assets.
+- The artifact is referenced from the architecture atlas or fixture README.
+- Validation covers deterministic rendering and source-scene provenance.
 
 ## Reassessment Protocol
 

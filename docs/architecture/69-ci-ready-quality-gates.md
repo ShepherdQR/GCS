@@ -1,6 +1,6 @@
 # CI-Ready Quality Gates
 
-Status: Step 39 hardened implementation contract.
+Status: Step 42 showcase scene gate integrated.
 
 ## Purpose
 
@@ -42,8 +42,10 @@ The default gate runs:
 9. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
 10. explicit public-evidence-chain CTest selection for rank, diagnostics,
     runtime, viewer, corpus, and showcase evidence introduced in Steps 31
-    through 41
+    through 42
 11. CLI smoke on `fixtures/scene/basic/g1.txt`
+12. CLI smoke on
+    `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
 
 The command exits nonzero on the first failed gate by default and prints a
 stable summary. `--continue-on-failure` runs the remaining gates before
@@ -58,13 +60,15 @@ paths that must remain visible across modules:
 - numeric max-absolute residual and free/frozen rank evidence;
 - diagnostics promotion of numeric residual/rank evidence and duplicate
   redundancy subjects;
+- kernel and IO validation for scene-facing solve intent;
 - runtime rank and post-local diagnostic projections;
 - viewer overlay projections for rank, residual, conflict, redundancy, and
   gluing obstruction evidence;
 - reusable contract-tool fixtures for boundary-frozen, tolerance-edge, and
   separator-chain scenarios;
 - integrated showcase evidence for solve-intent boundary propagation,
-  boundary-frozen rank projection, and viewer residual projection.
+  JSON behavior round-trip, boundary-frozen rank projection, viewer residual
+  projection, positive CLI smoke, and negative scene behavior rejection.
 
 ## CI Parameters
 
@@ -93,9 +97,9 @@ A change is Step 18 complete when:
 - fixture corpus coverage is named as an explicit gate and actually selects
   the contract-tools fixture tests;
 - public evidence-chain coverage is named as an explicit gate and selects the
-  Step 31 through Step 41 rank, diagnostics, runtime, viewer, corpus, and
+  Step 31 through Step 42 rank, diagnostics, runtime, viewer, corpus, and
   showcase sentinel tests;
 - scene-generation tests are part of the default gate;
 - the agentic toolkit gate sequence is unit-tested as a Python tools contract;
-- a representative CLI fixture is part of the default gate;
-- the implementation roadmap records Step 39 as complete.
+- representative basic and showcase CLI fixtures are part of the default gate;
+- the implementation roadmap records the latest quality-gate extension step.

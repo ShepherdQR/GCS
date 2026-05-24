@@ -61,6 +61,7 @@ class AgenticToolkitTests(unittest.TestCase):
                 "ctest.fixture_corpus",
                 "ctest.public_evidence_chain",
                 "cli.basic_scene",
+                "cli.showcase_scene",
             ],
         )
 
@@ -71,8 +72,13 @@ class AgenticToolkitTests(unittest.TestCase):
             r"NumericEngineContract\.",
             r"DiagnosticsContract\.",
             r"DecompositionPlannerContract\.",
+            r"IoAdaptersContract\.",
+            r"KernelContract\.",
             r"SessionRuntimeContract\.",
             r"ViewerBridgeContract\.",
+            r"ShowcaseJsonSceneCarriesSolveIntentBehavior",
+            r"RejectsShowcaseSceneWithMissingFixedEntity",
+            r"RejectsSolveIntentMissingReferences",
             r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence",
             r"ContractToolsContract\.",
             r"IntegratedShowcaseFixtureCarriesPublicEvidenceContract",
@@ -96,6 +102,7 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertNotIn("ctest.contracts", gate_ids)
         self.assertNotIn("ctest.public_evidence_chain", gate_ids)
         self.assertNotIn("cli.basic_scene", gate_ids)
+        self.assertNotIn("cli.showcase_scene", gate_ids)
         self.assertIn("agentic.check-dependencies", gate_ids)
         self.assertIn("cmake.build", gate_ids)
 

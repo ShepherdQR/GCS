@@ -79,6 +79,34 @@ TEST(KernelContract, RejectsMissingEntityReferences) {
     EXPECT_TRUE(hasCode(result.report, "kernel.missing_entity"));
 }
 
+TEST(KernelContract, RejectsSolveIntentMissingReferences) {
+    auto draft = makeValidDraft();
+    draft.solve_intent.fixed_entity_ids.push_back(kernel::EntityId{99});
+    draft.solve_intent.driven_entity_ids.push_back(kernel::EntityId{100});
+    draft.solve_intent.target_constraint_ids.push_back(kernel::ConstraintId{101});
+
+    auto result = kernel::make_snapshot(draft);
+
+    EXPECT_EQ(result.report.status, kernel::StageStatus::error);
+    EXPECT_TRUE(hasCode(result.report, "kernel.solve_intent_missing_fixed_entity"));
+    EXPECT_TRUE(hasCode(result.report, "kernel.solve_intent_missing_driven_entity"));
+    EXPECT_TRUE(hasCode(result.report, "kernel.solve_intent_missing_target_constraint"));
+}
+
+TEST(KernelContract, RejectsSolveIntentDuplicateReferences) {
+    auto draft = makeValidDraft();
+    draft.solve_intent.fixed_entity_ids = {kernel::EntityId{10}, kernel::EntityId{10}};
+    draft.solve_intent.target_constraint_ids = {
+        kernel::ConstraintId{20},
+        kernel::ConstraintId{20}};
+
+    auto result = kernel::make_snapshot(draft);
+
+    EXPECT_EQ(result.report.status, kernel::StageStatus::error);
+    EXPECT_TRUE(hasCode(result.report, "kernel.solve_intent_duplicate_fixed_entity"));
+    EXPECT_TRUE(hasCode(result.report, "kernel.solve_intent_duplicate_target_constraint"));
+}
+
 TEST(KernelContract, RejectsInvalidParameterDimensions) {
     auto draft = makeValidDraft();
     draft.entities.front().parameters.dimension = 4;

@@ -1052,6 +1052,17 @@ PUBLIC_EVIDENCE_CHAIN_CTEST_REGEX = "|".join(
             r"SolveIntentFixedEntitiesBecomeBoundaryVariables"
         ),
         (
+            r"IoAdaptersContract\."
+            r"(JsonRoundTripPreservesSolveIntentBehavior|"
+            r"ShowcaseJsonSceneCarriesSolveIntentBehavior|"
+            r"RejectsShowcaseSceneWithMissingFixedEntity)"
+        ),
+        (
+            r"KernelContract\."
+            r"(RejectsSolveIntentMissingReferences|"
+            r"RejectsSolveIntentDuplicateReferences)"
+        ),
+        (
             r"SessionRuntimeContract\."
             r"(ProjectsRankEvidenceFromAcceptedCommandResult|"
             r"PostLocalDiagnosticsPreserveNumericEvidence)"
@@ -1131,6 +1142,10 @@ def build_quality_gate_commands(args: argparse.Namespace,
         commands.append(GateCommand(
             "cli.basic_scene",
             [cli_exe, repo_path("fixtures/scene/basic/g1.txt")],
+        ))
+        commands.append(GateCommand(
+            "cli.showcase_scene",
+            [cli_exe, repo_path("fixtures/scene/showcase/integrated_feature_showcase.gcs.json")],
         ))
 
     return commands

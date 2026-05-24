@@ -1,0 +1,26 @@
+{
+  "schema": "gcs-showcase-fixture-metadata-v1",
+  "fixture_id": "integrated_feature_showcase",
+  "model_path": "fixtures/scene/showcase/integrated_feature_showcase.gcs.json",
+  "source": {
+    "step": 42,
+    "derived_from": "gcs.contract_tools FixtureKind::integrated_feature_showcase",
+    "promotion_reason": "Expose the integrated showcase through public scene IO and CLI paths."
+  },
+  "expected_public_evidence": {
+    "load": "ok",
+    "solve_status": "AcceptedWithWarnings",
+    "rigid_sets": 6,
+    "geometries": 6,
+    "constraints": 4,
+    "fixed_geometry_ids": [0],
+    "planner_subproblems": 2,
+    "numeric_reports": 2,
+    "post_local_diagnostics": 2
+  },
+  "quality_gates": [
+    "IoAdaptersContract.ShowcaseJsonSceneCarriesSolveIntentBehavior",
+    "ViewerBridgeContract.ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence",
+    "cli.showcase_scene"
+  ]
+}

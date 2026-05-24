@@ -1,0 +1,20 @@
+{
+  "schema": "gcs-showcase-scene-manifest-v1",
+  "library_id": "integrated_showcase_step42",
+  "description": "Positive and negative scene-facing fixtures for the integrated GCS showcase.",
+  "created_at": "2026-05-24",
+  "entries": [
+    {
+      "fixture_id": "integrated_feature_showcase",
+      "class": "showcase_positive",
+      "model_path": "fixtures/scene/showcase/integrated_feature_showcase.gcs.json",
+      "metadata_path": "fixtures/scene/showcase/integrated_feature_showcase.metadata.json"
+    },
+    {
+      "fixture_id": "integrated_feature_showcase_missing_fixed",
+      "class": "showcase_negative",
+      "model_path": "fixtures/scene/showcase/integrated_feature_showcase_missing_fixed.gcs.json",
+      "metadata_path": "fixtures/scene/showcase/integrated_feature_showcase_missing_fixed.metadata.json"
+    }
+  ]
+}
