@@ -60,8 +60,8 @@ research: add E001 step closure template
 
 | Phase | Goal | Status |
 | --- | --- | --- |
-| Phase 1 | Define the phase-step research operating model for E001 | in progress |
-| Phase 2 | Convert the model into reusable templates and lightweight tooling ideas | planned |
+| Phase 1 | Define the phase-step research operating model for E001 | complete |
+| Phase 2 | Build reusable phase-step examples, anti-examples, and tool specifications | next |
 | Phase 3 | Run an empirical pilot over completed-task reports | planned |
 | Phase 4 | Promote validated lessons into skill, eval, or lifecycle policy | planned |
 
@@ -75,7 +75,7 @@ of accountable micro-closures.
 | 1.1 | `continuation/phase-step-research-roadmap.md` | completed |
 | 1.2 | `continuation/phase-step-state-machine.md` | completed |
 | 1.3 | `continuation/step-closure-record-template.md` | completed |
-| 1.4 | `continuation/phase-01-summary.md` | next |
+| 1.4 | `continuation/phase-01-summary.md` | completed |
 
 ### Step 1.1 Summary
 
@@ -129,39 +129,54 @@ Updated Phase 1 sequence:
 
 1. Summarize Phase 1 and replan later phases.
 
-## Phase 2: Templates And Tooling Ideas
+### Step 1.4 Summary
 
-Initial steps, to be replanned after Phase 1:
+This step created `continuation/phase-01-summary.md`. It closes Phase 1,
+summarizes what the phase established, and replans Phases 2-4 with more
+specific artifact targets.
 
-1. Define reusable templates for phase plans, step records, and phase
-   summaries.
-2. Specify possible `agentic_toolkit.py` commands for phase-step research.
-3. Decide which checks are deterministic and which require reviewer judgment.
+### Phase 1 Completion Update
+
+Phase 1 is complete. Phase 2 should begin with examples before tooling, because
+validators and commands need concrete positive and negative shapes to encode.
+
+## Phase 2: Examples And Tooling Specifications
+
+Replanned after Phase 1:
+
+1. Create `continuation/phase-02-example-records.md` with strong and weak step
+   closure examples.
+2. Create `continuation/phase-02-tooling-spec.md` with candidate toolkit
+   commands.
+3. Create `continuation/phase-02-validation-boundary.md` to separate
+   deterministic checks from reviewer judgment.
+4. Create `continuation/phase-02-summary.md` and replan the empirical pilot.
 
 ## Phase 3: Empirical Pilot
 
-Initial steps, to be replanned after Phase 2:
+Replanned after Phase 1, to be refined after Phase 2:
 
-1. Select a small set of completed-task reports.
-2. Apply E001 closure scoring and the new phase-step lens.
-3. Record what the protocol improves and where it creates friction.
+1. Select pilot reports or active research steps.
+2. Apply closure and phase-step rubrics.
+3. Analyze friction, overhead, and simplifications.
+4. Summarize Phase 3 and replan promotion.
 
 ## Phase 4: Promotion
 
-Initial steps, to be replanned after Phase 3:
+Replanned after Phase 1, to be refined after Phase 3:
 
 1. Decide whether the phase-step protocol should update an active skill.
-2. Add eval cases for missed step summaries, stale plans, and uncommitted
-   micro-closures.
-3. Update lifecycle docs if the protocol proves generally useful.
+2. Add eval cases for missed summaries, stale plans, and index contamination.
+3. Decide whether lifecycle docs should adopt the protocol.
+4. Close the continuation research loop.
 
 ## Next Step Declaration
 
-Start Phase 1 Step 1.2:
+Start Phase 2 Step 2.1:
 
 ```text
-Create continuation/phase-step-state-machine.md.
+Create continuation/phase-02-example-records.md.
 ```
 
-The state-machine note should define step states, phase states, transition
-rules, commit rules, and failure modes for long-running agentic research.
+The next artifact should provide one strong and one weak example of a step
+closure record so Phase 2 tooling can be grounded in concrete cases.
