@@ -120,6 +120,9 @@ is enough. The ceremony should buy reviewability, not create paperwork.
 - Research report: `research/01-session-agent-patterns-report.md`
 - Formal model: `research/02-phase-step-formal-model.md`
 - Phase-step template: `templates/phase-step-plan-template.md`
+- Step closure template: `templates/step-closure-record-template.md`
+- Phase summary template: `templates/phase-summary-template.md`
+- Current status template: `templates/current-status-template.md`
 - Agent role card: `agents/phase-step-continuation-agent.md`
 
 ## Validation And Future Gates
