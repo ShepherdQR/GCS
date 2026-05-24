@@ -44,7 +44,7 @@ commit message must name the step's purpose.
 | P0 | Convention Foundation | In progress | Name the UI design system and make it governable. |
 | P1 | Governance And Agents | Done | Give future work dedicated skills, agents, and review responsibilities. |
 | P2 | Token Unification | Done | Make GUI, figures, and reports consume the same semantic token vocabulary. |
-| P3 | Viewer UI Implementation | Pending | Apply the design system to the Python viewer without moving solver truth into UI. |
+| P3 | Viewer UI Implementation | In progress | Apply the design system to the Python viewer without moving solver truth into UI. |
 | P4 | Scientific Figure Pipeline | Pending | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
 | P5 | Visual Integrity QA | Pending | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
 | P6 | Showcase And Editorial Polish | Pending | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
@@ -243,7 +243,7 @@ solver/runtime/viewer boundaries.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P3.1 | Pending | Audit viewer and legacy textual surfaces for raw hex values, token aliases, and remaining dark-terminal styles; fix low-risk leftovers. | Raw-token audit plus Python syntax check |
+| P3.1 | Done | `70-visualization/viewer-token-audit.md` records the raw-token audit and `platform.py` now uses `GCS_THEME` for legacy textual DOF/status styles. | Raw-token audit plus Python syntax check |
 | P3.2 | Pending | Apply canonical state aliases to selected, replay-current, violated, solved, warning, and error surfaces without changing command ownership. | UI smoke or renderer fixture |
 | P3.3 | Pending | Reshape inspector layout toward model summary plus tabbed object tables using existing tokens. | Narrow-window smoke |
 | P3.4 | Pending | Add replay and solve evidence polish with structured summary evidence ahead of logs. | Replay fixture smoke |
@@ -253,6 +253,21 @@ Phase-close replanning requirement:
 - Compare implementation with `72-ui-aesthetic-roadmap.md`.
 - Decide whether GUI work needs a dedicated screenshot baseline suite before
   further feature polish.
+
+P3.1 completion summary:
+
+- Added `docs/architecture/70-visualization/viewer-token-audit.md`.
+- Confirmed that `color_scheme.py` is the intentional Python raw-hex source,
+  while `visualizer.py` and `platform_gui.py` consume token aliases.
+- Replaced legacy textual DOF and status Rich styles in `platform.py` with
+  `GCS_THEME` aliases, removing the old dark status color.
+
+Updated P3 next steps:
+
+- P3.2 should focus on canonical state aliases for selected, replay-current,
+  violated, solved, warning, and error surfaces.
+- P3.3 and P3.4 should avoid layout or evidence changes that add raw hex
+  values outside `color_scheme.py`.
 
 ## P4: Scientific Figure Pipeline
 

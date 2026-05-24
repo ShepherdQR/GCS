@@ -15,7 +15,7 @@ review pauses, handoff, and changing evidence.
 
 | Phase | Name | Goal | Primary Artifacts | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Theory formalization | Define the formal model, state machine, invariants, boundaries, and failure taxonomy. | `research/02-phase-step-formal-model.md` | planned |
+| 1 | Theory formalization | Define the formal model, state machine, invariants, boundaries, and failure taxonomy. | `research/02-phase-step-formal-model.md` | complete |
 | 2 | Templates and protocol | Make the model directly usable through durable step, phase, and status templates. | `templates/*.md` | planned |
 | 3 | Tooling | Add minimal generator, validator, and resume-query support to `agentic_toolkit.py`. | `tools/agentic_design/agentic_toolkit.py`, tests | planned |
 | 4 | Empirical validation | Test whether E002 improves resumption, reviewability, commit hygiene, and plan adaptation. | Pilot report and eval rubric | planned |
@@ -144,6 +144,14 @@ Completion test:
 - Module-agent guidance explains when to use E002 and when E001 alone is
   enough.
 
+## Phase 1 Summary
+
+Phase 1 produced `research/02-phase-step-formal-model.md`. The model defines
+E001/E002 boundaries, phase and step state machines, transition rules, failure
+taxonomy, and tooling implications. This confirms that Phase 2 templates should
+carry explicit frontmatter and sections for phase id, step id, evidence,
+summary, phase update, commit boundary, and next-step declaration.
+
 ## Step 0 Summary
 
 This roadmap defines the five-stage E002 research and implementation path. The
@@ -152,5 +160,6 @@ model, invariants, and failure taxonomy.
 
 ## Update To Remaining Work
 
-The initial five phases remain valid. Phase 3 tooling should stay deliberately
-small until Phase 4 evidence shows which checks are worth strengthening.
+The initial five phases remain valid. Phase 2 should now materialize the formal
+model into templates. Phase 3 tooling should stay deliberately small until
+Phase 4 evidence shows which checks are worth strengthening.

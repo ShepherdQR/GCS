@@ -116,7 +116,9 @@ is enough. The ceremony should buy reviewability, not create paperwork.
 
 ## Materials
 
+- Roadmap: `research/phase-step-research-roadmap.md`
 - Research report: `research/01-session-agent-patterns-report.md`
+- Formal model: `research/02-phase-step-formal-model.md`
 - Phase-step template: `templates/phase-step-plan-template.md`
 - Agent role card: `agents/phase-step-continuation-agent.md`
 

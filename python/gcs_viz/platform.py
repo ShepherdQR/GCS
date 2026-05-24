@@ -39,11 +39,11 @@ class DOFIndicator(Static):
 
     def render(self) -> Text:
         if self.dof_value == 0:
-            return Text(f"  Net DOF: 0 (Well-constrained) ✓  ", style="bold green")
+            return Text(f"  Net DOF: 0 (Well-constrained) ✓  ", style=f"bold {GCS_THEME['success']}")
         elif self.dof_value > 0:
-            return Text(f"  Net DOF: {self.dof_value} (Under-constrained) ⚠  ", style="bold yellow")
+            return Text(f"  Net DOF: {self.dof_value} (Under-constrained) ⚠  ", style=f"bold {GCS_THEME['warning']}")
         else:
-            return Text(f"  Net DOF: {self.dof_value} (Over-constrained) ✗  ", style="bold red")
+            return Text(f"  Net DOF: {self.dof_value} (Over-constrained) ✗  ", style=f"bold {GCS_THEME['error']}")
 
 
 class StatusBar(Static):
@@ -51,7 +51,10 @@ class StatusBar(Static):
     graph_info = reactive("No graph")
 
     def render(self) -> Text:
-        return Text(f"  {self.status_text}  |  {self.graph_info}  ", style="white on #16213e")
+        return Text(
+            f"  {self.status_text}  |  {self.graph_info}  ",
+            style=f"{GCS_THEME['text_secondary']} on {GCS_THEME['bg_panel_alt']}",
+        )
 
 
 class GCSPlatform(App):
