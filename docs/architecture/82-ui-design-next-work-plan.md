@@ -44,6 +44,8 @@ Completed:
   exact PNG artifact checks, and forced baseline failure fixtures.
 - P5 is closed: default visual-integrity gates and reviewer-only art-direction
   gates are now separated before P6.
+- P6.1 is complete: the integrated showcase brief now names the claim, source
+  evidence, token vocabulary, panels, and review questions.
 
 Active phase:
 
@@ -62,8 +64,8 @@ Active phase:
 | 7 | P5.3 Overlap and contrast gates | Done | Catch critical text/shape overlap and weak contrast in status/evidence surfaces. | Forced overlap fails and contrast report is produced. |
 | 8 | P5.4 Screenshot baselines | Done | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
 | 9 | P5 phase close | Done | Decide default versus reviewer-only visual-integrity gates before P6. | Phase-close summary and downstream plan update committed. |
-| 10 | P6.1 Showcase brief | Next | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
-| 11 | P6.2 Showcase fixture | Pending | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
+| 10 | P6.1 Showcase brief | Done | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
+| 11 | P6.2 Showcase fixture | Next | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
 | 12 | P6.3 Showcase figure | Pending | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
 | 13 | P6.4 Figma MCP decision | Pending | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
 
@@ -160,9 +162,20 @@ Active phase:
   design-tool value remain reviewer-only art-direction gates.
 - Moved the active phase to P6 and made P6.1 the next implementation step.
 
+## P6.1 Completion Summary
+
+- Added `docs/architecture/88-p6-1-integrated-showcase-brief.md`.
+- Defined the five-second claim, audience, source evidence, canonical evidence
+  vocabulary, required panels, production direction, and Art Director review
+  questions.
+- Required the negative missing-fixed variant to remain visible in showcase
+  work.
+- Kept fixture and figure assets unchanged so P6.2 can promote evidence before
+  P6.3 changes visuals.
+
 ## Updated Next Move
 
-The next implementation step should be **P6.1 Showcase Brief**.
+The next implementation step should be **P6.2 Showcase Fixture**.
 
 Reasoning:
 
@@ -178,8 +191,10 @@ Reasoning:
 - P5.4 is now in place as an artifact-level screenshot baseline gate.
 - P5 is closed, so showcase work can now use a known default/reviewer-only
   visual-integrity boundary.
-- P6.1 should define the main claim, evidence vocabulary, panels, and review
-  gates before fixture or figure assets change.
+- P6.1 now defines the main claim, evidence vocabulary, panels, and review
+  gates.
+- P6.2 should make the showcase fixture evidence directly consumable by P6.3
+  figure production.
 
 ## Opportunistic Cleanup
 
@@ -224,5 +239,5 @@ Reasoning:
 - Do not install or configure Figma MCP as the next move.
 - Do not introduce a new graph/chart package before P4.3 records the dependency
   decision.
-- Do not regenerate final showcase assets before P6.1 defines the brief and
-  evidence vocabulary.
+- Do not regenerate final showcase assets before P6.2 confirms the fixture
+  evidence bundle is sufficient for the brief.

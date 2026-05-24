@@ -564,8 +564,8 @@ external design-surface integration.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P6.1 | Next | Define integrated feature constraint graph showcase brief using the canonical evidence-token vocabulary. | Brief review |
-| P6.2 | Pending | Generate or promote showcase fixture with expected rank, gluing, replay, and diagnostic evidence. | Public gate |
+| P6.1 | Done | `88-p6-1-integrated-showcase-brief.md` defines the showcase claim, evidence vocabulary, panels, and review questions. | Brief review |
+| P6.2 | Next | Generate or promote showcase fixture with expected rank, gluing, replay, and diagnostic evidence. | Public gate |
 | P6.3 | Pending | Produce showcase figure through the scientific figure pipeline and tokenized HTML compositor. | Visual integrity QA |
 | P6.4 | Pending | Decide whether to install/configure Figma MCP only after repo-native token and QA gates are reliable. | Governance decision |
 
@@ -573,3 +573,22 @@ Phase-close replanning requirement:
 
 - Decide the next aesthetic target: product UI refinement, paper figure, demo
   deck, or external design-tool integration.
+
+P6.1 completion summary:
+
+- Added `docs/architecture/88-p6-1-integrated-showcase-brief.md`.
+- Defined the five-second claim: one public constraint scene carries solve
+  intent through decomposition, numeric rank/residual evidence, gluing
+  diagnostics, viewer projection, CLI smoke, and negative rejection evidence.
+- Named source evidence, canonical tokens, required panels, production
+  direction, and Art Director review questions.
+- Kept fixture and figure assets unchanged so P6.2 can promote evidence before
+  P6.3 changes visuals.
+
+Updated P6 next steps after P6.1:
+
+- P6.2 should promote or enrich fixture evidence in renderer-consumable form.
+- P6.3 should produce the showcase figure against the P6.1 brief and P5
+  visual-integrity gates.
+- P6.4 should judge Figma MCP against the actual P6.3 artifact and remaining
+  collaboration gap.
