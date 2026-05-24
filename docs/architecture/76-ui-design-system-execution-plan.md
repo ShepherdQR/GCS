@@ -43,7 +43,7 @@ commit message must name the step's purpose.
 | --- | --- | --- | --- |
 | P0 | Convention Foundation | In progress | Name the UI design system and make it governable. |
 | P1 | Governance And Agents | Done | Give future work dedicated skills, agents, and review responsibilities. |
-| P2 | Token Unification | Pending | Make GUI, figures, and reports consume the same semantic token vocabulary. |
+| P2 | Token Unification | In progress | Make GUI, figures, and reports consume the same semantic token vocabulary. |
 | P3 | Viewer UI Implementation | Pending | Apply the design system to the Python viewer without moving solver truth into UI. |
 | P4 | Scientific Figure Pipeline | Pending | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
 | P5 | Visual Integrity QA | Pending | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
@@ -130,15 +130,35 @@ Goal: make `GCS Warm Evidence Tokens` executable across figures and the viewer.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P2.1 | Pending | Inventory current GUI colors, figure tokens, Matplotlib styles, and state colors. | Inventory doc or script output |
-| P2.2 | Pending | Define canonical token names for surface, text, rule, domain, graph, planner, numeric, diagnostic, failure, boundary, focus, and replay. | Token table diff |
+| P2.1 | Done | `78-ui-token-inventory.md` inventories current GUI colors, figure tokens, Matplotlib styles, state colors, renderer fallbacks, and terminal/Rich styles. | Inventory doc |
+| P2.2 | Pending | Define canonical token names and cross-surface mappings for surface, text, rule, evidence, state, geometry, constraint, rigid-set, figure, and viewer roles. | Token table diff |
 | P2.3 | Pending | Mirror figure tokens into `python/gcs_viz/color_scheme.py` without changing interaction logic. | Python syntax check |
-| P2.4 | Pending | Add token usage notes for future CSS/HTML figure renderers. | Figure QA smoke |
+| P2.4 | Pending | Align CSS/HTML figure compositor token usage and add notes for future renderers. | Figure QA smoke |
 
 Phase-close replanning requirement:
 
 - Reassess whether tokens should remain JSON/Python mirrors or move to one
   generated source.
+
+P2.1 completion summary:
+
+- Added `78-ui-token-inventory.md` as the current token-source inventory for
+  viewer, Matplotlib, Tkinter/ttk, figure renderers, HTML composition, and
+  terminal/Rich surfaces.
+- Identified the main unification gap: figure tokens are evidence-semantic
+  while Python viewer tokens are UI-role oriented.
+- Identified duplicate renderer fallback dictionaries, Python-only rigid-set
+  palettes, and an older terminal style as migration targets.
+
+Updated P2 next steps:
+
+- P2.2 should define the canonical token taxonomy and mapping table before
+  any runtime code changes.
+- P2.3 should mirror the chosen vocabulary into
+  `python/gcs_viz/color_scheme.py` while preserving viewer behavior and solver
+  boundaries.
+- P2.4 should align the HTML/CSS compositor and document renderer token use
+  after the Python mirror exists.
 
 ## P3: Viewer UI Implementation
 
