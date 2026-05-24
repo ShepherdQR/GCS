@@ -42,7 +42,7 @@ commit message must name the step's purpose.
 | Phase | Name | Status | Purpose |
 | --- | --- | --- | --- |
 | P0 | Convention Foundation | In progress | Name the UI design system and make it governable. |
-| P1 | Governance And Agents | Pending | Give future work dedicated skills, agents, and review responsibilities. |
+| P1 | Governance And Agents | Done | Give future work dedicated skills, agents, and review responsibilities. |
 | P2 | Token Unification | Pending | Make GUI, figures, and reports consume the same semantic token vocabulary. |
 | P3 | Viewer UI Implementation | Pending | Apply the design system to the Python viewer without moving solver truth into UI. |
 | P4 | Scientific Figure Pipeline | Pending | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
@@ -81,7 +81,7 @@ Goal: give the design system persistent working roles.
 | P1.1 | Done | `gcs-ui-design-steward` skill or role card for UI convention enforcement. | Skill/frontmatter validation by inspection |
 | P1.2 | Done | `gcs-figure-art-director` agent role for independent visual review. | Role card references `75`, `73`, `74` |
 | P1.3 | Done | Update existing `gcs-scientific-figure-producer` skill to cite `75` as the design-system entry. | `git diff --check` |
-| P1.4 | Pending | Add a step-template snippet for "summary, update steps, commit, continue." | Template references this plan |
+| P1.4 | Done | Add a step-template snippet for "summary, update steps, commit, continue." | Template references this plan |
 
 Phase-close replanning requirement:
 
@@ -104,8 +104,25 @@ Updated P1 next steps:
 - P1.1 is satisfied by the new skill and steward role card.
 - P1.2 is satisfied by the art-director role card.
 - P1.3 is satisfied by the scientific figure producer skill update.
-- P1.4 remains pending and should add a reusable step-completion snippet to a
-  task or execution-plan template.
+- P1.4 is satisfied by the PBCA step loop in
+  `docs/agentic/execution-plan-template.md`.
+
+P1.4 completion summary:
+
+- Added a PBCA step loop to `docs/agentic/execution-plan-template.md`.
+- Defined Plan, Build, Check, and Act actions for every step in a multi-step
+  execution plan.
+- Added a reusable step completion note with changed files, evidence,
+  follow-up adjustment, and commit fields.
+
+P1 phase-close replanning:
+
+- P1 is complete enough to support future UI design-system work.
+- P2 remains the next implementation phase, but P0.2 and P0.3 are still useful
+  documentation cleanup steps and can be handled opportunistically before or
+  during P2.
+- P2 should begin with a token inventory rather than token generation, because
+  the UI and figure surfaces now have named conventions and stewardship roles.
 
 ## P2: Token Unification
 

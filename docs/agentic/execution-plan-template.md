@@ -35,6 +35,34 @@ is small.
 6. Record evidence and residual risk.
 7. Commit and push only scoped changes.
 
+## PBCA Step Loop
+
+Use this loop for each step in a multi-step plan:
+
+| PBCA stage | Required action | Required artifact |
+| --- | --- | --- |
+| Plan | Confirm the current step, governing docs, scope, risks, and commit boundary. | One-sentence step intent and files likely to change. |
+| Build | Make the smallest coherent change for this step only. | Diff scoped to the current step. |
+| Check | Run focused checks and inspect whether future steps need adjustment. | Command outputs, skipped-check reasons, and residual risks. |
+| Act | Summarize the completed step, update later steps if needed, commit, then start the next step. | Step summary, plan update, commit hash. |
+
+Step completion note:
+
+```text
+PBCA step:
+- Plan:
+- Build:
+- Check:
+- Act:
+- Changed files:
+- Evidence:
+- Follow-up adjustment:
+- Commit:
+```
+
+Do not start the next step until the Act stage has updated the plan and created
+the scoped commit, unless the user explicitly pauses commits.
+
 ## Parallel Work
 
 Use parallel agents only for independent sidecar tasks such as read-only
