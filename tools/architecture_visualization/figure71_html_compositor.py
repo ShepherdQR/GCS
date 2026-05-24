@@ -63,6 +63,14 @@ EVIDENCE_TOKEN_ALIASES = {
 }
 
 SCHEMA_VERSION = "gcs.execution_map.v1"
+ARC_LAYOUT_BOXES = {
+    "foundation": (0, 0, 4, 1),
+    "algorithm": (4, 0, 4, 1),
+    "scene_generation": (8, 0, 4, 1),
+    "rank_spine": (0, 1, 5, 1),
+    "closure": (5, 1, 3, 1),
+    "showcase": (8, 1, 4, 1),
+}
 
 
 @dataclass(frozen=True)
@@ -80,6 +88,24 @@ def escape(value: object) -> str:
 
 def text_budget(label: str, budget: int) -> str:
     return f'data-gcs-text-label="{escape(label)}" data-gcs-text-budget="{budget}"'
+
+
+def contrast_attrs(label: str, foreground: str, background: str, threshold: float = 4.5) -> str:
+    return (
+        f'data-gcs-contrast-label="{escape(label)}" '
+        f'data-gcs-contrast-fg="{escape(foreground)}" '
+        f'data-gcs-contrast-bg="{escape(background)}" '
+        f'data-gcs-contrast-min="{threshold:.1f}"'
+    )
+
+
+def layout_box_attrs(label: str, group: str, box: tuple[int, int, int, int]) -> str:
+    value = ",".join(str(item) for item in box)
+    return (
+        f'data-gcs-box-label="{escape(label)}" '
+        f'data-gcs-box-group="{escape(group)}" '
+        f'data-gcs-box="{value}"'
+    )
 
 
 def load_json(path: Path) -> dict[str, object]:
@@ -209,6 +235,7 @@ def render_step(step: Step, colors: dict[str, str]) -> str:
 def render_arc(arc: dict[str, object], arc_steps: list[Step], colors: dict[str, str]) -> str:
     token = arc_token(arc)
     canonical_token = canonical_token_name(token)
+    arc_id = str(arc.get("id", "panel"))
     panel_type = str(arc.get("panel_type", "module-grid"))
     title = str(arc.get("title", "Untitled"))
     claim = str(arc.get("claim", ""))
@@ -223,16 +250,19 @@ def render_arc(arc: dict[str, object], arc_steps: list[Step], colors: dict[str, 
     cards = "\n".join(render_step(step, colors) for step in arc_steps)
     if panel_type == "domain-sketch":
         cards = render_showcase(colors)
+    panel_box = ARC_LAYOUT_BOXES.get(arc_id, (0, 0, 1, 1))
+    token_fill = colors.get(f"{canonical_token}.fill", colors["surface.panel"])
+    token_stroke = colors.get(f"{canonical_token}.stroke", colors["rule.default"])
     return f"""
-    <section class="panel panel-{escape(str(arc.get('id', 'panel')))} {escape(panel_type)}" style="{token_style(token, colors)}">
+    <section class="panel panel-{escape(arc_id)} {escape(panel_type)}" style="{token_style(token, colors)}" {layout_box_attrs(f"panel-{arc_id}", "figure71-grid", panel_box)}>
       <header class="panel-header">
         <div>
           <p class="panel-kicker">{escape(range_label)}</p>
-          <h2 {text_budget(f"panel-{escape(str(arc.get('id', 'panel')))}-title", 36)}>{escape(title)}</h2>
+          <h2 {text_budget(f"panel-{arc_id}-title", 36)} {contrast_attrs(f"panel-{arc_id}-title", colors["text.primary"], colors["surface.panel"])}>{escape(title)}</h2>
         </div>
-        <span class="token-chip" {text_budget(f"panel-{escape(str(arc.get('id', 'panel')))}-token", 28)}>{escape(canonical_token)}</span>
+        <span class="token-chip" {text_budget(f"panel-{arc_id}-token", 28)} {contrast_attrs(f"panel-{arc_id}-token", token_stroke, token_fill, 3.0)}>{escape(canonical_token)}</span>
       </header>
-      <p class="panel-claim" {text_budget(f"panel-{escape(str(arc.get('id', 'panel')))}-claim", 104)}>{escape(claim)}</p>
+      <p class="panel-claim" {text_budget(f"panel-{arc_id}-claim", 104)} {contrast_attrs(f"panel-{arc_id}-claim", colors["text.secondary"], colors["surface.panel"])}>{escape(claim)}</p>
       <div class="panel-body">
         {cards}
       </div>
@@ -571,14 +601,14 @@ def render_html(spec: dict[str, object], steps: list[Step], colors: dict[str, st
   <main class="figure-shell" data-figure-id="{escape(spec.get('id', 'figure'))}" data-schema-version="{escape(spec.get('schema_version', SCHEMA_VERSION))}">
     <header class="figure-title">
       <div>
-        <h1 {text_budget("figure-title", 84)}>{escape(figure_label)} | {escape(title)}</h1>
-        <p class="subtitle" {text_budget("figure-subtitle", 120)}>{escape(subtitle)}</p>
+        <h1 {text_budget("figure-title", 84)} {contrast_attrs("figure-title", colors["text.primary"], colors["surface.paper"])}>{escape(figure_label)} | {escape(title)}</h1>
+        <p class="subtitle" {text_budget("figure-subtitle", 120)} {contrast_attrs("figure-subtitle", colors["text.secondary"], colors["surface.paper"])}>{escape(subtitle)}</p>
       </div>
       <p class="meta">Source: {escape(source_label)}<br>{done_count} done / {len(steps) - done_count} pending</p>
     </header>
     <section class="claim-band">
       <p class="claim-label">Procedure claim</p>
-      <p {text_budget("procedure-claim", 150)}>{escape(claim)}</p>
+      <p {text_budget("procedure-claim", 150)} {contrast_attrs("procedure-claim", colors["text.primary"], colors["surface.panel.subtle"])}>{escape(claim)}</p>
     </section>
     <section class="figure-grid" aria-label="{escape(figure_label)} panels">
       {arc_markup}

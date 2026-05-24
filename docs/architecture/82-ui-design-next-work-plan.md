@@ -38,6 +38,8 @@ Completed:
   downstream visual-integrity plan.
 - P5.2 is complete: generated Figure 71 HTML now carries explicit text budgets
   and the default quality gates include text overflow checks.
+- P5.3 is complete: generated Figure 71 HTML now carries layout-box and
+  contrast markers, with forced overlap and weak-contrast fixtures in tests.
 
 Active phase:
 
@@ -53,8 +55,8 @@ Active phase:
 | 4 | P4.4 Rebuild execution-map figure | Done | Regenerate execution-map assets through the stable spec/compositor/QA path and demote old SVG output to prototype history. | `figure_qa.py` passes and generated artifacts are linked from architecture docs. |
 | 5 | P4 phase close | Done | Reassess whether repo-native figure production is stable enough before considering Figma MCP. | Phase-close summary and downstream plan update committed. |
 | 6 | P5.2 Text overflow gate | Done | Catch text that would spill from figure panels or compact UI surfaces. | Forced overflow fixture fails. |
-| 7 | P5.3 Overlap and contrast gates | Next | Catch critical text/shape overlap and weak contrast in status/evidence surfaces. | Forced overlap fails and contrast report is produced. |
-| 8 | P5.4 Screenshot baselines | Pending | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
+| 7 | P5.3 Overlap and contrast gates | Done | Catch critical text/shape overlap and weak contrast in status/evidence surfaces. | Forced overlap fails and contrast report is produced. |
+| 8 | P5.4 Screenshot baselines | Next | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
 | 9 | P6.1 Showcase brief | Pending | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
 | 10 | P6.2 Showcase fixture | Pending | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
 | 11 | P6.3 Showcase figure | Pending | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
@@ -123,9 +125,18 @@ Active phase:
 - Promoted `python.gcs_text_overflow` and
   `python.gcs_text_overflow_tests` into the default quality-gate sequence.
 
+## P5.3 Completion Summary
+
+- Added `tools/ui_qa/gcs_overlap_contrast.py`.
+- Added Figure 71 layout-box and contrast markers in the HTML compositor and
+  regenerated the HTML artifact.
+- Added forced overlap, weak contrast, and missing-marker tests.
+- Promoted `python.gcs_overlap_contrast` and
+  `python.gcs_overlap_contrast_tests` into the default quality-gate sequence.
+
 ## Updated Next Move
 
-The next implementation step should be **P5.3 Overlap And Contrast Gates**.
+The next implementation step should be **P5.4 Screenshot Baselines**.
 
 Reasoning:
 
@@ -137,8 +148,9 @@ Reasoning:
 - P4 is now closed, so downstream visual-integrity work can begin from an
   explicit phase summary.
 - P5.2 is now in place as a source-level text-budget gate.
-- P5.3 should stay focused on critical text/shape overlap and contrast reports
-  before screenshot baselines.
+- P5.3 is now in place as a source-level overlap and contrast gate.
+- P5.4 should choose a stable screenshot baseline policy before P6 showcase
+  work begins.
 
 ## Opportunistic Cleanup
 

@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-24 | [P5.3 overlap and contrast gates](2026-05-24-p5-3-overlap-contrast-gates/README.md) | done |
 | 2026-05-24 | [P5.2 text overflow gate](2026-05-24-p5-2-text-overflow-gate/README.md) | done |
 | 2026-05-24 | [P4 scientific figure pipeline phase close](2026-05-24-p4-scientific-figure-pipeline-phase-close/README.md) | done |
 | 2026-05-24 | [P4.4 execution-map figure rebuild](2026-05-24-p4-4-execution-map-rebuild/README.md) | done |

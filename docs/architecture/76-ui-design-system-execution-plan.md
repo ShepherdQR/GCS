@@ -452,7 +452,7 @@ Goal: make `GCS Visual Integrity Gate` measurable.
 | --- | --- | --- | --- |
 | P5.1 | Done | `gcs_token_lint.py` enforces raw-hex and unknown-token linting for GUI, Matplotlib, and figure renderer code. | Forced raw-hex fixture fails |
 | P5.2 | Done | `gcs_text_overflow.py` checks Figure 71 HTML text budgets and forced overflow fixtures. | QA fixture fails on forced overflow |
-| P5.3 | Pending | Add bounding-box overlap and contrast checks for text, status chips, and evidence panels. | Forced overlap plus contrast report |
+| P5.3 | Done | `gcs_overlap_contrast.py` checks Figure 71 layout boxes and contrast targets. | Forced overlap plus contrast report |
 | P5.4 | Pending | Add screenshot baselines for core GUI/figure states. | Stable baseline policy |
 
 Phase-close replanning requirement:
@@ -500,6 +500,25 @@ Updated P5 next steps after P5.2:
   artifact family.
 - P5.4 should decide screenshot baselines after the source-level gates are in
   place.
+
+P5.3 completion summary:
+
+- Added `tools/ui_qa/gcs_overlap_contrast.py` as a standard-library
+  source-level overlap and contrast checker.
+- Added six Figure 71 panel layout boxes and 21 contrast targets to the HTML
+  compositor output.
+- Added `tests/tools/test_gcs_overlap_contrast.py` with current Figure 71 pass,
+  forced overlap failure, forced weak-contrast failure, and missing-marker
+  failure.
+- Promoted `python.gcs_overlap_contrast` and
+  `python.gcs_overlap_contrast_tests` into default quality gates.
+- Added `docs/architecture/70-visualization/overlap-contrast-gate.md`.
+
+Updated P5 next steps after P5.3:
+
+- P5.4 should now add screenshot baselines over the same Figure 71 and viewer
+  states.
+- P6 showcase work should wait until P5.4 records baseline policy.
 
 ## P6: Showcase And Editorial Polish
 
