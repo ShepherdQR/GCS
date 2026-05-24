@@ -187,7 +187,7 @@ Status legend: `done`, `in_progress`, `pending`.
     diagnostics rank evidence.
 31. `done` - expose preserved rank evidence through runtime/viewer
     projection contracts.
-32. `pending` - make scene-generation promotion gates consume structured rank
+32. `done` - make scene-generation promotion gates consume structured rank
     evidence from public reports.
 33. `pending` - deepen decomposition separator, boundary projection, and
     SolveDAG evidence.
@@ -1107,6 +1107,46 @@ Reassessment after Step 31:
   promotion boundary consumes the new evidence.
 - Step 34 remains boundary-aware runtime diagnostics, where the same public
   rank projection can later be backed by post-local diagnostics.
+
+## Promotion Gate Rank Evidence Step Plan
+
+Implemented commit-level scope for Step 32:
+
+- Extend scene-generation promotion-package public gates with a first-class
+  `rank_evidence` gate.
+- Accept the Step 31 public `RankEvidenceProjection` shape from structured
+  runtime or viewer reports.
+- Validate full/free/frozen dimensions, residual dimension, rank, nullity,
+  under/over/singular flags, and condition evidence shape.
+- Preserve existing runtime smoke and diagnostics evidence gate semantics.
+- Keep executable smoke fallback for environments without structured runtime
+  reports.
+
+## Promotion Gate Rank Evidence Milestone
+
+Implemented scope for Step 32:
+
+- `gcs_scene_generation.promotion_package` now discovers rank evidence from
+  public paths such as `rank_evidence`, `viewer_overlay.rank_evidence`,
+  `diagnostic_overlay.rank_evidence`, `snapshot_summary.rank_evidence`, and
+  `command_summary.rank_evidence`.
+- The `rank_evidence` gate reports structured evidence count, source path,
+  copied projection records, and validation issues.
+- Missing rank evidence in a structured runtime report is recorded as a
+  skipped non-blocking gate.
+- Malformed supplied rank evidence fails with `rank_evidence_failed`.
+- Python scene-generation tests cover pass, skipped, and failed rank-evidence
+  gate paths.
+
+Reassessment after Step 32:
+
+- Step 33 is decomposition separator and SolveDAG deepening. Rank evidence now
+  reaches promotion boundaries, so planner evidence can deepen without leaving
+  promotion blind to the solver's rank state.
+- Step 34 remains boundary-aware post-local runtime diagnostics so the rank
+  projection can later consume diagnostics-owned evidence.
+- Step 35 remains diagnostics conflict/redundancy deepening after runtime has
+  richer post-local diagnostic stages.
 
 ## Damped Numeric Local Solve Step Plan
 

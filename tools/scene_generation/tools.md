@@ -144,12 +144,17 @@ adapter gates:
   through `GCS.exe` or `public_gate_config.solver_command`;
 - diagnostics evidence from structured runtime reports or fallback runtime
   output;
+- rank evidence from the public `RankEvidenceProjection` shape when
+  structured runtime or viewer-overlay evidence is supplied;
 - viewer projection evidence from the generated geometry-primal projection.
 
 Pass `public_gate_config.runtime_report` or
 `public_gate_config.runtime_report_path` when structured runtime/diagnostics
-evidence is already available. Otherwise set `GCS_EXE` or pass
-`public_gate_config.solver_command` when the default
+evidence is already available. Runtime reports may put rank evidence at
+`rank_evidence`, `viewer_overlay.rank_evidence`, or another documented public
+summary path; missing rank evidence is recorded as a non-blocking skipped gate,
+while malformed rank evidence fails the promotion gate. Otherwise set
+`GCS_EXE` or pass `public_gate_config.solver_command` when the default
 `out/build/clang-ninja/GCS.exe` is not available. Use
 `gate_profile: "local_only"` for a local-only promotion package.
 
@@ -236,8 +241,10 @@ Step 25 moved explorer plus promotion-package orchestration. Step 26 contained
 scratch-store path and IO policy behind `SceneGenerationStore`; public command
 compatibility still flows through `tools.py`. Step 27 hardened promotion gates
 by preferring structured runtime/diagnostics reports before executable smoke
-fallback. Solver algorithm deepening remains the next structural split. Do not
-move generation policy into the solver, GUI, or scene IO modules.
+fallback. Step 32 added the structured `rank_evidence` promotion gate over
+the public runtime/viewer `RankEvidenceProjection` shape. Solver algorithm
+deepening remains the next structural split. Do not move generation policy
+into the solver, GUI, or scene IO modules.
 
 ## Tests
 

@@ -85,6 +85,219 @@ def _stage_report_text(report: dict) -> str:
     return " ".join(parts).lower()
 
 
+RANK_EVIDENCE_PATHS = (
+    ("rank_evidence",),
+    ("viewer_overlay", "rank_evidence"),
+    ("diagnostic_overlay", "rank_evidence"),
+    ("snapshot_summary", "rank_evidence"),
+    ("command_summary", "rank_evidence"),
+    ("summary", "rank_evidence"),
+    ("runtime", "rank_evidence"),
+)
+
+
+REQUIRED_RANK_INTEGER_FIELDS = (
+    "numeric_variable_dimension",
+    "numeric_free_variable_dimension",
+    "numeric_frozen_variable_dimension",
+    "numeric_residual_dimension",
+    "numeric_rank_estimate",
+    "numeric_nullity_estimate",
+)
+
+
+REQUIRED_RANK_BOOLEAN_FIELDS = (
+    "numeric_under_constrained",
+    "numeric_over_constrained",
+    "numeric_singular",
+    "condition_estimate_available",
+)
+
+
+def _path_text(path: tuple[str, ...]) -> str:
+    return ".".join(path)
+
+
+def _nested_report_value(report: dict, path: tuple[str, ...]):
+    current = report
+    for key in path:
+        if not isinstance(current, dict) or key not in current:
+            return False, None
+        current = current[key]
+    return True, current
+
+
+def _rank_evidence_payload(runtime_report: dict) -> tuple[bool, str, object]:
+    for path in RANK_EVIDENCE_PATHS:
+        found, value = _nested_report_value(runtime_report, path)
+        if found:
+            return True, _path_text(path), value
+    return False, "", None
+
+
+def _rank_issue(code: str, path: str, message: str) -> dict:
+    return {"code": code, "path": path, "message": message}
+
+
+def _non_negative_int(record: dict, key: str, path: str, issues: list[dict]) -> int | None:
+    value = record.get(key)
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        issues.append(
+            _rank_issue(
+                "rank_evidence.invalid_integer",
+                f"{path}.{key}",
+                f"{key} must be a non-negative integer.",
+            )
+        )
+        return None
+    return value
+
+
+def _required_bool(record: dict, key: str, path: str, issues: list[dict]) -> bool | None:
+    value = record.get(key)
+    if not isinstance(value, bool):
+        issues.append(
+            _rank_issue(
+                "rank_evidence.invalid_boolean",
+                f"{path}.{key}",
+                f"{key} must be a boolean.",
+            )
+        )
+        return None
+    return value
+
+
+def _validate_rank_evidence_records(records: object, source_path: str) -> tuple[list[dict], list[dict]]:
+    issues: list[dict] = []
+    if not isinstance(records, list):
+        return [], [
+            _rank_issue(
+                "rank_evidence.invalid_shape",
+                source_path,
+                "Rank evidence must be a list of projection records.",
+            )
+        ]
+
+    normalized: list[dict] = []
+    for index, record in enumerate(records):
+        record_path = f"{source_path}[{index}]"
+        if not isinstance(record, dict):
+            issues.append(
+                _rank_issue(
+                    "rank_evidence.invalid_record",
+                    record_path,
+                    "Rank evidence record must be an object.",
+                )
+            )
+            continue
+
+        values = {
+            key: _non_negative_int(record, key, record_path, issues)
+            for key in REQUIRED_RANK_INTEGER_FIELDS
+        }
+        for key in REQUIRED_RANK_BOOLEAN_FIELDS:
+            _required_bool(record, key, record_path, issues)
+
+        if all(value is not None for value in values.values()):
+            full = values["numeric_variable_dimension"]
+            free = values["numeric_free_variable_dimension"]
+            frozen = values["numeric_frozen_variable_dimension"]
+            residuals = values["numeric_residual_dimension"]
+            rank = values["numeric_rank_estimate"]
+            nullity = values["numeric_nullity_estimate"]
+
+            if full != free + frozen:
+                issues.append(
+                    _rank_issue(
+                        "rank_evidence.dimension_mismatch",
+                        record_path,
+                        "Full variable dimension must equal free plus frozen dimensions.",
+                    )
+                )
+            if rank > free:
+                issues.append(
+                    _rank_issue(
+                        "rank_evidence.rank_exceeds_free_dimension",
+                        record_path,
+                        "Rank estimate must not exceed free variable dimension.",
+                    )
+                )
+            if rank > residuals:
+                issues.append(
+                    _rank_issue(
+                        "rank_evidence.rank_exceeds_residual_dimension",
+                        record_path,
+                        "Rank estimate must not exceed residual dimension.",
+                    )
+                )
+            if rank + nullity > free:
+                issues.append(
+                    _rank_issue(
+                        "rank_evidence.nullity_exceeds_free_dimension",
+                        record_path,
+                        "Rank plus nullity must not exceed free variable dimension.",
+                    )
+                )
+
+        if record.get("condition_estimate_available"):
+            condition = record.get("condition_estimate")
+            if isinstance(condition, bool) or not isinstance(condition, (int, float)):
+                issues.append(
+                    _rank_issue(
+                        "rank_evidence.invalid_condition_estimate",
+                        f"{record_path}.condition_estimate",
+                        "condition_estimate must be numeric when available.",
+                    )
+                )
+
+        normalized.append(dict(record))
+    return normalized, issues
+
+
+def rank_evidence_gate(runtime_report: dict) -> dict:
+    found, source_path, records = _rank_evidence_payload(runtime_report)
+    if not found:
+        return make_gate(
+            "rank_evidence",
+            "skipped",
+            "rank_evidence_missing",
+            {
+                "source": "structured_runtime_report",
+                "rank_evidence_present": False,
+                "accepted_paths": [_path_text(path) for path in RANK_EVIDENCE_PATHS],
+            },
+        )
+
+    normalized, issues = _validate_rank_evidence_records(records, source_path)
+    if isinstance(records, list) and len(records) == 0 and not issues:
+        return make_gate(
+            "rank_evidence",
+            "skipped",
+            "rank_evidence_missing",
+            {
+                "source": "structured_runtime_report",
+                "rank_evidence_present": False,
+                "rank_evidence_source_path": source_path,
+                "rank_evidence_count": 0,
+            },
+        )
+
+    passed = not issues
+    return make_gate(
+        "rank_evidence",
+        "passed" if passed else "failed",
+        None if passed else "rank_evidence_failed",
+        {
+            "source": "structured_runtime_report",
+            "rank_evidence_present": True,
+            "rank_evidence_source_path": source_path,
+            "rank_evidence_count": len(normalized),
+            "rank_evidence": normalized,
+            "issues": issues,
+        },
+    )
+
+
 def structured_runtime_public_gates(runtime_report: dict) -> list[dict]:
     accepted_statuses = {"accepted", "acceptedwithwarnings", "solved", "ok", "passed"}
     status_text = str(runtime_report.get("status", "")).replace(" ", "").lower()
@@ -117,6 +330,7 @@ def structured_runtime_public_gates(runtime_report: dict) -> list[dict]:
                 "runtime_report": runtime_report,
             },
         ),
+        rank_evidence_gate(runtime_report),
     ]
 
 

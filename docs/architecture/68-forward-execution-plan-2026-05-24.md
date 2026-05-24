@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 31:
+- Completed through Step 32:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -35,6 +35,8 @@ implementation step they describe.
   - session runtime now exposes `RankEvidenceProjection` records, and viewer
     overlays/summaries project rank evidence without requiring UI or promotion
     consumers to inspect numeric reports directly;
+  - scene-generation promotion gates now consume structured rank evidence from
+    public runtime/viewer reports through a dedicated `rank_evidence` gate;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
@@ -289,7 +291,7 @@ Reassessment after Step 31:
   requires post-local diagnostics before promotion can validate rank evidence
   robustly.
 
-### Step 32: Promotion Gate Uses Rank Evidence
+### Completed Step 32: Promotion Gate Uses Rank Evidence
 
 Goal:
 
@@ -306,23 +308,46 @@ Expected shape:
 - Keep executable smoke as fallback for environments without structured
   reports.
 
-Detailed plan:
+Decision:
 
-- Inspect `gcs_scene_generation.promotion_package` structured runtime report
-  parsing and existing public gate IDs.
-- Add a rank-evidence parser that accepts the Step 31
-  `RankEvidenceProjection` boundary shape from runtime/viewer structured
-  reports.
-- Preserve current `runtime_smoke` and `diagnostics_evidence` gate IDs unless
-  a new explicit `rank_evidence` gate is clearer.
-- Add Python unit tests for structured report pass, missing evidence fallback,
-  and unsupported evidence shape.
-- Persist Step 32 summary and reassess the solver algorithm queue.
+- Add an explicit `rank_evidence` gate. This keeps `runtime_smoke` and
+  `diagnostics_evidence` semantics stable while making rank proof visible as a
+  first-class promotion artifact.
+- Treat missing rank evidence in a structured runtime report as `skipped`
+  rather than blocking old reports. Treat malformed rank evidence as `failed`
+  because supplied evidence must not be accepted if it violates the public
+  projection contract.
 
-Exit criteria:
+Delivered:
 
-- Promotion packages can prove rank evidence through structured public reports.
-- Existing smoke fallback remains explicit and tested.
+- Add rank-evidence discovery for public paths such as `rank_evidence`,
+  `viewer_overlay.rank_evidence`, `diagnostic_overlay.rank_evidence`,
+  `snapshot_summary.rank_evidence`, and `command_summary.rank_evidence`.
+- Validate `RankEvidenceProjection` integer fields, boolean flags,
+  full/free/frozen dimension consistency, rank bounds, nullity bounds, and
+  condition-estimate shape.
+- Add a dedicated `rank_evidence` gate with structured evidence, issue lists,
+  and stable reason codes.
+- Preserve executable smoke fallback when no structured runtime report is
+  supplied.
+
+Tests:
+
+- Python scene-generation tests cover structured rank evidence passing through
+  promotion gates.
+- Python scene-generation tests cover missing rank evidence as a skipped
+  non-blocking gate.
+- Python scene-generation tests cover malformed rank evidence as a failed
+  gate.
+
+Reassessment after Step 32:
+
+- Step 33 is now the next highest-leverage move. Rank evidence is visible at
+  runtime, viewer, and promotion boundaries, so planner separator/SolveDAG
+  deepening can proceed with a stronger evidence chain.
+- Step 34 remains useful after Step 33: runtime should still add post-local
+  diagnostics so the rank projection can eventually be backed by diagnostics
+  rather than raw numeric reports.
 
 ### Step 33: Decomposition Separator And Solve-DAG Deepening
 
@@ -620,5 +645,5 @@ As of the Step 31-40 planning update:
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 32 is the next implementation step.
+- Step 33 is the next implementation step.
 

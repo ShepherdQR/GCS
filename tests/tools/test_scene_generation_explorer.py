@@ -88,6 +88,28 @@ def gate_by_id(package: dict, gate_id: str) -> dict:
     raise AssertionError(f"missing gate {gate_id}")
 
 
+def sample_rank_evidence(**overrides):
+    record = {
+        "local_report_index": 0,
+        "source": "runtime.numeric_rank_condition_report",
+        "context_id": {"value": 0},
+        "result_status": "Solved",
+        "numeric_variable_dimension": 6,
+        "numeric_free_variable_dimension": 3,
+        "numeric_frozen_variable_dimension": 3,
+        "numeric_residual_dimension": 1,
+        "numeric_rank_estimate": 1,
+        "numeric_nullity_estimate": 2,
+        "numeric_under_constrained": True,
+        "numeric_over_constrained": False,
+        "numeric_singular": False,
+        "condition_estimate_available": True,
+        "condition_estimate": 1.0,
+    }
+    record.update(overrides)
+    return record
+
+
 class SceneGenerationExplorerTests(unittest.TestCase):
     def test_package_contract_modules_are_structured_boundaries(self):
         self.assertTrue(contracts.is_valid_constraint_signature("Distance", "Point", "Plane"))
@@ -302,7 +324,81 @@ class SceneGenerationExplorerTests(unittest.TestCase):
             self.assertEqual(by_id["kernel_validation"]["status"], "passed")
             self.assertEqual(by_id["runtime_smoke"]["status"], "passed")
             self.assertEqual(by_id["diagnostics_evidence"]["status"], "passed")
+            self.assertEqual(by_id["rank_evidence"]["status"], "skipped")
             self.assertEqual(by_id["runtime_smoke"]["evidence"]["source"], "structured_runtime_report")
+
+    def test_public_adapter_gates_accept_rank_evidence_projection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = storage.SceneGenerationStore(str(root))
+            gcs = {
+                "rigid_sets": [{"id": 0}, {"id": 1}],
+                "geometries": [
+                    {"id": 1, "type": "Point", "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
+                    {"id": 2, "type": "Point", "rigid_set_id": 1, "v": [1, 0, 0, 0, 0, 0]},
+                ],
+                "constraints": [{"id": 7, "type": "Distance", "geometry_ids": [1, 2], "value": 1.0}],
+            }
+            projection = {"projected_graph_id": "rank_projection", "vertices": [1, 2], "edges": [[1, 2]]}
+
+            gates = promotion_package.public_adapter_gates(
+                store,
+                str(root),
+                str(root / "missing_solver.exe"),
+                "rank_runtime_gcs",
+                gcs,
+                projection,
+                "promotion",
+                False,
+                {
+                    "runtime_report": {
+                        "accepted": True,
+                        "status": "AcceptedWithWarnings",
+                        "stage_reports": [
+                            {"code": "diagnostics.glue_local_sections", "status": "Ok"},
+                        ],
+                        "viewer_overlay": {
+                            "rank_evidence": [sample_rank_evidence()],
+                        },
+                    }
+                },
+            )
+
+            by_id = {gate["gate_id"]: gate for gate in gates}
+            self.assertEqual(by_id["rank_evidence"]["status"], "passed")
+            self.assertEqual(by_id["rank_evidence"]["evidence"]["rank_evidence_source_path"], "viewer_overlay.rank_evidence")
+            self.assertEqual(by_id["rank_evidence"]["evidence"]["rank_evidence_count"], 1)
+            rank_record = by_id["rank_evidence"]["evidence"]["rank_evidence"][0]
+            self.assertEqual(rank_record["numeric_variable_dimension"], 6)
+            self.assertEqual(rank_record["numeric_free_variable_dimension"], 3)
+            self.assertEqual(rank_record["numeric_frozen_variable_dimension"], 3)
+            self.assertEqual(rank_record["numeric_nullity_estimate"], 2)
+
+    def test_public_adapter_gates_reject_invalid_rank_evidence_shape(self):
+        runtime_report = {
+            "accepted": True,
+            "status": "Solved",
+            "diagnostics": {"status": "Ok"},
+            "rank_evidence": [
+                sample_rank_evidence(
+                    numeric_variable_dimension=6,
+                    numeric_free_variable_dimension=6,
+                    numeric_frozen_variable_dimension=3,
+                    numeric_rank_estimate=7,
+                )
+            ],
+        }
+
+        gates = promotion_package.structured_runtime_public_gates(runtime_report)
+        by_id = {gate["gate_id"]: gate for gate in gates}
+
+        self.assertEqual(by_id["runtime_smoke"]["status"], "passed")
+        self.assertEqual(by_id["diagnostics_evidence"]["status"], "passed")
+        self.assertEqual(by_id["rank_evidence"]["status"], "failed")
+        self.assertEqual(by_id["rank_evidence"]["reason_code"], "rank_evidence_failed")
+        issue_codes = {issue["code"] for issue in by_id["rank_evidence"]["evidence"]["issues"]}
+        self.assertIn("rank_evidence.dimension_mismatch", issue_codes)
+        self.assertIn("rank_evidence.rank_exceeds_free_dimension", issue_codes)
 
     def test_explorer_is_deterministic_and_keeps_negative_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:

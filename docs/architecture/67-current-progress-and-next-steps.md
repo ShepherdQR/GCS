@@ -46,6 +46,8 @@ Completed algorithm-deepening steps:
   diagnostics rank evidence.
 - Step 31: exposed preserved rank evidence through runtime projections and
   viewer overlay/summary contracts.
+- Step 32: made scene-generation promotion gates consume structured rank
+  evidence from public runtime/viewer reports.
 
 Current validation baseline:
 
@@ -297,17 +299,34 @@ Delivered:
   numeric-engine internals directly.
 - Add accepted runtime and boundary-frozen viewer contract coverage.
 
-## Next Step 32
+## Completed Step 32
 
-The next step is promotion gate rank evidence consumption. Runtime and viewer
-now expose a public `RankEvidenceProjection` shape, so generated-scene
-promotion gates can validate full/free/frozen/nullity evidence without reading
-numeric reports or stdout directly.
+Step 32 made promotion gate rank evidence consumption explicit.
+
+Delivered:
+
+- Add a first-class `rank_evidence` promotion gate for structured runtime
+  reports.
+- Parse public rank evidence paths including `rank_evidence` and
+  `viewer_overlay.rank_evidence`.
+- Validate full/free/frozen dimensions, residual dimension, rank, nullity,
+  under/over/singular flags, and condition evidence shape.
+- Treat missing structured rank evidence as a skipped non-blocking gate while
+  failing malformed supplied evidence.
+- Preserve executable smoke fallback when no structured runtime report is
+  supplied.
+
+## Next Step 33
+
+The next step is decomposition separator and SolveDAG deepening. Rank evidence
+now flows through numeric, diagnostics, runtime, viewer, and promotion
+boundaries, so planner work can focus on stronger separator, boundary
+projection, solve-order dependency, and unsupported-plan evidence.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 31, the remaining steps were reconsidered;
-Step 32 is registered as the next highest-leverage move. A post-Step-40
+in the forward plan. After Step 32, the remaining steps were reconsidered;
+Step 33 is registered as the next highest-leverage move. A post-Step-40
 candidate is also recorded for an integrated feature showcase constraint graph.

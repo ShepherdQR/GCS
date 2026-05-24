@@ -39,6 +39,8 @@ FAILURE_REASON_CODES = {
     "kernel_validation_failed",
     "runtime_smoke_failed",
     "diagnostics_evidence_failed",
+    "rank_evidence_failed",
+    "rank_evidence_missing",
     "viewer_projection_failed",
     "promotion_gate_unsupported",
     "no_coverage_gain",
