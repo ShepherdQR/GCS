@@ -1,0 +1,59 @@
+{
+  "figure": "figure71",
+  "schema_version": "gcs.execution_map.v1",
+  "spec": "tools/architecture_visualization/specs/figure71.yaml",
+  "html": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html",
+  "requested_formats": [
+    "png",
+    "pdf"
+  ],
+  "status": "exported",
+  "reason": "Browser CLI produced all supported requested artifacts.",
+  "browser": {
+    "backend": "chromium-cli",
+    "executable": "chrome.exe",
+    "version": "version unavailable from browser CLI"
+  },
+  "html_token_checks": [
+    {
+      "token": "--gcs-surface-paper",
+      "passed": true
+    },
+    {
+      "token": "--gcs-surface-panel",
+      "passed": true
+    },
+    {
+      "token": "--gcs-text-primary",
+      "passed": true
+    },
+    {
+      "token": "--gcs-token-fill",
+      "passed": true
+    },
+    {
+      "token": "--gcs-token-stroke",
+      "passed": true
+    }
+  ],
+  "html_tokens_passed": true,
+  "exports": [
+    {
+      "format": "png",
+      "path": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.png",
+      "exists": true,
+      "bytes": 281703,
+      "exit_code": 0,
+      "diagnostic": "281703 bytes written to file <repo>\\docs\\architecture\\70-visualization\\assets\\figure71-gcs-step-1-40-evidence-map.review.png"
+    },
+    {
+      "format": "pdf",
+      "path": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.pdf",
+      "exists": true,
+      "bytes": 191329,
+      "exit_code": 0,
+      "diagnostic": "191329 bytes written to file <repo>\\docs\\architecture\\70-visualization\\assets\\figure71-gcs-step-1-40-evidence-map.review.pdf"
+    }
+  ],
+  "unsupported_formats": []
+}

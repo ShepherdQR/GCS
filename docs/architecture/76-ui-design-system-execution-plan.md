@@ -346,7 +346,7 @@ Pipeline`.
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
 | P4.1 | Done | `execution-map-spec-schema.md`, `figure71.yaml`, compositor support, and `figure_qa.py` establish `gcs.execution_map.v1` with canonical token fields. | Spec QA |
-| P4.2 | Pending | Add browser-rendered export path for HTML to PNG/PDF/SVG where tooling is available. | Browser smoke |
+| P4.2 | Done | `browser_export.py`, Figure 71 browser manifest, and review PNG/PDF artifacts add a thin browser-rendered export smoke. | Browser smoke plus figure QA |
 | P4.3 | Pending | Add graph/chart panel backends after third-party governance. | Dependency decision |
 | P4.4 | Pending | Rebuild the execution-map figure from the new pipeline and demote old SVG output to historical prototype. | `figure_qa.py` plus review artifact |
 
@@ -374,6 +374,25 @@ Updated P4 next steps:
   any new renderer packages.
 - P4.4 should rebuild generated assets only after P4.2 export behavior is
   stable.
+
+P4.2 completion summary:
+
+- Added `tools/architecture_visualization/browser_export.py` as a
+  dependency-light Chromium CLI export smoke for tokenized HTML figures.
+- Extended `figure71.yaml` with browser manifest and review PNG/PDF exports.
+- Regenerated the Figure 71 HTML, PNG, PDF, manifest, and QA JSON through the
+  browser export path.
+- Updated `figure_qa.py` so `quality.browser_smoke_required` checks the
+  manifest, export status, token proof, and exported artifact existence.
+
+Updated P4 next steps:
+
+- P5.1 should run next, before P4.4, so raw-hex and unknown-token linting guard
+  the rebuilt artifacts.
+- P4.3 remains a dependency-governance decision and should stay small unless a
+  new graph/chart backend becomes necessary.
+- P4.4 should rebuild and demote historical SVG output only after P5.1 is in
+  place.
 
 Current next-work plan:
 

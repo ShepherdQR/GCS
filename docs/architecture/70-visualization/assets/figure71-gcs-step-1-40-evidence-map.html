@@ -6,15 +6,43 @@
   <title>GCS Evidence-Boundary Flight Map</title>
   <style>
     :root {
-      --ink: #181715;
-      --muted: #5f5b53;
-      --quiet: #8b867a;
-      --rule: #d8d1c4;
-      --rule-soft: #ece7dd;
-      --paper: #f7f4ec;
-      --panel: #fffefa;
-      --surface: #fffdf7;
-      --accent: #c8643f;
+      --gcs-surface-paper: #f7f4ec;
+      --gcs-surface-panel: #fffefa;
+      --gcs-surface-subtle: #efede6;
+      --gcs-surface-canvas: #fbfaf5;
+      --gcs-surface-track: #efebe2;
+      --gcs-text-primary: #181715;
+      --gcs-text-secondary: #5f5b53;
+      --gcs-text-muted: #8b867a;
+      --gcs-rule-default: #d8d1c4;
+      --gcs-rule-soft: #ece7dd;
+      --gcs-state-focus: #c8643f;
+      --gcs-state-ok: #4b8a64;
+      --gcs-geometry-point-color: #334c78;
+      --gcs-constraint-emphasis-color: #b97834;
+      --gcs-evidence-domain-fill: #e7edf8;
+      --gcs-evidence-domain-stroke: #435f8c;
+      --gcs-evidence-graph-fill: #efe7f3;
+      --gcs-evidence-graph-stroke: #765d87;
+      --gcs-evidence-planner-fill: #e3f0e4;
+      --gcs-evidence-planner-stroke: #477861;
+      --gcs-evidence-numeric-fill: #edf2df;
+      --gcs-evidence-numeric-stroke: #5e7d43;
+      --gcs-evidence-diagnostic-fill: #f6e7cf;
+      --gcs-evidence-diagnostic-stroke: #a36b32;
+      --gcs-evidence-failure-fill: #f3ddd7;
+      --gcs-evidence-failure-stroke: #a94c43;
+      --gcs-evidence-boundary-fill: #efede6;
+      --gcs-evidence-boundary-stroke: #777166;
+      --ink: var(--gcs-text-primary);
+      --muted: var(--gcs-text-secondary);
+      --quiet: var(--gcs-text-muted);
+      --rule: var(--gcs-rule-default);
+      --rule-soft: var(--gcs-rule-soft);
+      --paper: var(--gcs-surface-paper);
+      --panel: var(--gcs-surface-panel);
+      --surface: var(--gcs-surface-subtle);
+      --accent: var(--gcs-state-focus);
     }
     * { box-sizing: border-box; }
     body {
@@ -216,7 +244,7 @@
       block-size: auto;
       border: 1px solid var(--rule-soft);
       border-radius: 8px;
-      background: #fbfaf5;
+      background: var(--gcs-surface-canvas);
     }
     .evidence-stack {
       display: grid;
@@ -250,27 +278,27 @@
     </style>
 </head>
 <body>
-  <main class="figure-shell" data-figure-id="figure71">
+  <main class="figure-shell" data-figure-id="figure71" data-schema-version="gcs.execution_map.v1">
     <header class="figure-title">
       <div>
-        <h1>Figure 71 | GCS Evidence-Boundary Flight Map</h1>
+        <h1>figure71 | GCS Evidence-Boundary Flight Map</h1>
         <p class="subtitle">Step 1-40 as a credibility-building procedure, not a flat checklist.</p>
       </div>
-      <p class="meta">Source: docs/architecture/71-step-1-40-execution-report.md<br>40 done / 0 pending</p>
+      <p class="meta">Source: docs\architecture\71-step-1-40-execution-report.md<br>40 done / 0 pending</p>
     </header>
     <section class="claim-band">
       <p class="claim-label">Procedure claim</p>
       <p>canonical contracts -&gt; executable solver evidence -&gt; public promotion gates -&gt; viewer-visible diagnostics -&gt; post-Step-40 showcase</p>
     </section>
-    <section class="figure-grid" aria-label="Figure 71 panels">
+    <section class="figure-grid" aria-label="figure71 panels">
 
-    <section class="panel panel-foundation module-grid" style="--token-fill:#e7edf8;--token-stroke:#435f8c;">
+    <section class="panel panel-foundation module-grid" style="--gcs-token-fill:#e7edf8;--gcs-token-stroke:#435f8c;--token-fill:var(--gcs-token-fill);--token-stroke:var(--gcs-token-stroke);">
       <header class="panel-header">
         <div>
           <p class="panel-kicker">Steps 1-13</p>
           <h2>Foundation Runway</h2>
         </div>
-        <span class="token-chip">domain</span>
+        <span class="token-chip">evidence.domain</span>
       </header>
       <p class="panel-claim">Kernel-to-viewer contracts become public evidence boundaries.</p>
       <div class="panel-body">
@@ -408,13 +436,13 @@
     </section>
 
 
-    <section class="panel panel-algorithm stage-chain" style="--token-fill:#edf2df;--token-stroke:#5e7d43;">
+    <section class="panel panel-algorithm stage-chain" style="--gcs-token-fill:#edf2df;--gcs-token-stroke:#5e7d43;--token-fill:var(--gcs-token-fill);--token-stroke:var(--gcs-token-stroke);">
       <header class="panel-header">
         <div>
           <p class="panel-kicker">Steps 14-18</p>
           <h2>Algorithm Lift</h2>
         </div>
-        <span class="token-chip">numeric</span>
+        <span class="token-chip">evidence.numeric</span>
       </header>
       <p class="panel-claim">The placeholder solver becomes executable evidence.</p>
       <div class="panel-body">
@@ -472,13 +500,13 @@
     </section>
 
 
-    <section class="panel panel-scene_generation loop" style="--token-fill:#e3f0e4;--token-stroke:#477861;">
+    <section class="panel panel-scene_generation loop" style="--gcs-token-fill:#e3f0e4;--gcs-token-stroke:#477861;--token-fill:var(--gcs-token-fill);--token-stroke:var(--gcs-token-stroke);">
       <header class="panel-header">
         <div>
           <p class="panel-kicker">Steps 19-27</p>
           <h2>Scene-Generation Loop</h2>
         </div>
-        <span class="token-chip">planner</span>
+        <span class="token-chip">evidence.planner</span>
       </header>
       <p class="panel-claim">Generated candidates must pass public solver gates before becoming fixtures.</p>
       <div class="panel-body">
@@ -576,13 +604,13 @@
     </section>
 
 
-    <section class="panel panel-rank_spine evidence-spine" style="--token-fill:#f6e7cf;--token-stroke:#a36b32;">
+    <section class="panel panel-rank_spine evidence-spine" style="--gcs-token-fill:#f6e7cf;--gcs-token-stroke:#a36b32;--token-fill:var(--gcs-token-fill);--token-stroke:var(--gcs-token-stroke);">
       <header class="panel-header">
         <div>
           <p class="panel-kicker">Steps 28-35</p>
           <h2>Rank Evidence Spine</h2>
         </div>
-        <span class="token-chip">diagnostic</span>
+        <span class="token-chip">evidence.diagnostic</span>
       </header>
       <p class="panel-claim">Free/frozen rank evidence propagates through diagnostics, runtime, viewer, and promotion.</p>
       <div class="panel-body">
@@ -670,13 +698,13 @@
     </section>
 
 
-    <section class="panel panel-closure horizon" style="--token-fill:#efede6;--token-stroke:#777166;">
+    <section class="panel panel-closure horizon" style="--gcs-token-fill:#efede6;--gcs-token-stroke:#777166;--token-fill:var(--gcs-token-fill);--token-stroke:var(--gcs-token-stroke);">
       <header class="panel-header">
         <div>
           <p class="panel-kicker">Steps 36-40</p>
           <h2>Evidence Closure</h2>
         </div>
-        <span class="token-chip">boundary</span>
+        <span class="token-chip">evidence.boundary</span>
       </header>
       <p class="panel-claim">Robustness, corpus, viewer evidence, gates, and atlas sync close the batch.</p>
       <div class="panel-body">
@@ -734,13 +762,13 @@
     </section>
 
 
-    <section class="panel panel-showcase domain-sketch" style="--token-fill:#e3f0e4;--token-stroke:#477861;">
+    <section class="panel panel-showcase domain-sketch" style="--gcs-token-fill:#e3f0e4;--gcs-token-stroke:#477861;--token-fill:var(--gcs-token-fill);--token-stroke:var(--gcs-token-stroke);">
       <header class="panel-header">
         <div>
           <p class="panel-kicker">after Step 40</p>
           <h2>Showcase Candidate</h2>
         </div>
-        <span class="token-chip">planner</span>
+        <span class="token-chip">evidence.planner</span>
       </header>
       <p class="panel-claim">The next visual should combine geometry, cover, rank, gluing, and diagnostic variants.</p>
       <div class="panel-body">

@@ -36,6 +36,13 @@ def root_path(path_value: object) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
+def display_path(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def parse_report_steps(report_path: Path) -> set[int]:
     steps: set[int] = set()
     for line in report_path.read_text(encoding="utf-8").splitlines():
@@ -150,6 +157,56 @@ def html_checks(html_path: Path, spec: dict[str, object]) -> list[dict[str, obje
     return checks
 
 
+def browser_manifest_checks(spec: dict[str, object]) -> list[dict[str, object]]:
+    checks: list[dict[str, object]] = []
+    quality = spec.get("quality", {})
+    if not isinstance(quality, dict) or not quality.get("browser_smoke_required", False):
+        return checks
+
+    exports = spec.get("exports", {})
+    if not isinstance(exports, dict) or "browser_manifest" not in exports:
+        return [{
+            "name": "browser_export_manifest_declared",
+            "passed": False,
+            "detail": "Spec quality.browser_smoke_required is true but exports.browser_manifest is missing.",
+        }]
+
+    manifest_path = root_path(exports["browser_manifest"])
+    checks.append({
+        "name": "browser_export_manifest_exists",
+        "passed": manifest_path.exists(),
+        "detail": display_path(manifest_path),
+    })
+    if not manifest_path.exists():
+        return checks
+
+    manifest = load_json(manifest_path)
+    status = str(manifest.get("status", ""))
+    checks.append({
+        "name": "browser_export_status_recorded",
+        "passed": status in {"exported", "partial", "skipped"},
+        "detail": f"Observed browser export status: {status!r}.",
+    })
+    checks.append({
+        "name": "browser_export_html_tokens_passed",
+        "passed": bool(manifest.get("html_tokens_passed", False)),
+        "detail": "Browser smoke manifest must prove canonical --gcs-* token presence in HTML.",
+    })
+
+    if status == "exported":
+        missing_exports = [
+            item.get("path", "<unknown>")
+            for item in manifest.get("exports", [])
+            if isinstance(item, dict) and not item.get("exists", False)
+        ]
+        checks.append({
+            "name": "browser_export_artifacts_exist",
+            "passed": not missing_exports,
+            "detail": f"Missing browser artifacts: {missing_exports}",
+        })
+    return checks
+
+
 def run_qa(spec_path: Path) -> dict[str, object]:
     spec = load_json(spec_path)
     exports = spec.get("exports", {})
@@ -174,16 +231,17 @@ def run_qa(spec_path: Path) -> dict[str, object]:
         {
             "name": "html_export_exists",
             "passed": html_path.exists(),
-            "detail": str(html_path),
+            "detail": display_path(html_path),
         },
     ]
     if html_path.exists():
         checks.extend(html_checks(html_path, spec))
+    checks.extend(browser_manifest_checks(spec))
 
     passed = all(bool(check["passed"]) for check in checks)
     return {
         "figure": spec.get("id", spec_path.stem),
-        "spec": str(spec_path.relative_to(ROOT)),
+        "spec": display_path(spec_path),
         "passed": passed,
         "checks": checks,
         "browser_qa_required_before_final": bool(

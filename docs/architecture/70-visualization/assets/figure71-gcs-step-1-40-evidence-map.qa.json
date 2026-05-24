@@ -1,27 +1,37 @@
 {
   "figure": "figure71",
-  "spec": "tools\\architecture_visualization\\specs\\figure71.yaml",
+  "spec": "tools/architecture_visualization/specs/figure71.yaml",
   "passed": true,
   "checks": [
     {
-      "name": "report_has_steps_1_40",
+      "name": "execution_map_schema_version",
+      "passed": true,
+      "detail": "Expected schema_version 'gcs.execution_map.v1'."
+    },
+    {
+      "name": "arcs_have_canonical_tokens",
+      "passed": true,
+      "detail": "Missing: []; invalid: []"
+    },
+    {
+      "name": "report_has_expected_steps",
       "passed": true,
       "detail": "Missing report steps: []"
     },
     {
-      "name": "spec_covers_steps_1_40",
+      "name": "spec_covers_expected_steps",
       "passed": true,
       "detail": "Missing spec steps: []; extra: []"
     },
     {
       "name": "html_export_exists",
       "passed": true,
-      "detail": "C:\\Codes\\Trae\\s002_GCS\\GCS\\docs\\architecture\\70-visualization\\assets\\figure71-gcs-step-1-40-evidence-map.html"
+      "detail": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html"
     },
     {
       "name": "no_absolute_positioning",
       "passed": true,
-      "detail": "Dense Figure 71 HTML should rely on grid/flex text flow, not absolute positioning."
+      "detail": "Dense execution-map HTML should rely on grid/flex text flow, not absolute positioning."
     },
     {
       "name": "overflow_wrap_rule",
@@ -32,6 +42,26 @@
       "name": "minimum_font_size",
       "passed": true,
       "detail": "Minimum font size is 10px; observed too-small sizes: []."
+    },
+    {
+      "name": "browser_export_manifest_exists",
+      "passed": true,
+      "detail": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-browser-export.json"
+    },
+    {
+      "name": "browser_export_status_recorded",
+      "passed": true,
+      "detail": "Observed browser export status: 'exported'."
+    },
+    {
+      "name": "browser_export_html_tokens_passed",
+      "passed": true,
+      "detail": "Browser smoke manifest must prove canonical --gcs-* token presence in HTML."
+    },
+    {
+      "name": "browser_export_artifacts_exist",
+      "passed": true,
+      "detail": "Missing browser artifacts: []"
     }
   ],
   "browser_qa_required_before_final": false

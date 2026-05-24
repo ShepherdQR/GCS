@@ -11,13 +11,17 @@
   "theme": "tools/architecture_visualization/figure1.theme.json",
   "exports": {
     "html": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html",
-    "qa": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.qa.json"
+    "qa": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.qa.json",
+    "browser_manifest": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-browser-export.json",
+    "review_png": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.png",
+    "review_pdf": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.pdf"
   },
   "quality": {
     "min_font_px": 10,
     "max_chip_focus_chars": 42,
     "require_no_absolute_positioning": true,
     "require_overflow_wrap": true,
+    "browser_smoke_required": true,
     "browser_screenshot_required_before_final": false
   },
   "arcs": [
