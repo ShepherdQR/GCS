@@ -37,6 +37,28 @@ def parse_report_steps(report_path: Path) -> set[int]:
     return steps
 
 
+def source_report_paths(spec: dict[str, object]) -> list[Path]:
+    raw_reports = spec.get("source_reports")
+    if isinstance(raw_reports, list) and raw_reports:
+        return [root_path(item) for item in raw_reports]
+    return [root_path(spec["source_report"])]
+
+
+def parse_source_steps(spec: dict[str, object]) -> set[int]:
+    steps: set[int] = set()
+    for report_path in source_report_paths(spec):
+        steps.update(parse_report_steps(report_path))
+    return steps
+
+
+def expected_steps(spec: dict[str, object]) -> set[int]:
+    raw_range = spec.get("expected_step_range", [1, 40])
+    if isinstance(raw_range, list) and len(raw_range) == 2:
+        start, end = int(raw_range[0]), int(raw_range[1])
+        return set(range(start, end + 1))
+    return set(range(1, 41))
+
+
 def arc_steps(spec: dict[str, object]) -> set[int]:
     covered: set[int] = set()
     arcs = spec.get("arcs", [])
@@ -65,7 +87,7 @@ def html_checks(html_path: Path, spec: dict[str, object]) -> list[dict[str, obje
     checks.append({
         "name": "no_absolute_positioning",
         "passed": (not absolute_found) if require_no_absolute else True,
-        "detail": "Dense Figure 71 HTML should rely on grid/flex text flow, not absolute positioning.",
+        "detail": "Dense execution-map HTML should rely on grid/flex text flow, not absolute positioning.",
     })
 
     require_wrap = bool(quality.get("require_overflow_wrap", True))
@@ -89,25 +111,24 @@ def html_checks(html_path: Path, spec: dict[str, object]) -> list[dict[str, obje
 
 def run_qa(spec_path: Path) -> dict[str, object]:
     spec = load_json(spec_path)
-    report_path = root_path(spec["source_report"])
     exports = spec.get("exports", {})
     if not isinstance(exports, dict):
         exports = {}
     html_path = root_path(exports.get("html", ""))
-    report_steps = parse_report_steps(report_path)
+    report_steps = parse_source_steps(spec)
     covered_steps = arc_steps(spec)
-    expected_steps = set(range(1, 41))
+    expected = expected_steps(spec)
 
     checks: list[dict[str, object]] = [
         {
-            "name": "report_has_steps_1_40",
-            "passed": expected_steps.issubset(report_steps),
-            "detail": f"Missing report steps: {sorted(expected_steps - report_steps)}",
+            "name": "report_has_expected_steps",
+            "passed": expected.issubset(report_steps),
+            "detail": f"Missing report steps: {sorted(expected - report_steps)}",
         },
         {
-            "name": "spec_covers_steps_1_40",
-            "passed": expected_steps == covered_steps,
-            "detail": f"Missing spec steps: {sorted(expected_steps - covered_steps)}; extra: {sorted(covered_steps - expected_steps)}",
+            "name": "spec_covers_expected_steps",
+            "passed": expected == covered_steps,
+            "detail": f"Missing spec steps: {sorted(expected - covered_steps)}; extra: {sorted(covered_steps - expected)}",
         },
         {
             "name": "html_export_exists",

@@ -100,6 +100,21 @@ def parse_steps(report_path: Path) -> list[Step]:
     return steps
 
 
+def source_report_paths(spec: dict[str, object]) -> list[Path]:
+    raw_reports = spec.get("source_reports")
+    if isinstance(raw_reports, list) and raw_reports:
+        return [root_path(item) for item in raw_reports]
+    return [root_path(spec["source_report"])]
+
+
+def parse_source_steps(spec: dict[str, object]) -> list[Step]:
+    by_number: dict[int, Step] = {}
+    for report_path in source_report_paths(spec):
+        for step in parse_steps(report_path):
+            by_number[step.number] = step
+    return [by_number[number] for number in sorted(by_number)]
+
+
 def steps_for_arc(steps: Iterable[Step], arc: dict[str, object]) -> list[Step]:
     raw_range = arc.get("range", [])
     if not isinstance(raw_range, list) or len(raw_range) != 2:
@@ -145,7 +160,9 @@ def render_arc(arc: dict[str, object], arc_steps: list[Step], colors: dict[str, 
     claim = str(arc.get("claim", ""))
     range_label = ""
     raw_range = arc.get("range", [])
-    if isinstance(raw_range, list) and len(raw_range) == 2:
+    if "range_label" in arc:
+        range_label = str(arc.get("range_label", ""))
+    elif isinstance(raw_range, list) and len(raw_range) == 2:
         range_label = f"Steps {raw_range[0]}-{raw_range[1]}"
     elif str(arc.get("id")) == "showcase":
         range_label = "after Step 40"
@@ -450,8 +467,16 @@ def render_html(spec: dict[str, object], steps: list[Step], colors: dict[str, st
     )
     title = str(spec.get("title", "GCS Figure"))
     subtitle = str(spec.get("subtitle", ""))
+    figure_label = str(spec.get("figure_label", spec.get("id", "Figure")))
     done_count = sum(1 for step in steps if step.status.lower() == "done")
-    claim = "canonical contracts -> executable solver evidence -> public promotion gates -> viewer-visible diagnostics -> post-Step-40 showcase"
+    claim = str(spec.get(
+        "main_claim",
+        "canonical contracts -> executable solver evidence -> public promotion gates -> viewer-visible diagnostics -> post-Step-40 showcase",
+    ))
+    source_label = " + ".join(
+        str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
+        for path in source_report_paths(spec)
+    )
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -464,16 +489,16 @@ def render_html(spec: dict[str, object], steps: list[Step], colors: dict[str, st
   <main class="figure-shell" data-figure-id="{escape(spec.get('id', 'figure'))}">
     <header class="figure-title">
       <div>
-        <h1>Figure 71 | {escape(title)}</h1>
+        <h1>{escape(figure_label)} | {escape(title)}</h1>
         <p class="subtitle">{escape(subtitle)}</p>
       </div>
-      <p class="meta">Source: {escape(spec.get('source_report', ''))}<br>{done_count} done / {len(steps) - done_count} pending</p>
+      <p class="meta">Source: {escape(source_label)}<br>{done_count} done / {len(steps) - done_count} pending</p>
     </header>
     <section class="claim-band">
       <p class="claim-label">Procedure claim</p>
       <p>{escape(claim)}</p>
     </section>
-    <section class="figure-grid" aria-label="Figure 71 panels">
+    <section class="figure-grid" aria-label="{escape(figure_label)} panels">
       {arc_markup}
     </section>
   </main>
@@ -483,7 +508,7 @@ def render_html(spec: dict[str, object], steps: list[Step], colors: dict[str, st
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Compose Figure 71 as HTML/CSS from its semantic spec.")
+    parser = argparse.ArgumentParser(description="Compose a GCS execution-map figure as HTML/CSS from its semantic spec.")
     parser.add_argument("--spec", type=Path, default=DEFAULT_SPEC, help="JSON-compatible YAML figure spec.")
     parser.add_argument("--out", type=Path, help="Output HTML path. Defaults to spec exports.html.")
     return parser.parse_args()
@@ -493,7 +518,6 @@ def main() -> int:
     args = parse_args()
     spec_path = args.spec if args.spec.is_absolute() else ROOT / args.spec
     spec = load_json(spec_path)
-    report_path = root_path(spec["source_report"])
     theme_path = root_path(spec.get("theme", ""))
     out_path = args.out
     if out_path is None:
@@ -503,7 +527,7 @@ def main() -> int:
         out_path = root_path(exports["html"])
     elif not out_path.is_absolute():
         out_path = ROOT / out_path
-    steps = parse_steps(report_path)
+    steps = parse_source_steps(spec)
     colors = load_theme(theme_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     payload = render_html(spec, steps, colors)

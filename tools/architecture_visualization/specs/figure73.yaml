@@ -1,0 +1,76 @@
+{
+  "id": "figure73",
+  "figure_label": "Figure 73",
+  "title": "GCS Step 1-46 Evidence Closure Map",
+  "subtitle": "Steps 1-46 as one contract-to-showcase-to-replay evidence program.",
+  "main_claim": "canonical contracts -> executable solver evidence -> public promotion gates -> viewer-visible diagnostics -> showcase scene assets -> replay-domain separation",
+  "source_reports": [
+    "docs/architecture/71-step-1-40-execution-report.md",
+    "docs/architecture/79-step-41-46-execution-report.md"
+  ],
+  "taste_guide": "docs/architecture/73-gcs-visual-taste-guide.md",
+  "research_note": "docs/research/20260524/scientific-figure-production-paradigm/README.md",
+  "theme": "tools/architecture_visualization/figure1.theme.json",
+  "exports": {
+    "html": "docs/architecture/70-visualization/assets/figure73-gcs-step-1-46-evidence-closure-map.html",
+    "qa": "docs/architecture/70-visualization/assets/figure73-gcs-step-1-46-evidence-closure-map.qa.json"
+  },
+  "expected_step_range": [1, 46],
+  "quality": {
+    "min_font_px": 10,
+    "max_chip_focus_chars": 42,
+    "require_no_absolute_positioning": true,
+    "require_overflow_wrap": true,
+    "browser_screenshot_required_before_final": false
+  },
+  "arcs": [
+    {
+      "id": "foundation",
+      "title": "Foundation Runway",
+      "range": [1, 13],
+      "token": "domain",
+      "claim": "Kernel-to-viewer contracts become public evidence boundaries.",
+      "panel_type": "module-grid"
+    },
+    {
+      "id": "algorithm",
+      "title": "Executable Solver Lift",
+      "range": [14, 18],
+      "token": "numeric",
+      "claim": "The placeholder solver becomes a tested numeric, IO, diagnostic, fixture, and quality-gate baseline.",
+      "panel_type": "stage-chain"
+    },
+    {
+      "id": "scene_generation",
+      "title": "Scene Promotion Loop",
+      "range": [19, 27],
+      "token": "planner",
+      "claim": "Generated candidates pass public solver adapters before becoming fixture evidence.",
+      "panel_type": "loop"
+    },
+    {
+      "id": "rank_spine",
+      "title": "Evidence Propagation Spine",
+      "range": [28, 35],
+      "token": "diagnostic",
+      "claim": "Free/frozen rank, post-local diagnostics, SolveDAG, and responsibility evidence move outward through public reports.",
+      "panel_type": "evidence-spine"
+    },
+    {
+      "id": "closure",
+      "title": "Step 40 Closure",
+      "range": [36, 40],
+      "token": "boundary",
+      "claim": "Robustness, corpus expansion, viewer evidence, quality sentinels, and atlas sync close the first implementation arc.",
+      "panel_type": "horizon"
+    },
+    {
+      "id": "showcase_replay",
+      "title": "Showcase And Replay Boundary",
+      "range": [41, 46],
+      "token": "failure",
+      "claim": "The showcase becomes a public scene/report artifact, then scene history and runtime replay are separated by contract.",
+      "panel_type": "stage-chain"
+    }
+  ]
+}

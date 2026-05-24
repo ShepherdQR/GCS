@@ -53,6 +53,11 @@ order, not by historical source order. Background research notes live under
      pre-push and CI execution.
    - `71-step-1-40-execution-report.md`: reporting-oriented summary of Step 1
      through Step 40 status, core deliverables, evidence, and next batch.
+   - `79-step-41-46-execution-report.md`: reporting-oriented summary of Step
+     41 through Step 46 showcase, scene behavior, history, and replay-boundary
+     work.
+   - `80-step-1-46-execution-overview.md`: combined Step 1 through Step 46
+     briefing map and Figure 73 regeneration notes.
 8. Visualization and aesthetic system
    - `70-visualization/gcs-architecture-atlas.md`: architecture diagrams and
      visual grammar for the target GCS shape.

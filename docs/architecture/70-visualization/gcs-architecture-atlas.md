@@ -149,6 +149,35 @@ python -B tools\architecture_visualization\render_showcase_scene.py
 Figure 72 should be regenerated when the showcase scene, metadata, behavior
 schema, or public evidence expectations change.
 
+## Editorial Figure 73
+
+Figure 73 is the Step 1-46 evidence-closure map. It extends Figure 71 with the
+post-Step-40 showcase, scene compatibility, scene-history, and runtime replay
+boundary work. The artifact is intentionally generated from source reports
+rather than hand-authored step labels.
+
+Review artifact:
+
+- [`assets/figure73-gcs-step-1-46-evidence-closure-map.html`](assets/figure73-gcs-step-1-46-evidence-closure-map.html)
+- `assets/figure73-gcs-step-1-46-evidence-closure-map.qa.json`
+
+Design controls:
+
+- `tools/architecture_visualization/specs/figure73.yaml`
+- `tools/architecture_visualization/figure71_html_compositor.py`
+- `tools/architecture_visualization/figure_qa.py`
+- `tools/architecture_visualization/figure1.theme.json`
+
+Rebuild command:
+
+```powershell
+python -B tools\architecture_visualization\figure71_html_compositor.py --spec tools\architecture_visualization\specs\figure73.yaml
+python -B tools\architecture_visualization\figure_qa.py --figure figure73
+```
+
+Figure 73 should be regenerated when either the Step 1-40 execution report or
+the Step 41-46 execution report changes.
+
 ## Editorial Aesthetic Direction
 
 The Figure 1 aesthetic should follow a Claude-influenced scientific editorial

@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GCS Step 1-46 Evidence Closure Map</title>
+  <style>
+    :root {
+      --ink: #181715;
+      --muted: #5f5b53;
+      --quiet: #8b867a;
+      --rule: #d8d1c4;
+      --rule-soft: #ece7dd;
+      --paper: #f7f4ec;
+      --panel: #fffefa;
+      --surface: #fffdf7;
+      --accent: #c8643f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Anthropic Sans", Inter, "Segoe UI", Arial, sans-serif;
+    }
+    .figure-shell {
+      inline-size: min(1600px, 100vw);
+      margin: 0 auto;
+      padding: 48px;
+    }
+    .figure-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 28px;
+      align-items: end;
+      border-bottom: 1px solid var(--rule);
+      padding-block-end: 22px;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Anthropic Serif", Georgia, Cambria, serif;
+      font-size: clamp(30px, 3vw, 48px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      max-inline-size: 820px;
+      line-height: 1.45;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+      min-inline-size: 240px;
+    }
+    .claim-band {
+      margin-block: 26px;
+      padding: 18px 20px;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .claim-band p {
+      margin: 6px 0 0;
+      font-size: clamp(17px, 1.4vw, 22px);
+      font-weight: 650;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .claim-label {
+      margin: 0;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 22px;
+      align-items: stretch;
+    }
+    .panel {
+      min-block-size: 290px;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel-foundation { grid-column: span 4; }
+    .panel-algorithm { grid-column: span 4; }
+    .panel-scene_generation { grid-column: span 4; }
+    .panel-rank_spine { grid-column: span 5; }
+    .panel-closure { grid-column: span 3; }
+    .panel-showcase { grid-column: span 4; }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+    }
+    .panel-kicker {
+      margin: 0 0 5px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h2 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+    .panel-claim {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+    .token-chip {
+      flex: none;
+      border: 1px solid var(--token-stroke);
+      background: var(--token-fill);
+      color: var(--token-stroke);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .panel-body {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+      gap: 10px;
+      margin-block-start: auto;
+    }
+    .step-card {
+      min-block-size: 86px;
+      border: 1px solid var(--token-stroke);
+      border-radius: 7px;
+      background: color-mix(in srgb, var(--token-fill) 66%, white);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-wrap: anywhere;
+    }
+    .step-card.pending {
+      background: var(--surface);
+      border-style: dashed;
+    }
+    .step-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-number {
+      color: var(--token-stroke);
+      font-weight: 750;
+      font-size: 13px;
+    }
+    .status-mark,
+    .pending-mark {
+      inline-size: 16px;
+      block-size: 16px;
+      flex: none;
+      border-radius: 50%;
+      border: 1px solid var(--token-stroke);
+      background: var(--panel);
+    }
+    .status-mark::after {
+      content: "";
+      display: block;
+      inline-size: 8px;
+      block-size: 4px;
+      border-inline-start: 2px solid var(--token-stroke);
+      border-block-end: 2px solid var(--token-stroke);
+      transform: rotate(-45deg);
+      margin: 4px 0 0 3px;
+    }
+    .pending-mark {
+      border-style: dashed;
+    }
+    h4 {
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .step-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.25;
+    }
+    .evidence-spine .panel-body {
+      grid-template-columns: 1fr;
+    }
+    .horizon .panel-body {
+      grid-template-columns: 1fr;
+    }
+    .showcase-layout {
+      display: grid;
+      grid-template-columns: minmax(180px, 1.4fr) minmax(120px, .8fr);
+      gap: 16px;
+      align-items: center;
+    }
+    .domain-sketch-svg {
+      inline-size: 100%;
+      block-size: auto;
+      border: 1px solid var(--rule-soft);
+      border-radius: 8px;
+      background: #fbfaf5;
+    }
+    .evidence-stack {
+      display: grid;
+      gap: 9px;
+    }
+    .evidence-stack span {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--rule-soft);
+      border-radius: 7px;
+      padding: 9px 10px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .evidence-stack strong {
+      color: var(--ink);
+    }
+    @media (max-width: 1100px) {
+      .figure-shell { padding: 28px; }
+      .figure-title { align-items: start; flex-direction: column; }
+      .meta { text-align: left; min-inline-size: 0; }
+      .panel-foundation,
+      .panel-algorithm,
+      .panel-scene_generation,
+      .panel-rank_spine,
+      .panel-closure,
+      .panel-showcase { grid-column: 1 / -1; }
+    }
+    </style>
+</head>
+<body>
+  <main class="figure-shell" data-figure-id="figure73">
+    <header class="figure-title">
+      <div>
+        <h1>Figure 73 | GCS Step 1-46 Evidence Closure Map</h1>
+        <p class="subtitle">Steps 1-46 as one contract-to-showcase-to-replay evidence program.</p>
+      </div>
+      <p class="meta">Source: docs\architecture\71-step-1-40-execution-report.md + docs\architecture\79-step-41-46-execution-report.md<br>46 done / 0 pending</p>
+    </header>
+    <section class="claim-band">
+      <p class="claim-label">Procedure claim</p>
+      <p>canonical contracts -&gt; executable solver evidence -&gt; public promotion gates -&gt; viewer-visible diagnostics -&gt; showcase scene assets -&gt; replay-domain separation</p>
+    </section>
+    <section class="figure-grid" aria-label="Figure 73 panels">
+
+    <section class="panel panel-foundation module-grid" style="--token-fill:#e7edf8;--token-stroke:#435f8c;">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">Steps 1-13</p>
+          <h2>Foundation Runway</h2>
+        </div>
+        <span class="token-chip">domain</span>
+      </header>
+      <p class="panel-claim">Kernel-to-viewer contracts become public evidence boundaries.</p>
+      <div class="panel-body">
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">1</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Kernel canonical contracts</h4>
+        <p>Established durable domain truth and removed dependence on legacy API shape.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">2</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Constraint catalog semantics</h4>
+        <p>Made equation semantics explicit and testable instead of being hidden inside solver code.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">3</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Incidence graph structure</h4>
+        <p>Provided deterministic structural evidence for decomposition and diagnostics.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">4</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Decomposition planner baseline</h4>
+        <p>Established local-to-global planning as a contract, not an optimization side effect.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">5</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Numeric task validation and assembly</h4>
+        <p>Made numeric engine consume structured tasks and produce assembly evidence.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">6</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Numeric residual/Jacobian/rank reports</h4>
+        <p>Created the first numeric evidence surface consumed by diagnostics.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">7</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Diagnostics DOF/rank/residual/status</h4>
+        <p>Separated structural evidence from numeric evidence and made status decisions deterministic.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">8</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Projection-aware gluing diagnostics</h4>
+        <p>Made failed local-to-global assembly explainable with stable subjects.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">9</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Session runtime transactions</h4>
+        <p>Made runtime the command and commit boundary.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">10</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>IO adapters</h4>
+        <p>Made fixtures and scene persistence reproducible.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">11</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Viewer bridge contracts</h4>
+        <p>Created a public visualization boundary over runtime and diagnostics.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">12</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Contract tools</h4>
+        <p>Created deterministic support tooling for module-level and cross-module tests.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">13</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Cross-module quality gates</h4>
+        <p>Closed the first implementation batch with cross-boundary regression coverage.</p>
+      </article>
+
+      </div>
+    </section>
+
+
+    <section class="panel panel-algorithm stage-chain" style="--token-fill:#edf2df;--token-stroke:#5e7d43;">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">Steps 14-18</p>
+          <h2>Executable Solver Lift</h2>
+        </div>
+        <span class="token-chip">numeric</span>
+      </header>
+      <p class="panel-claim">The placeholder solver becomes a tested numeric, IO, diagnostic, fixture, and quality-gate baseline.</p>
+      <div class="panel-body">
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">14</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Damped numeric local solve</h4>
+        <p>Promoted numeric engine from placeholder to real iterative local solver.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">15</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>JSON scene IO</h4>
+        <p>Made scene persistence useful for real test and promotion workflows.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">16</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Diagnostics conflict/redundancy candidates</h4>
+        <p>Turned typed placeholders into actionable diagnostic evidence.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">17</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Fixture corpus and golden digests</h4>
+        <p>Reduced ad hoc test-local model construction and improved regression explainability.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">18</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>CI-ready quality gates</h4>
+        <p>Created one deterministic pre-push and CI-quality command.</p>
+      </article>
+
+      </div>
+    </section>
+
+
+    <section class="panel panel-scene_generation loop" style="--token-fill:#e3f0e4;--token-stroke:#477861;">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">Steps 19-27</p>
+          <h2>Scene Promotion Loop</h2>
+        </div>
+        <span class="token-chip">planner</span>
+      </header>
+      <p class="panel-claim">Generated candidates pass public solver adapters before becoming fixture evidence.</p>
+      <div class="panel-body">
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">19</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Scene promotion public adapters</h4>
+        <p>Made generated scenes pass through public solver contracts before promotion.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">20</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Scene-generation package split start</h4>
+        <p>Began moving generator policy out of the CLI facade.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">21</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Topology/model split</h4>
+        <p>Made graph generation helpers independently testable.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">22</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Validation/projection split</h4>
+        <p>Clarified generated graph input/output contracts.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">23</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Parameterization/reporting split</h4>
+        <p>Made generated scene evidence deterministic and reusable.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">24</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Repair policy split</h4>
+        <p>Made candidate repair a structured module with testable edits.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">25</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Explorer and promotion orchestration split</h4>
+        <p>Moved high-level scene-generation orchestration out of the CLI facade.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">26</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>SceneGenerationStore containment</h4>
+        <p>Contained scratch-store and path policy behind one adapter.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">27</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Promotion gate hardening</h4>
+        <p>Made promotion gates more deterministic and less dependent on stdout parsing.</p>
+      </article>
+
+      </div>
+    </section>
+
+
+    <section class="panel panel-rank_spine evidence-spine" style="--token-fill:#f6e7cf;--token-stroke:#a36b32;">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">Steps 28-35</p>
+          <h2>Evidence Propagation Spine</h2>
+        </div>
+        <span class="token-chip">diagnostic</span>
+      </header>
+      <p class="panel-claim">Free/frozen rank, post-local diagnostics, SolveDAG, and responsibility evidence move outward through public reports.</p>
+      <div class="panel-body">
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">28</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Numeric free-column rank evidence</h4>
+        <p>Fixed numeric rank semantics for boundary-frozen tasks.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">29</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Architecture atlas synchronization</h4>
+        <p>Made the visual architecture reflect implemented evidence paths.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">30</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Diagnostics rank propagation</h4>
+        <p>Preserved numeric rank semantics through diagnostics.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">31</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Runtime/viewer rank evidence projection</h4>
+        <p>Lets UI, promotion gates, and review tooling consume rank evidence without reading numeric internals.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">32</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Promotion gates consume rank evidence</h4>
+        <p>Makes generated scene promotion prove full/free/frozen/nullity evidence.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">33</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Decomposition separator and SolveDAG deepening</h4>
+        <p>Improves explainable local-to-global planning.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">34</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Boundary-aware runtime diagnostics</h4>
+        <p>Makes runtime results carry structured rank/residual evidence, not only raw numeric reports.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">35</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Diagnostics conflict/redundancy deepening</h4>
+        <p>Makes failed solves more actionable and reportable.</p>
+      </article>
+
+      </div>
+    </section>
+
+
+    <section class="panel panel-closure horizon" style="--token-fill:#efede6;--token-stroke:#777166;">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">Steps 36-40</p>
+          <h2>Step 40 Closure</h2>
+        </div>
+        <span class="token-chip">boundary</span>
+      </header>
+      <p class="panel-claim">Robustness, corpus expansion, viewer evidence, quality sentinels, and atlas sync close the first implementation arc.</p>
+      <div class="panel-body">
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">36</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Numeric robustness batch</h4>
+        <p>Improves trustworthiness of dense numeric baseline reports.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">37</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Fixture and scene corpus expansion</h4>
+        <p>Gives later algorithm work durable regression scenes.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">38</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Viewer and GUI evidence surface</h4>
+        <p>Makes solver evidence visible to humans without parsing free-form text.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">39</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Quality gate hardening</h4>
+        <p>Protects the Step 31-38 evidence paths by default and makes the sentinel visible in gate summaries.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">40</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Atlas and roadmap resynchronization</h4>
+        <p>Re-closes the documentation, visualization, code, and test loop.</p>
+      </article>
+
+      </div>
+    </section>
+
+
+    <section class="panel panel-showcase_replay stage-chain" style="--token-fill:#f3ddd7;--token-stroke:#a94c43;">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">Steps 41-46</p>
+          <h2>Showcase And Replay Boundary</h2>
+        </div>
+        <span class="token-chip">failure</span>
+      </header>
+      <p class="panel-claim">The showcase becomes a public scene/report artifact, then scene history and runtime replay are separated by contract.</p>
+      <div class="panel-body">
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">41</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Integrated showcase constraint graph</h4>
+        <p>Proved the Step 31-40 evidence chain on one inspectable constraint graph rather than isolated micro-fixtures.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">42</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Showcase JSON scene promotion</h4>
+        <p>Made the showcase portable across IO, runtime, diagnostics, viewer, and CLI surfaces.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">43</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Scene-backed showcase atlas</h4>
+        <p>Turned executable showcase evidence into a reviewable architecture/demo artifact.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">44</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Cross-language scene behavior</h4>
+        <p>Ensured Python-authored scenes and C++ IO agree on solver-owned behavior fields.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">45</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>JSON history and replay compatibility</h4>
+        <p>Separated scene construction history from solver-owned behavior and made GUI-authored history testable.</p>
+      </article>
+
+
+      <article class="step-card done">
+        <div class="step-head">
+          <span class="step-number">46</span>
+          <span class="status-mark" aria-label="done"></span>
+        </div>
+        <h4>Runtime replay export boundary</h4>
+        <p>Prevented runtime transaction traces from masquerading as JSON scene construction history actions.</p>
+      </article>
+
+      </div>
+    </section>
+
+    </section>
+  </main>
+</body>
+</html>

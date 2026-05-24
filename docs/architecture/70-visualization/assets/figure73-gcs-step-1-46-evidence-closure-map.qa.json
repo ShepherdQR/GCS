@@ -1,0 +1,38 @@
+{
+  "figure": "figure73",
+  "spec": "tools\\architecture_visualization\\specs\\figure73.yaml",
+  "passed": true,
+  "checks": [
+    {
+      "name": "report_has_expected_steps",
+      "passed": true,
+      "detail": "Missing report steps: []"
+    },
+    {
+      "name": "spec_covers_expected_steps",
+      "passed": true,
+      "detail": "Missing spec steps: []; extra: []"
+    },
+    {
+      "name": "html_export_exists",
+      "passed": true,
+      "detail": "C:\\Codes\\Trae\\s002_GCS\\GCS\\docs\\architecture\\70-visualization\\assets\\figure73-gcs-step-1-46-evidence-closure-map.html"
+    },
+    {
+      "name": "no_absolute_positioning",
+      "passed": true,
+      "detail": "Dense execution-map HTML should rely on grid/flex text flow, not absolute positioning."
+    },
+    {
+      "name": "overflow_wrap_rule",
+      "passed": true,
+      "detail": "CSS should include overflow-wrap for long report-derived labels."
+    },
+    {
+      "name": "minimum_font_size",
+      "passed": true,
+      "detail": "Minimum font size is 10px; observed too-small sizes: []."
+    }
+  ],
+  "browser_qa_required_before_final": false
+}
