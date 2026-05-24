@@ -38,15 +38,16 @@ The default gate runs:
 5. Python scene auto explorer unittest
 6. Python agentic toolkit unittest
 7. Python showcase-scene renderer unittest
-8. `cmake --preset clang-ninja`
-9. `cmake --build --preset clang-ninja`
-10. full CTest contract suite
-11. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
-12. explicit public-evidence-chain CTest selection for rank, diagnostics,
+8. Python scene-schema algebra unittest
+9. `cmake --preset clang-ninja`
+10. `cmake --build --preset clang-ninja`
+11. full CTest contract suite
+12. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
+13. explicit public-evidence-chain CTest selection for rank, diagnostics,
     runtime, viewer, corpus, and showcase evidence introduced in Steps 31
-    through 42
-13. CLI smoke on `fixtures/scene/basic/g1.txt`
-14. CLI smoke on
+    through 44
+14. CLI smoke on `fixtures/scene/basic/g1.txt`
+15. CLI smoke on
     `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
 
 The command exits nonzero on the first failed gate by default and prints a
@@ -63,6 +64,7 @@ paths that must remain visible across modules:
 - diagnostics promotion of numeric residual/rank evidence and duplicate
   redundancy subjects;
 - kernel and IO validation for scene-facing solve intent;
+- C++ loading of Python-authored `gcs-0.3` behavior scenes;
 - runtime rank and post-local diagnostic projections;
 - viewer overlay projections for rank, residual, conflict, redundancy, and
   gluing obstruction evidence;
@@ -103,6 +105,7 @@ A change is Step 18 complete when:
   showcase sentinel tests;
 - scene-generation tests are part of the default gate;
 - showcase-scene renderer tests are part of the default gate;
+- Python scene-schema algebra tests are part of the default gate;
 - the agentic toolkit gate sequence is unit-tested as a Python tools contract;
 - representative basic and showcase CLI fixtures are part of the default gate;
 - the implementation roadmap records the latest quality-gate extension step.

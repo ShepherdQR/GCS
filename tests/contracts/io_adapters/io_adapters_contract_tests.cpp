@@ -162,6 +162,21 @@ TEST(IoAdaptersContract, ShowcaseJsonSceneCarriesSolveIntentBehavior) {
     EXPECT_EQ(result.snapshot.solve_intent.mode, gcs::kernel::SolveMode::update);
 }
 
+TEST(IoAdaptersContract, LoadsPythonAuthoredJsonBehaviorScene) {
+    auto result = io::load_scene(io::SceneLoadRequest{
+        source_path("fixtures/scene/json/python_behavior_roundtrip.gcs.json")});
+
+    ASSERT_TRUE(result.ok);
+    EXPECT_EQ(result.snapshot.solve_intent.mode, gcs::kernel::SolveMode::drag);
+    ASSERT_EQ(result.snapshot.solve_intent.fixed_entity_ids.size(), 1U);
+    ASSERT_EQ(result.snapshot.solve_intent.driven_entity_ids.size(), 1U);
+    ASSERT_EQ(result.snapshot.solve_intent.target_constraint_ids.size(), 1U);
+    EXPECT_EQ(result.snapshot.solve_intent.fixed_entity_ids.front().value, 0U);
+    EXPECT_EQ(result.snapshot.solve_intent.driven_entity_ids.front().value, 1U);
+    EXPECT_EQ(result.snapshot.solve_intent.target_constraint_ids.front().value, 0U);
+    EXPECT_EQ(result.snapshot.rigid_sets.front().entity_ids.front().value, 0U);
+}
+
 TEST(IoAdaptersContract, RejectsShowcaseSceneWithMissingFixedEntity) {
     auto result = io::load_scene(io::SceneLoadRequest{
         source_path("fixtures/scene/showcase/integrated_feature_showcase_missing_fixed.gcs.json")});

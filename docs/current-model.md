@@ -50,6 +50,10 @@ constraintId value
 Text scenes carry the structural model only. JSON scenes can also carry
 `behavior` and `history`; current C++ IO treats `behavior` as solver input and
 validates that every fixed, driven, or target ID resolves inside the scene.
+Python `gcs_viz.algebra` writes current public JSON scenes with
+`format_version: "gcs-0.3"` and the same behavior field names consumed by C++.
+Older GUI-saved scenes with `format_version: 1` remain readable by Python and
+are normalized to the current public shape when rewritten.
 
 ## Module Boundary
 

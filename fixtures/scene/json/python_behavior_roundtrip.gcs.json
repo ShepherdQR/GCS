@@ -1,0 +1,24 @@
+{
+  "format_version": "gcs-0.3",
+  "state_version": 0,
+  "rigid_sets": [
+    {"id": 0, "geometry_ids": [0]},
+    {"id": 1, "geometry_ids": [1]}
+  ],
+  "geometries": [
+    {"id": 0, "type": 0, "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
+    {"id": 1, "type": 0, "rigid_set_id": 1, "v": [1, 0, 0, 0, 0, 0]}
+  ],
+  "constraints": [
+    {"id": 0, "type": 3, "geometry_ids": [0, 1], "value": 1}
+  ],
+  "behavior": {
+    "mode": 1,
+    "fixed_geometry_ids": [0],
+    "driven_geometry_ids": [1],
+    "target_constraint_ids": [0]
+  },
+  "history": [
+    {"action": "Solve", "payload": {}}
+  ]
+}

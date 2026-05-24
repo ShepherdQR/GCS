@@ -56,6 +56,7 @@ class AgenticToolkitTests(unittest.TestCase):
                 "python.scene_generation_explorer",
                 "python.agentic_toolkit",
                 "python.showcase_scene_renderer",
+                "python.gcs_viz_algebra",
                 "cmake.configure",
                 "cmake.build",
                 "ctest.contracts",
@@ -78,6 +79,7 @@ class AgenticToolkitTests(unittest.TestCase):
             r"SessionRuntimeContract\.",
             r"ViewerBridgeContract\.",
             r"ShowcaseJsonSceneCarriesSolveIntentBehavior",
+            r"LoadsPythonAuthoredJsonBehaviorScene",
             r"RejectsShowcaseSceneWithMissingFixedEntity",
             r"RejectsSolveIntentMissingReferences",
             r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence",
@@ -101,6 +103,7 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertNotIn("python.scene_generation_explorer", gate_ids)
         self.assertNotIn("python.agentic_toolkit", gate_ids)
         self.assertNotIn("python.showcase_scene_renderer", gate_ids)
+        self.assertNotIn("python.gcs_viz_algebra", gate_ids)
         self.assertNotIn("ctest.contracts", gate_ids)
         self.assertNotIn("ctest.public_evidence_chain", gate_ids)
         self.assertNotIn("cli.basic_scene", gate_ids)

@@ -212,14 +212,15 @@ Status legend: `done`, `in_progress`, `pending`.
     negative diagnostic variants, and atlas/demo-ready metadata.
 43. `done` - build the scene-backed showcase atlas/demo projection and
     public report package from the Step 42 scene assets.
-44. `pending` - harden cross-language JSON scene behavior round-trip between
+44. `done` - harden cross-language JSON scene behavior round-trip between
     C++ IO and Python visualization schemas.
+45. `pending` - define and test JSON history/replay compatibility policy for
+    current and legacy GUI-authored scenes.
 
 Next registered candidate:
 
-- Complete Step 44 by proving that scene-facing behavior intent remains
-  aligned across C++ IO, Python visualization serialization, and durable
-  fixtures.
+- Complete Step 45 by making saved-scene history/replay compatibility explicit
+  across Python GUI authoring, Python replay, and C++ IO boundaries.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1572,6 +1573,29 @@ Reassessment after Step 43:
 - Step 44 should harden cross-language scene behavior compatibility because
   Python visualization now writes `gcs-0.3` behavior fields while legacy saved
   GUI fixtures still include older JSON shape.
+
+## Cross-Language Scene Behavior Step Plan
+
+Implemented scope:
+
+- Added a Python-authored-shape `gcs-0.3` JSON fixture with `behavior`,
+  `history`, and rigid-set `geometry_ids` fields.
+- Added C++ IO contract coverage proving that fixture loads and maps
+  `mode`, `fixed_geometry_ids`, `driven_geometry_ids`, and
+  `target_constraint_ids` into `ModelSnapshot.solve_intent`.
+- Added Python `gcs_viz.algebra` tests for current JSON schema emission,
+  behavior/history write-read preservation, and legacy saved-scene
+  normalization to current public shape.
+- Added the Python scene-schema algebra test to the default quality gate.
+- Updated current-model and quality-gate docs to record the cross-language
+  behavior contract.
+
+Reassessment after Step 44:
+
+- Scene-facing behavior intent is now covered by both Python and C++ tests.
+- The remaining compatibility risk is history/replay: Python preserves saved
+  construction history, while C++ scene IO currently treats history as
+  non-solver metadata. Step 45 should make that policy explicit and tested.
 
 ## Damped Numeric Local Solve Step Plan
 

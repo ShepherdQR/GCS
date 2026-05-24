@@ -518,17 +518,36 @@ Artifacts:
 - `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.svg`
 - `docs/architecture/70-visualization/showcase-scene-report.md`
 
-## Next Step 44
+## Completed Step 44
 
-The next step should harden cross-language JSON scene behavior round-trip
+Step 44 hardened cross-language JSON scene behavior round-trip
 between C++ IO and Python visualization schemas. Step 42 made `behavior`
 solver-owned scene input, and Step 43 made it public in the atlas; Step 44
-should ensure Python-authored `gcs-0.3` scenes preserve the same fixed,
-driven, and target intent fields expected by C++.
+ensures Python-authored `gcs-0.3` scenes preserve the same fixed, driven, and
+target intent fields expected by C++.
+
+Delivered:
+
+- Add Python tests for `BehaviorModel`, `GCSGraph.to_dict()`, JSON write/read,
+  and legacy saved-scene normalization.
+- Add a Python-authored-shape fixture under `fixtures/scene/json/`.
+- Add a C++ IO contract test that loads that fixture and verifies mode,
+  fixed, driven, and target behavior fields.
+- Add the Python algebra scene test to the default quality gate.
+- Update scene behavior docs, then reassess the next implementation step.
+- Contract test baseline is now 109 CTest-discovered GTest cases.
+
+## Next Step 45
+
+The next step should define and test JSON history/replay compatibility policy.
+Python GUI scenes preserve `history` and can replay construction actions, while
+C++ IO currently treats `history` as scene metadata outside `ModelSnapshot`.
+Step 45 should make this boundary explicit so saved GUI scenes, public fixtures,
+and future C++ replay support do not drift.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-43 are registered in the implementation roadmap; Steps 31 through 43 are
+44 are registered in the implementation roadmap; Steps 31 through 44 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. Step 44 is registered as the cross-language scene
-behavior compatibility follow-up.
+in the forward plan. Step 45 is registered as the history/replay compatibility
+follow-up.

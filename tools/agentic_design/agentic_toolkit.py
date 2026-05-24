@@ -1055,6 +1055,7 @@ PUBLIC_EVIDENCE_CHAIN_CTEST_REGEX = "|".join(
             r"IoAdaptersContract\."
             r"(JsonRoundTripPreservesSolveIntentBehavior|"
             r"ShowcaseJsonSceneCarriesSolveIntentBehavior|"
+            r"LoadsPythonAuthoredJsonBehaviorScene|"
             r"RejectsShowcaseSceneWithMissingFixedEntity)"
         ),
         (
@@ -1122,6 +1123,10 @@ def build_quality_gate_commands(args: argparse.Namespace,
         commands.append(GateCommand(
             "python.showcase_scene_renderer",
             [python, "-m", "unittest", "tests.tools.test_showcase_scene_renderer"],
+        ))
+        commands.append(GateCommand(
+            "python.gcs_viz_algebra",
+            [python, "-m", "unittest", "tests.tools.test_gcs_viz_algebra"],
         ))
 
     if not args.skip_build:

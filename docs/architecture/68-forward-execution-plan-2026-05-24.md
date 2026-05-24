@@ -1001,6 +1001,60 @@ Exit criteria:
 - Legacy GUI scene status is documented without silently changing its meaning.
 - The default quality gate covers the Python scene behavior contract.
 
+Completion summary:
+
+- Added `fixtures/scene/json/python_behavior_roundtrip.gcs.json` as a
+  Python-authored-shape current scene with `behavior`, `history`, and
+  rigid-set `geometry_ids`.
+- Added `IoAdaptersContract.LoadsPythonAuthoredJsonBehaviorScene` to prove C++
+  IO maps Python field names into `ModelSnapshot.solve_intent`.
+- Added `tests/tools/test_gcs_viz_algebra.py` for current schema emission,
+  behavior/history read-write preservation, and legacy saved-scene
+  normalization.
+- Added `python.gcs_viz_algebra` to the default quality gate.
+- Updated scene model documentation and quality-gate docs.
+
+Reassessment after Step 44:
+
+- Current behavior intent is aligned across Python and C++.
+- The remaining schema boundary is history: Python owns saved construction and
+  replay history today, while C++ IO loads solver structure and behavior but
+  does not preserve history in `ModelSnapshot`.
+
+### Step 45: JSON History And Replay Compatibility Policy
+
+Goal:
+
+- Make saved-scene history/replay ownership explicit and testable.
+
+Expected shape:
+
+- Python tests for replaying saved `history` actions from current and legacy
+  GUI-authored scenes.
+- Documentation that distinguishes solver-owned `behavior` from
+  replay-owned `history`.
+- Optional C++ IO tests proving history can be tolerated as metadata without
+  corrupting solver structure.
+
+Detailed plan:
+
+- Inspect `python/gcs_viz/viewer_bridge.py` replay helpers and saved history
+  fixtures.
+- Add Python replay tests for `AddRigidSet`, `AddGeometry`, `AddConstraint`,
+  `UpdateConstraint`, and `Solve` marker tolerance.
+- Document that current C++ `ModelSnapshot` does not persist history and that
+  C++ loaders must tolerate history fields as non-solver metadata.
+- Add or update a fixture if the existing saved scenes do not cover the needed
+  replay actions.
+- Reassess whether future C++ history projection support belongs in
+  `session_runtime` or a separate IO replay contract.
+
+Exit criteria:
+
+- Python replay reconstructs expected topology from current saved history.
+- Legacy saved scenes remain readable and their history policy is explicit.
+- The default quality gate covers the replay compatibility contract.
+
 ## Reassessment Protocol
 
 After each step:
