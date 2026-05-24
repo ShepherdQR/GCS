@@ -9,10 +9,12 @@ description: Project-specific workflow for producing publication-quality GCS fig
 
 Read these before changing a figure pipeline:
 
-1. `docs/architecture/73-gcs-visual-taste-guide.md`
-2. `docs/research/20260524/scientific-figure-production-paradigm/README.md`
-3. The figure's semantic spec under `tools/architecture_visualization/specs/`
-4. The source report, fixture, or structured evidence named by the spec
+1. `docs/architecture/75-ui-design-system-conventions.md`
+2. `docs/architecture/73-gcs-visual-taste-guide.md`
+3. `docs/architecture/74-scientific-figure-production-paradigm.md`
+4. `docs/research/20260524/scientific-figure-production-paradigm/README.md`
+5. The figure's semantic spec under `tools/architecture_visualization/specs/`
+6. The source report, fixture, or structured evidence named by the spec
 
 ## Required Workflow
 
@@ -36,6 +38,8 @@ Read these before changing a figure pipeline:
 6. Keep generated artifacts rebuildable from repo sources.
 7. Treat Python coordinate SVGs as prototypes unless they pass the figure QA
    gate and the art-direction review.
+8. Update `docs/architecture/76-ui-design-system-execution-plan.md` when a
+   completed figure step changes the remaining plan.
 
 ## Figure 71 Baseline
 

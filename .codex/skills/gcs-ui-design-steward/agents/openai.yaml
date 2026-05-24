@@ -1,0 +1,7 @@
+interface:
+  display_name: "GCS UI Design Steward"
+  short_description: "Governs GCS UI taste, tokens, evidence grammar, and visual QA."
+  brand_color: "#C8643F"
+  default_prompt: "Use $gcs-ui-design-steward to review this GCS UI or figure change against the named design conventions."
+policy:
+  allow_implicit_invocation: true

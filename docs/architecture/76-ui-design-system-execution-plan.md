@@ -78,9 +78,9 @@ Goal: give the design system persistent working roles.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P1.1 | Pending | `gcs-ui-design-steward` skill or role card for UI convention enforcement. | Skill/frontmatter validation by inspection |
-| P1.2 | Pending | `gcs-figure-art-director` agent role for independent visual review. | Role card references `75`, `73`, `74` |
-| P1.3 | Pending | Update existing `gcs-scientific-figure-producer` skill to cite `75` as the design-system entry. | `git diff --check` |
+| P1.1 | Done | `gcs-ui-design-steward` skill or role card for UI convention enforcement. | Skill/frontmatter validation by inspection |
+| P1.2 | Done | `gcs-figure-art-director` agent role for independent visual review. | Role card references `75`, `73`, `74` |
+| P1.3 | Done | Update existing `gcs-scientific-figure-producer` skill to cite `75` as the design-system entry. | `git diff --check` |
 | P1.4 | Pending | Add a step-template snippet for "summary, update steps, commit, continue." | Template references this plan |
 
 Phase-close replanning requirement:
@@ -88,6 +88,24 @@ Phase-close replanning requirement:
 - Decide whether the UI steward remains a skill, an agent role, or both.
 - Decide whether art-director review is required for all UI changes or only
   dense figures and showcase surfaces.
+
+P1 partial completion summary:
+
+- Added `.codex/skills/gcs-ui-design-steward/SKILL.md`.
+- Added `Atelier Steward: Calibrate-Review` as the convention-enforcement
+  institutional agent.
+- Added `Art Director: Frame-Judge` as the independent visual-review
+  institutional agent.
+- Updated `gcs-scientific-figure-producer` to treat `75` as its design-system
+  entry point and to update this plan when figure work changes the roadmap.
+
+Updated P1 next steps:
+
+- P1.1 is satisfied by the new skill and steward role card.
+- P1.2 is satisfied by the art-director role card.
+- P1.3 is satisfied by the scientific figure producer skill update.
+- P1.4 remains pending and should add a reusable step-completion snippet to a
+  task or execution-plan template.
 
 ## P2: Token Unification
 
@@ -172,4 +190,3 @@ Phase-close replanning requirement:
 
 - Decide the next aesthetic target: product UI refinement, paper figure, demo
   deck, or external design-tool integration.
-
