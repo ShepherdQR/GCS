@@ -152,6 +152,36 @@ struct HistoryFrameProjection {
     std::vector<runtime::StageTraceEntry> stages;
 };
 
+struct ReplayEvidenceStageSummary {
+    int order = 0;
+    std::string stage;
+    std::string stage_status;
+    std::string status;
+    StateVersionId before_version;
+    StateVersionId after_version;
+    bool durable_mutation = false;
+    std::string report_code;
+    std::string line;
+};
+
+struct ReplayEvidenceSummary {
+    bool found = false;
+    runtime::ReplayArtifactKind replay_artifact_kind =
+        runtime::ReplayArtifactKind::runtime_transaction_trace;
+    std::string replay_artifact_kind_text;
+    bool scene_construction_history_entry = false;
+    bool report_evidence = true;
+    CommandId command_id;
+    bool accepted = false;
+    std::string status;
+    StateVersionId base_version;
+    StateVersionId final_version;
+    bool committed = false;
+    bool rolled_back = false;
+    std::vector<std::string> report_codes;
+    std::vector<ReplayEvidenceStageSummary> stages;
+};
+
 struct SnapshotSummary {
     int rigid_set_count = 0;
     int entity_count = 0;
@@ -174,6 +204,10 @@ gcs::kernel::ContractResult<InteractionCommandDraft> draft_command(
     InteractionDraftRequest request);
 gcs::kernel::ContractResult<HistoryFrameProjection> project_history_frame(
     HistoryFrameRequest request);
+gcs::kernel::ContractResult<ReplayEvidenceSummary> summarize_replay_evidence(
+    const runtime::RuntimeReplayEvidenceExport& evidence);
+std::string format_replay_evidence_summary(
+    const ReplayEvidenceSummary& summary);
 SnapshotSummary summarize_snapshot(const ModelSnapshot& snapshot);
 SnapshotSummary summarize_command_result(const ModelSnapshot& snapshot,
                                          const runtime::CommandResult& result);

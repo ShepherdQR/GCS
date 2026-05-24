@@ -1,10 +1,11 @@
-# Step 1-47 Execution Overview
+# Step 1-48 Execution Overview
 
 Snapshot date: 2026-05-24.
 
 This overview combines the earlier Step 1-40 report, the Step 41-46 report,
-and the Step 47 runtime replay evidence export closure. It is a briefing map,
-not the source of truth. The authoritative execution records remain:
+the Step 47 runtime replay evidence export closure, and the Step 48 consumer
+path. It is a briefing map, not the source of truth. The authoritative
+execution records remain:
 
 - `66-implementation-execution-roadmap.md`;
 - `67-current-progress-and-next-steps.md`;
@@ -14,12 +15,12 @@ not the source of truth. The authoritative execution records remain:
 
 ## Main Claim
 
-Steps 1 through 47 form one evidence program:
+Steps 1 through 48 form one evidence program:
 
 ```text
 contracts -> executable solver -> promotion gates -> viewer diagnostics
   -> integrated showcase -> scene compatibility -> replay-domain separation
-  -> deterministic runtime replay evidence export
+  -> deterministic runtime replay evidence export -> public replay report
 ```
 
 ## Overview Diagram
@@ -34,8 +35,9 @@ flowchart LR
     s6["Steps 41-46<br/>showcase scene and replay boundaries"]
     s47["Step 47<br/>runtime replay evidence export"]
     s48["Step 48<br/>consumer path"]
+    s49["Step 49<br/>next consumer decision"]
 
-    s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s47 --> s48
+    s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s47 --> s48 --> s49
 
     s1 -. "stable IDs / snapshots / reports" .-> evidence["public evidence chain"]
     s2 -. "residuals / rank / fixture corpus" .-> evidence
@@ -44,6 +46,7 @@ flowchart LR
     s5 -. "quality sentinel and atlas" .-> evidence
     s6 -. "scene history != runtime replay" .-> evidence
     s47 -. "deterministic transaction report export" .-> evidence
+    s48 -. "viewer adapter + CLI replay report" .-> evidence
 
     evidence -. "CTest sentinel, CLI smoke, Python tools" .-> gates["quality gates"]
 
@@ -54,8 +57,8 @@ flowchart LR
     classDef next fill:#f3ddd7,stroke:#a94c43,color:#450a0a;
     class s1 domain;
     class s2,s3,s4 solve;
-    class s5,s6,s47,evidence,gates evidence;
-    class s48 next;
+    class s5,s6,s47,s48,evidence,gates evidence;
+    class s49 next;
 ```
 
 ## Figure Asset
@@ -87,16 +90,17 @@ python -B tools\architecture_visualization\figure_qa.py --figure figure73
 | 36-40 | Closure | Numeric robustness, reusable fixtures, viewer evidence surfaces, public evidence sentinel, atlas/report synchronization. |
 | 41-46 | Showcase and replay | Integrated showcase fixture, JSON scene promotion, Figure 72, Python/C++ behavior compatibility, scene history replay tests, runtime replay boundary. |
 | 47 | Runtime replay evidence export | Structured runtime report export for command traces, ordered stages, state versions, report codes, and missing-command evidence without JSON scene `history` writes. |
+| 48 | Runtime replay evidence consumer | Viewer/report adapter summary plus CLI `--replay-evidence` smoke without JSON scene `history` writes. |
 
 ## Current State
 
-- Steps 1 through 47 are documented as complete.
+- Steps 1 through 48 are documented as complete.
 - Step 41-46 details are now separately reportable in
   `79-step-41-46-execution-report.md`.
 - Figure 73 still covers all steps 1 through 46 from structured source reports
   and has QA coverage for expected step coverage and text-flow constraints.
-- Step 47 is recorded in the roadmap and current-progress documents as a
-  completed runtime replay evidence export package.
-- Step 48 is the next registered implementation step: expose that export
-  through a CLI, viewer, or report-consumer path without changing scene
-  `history`.
+- Step 48 is recorded in the roadmap and current-progress documents as a
+  completed runtime replay evidence consumer path.
+- Step 49 is the next registered implementation step: decide the next replay
+  evidence consumer, such as GUI projection, saved report artifact, or
+  diagnostics integration.

@@ -7,6 +7,9 @@ import gcs.viewer_bridge;
 
 #include <gtest/gtest.h>
 
+#include <cstddef>
+#include <string>
+
 namespace {
 
 namespace kernel = gcs::kernel;
@@ -18,6 +21,14 @@ namespace viewer = gcs::viewer;
 bool has_overlay_code(const viewer::DiagnosticOverlay& overlay, const char* code) {
     for (const auto& item : overlay.items) {
         if (item.code == code) return true;
+    }
+    return false;
+}
+
+bool has_replay_code(const viewer::ReplayEvidenceSummary& summary,
+                     const char* code) {
+    for (const auto& candidate : summary.report_codes) {
+        if (candidate == code) return true;
     }
     return false;
 }
@@ -379,4 +390,50 @@ TEST(ViewerBridgeContract, RuntimeHistoryFrameProjectsAsReportEvidenceOnly) {
         EXPECT_NE(stage.stage, "UpdateConstraint");
         EXPECT_NE(stage.stage, "Solve");
     }
+}
+
+TEST(ViewerBridgeContract, ReplayEvidenceSummaryPreservesRuntimeReportBoundary) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::SessionRuntime session(model);
+    auto result = session.solve();
+    auto evidence = session.export_replay_evidence(
+        runtime::ReplayRequest{result.command_id});
+
+    auto first = viewer::summarize_replay_evidence(evidence);
+    auto second = viewer::summarize_replay_evidence(evidence);
+
+    EXPECT_TRUE(first.payload.found);
+    EXPECT_TRUE(first.payload.report_evidence);
+    EXPECT_FALSE(first.payload.scene_construction_history_entry);
+    EXPECT_EQ(first.payload.replay_artifact_kind,
+              runtime::ReplayArtifactKind::runtime_transaction_trace);
+    EXPECT_EQ(first.payload.replay_artifact_kind_text,
+              "runtime_transaction_trace");
+    EXPECT_EQ(first.payload.command_id.value, result.command_id.value);
+    EXPECT_EQ(first.payload.status,
+              kernel::to_string(result.user_visible_status));
+    EXPECT_EQ(first.payload.base_version.value, 0U);
+    EXPECT_EQ(first.payload.final_version.value, 1U);
+    EXPECT_TRUE(first.payload.committed);
+    EXPECT_FALSE(first.payload.rolled_back);
+    EXPECT_TRUE(has_replay_code(first.payload, "runtime.commit"));
+
+    ASSERT_EQ(first.payload.stages.size(), second.payload.stages.size());
+    ASSERT_FALSE(first.payload.stages.empty());
+    for (std::size_t index = 0; index < first.payload.stages.size(); ++index) {
+        const auto& first_stage = first.payload.stages[index];
+        const auto& second_stage = second.payload.stages[index];
+        EXPECT_EQ(first_stage.order, second_stage.order);
+        EXPECT_EQ(first_stage.stage, second_stage.stage);
+        EXPECT_EQ(first_stage.line, second_stage.line);
+        EXPECT_NE(first_stage.stage, "AddGeometry");
+        EXPECT_NE(first_stage.stage, "AddConstraint");
+        EXPECT_NE(first_stage.stage, "Solve");
+    }
+
+    auto text = viewer::format_replay_evidence_summary(first.payload);
+    EXPECT_NE(text.find("Runtime replay evidence"), std::string::npos);
+    EXPECT_NE(text.find("artifact: runtime_transaction_trace"), std::string::npos);
+    EXPECT_NE(text.find("scene_history: false"), std::string::npos);
+    EXPECT_NE(text.find("runtime.commit"), std::string::npos);
 }

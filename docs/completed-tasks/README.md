@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-24 | [Step 48 replay consumer and S1-03 checklist](2026-05-24-step-48-replay-consumer-and-s1-03-checklist/README.md) | done |
 | 2026-05-24 | [UI aesthetic pipeline dialogue archive](2026-05-24-ui-aesthetic-pipeline-dialogue-archive/README.md) | done |
 | 2026-05-24 | [P6.4 Figma MCP decision](2026-05-24-p6-4-figma-mcp-decision/README.md) | done |
 | 2026-05-24 | [P6.3 showcase figure pipeline](2026-05-24-p6-3-showcase-figure-pipeline/README.md) | done |

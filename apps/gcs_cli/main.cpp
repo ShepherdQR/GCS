@@ -7,8 +7,25 @@ import gcs.viewer_bridge;
 
 int main(int argc, char** argv) {
     std::string path = "fixtures/scene/basic/g1.txt";
-    if (argc > 1) {
-        path = argv[1];
+    bool path_set = false;
+    bool print_replay_evidence = false;
+    for (int index = 1; index < argc; ++index) {
+        const std::string arg = argv[index];
+        if (arg == "--help" || arg == "-h") {
+            std::cout << "Usage: GCS.exe [scene-path] [--replay-evidence]\n";
+            return 0;
+        }
+        if (arg == "--replay-evidence") {
+            print_replay_evidence = true;
+            continue;
+        }
+        if (!path_set) {
+            path = arg;
+            path_set = true;
+            continue;
+        }
+        std::cerr << "Unexpected argument: " << arg << "\n";
+        return 1;
     }
 
     auto load_result = gcs::io::load_scene(gcs::io::SceneLoadRequest{path});
@@ -35,6 +52,15 @@ int main(int argc, char** argv) {
 
     for (const auto& message : summary.messages) {
         std::cout << "  " << message << "\n";
+    }
+
+    if (print_replay_evidence) {
+        auto replay_evidence = runtime.export_replay_evidence(
+            gcs::runtime::ReplayRequest{result.command_id});
+        auto replay_summary =
+            gcs::viewer::summarize_replay_evidence(replay_evidence);
+        std::cout << gcs::viewer::format_replay_evidence_summary(
+            replay_summary.payload);
     }
 
     if (result.obstruction_report.present) {

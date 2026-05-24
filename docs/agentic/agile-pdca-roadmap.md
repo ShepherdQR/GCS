@@ -22,16 +22,17 @@ Current task counts:
 
 | Phase | Done | Next | Pending | Main remaining question |
 | --- | ---: | ---: | ---: | --- |
-| Phase 1: Lifecycle Closure | 3 | 1 | 2 | Can the Step 47 lifecycle sample become a compact checklist future agents will actually use? |
+| Phase 1: Lifecycle Closure | 4 | 1 | 1 | Do the first lifecycle archives transfer enough context under E001 review? |
 | Phase 2: Quality-Gate Adoption | 0 | 0 | 5 | Which checks become opt-in gates before any default enforcement? |
 | Phase 3: E001 Closure Experience Validation | 1 | 1 | 2 | Does E001 catch weak closure evidence in real work, not only in templates? |
 | Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
 
 Priority order:
 
-1. Finish Phase 1 S1-03 by turning C001/C002/C003 into a lightweight
-   task-to-archive checklist.
-2. Use the Step 47 archive and closure score to drive S1-05 review details.
+1. Finish Phase 1 S1-05 by reviewing the first two lifecycle archives with
+   the E001 closure rubric.
+2. Use S1-03 checklist evidence to decide how strict future task-card/archive
+   validation should become.
 3. Add Phase 2 opt-in checks only after the lifecycle loop has two clean
    examples.
 4. Keep new institutional-agent examples tied to real requested work.
@@ -40,17 +41,18 @@ Priority order:
 
 ### Phase 1 Analysis
 
-Phase 1 is now proven on both documentation work and a real solver-adjacent
-task. C001 demonstrated the docs-only loop; C003 demonstrated a high-risk
-runtime contract change that created a task card, implementation evidence,
-completed archive, roadmap update, and a `刀匠` learning artifact.
+Phase 1 is now proven on documentation work, a real solver-adjacent task, and
+a combined engineering/process task. C001 demonstrated the docs-only loop;
+C003 demonstrated a high-risk runtime contract change; C004 completed S1-03 by
+turning the loop into a compact task-to-archive checklist while also advancing
+Step 48.
 
 Stage conclusion:
 
 - Keep Phase 1 active.
-- Treat S1-03 as the next consolidation task: turn the lifecycle into a
-  compact task-to-archive checklist.
-- Do not start Phase 2 default-gate work until S1-03 and S1-05 clarify which
+- Treat S1-05 as the next consolidation task: review the first lifecycle
+  archives against E001 rather than inventing new ceremony.
+- Do not start Phase 2 default-gate work until S1-05 clarifies which
   checks are valuable rather than ceremonial.
 
 ### Phase 2 Analysis
@@ -139,9 +141,9 @@ Backlog:
 | --- | --- | --- | --- |
 | S1-01 | Persist four-phase Agile PDCA roadmap and close this planning task. | done | This roadmap, task card, completed-task archive. |
 | S1-02 | Reconcile Step 46 lifecycle drift without fabricating a missing task card or archive. | done | `near-term-agent-plan.md` and this roadmap update. |
-| S1-03 | Add a lightweight task-to-archive cross-link checklist. | next | Runbook update and one checked example. |
+| S1-03 | Add a lightweight task-to-archive cross-link checklist. | done | `task-to-archive-checklist.md`, runbook update, checked Step 47 example. |
 | S1-04 | Decide which low-risk tasks may stay chat-only. | pending | Entry-criteria table in lifecycle runbook. |
-| S1-05 | Review the first two archives with E001 closure rubric. | pending | Scored closure notes or completed-task report updates. |
+| S1-05 | Review the first two archives with E001 closure rubric. | next | Scored closure notes or completed-task report updates. |
 | S1-06 | Apply the lifecycle loop to Step 47 deterministic runtime replay evidence export tooling. | done | Task card, implementation evidence, completed-task report, roadmap C003 update, `刀匠` note. |
 
 ## Phase 2: Quality-Gate Adoption
@@ -342,23 +344,70 @@ Act:
 - Step 48 is the next implementation step for runtime replay evidence
   consumption, not scene-history persistence.
 
+Supersession note: C004 below completes S1-03 and Step 48, then moves the next
+institutional consolidation task to S1-05 and the next engineering task to
+Step 49.
+
+### C004: Step 48 Replay Consumer And S1-03 Checklist
+
+Plan:
+
+- advance the engineering and institutional lines together;
+- expose runtime replay evidence through a public consumer path without
+  writing it into JSON scene `history`;
+- complete S1-03 as a compact task-to-archive checklist;
+- close with implementation evidence, architecture updates, completed-task
+  archive, and roadmap updates.
+
+Do:
+
+- added `ReplayEvidenceSummary` and a viewer/report adapter over
+  `RuntimeReplayEvidenceExport`;
+- added CLI `--replay-evidence`;
+- added viewer-bridge contract coverage and a replay-evidence CLI smoke in
+  `run-quality-gates`;
+- added `docs/agentic/task-to-archive-checklist.md` with a checked Step 47
+  example;
+- marked Step 48 complete and registered Step 49 as the next replay-evidence
+  consumer decision.
+
+Check:
+
+- task-card validation passed;
+- Python toolkit unit tests passed;
+- build passed after sandbox escalation for generated build output access;
+- focused `SessionRuntimeContract|ViewerBridgeContract` CTest selection passed
+  22/22;
+- full CTest passed 114/114;
+- CLI `--replay-evidence` smoke on `fixtures\scene\basic\g1.txt` passed;
+- `validate-docs`, `validate-inventory`, and `check-dependencies` passed;
+- full `run-quality-gates` passed, including the new replay-evidence CLI gate.
+
+Act:
+
+- S1-03 is complete.
+- S1-05 is now the next Phase 1 task: review the first lifecycle archives with
+  E001 and the new checklist.
+- S3-02 remains the next E001 hardening task.
+- Step 49 is the next implementation step for choosing the next runtime replay
+  evidence consumer.
+
 ## Next Agile Task
 
-S1-03 is the next task:
+S1-05 is the next task:
 
-1. Convert C001, C002, and C003 into a compact task-to-archive checklist.
-2. Update the lifecycle runbook with entry, execution, evidence, archive, and
-   learning-promotion checks.
-3. Add one checked example using the Step 47 task card and completed archive.
-4. Keep the checklist lightweight enough for future high-risk tasks to use
-   without becoming ceremony.
+1. Score C001 and Step 47 with the E001 closure rubric.
+2. Compare the scores with human review notes and the S1-03 checklist.
+3. Record whether Step 48 should become the second engineering sample for
+   future S1-05 calibration.
+4. Decide which archive-quality checks are worth turning into opt-in tooling.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S1-03 task-to-archive checklist | Converts C001/C002/C003 lessons into a compact checklist. | Runbook checklist and one checked Step 47 example. |
-| 2 | S1-05 first archive review | Tests whether E001 closure reports transfer enough context. | Two archive scores plus review note. |
+| 1 | S1-05 first archive review | Tests whether E001 closure reports transfer enough context now that S1-03 exists. | Two archive scores plus review note. |
+| 2 | Step 49 replay evidence consumer decision | Extends Step 48's consumer path only after choosing the right public surface. | GUI projection, saved report artifact, or diagnostics integration selected with a task card. |
 | 3 | S3-02 negative E001 eval | Uses real closure evidence to guard against archive pollution or false completion. | One failing/passing eval note. |
 | 4 | S2-01 opt-in gate design | Only after the checklist and archive review clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
 | 5 | S4-05 institutional-agent reassessment | `刀匠` and `裁缝` now each have one real example. | Candidate table update after additional real closures. |

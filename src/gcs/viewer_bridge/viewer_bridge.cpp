@@ -78,6 +78,29 @@ std::string residual_evidence_message(
            ", max " + std::to_string(evidence.max_residual);
 }
 
+std::string bool_text(bool value) {
+    return value ? "true" : "false";
+}
+
+std::string replay_artifact_kind_text(runtime::ReplayArtifactKind kind) {
+    switch (kind) {
+        case runtime::ReplayArtifactKind::runtime_transaction_trace:
+            return "runtime_transaction_trace";
+    }
+    return "unknown";
+}
+
+std::string stage_summary_line(
+    const runtime::RuntimeReplayEvidenceStage& stage) {
+    return "[" + std::to_string(stage.order) + "] " + stage.stage +
+           " stage_status=" + kernel::to_string(stage.stage_status) +
+           " status=" + kernel::to_string(stage.status) +
+           " versions=" + std::to_string(stage.before_version.value) + "->" +
+           std::to_string(stage.after_version.value) +
+           " durable=" + bool_text(stage.durable_mutation) +
+           " code=" + stage.report_code;
+}
+
 ResponsibilityEvidenceProjection make_conflict_projection(
     std::string source,
     const diagnostics::ConflictSet& conflict) {
@@ -292,6 +315,89 @@ gcs::kernel::ContractResult<HistoryFrameProjection> project_history_frame(
     }
 
     return result;
+}
+
+gcs::kernel::ContractResult<ReplayEvidenceSummary> summarize_replay_evidence(
+    const runtime::RuntimeReplayEvidenceExport& evidence) {
+    kernel::ContractResult<ReplayEvidenceSummary> result;
+    result.report = kernel::make_stage_report(
+        "viewer_bridge.summarize_replay_evidence");
+
+    result.payload.found = evidence.found;
+    result.payload.replay_artifact_kind = evidence.replay_artifact_kind;
+    result.payload.replay_artifact_kind_text =
+        replay_artifact_kind_text(evidence.replay_artifact_kind);
+    result.payload.scene_construction_history_entry =
+        evidence.scene_construction_history_entry;
+    result.payload.report_evidence = evidence.report_evidence;
+    result.payload.command_id = evidence.command_id;
+    result.payload.accepted = evidence.accepted;
+    result.payload.status = kernel::to_string(evidence.status);
+    result.payload.base_version = evidence.base_version;
+    result.payload.final_version = evidence.final_version;
+    result.payload.committed = evidence.committed;
+    result.payload.rolled_back = evidence.rolled_back;
+    result.payload.report_codes = evidence.report_codes;
+
+    if (!evidence.found) {
+        kernel::append_report_message(
+            result.report,
+            kernel::make_report_message(
+                kernel::ReportSeverity::warning,
+                kernel::ReportCode{"viewer.replay_evidence_missing_command"},
+                "Requested runtime replay evidence was not found."));
+    }
+
+    for (const auto& stage : evidence.stages) {
+        ReplayEvidenceStageSummary summary;
+        summary.order = stage.order;
+        summary.stage = stage.stage;
+        summary.stage_status = kernel::to_string(stage.stage_status);
+        summary.status = kernel::to_string(stage.status);
+        summary.before_version = stage.before_version;
+        summary.after_version = stage.after_version;
+        summary.durable_mutation = stage.durable_mutation;
+        summary.report_code = stage.report_code;
+        summary.line = stage_summary_line(stage);
+        result.payload.stages.push_back(std::move(summary));
+    }
+
+    return result;
+}
+
+std::string format_replay_evidence_summary(
+    const ReplayEvidenceSummary& summary) {
+    std::string text;
+    text += "Runtime replay evidence\n";
+    text += "  found: " + bool_text(summary.found) + "\n";
+    text += "  command_id: " + std::to_string(summary.command_id.value) + "\n";
+    text += "  artifact: " + summary.replay_artifact_kind_text + "\n";
+    text += "  report_evidence: " + bool_text(summary.report_evidence) + "\n";
+    text += "  scene_history: " +
+            bool_text(summary.scene_construction_history_entry) + "\n";
+    text += "  accepted: " + bool_text(summary.accepted) + "\n";
+    text += "  status: " + summary.status + "\n";
+    text += "  versions: " + std::to_string(summary.base_version.value) +
+            " -> " + std::to_string(summary.final_version.value) + "\n";
+    text += "  committed: " + bool_text(summary.committed) + "\n";
+    text += "  rolled_back: " + bool_text(summary.rolled_back) + "\n";
+    text += "  report_codes:\n";
+    if (summary.report_codes.empty()) {
+        text += "    <none>\n";
+    } else {
+        for (const auto& code : summary.report_codes) {
+            text += "    " + code + "\n";
+        }
+    }
+    text += "  stages:\n";
+    if (summary.stages.empty()) {
+        text += "    <none>\n";
+    } else {
+        for (const auto& stage : summary.stages) {
+            text += "    " + stage.line + "\n";
+        }
+    }
+    return text;
 }
 
 SnapshotSummary summarize_snapshot(const ModelSnapshot& snapshot) {

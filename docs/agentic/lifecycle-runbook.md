@@ -5,6 +5,10 @@
 Move GCS work from request to push through a repeatable, reviewable agentic
 workflow.
 
+Use `task-to-archive-checklist.md` as the compact per-task checklist. The
+runbook explains the full workflow; the checklist is the quick gate before
+declaring a task done.
+
 ## Step 1: Classify
 
 Classify the request by scope:
@@ -106,6 +110,11 @@ python tools\agentic_design\agentic_toolkit.py score-closure-report docs\complet
 
 Use the score as a closure heuristic, not as a replacement for review. A low
 score means the report likely fails to transfer task state into project memory.
+
+Before final response or commit, check the task against
+`docs/agentic/task-to-archive-checklist.md`. At minimum, confirm that the task
+card, evidence bundle, completed-task archive, roadmap update, and commit scope
+agree.
 
 ## Step 9: Learn
 

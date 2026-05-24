@@ -79,6 +79,7 @@ class AgenticToolkitTests(unittest.TestCase):
                 "ctest.public_evidence_chain",
                 "cli.basic_scene",
                 "cli.showcase_scene",
+                "cli.replay_evidence_basic_scene",
             ],
         )
 
@@ -98,8 +99,10 @@ class AgenticToolkitTests(unittest.TestCase):
             r"RejectsShowcaseSceneWithMissingFixedEntity",
             r"RejectsSolveIntentMissingReferences",
             r"ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory",
+            r"ReplayEvidenceExportIsDeterministicReportEvidence",
             r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence",
             r"RuntimeHistoryFrameProjectsAsReportEvidenceOnly",
+            r"ReplayEvidenceSummaryPreservesRuntimeReportBoundary",
             r"ContractToolsContract\.",
             r"IntegratedShowcaseFixtureCarriesPublicEvidenceContract",
         ]:
@@ -139,6 +142,7 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertNotIn("ctest.public_evidence_chain", gate_ids)
         self.assertNotIn("cli.basic_scene", gate_ids)
         self.assertNotIn("cli.showcase_scene", gate_ids)
+        self.assertNotIn("cli.replay_evidence_basic_scene", gate_ids)
         self.assertIn("agentic.check-dependencies", gate_ids)
         self.assertIn("cmake.build", gate_ids)
 

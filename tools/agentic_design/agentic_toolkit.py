@@ -1356,13 +1356,15 @@ PUBLIC_EVIDENCE_CHAIN_CTEST_REGEX = "|".join(
             r"SessionRuntimeContract\."
             r"(ProjectsRankEvidenceFromAcceptedCommandResult|"
             r"PostLocalDiagnosticsPreserveNumericEvidence|"
-            r"ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory)"
+            r"ReplayArtifactIsRuntimeTraceNotSceneConstructionHistory|"
+            r"ReplayEvidenceExportIsDeterministicReportEvidence)"
         ),
         (
             r"ViewerBridgeContract\."
             r"(OverlayProjects.*Evidence|"
             r"ShowcaseFixtureProjectsBoundaryRankAndResidualEvidence|"
-            r"RuntimeHistoryFrameProjectsAsReportEvidenceOnly)"
+            r"RuntimeHistoryFrameProjectsAsReportEvidenceOnly|"
+            r"ReplayEvidenceSummaryPreservesRuntimeReportBoundary)"
         ),
         (
             r"ContractToolsContract\."
@@ -1502,6 +1504,10 @@ def build_quality_gate_commands(args: argparse.Namespace,
         commands.append(GateCommand(
             "cli.showcase_scene",
             [cli_exe, repo_path("fixtures/scene/showcase/integrated_feature_showcase.gcs.json")],
+        ))
+        commands.append(GateCommand(
+            "cli.replay_evidence_basic_scene",
+            [cli_exe, repo_path("fixtures/scene/basic/g1.txt"), "--replay-evidence"],
         ))
 
     return commands

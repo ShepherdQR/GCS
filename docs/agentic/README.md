@@ -30,6 +30,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
 | `lifecycle-runbook.md` | Action guide for moving from request to push. |
+| `task-to-archive-checklist.md` | Compact closure checklist with a checked Step 47 example. |
 | `agile-pdca-roadmap.md` | Four-phase Agentic SE execution plan, PDCA cadence, current backlog, and next task. |
 | `near-term-agent-plan.md` | Immediate agent execution plan for roadmap sync, seed-agent verification, E001 validation, and opt-in gates. |
 | `long-term-agentic-se-plan.md` | Long-term target plan for lifecycle, review, self-evolution, institutional agents, and bounded automations. |
@@ -57,8 +58,9 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 3. Write an execution plan when risk is high or the task spans modules.
 4. Implement in the owning module or support tool boundary.
 5. Collect evidence with the standard quality gates.
-6. Close non-trivial sessions with a task execution report before archive.
-7. Record any repeated failure or reusable practice as an experience record
+6. Check `task-to-archive-checklist.md` before closure.
+7. Close non-trivial sessions with a task execution report before archive.
+8. Record any repeated failure or reusable practice as an experience record
    before changing skills.
 
 ## Boundaries

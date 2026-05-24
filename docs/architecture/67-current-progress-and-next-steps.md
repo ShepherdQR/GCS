@@ -596,17 +596,36 @@ Delivered:
 - Updated target contract docs and module inventory for the new structured
   output.
 
-## Next Step 48
+## Completed Step 48
 
-The next step should connect runtime replay evidence export to a consumer path,
-most likely CLI output, a viewer-facing summary, or a small report adapter.
+Step 48 connected runtime replay evidence export to a public consumer path. The
+viewer bridge now provides a read-only replay evidence summary/report adapter,
+and the CLI can print the summary with `--replay-evidence`.
+
+Delivered:
+
+- Added `ReplayEvidenceSummary` and `ReplayEvidenceStageSummary` to
+  `gcs.viewer_bridge`.
+- Added `summarize_replay_evidence` and `format_replay_evidence_summary`.
+- Added `GCS.exe --replay-evidence` as the first CLI-facing replay evidence
+  report path.
+- Added viewer-bridge contract coverage proving the summary preserves
+  `runtime_transaction_trace` report semantics and remains outside scene
+  construction history.
+- Added the replay evidence summary test to the public evidence-chain
+  selection and the CLI replay-evidence smoke to `run-quality-gates`.
+
+## Next Step 49
+
+The next step should decide the next replay evidence consumer deliberately:
+GUI-facing projection, saved report artifact, or diagnostics integration.
 `io_adapters` and JSON scene `history` should remain out of scope unless a
 future migration explicitly converts runtime traces into stable scene
 construction actions.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-47 are registered in the implementation roadmap; Steps 31 through 48 are
+48 are registered in the implementation roadmap; Steps 31 through 49 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. Step 48 is registered as the runtime replay evidence
-consumer follow-up.
+in the forward plan. Step 49 is registered as the next replay evidence
+consumer decision.

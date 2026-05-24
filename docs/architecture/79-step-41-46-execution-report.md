@@ -26,7 +26,7 @@ Current baseline:
 | Field | Value |
 | --- | --- |
 | Current completed step | Step 47 |
-| Next implementation step | Step 48 runtime replay evidence consumer path |
+| Next implementation step | Step 49 runtime replay evidence next consumer decision |
 | Default gate | `python tools\agentic_design\agentic_toolkit.py run-quality-gates` |
 | Contract test baseline | 113 CTest-discovered GTest cases |
 | Public evidence sentinel | 26 selected CTest cases |
@@ -205,6 +205,8 @@ Postscript after Step 47:
 
 - This handoff has been fulfilled by `RuntimeReplayEvidenceExport` and
   `SessionRuntime::export_replay_evidence(ReplayRequest)`.
-- The next registered implementation step is Step 48: expose the runtime
-  replay evidence export through a CLI, viewer, or report-consumer path without
-  changing JSON scene `history`.
+- Step 48 has exposed the runtime replay evidence export through a
+  viewer/report adapter and CLI `--replay-evidence` path without changing JSON
+  scene `history`.
+- The next registered implementation step is Step 49: decide the next replay
+  evidence consumer path.

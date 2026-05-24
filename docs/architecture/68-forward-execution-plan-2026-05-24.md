@@ -1222,6 +1222,58 @@ Exit criteria:
   construction history.
 - Any CLI or viewer output has deterministic contract coverage.
 
+Completed summary:
+
+- Added `ReplayEvidenceSummary` and `ReplayEvidenceStageSummary` to
+  `gcs.viewer_bridge`.
+- Added `summarize_replay_evidence` and `format_replay_evidence_summary` as a
+  read-only report adapter over `RuntimeReplayEvidenceExport`.
+- Added `GCS.exe --replay-evidence` so the CLI can print runtime replay
+  evidence for the solved command.
+- Added `ViewerBridgeContract.ReplayEvidenceSummaryPreservesRuntimeReportBoundary`.
+- Extended `ctest.public_evidence_chain` with the replay evidence export and
+  summary sentinel tests.
+- Added `cli.replay_evidence_basic_scene` to the default quality gate.
+
+Reassessment after Step 48:
+
+- Runtime replay evidence is now observable through a public CLI/report path.
+- The path remains runtime/viewer report evidence and does not change scene IO
+  or JSON scene `history`.
+- The next implementation choice should be made deliberately: GUI-facing
+  projection, saved report artifact, or diagnostics integration.
+
+### Step 49: Runtime Replay Evidence Next Consumer Decision
+
+Goal:
+
+- Choose and design the next runtime replay evidence consumer after the CLI
+  path has proven stable.
+
+Expected shape:
+
+- A short implementation step that either adds a GUI-facing projection, a saved
+  report artifact, or a diagnostics-facing integration.
+- Clear non-goals for JSON scene `history` unless an explicit migration is
+  chosen.
+- Tests proving the new consumer preserves runtime report semantics.
+
+Detailed plan:
+
+- Inspect CLI replay-evidence output and viewer bridge summary tests.
+- Decide whether the next consumer is GUI, saved report, or diagnostics based
+  on the most useful review workflow.
+- Add the smallest consumer contract and focused tests.
+- Reassess whether the consumer should join the public evidence-chain quality
+  gate.
+
+Exit criteria:
+
+- The next consumer direction is implemented or explicitly deferred with
+  rationale.
+- Runtime replay reports remain separate from scene construction history.
+- The public evidence path remains deterministic.
+
 ## Reassessment Protocol
 
 After each step:
@@ -1240,13 +1292,14 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 47 update:
+As of the Step 48 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 47 have completed-step summaries in the roadmap and current
+- Steps 1 through 48 have completed-step summaries in the roadmap and current
   progress documents.
-- Steps 31 through 48 are detailed in this forward plan with goal, expected
+- Steps 31 through 49 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
-- Step 48 is registered as the runtime replay evidence consumer path step.
+- Step 49 is registered as the next runtime replay evidence consumer decision
+  step.
 

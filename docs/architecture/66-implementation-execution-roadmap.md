@@ -220,13 +220,16 @@ Status legend: `done`, `in_progress`, `pending`.
     session history events and scene-embedded construction history.
 47. `done` - build deterministic runtime replay evidence export tooling
     on top of the Step 46 boundary without writing JSON scene `history`.
-48. `pending` - connect runtime replay evidence export to a CLI or viewer-facing
+48. `done` - connect runtime replay evidence export to a CLI or viewer-facing
     consumer path while preserving the runtime-report and scene-history split.
+49. `pending` - extend replay evidence consumption toward GUI or saved report
+    workflows after the CLI/report adapter boundary has proven stable.
 
 Next registered candidate:
 
-- Complete Step 48 by wiring the deterministic runtime replay evidence export
-  into a consumer-facing report path without changing JSON scene history.
+- Complete Step 49 by deciding the next runtime replay evidence consumer:
+  GUI-facing projection, saved report artifact, or a broader diagnostics
+  integration, without changing JSON scene history.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1683,6 +1686,31 @@ Reassessment after Step 47:
 - The first consumer path is intentionally not JSON scene IO. Step 48 should
   decide whether the report is first exposed through CLI output, a viewer-facing
   summary, or a small report adapter.
+
+## Runtime Replay Evidence Consumer Path Step Plan
+
+Implemented scope:
+
+- Added `ReplayEvidenceSummary` and `ReplayEvidenceStageSummary` to
+  `gcs.viewer_bridge` as a read-only report-consumer projection over
+  `RuntimeReplayEvidenceExport`.
+- Added `summarize_replay_evidence` and `format_replay_evidence_summary` so CLI,
+  GUI, or report adapters can observe runtime replay evidence without private
+  runtime inspection.
+- Added `GCS.exe --replay-evidence` to print command replay evidence for the
+  solved command.
+- Added `ViewerBridgeContract.ReplayEvidenceSummaryPreservesRuntimeReportBoundary`.
+- Extended the public evidence-chain selection with Step 47/48 replay evidence
+  tests.
+- Added `cli.replay_evidence_basic_scene` to the default `run-quality-gates`
+  CLI smoke list.
+
+Reassessment after Step 48:
+
+- Runtime replay evidence now has both producer and first consumer coverage.
+- The consumer path remains a report surface, not a scene serialization format.
+- Step 49 should choose the next consumer deliberately: GUI projection, saved
+  report artifact, or diagnostics integration.
 
 ## Damped Numeric Local Solve Step Plan
 

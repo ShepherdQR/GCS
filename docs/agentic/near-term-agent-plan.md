@@ -27,7 +27,10 @@ auditable, and useful in real project work.
 - Step 47 has now completed the full lifecycle: task card, implementation,
   tests, completed-task archive, roadmap update, closure score, and a real
   `刀匠` example. `裁缝` was intentionally skipped for that sample, then later
-  used for an explicit local repository stitch timeline.
+used for an explicit local repository stitch timeline.
+- Step 48 has now completed the paired engineering/process lifecycle:
+  runtime replay evidence is exposed through a viewer/report adapter and CLI
+  `--replay-evidence`, while S1-03 produced the task-to-archive checklist.
 
 ## Execution Principle
 
@@ -48,6 +51,7 @@ Goal: keep agentic roadmaps aligned with implementation reality.
 | A2 | Decide whether to backfill a Step 46 retrospective archive or use Step 47 as the next true lifecycle sample. | done in this plan | `agile-pdca-roadmap.md` update. |
 | A3 | Update the PDCA queue after A2. | done in this plan | Roadmap C002 update. |
 | A4 | Record Step 47 lifecycle completion and move the queue to S1-03. | done in this plan | Roadmap C003 update and this plan. |
+| A5 | Record Step 48 and S1-03 completion, then move the queue to S1-05 and Step 49. | done in this plan | Roadmap C004 update and Step 48 archive. |
 
 Decision rule: do not fabricate lifecycle evidence. If no task card or archive
 exists, mark it as an escaped lifecycle sample and use the next high-risk task
@@ -111,6 +115,19 @@ the generator protocol.
 
 ## Immediate Next Task
 
+Start with S1-05, paired with the Step 49 engineering decision if engineering
+work continues in the same session:
+
+1. Review the first two lifecycle archives with the E001 closure rubric.
+2. Compare the checklist against the Step 48 archive and record whether it
+   prevented missing handoff evidence.
+3. Choose Step 49's next runtime replay evidence consumer: GUI-facing
+   projection, saved report artifact, or diagnostics integration.
+4. Keep Phase 2 quality-gate work opt-in until S1-05 shows which checks are
+   genuinely useful.
+
+## Superseded Immediate Task Note
+
 Start with S1-03:
 
 1. Convert C001, C002, and Step 47/C003 into a task-to-archive checklist.
@@ -128,6 +145,8 @@ This near-term plan is working when:
 - the roadmap no longer points at stale Step 46 work as if it were still next;
 - `刀匠` and `裁缝` each have prompt, template, and eval seed;
 - at least one real filled example exists for both `刀匠` and `裁缝`;
+- S1-03's task-to-archive checklist exists and has been used on a real
+  engineering/process closure;
 - E001 has at least two scored archives;
 - no new institutional-agent directory is created without generator fit-check
   evidence.

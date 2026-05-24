@@ -714,6 +714,7 @@ Structured outputs:
 - `DiagnosticOverlay`.
 - `InteractionCommandDraft`.
 - `HistoryFrameProjection`.
+- `ReplayEvidenceSummary`.
 - `SnapshotSummary` with public rank, residual, conflict, redundancy, and
   obstruction evidence projections.
 
@@ -726,6 +727,10 @@ ContractResult<ViewerSceneProjection> project_scene(ViewerProjectionRequest requ
 ContractResult<DiagnosticOverlay> build_overlay(DiagnosticOverlayRequest request);
 ContractResult<InteractionCommandDraft> draft_command(InteractionDraftRequest request);
 ContractResult<HistoryFrameProjection> project_history_frame(HistoryFrameRequest request);
+ContractResult<ReplayEvidenceSummary> summarize_replay_evidence(
+    const runtime::RuntimeReplayEvidenceExport& evidence);
+std::string format_replay_evidence_summary(
+    const ReplayEvidenceSummary& summary);
 
 }
 ```
@@ -743,6 +748,8 @@ Implementation responsibilities:
 - History frame projection that preserves the runtime replay artifact kind and
   marks runtime frames as report evidence rather than scene construction
   history entries.
+- Runtime replay evidence summary projection for CLI, GUI, or report consumers
+  without taking ownership of scene IO or runtime mutation.
 
 Contract tests:
 
@@ -756,6 +763,7 @@ Contract tests:
 - `viewer_command_draft_validates_against_runtime_contract`.
 - `viewer_history_frame_resolves_stable_ids`.
 - `viewer_runtime_history_frame_projects_as_report_evidence_only`.
+- `viewer_replay_evidence_summary_preserves_runtime_report_boundary`.
 
 ## Contract Tools Target Design
 

@@ -54,11 +54,12 @@ The default gate runs:
 21. full CTest contract suite
 22. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
 23. explicit public-evidence-chain CTest selection for rank, diagnostics,
-    runtime, viewer, corpus, showcase, and replay-boundary evidence introduced
-    in Steps 31 through 46
+    runtime, viewer, corpus, showcase, replay-boundary, and replay-consumer
+    evidence introduced in Steps 31 through 48
 24. CLI smoke on `fixtures/scene/basic/g1.txt`
 25. CLI smoke on
     `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
+26. CLI replay-evidence smoke on `fixtures/scene/basic/g1.txt`
 
 The command exits nonzero on the first failed gate by default and prints a
 stable summary. `--continue-on-failure` runs the remaining gates before
@@ -84,7 +85,9 @@ paths that must remain visible across modules:
   JSON behavior round-trip, boundary-frozen rank projection, viewer residual
   projection, positive CLI smoke, and negative scene behavior rejection;
 - runtime replay boundary evidence proving command transaction traces project
-  as report evidence, not JSON scene construction history actions.
+  as report evidence, not JSON scene construction history actions;
+- runtime replay consumer evidence proving the viewer/report adapter and CLI
+  smoke preserve `runtime_transaction_trace` semantics.
 
 ## CI Parameters
 
@@ -113,8 +116,8 @@ A change is Step 18 complete when:
 - fixture corpus coverage is named as an explicit gate and actually selects
   the contract-tools fixture tests;
 - public evidence-chain coverage is named as an explicit gate and selects the
-  Step 31 through Step 46 rank, diagnostics, runtime, viewer, corpus,
-  showcase, and replay-boundary sentinel tests;
+  Step 31 through Step 48 rank, diagnostics, runtime, viewer, corpus,
+  showcase, replay-boundary, and replay-consumer sentinel tests;
 - scene-generation tests are part of the default gate;
 - showcase-scene renderer tests are part of the default gate;
 - showcase fixture evidence metadata checks are part of the default gate;
@@ -124,6 +127,8 @@ A change is Step 18 complete when:
 - Python scene-schema algebra tests are part of the default gate;
 - Python history-replay tests are part of the default gate;
 - the agentic toolkit gate sequence is unit-tested as a Python tools contract;
-- representative basic and showcase CLI fixtures are part of the default gate;
+- representative basic, showcase, and replay-evidence CLI fixtures are part of
+  the default gate;
 - the implementation roadmap records the latest quality-gate extension step;
-- runtime replay-boundary tests remain in the public evidence-chain sentinel.
+- runtime replay-boundary and replay-consumer tests remain in the public
+  evidence-chain sentinel.

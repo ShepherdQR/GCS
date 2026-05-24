@@ -141,8 +141,8 @@
       "target_heading": "Viewer Bridge Target Design",
       "contract_test": "tests/contracts/viewer_bridge/viewer_bridge_contract_tests.cpp",
       "structured_inputs": ["ViewerProjectionRequest", "DiagnosticOverlayRequest", "InteractionDraftRequest", "HistoryFrameRequest"],
-      "structured_outputs": ["ViewerSceneProjection", "DiagnosticOverlay", "InteractionCommandDraft", "HistoryFrameProjection"],
-      "tools": ["projection_builder", "report_summarizer", "diagnostic_overlay_generator", "selection_mapper", "hit_test_mapper", "command_draft_validator"],
+      "structured_outputs": ["ViewerSceneProjection", "DiagnosticOverlay", "InteractionCommandDraft", "HistoryFrameProjection", "ReplayEvidenceSummary"],
+      "tools": ["projection_builder", "report_summarizer", "diagnostic_overlay_generator", "selection_mapper", "hit_test_mapper", "command_draft_validator", "replay_evidence_report_adapter"],
       "allowed_imports": ["gcs.kernel", "gcs.session_runtime", "gcs.diagnostics"]
     },
     {
