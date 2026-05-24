@@ -22,34 +22,36 @@ Current task counts:
 
 | Phase | Done | Next | Pending | Main remaining question |
 | --- | ---: | ---: | ---: | --- |
-| Phase 1: Lifecycle Closure | 1 | 1 | 3 | Can a real solver task close cleanly through task card, evidence, archive, and roadmap update? |
+| Phase 1: Lifecycle Closure | 3 | 1 | 2 | Can the Step 47 lifecycle sample become a compact checklist future agents will actually use? |
 | Phase 2: Quality-Gate Adoption | 0 | 0 | 5 | Which checks become opt-in gates before any default enforcement? |
-| Phase 3: E001 Closure Experience Validation | 0 | 0 | 4 | Does E001 catch weak closure evidence in real work, not only in templates? |
-| Phase 4: Institutional Agents Become Verifiable | 0 | 0 | 5 | Can `刀匠` and `裁缝` produce testable artifacts rather than role prose? |
+| Phase 3: E001 Closure Experience Validation | 1 | 1 | 2 | Does E001 catch weak closure evidence in real work, not only in templates? |
+| Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
 
 Priority order:
 
-1. Finish Phase 1 S1-02 because it supplies the second real lifecycle sample.
-2. Use S1-02 results to decide S1-03 and S1-05 details.
+1. Finish Phase 1 S1-03 by turning C001/C002/C003 into a lightweight
+   task-to-archive checklist.
+2. Use the Step 47 archive and closure score to drive S1-05 review details.
 3. Add Phase 2 opt-in checks only after the lifecycle loop has two clean
    examples.
-4. Validate E001 and institutional agents through real closure artifacts before
-   promoting them into stronger process rules.
+4. Keep new institutional-agent examples tied to real requested work.
 
 ## Phase Analysis Snapshot
 
 ### Phase 1 Analysis
 
-Phase 1 is partially proven. C001 demonstrated that a documentation-only
-Agentic SE task can create a task card, run checks, archive itself, and update
-the roadmap. The next risk is whether the same loop remains useful for a real
-solver-adjacent task with higher semantic risk and more handoffs.
+Phase 1 is now proven on both documentation work and a real solver-adjacent
+task. C001 demonstrated the docs-only loop; C003 demonstrated a high-risk
+runtime contract change that created a task card, implementation evidence,
+completed archive, roadmap update, and a `刀匠` learning artifact.
 
 Stage conclusion:
 
 - Keep Phase 1 active.
-- Treat S1-02 as the first serious test of the lifecycle contract.
-- Do not start Phase 2 default-gate work until S1-02 closes.
+- Treat S1-03 as the next consolidation task: turn the lifecycle into a
+  compact task-to-archive checklist.
+- Do not start Phase 2 default-gate work until S1-03 and S1-05 clarify which
+  checks are valuable rather than ceremonial.
 
 ### Phase 2 Analysis
 
@@ -66,27 +68,31 @@ Stage conclusion:
 
 ### Phase 3 Analysis
 
-E001 is promising but still under-sampled. The closure tooling validated C001
-and its own implementation archive, but that is not enough to prove the method
-under solver-task ambiguity. Step 46 should become the next E001 sample.
+E001 is promising and now has a real high-risk engineering sample. Step 47
+closed with a completed-task report and scored 37/40. The next risk is not
+whether E001 can score a good archive, but whether it can catch weak closure
+evidence and guide human review.
 
 Stage conclusion:
 
-- Use E001 on the next high-risk engineering task.
-- Compare the score with human review notes.
-- Add negative evals only after one real miss or review concern is observed.
+- Use the Step 47 archive as the first high-risk E001 sample.
+- Add one negative eval for archive pollution or false completion.
+- Compare the score with human review notes during S1-05.
 
 ### Phase 4 Analysis
 
-Institutional agents have useful role cards, but they are not yet operational
-agents. Their next step is not more names. It is one template, one example, and
-one refusal-oriented eval per seed role.
+Institutional agents are becoming operational. `刀匠` now has an invoke prompt,
+template, refusal eval, and a real Step 47 example. `裁缝` has its
+prompt/template/eval seed and a real local repository stitch example created
+only after explicit timeline work was requested.
 
 Stage conclusion:
 
 - Freeze new institutional-agent creation for now.
-- Make `刀匠: 淬炼-锻打` and `裁缝: 裁剪-缝合` verifiable.
-- Use real C001/S1-02 closure artifacts as examples instead of invented cases.
+- Use the Step 47 `刀匠` artifact as the first real institutional-agent
+  example.
+- Use the first `裁缝` example as evidence for timeline stitching, but wait for
+  more samples before promotion.
 
 ## Operating Adjustments
 
@@ -132,10 +138,11 @@ Backlog:
 | ID | Task | Status | Evidence |
 | --- | --- | --- | --- |
 | S1-01 | Persist four-phase Agile PDCA roadmap and close this planning task. | done | This roadmap, task card, completed-task archive. |
-| S1-02 | Apply the lifecycle loop to Step 46 runtime replay export boundary. | next | Step 46 task card, execution plan, completed-task report. |
-| S1-03 | Add a lightweight task-to-archive cross-link checklist. | pending | Runbook update and one checked example. |
+| S1-02 | Reconcile Step 46 lifecycle drift without fabricating a missing task card or archive. | done | `near-term-agent-plan.md` and this roadmap update. |
+| S1-03 | Add a lightweight task-to-archive cross-link checklist. | next | Runbook update and one checked example. |
 | S1-04 | Decide which low-risk tasks may stay chat-only. | pending | Entry-criteria table in lifecycle runbook. |
 | S1-05 | Review the first two archives with E001 closure rubric. | pending | Scored closure notes or completed-task report updates. |
+| S1-06 | Apply the lifecycle loop to Step 47 deterministic runtime replay evidence export tooling. | done | Task card, implementation evidence, completed-task report, roadmap C003 update, `刀匠` note. |
 
 ## Phase 2: Quality-Gate Adoption
 
@@ -177,8 +184,8 @@ Backlog:
 
 | ID | Task | Status | Evidence |
 | --- | --- | --- | --- |
-| S3-01 | Use E001 on Step 46 closure. | pending | Completed-task report and score. |
-| S3-02 | Add one negative eval for archive pollution or false completion. | pending | Eval note under E001 or `docs/agentic/evals`. |
+| S3-01 | Use E001 on Step 47 or the next high-risk engineering closure. | done | Step 47 completed-task report and 37/40 closure score. |
+| S3-02 | Add one negative eval for archive pollution or false completion. | next | Eval note under E001 or `docs/agentic/evals`. |
 | S3-03 | Compare scorer output with human review on two archives. | pending | Calibration note. |
 | S3-04 | Decide whether to install a project skill for session closure. | pending | Promotion decision record. |
 
@@ -199,11 +206,11 @@ Backlog:
 
 | ID | Task | Status | Evidence |
 | --- | --- | --- | --- |
-| S4-01 | Add `experience-forging-note` template for `刀匠`. | pending | Template and one filled example. |
-| S4-02 | Add `timeline-entry` template for `裁缝`. | pending | Template and one filled example. |
-| S4-03 | Add eval for refusing unsupported generalization. | pending | Eval seed. |
-| S4-04 | Add eval for refusing invented timeline causality. | pending | Eval seed. |
-| S4-05 | Reassess candidate institutional agents after three real closures. | pending | Candidate table update. |
+| S4-01 | Add `experience-forging-note` template for `刀匠`. | done | Template and Step 47 filled example. |
+| S4-02 | Add `timeline-entry` template for `裁缝`. | done | Template exists; local repository stitch timeline added after explicit request. |
+| S4-03 | Add eval for refusing unsupported generalization. | done | Eval seed. |
+| S4-04 | Add eval for refusing invented timeline causality. | done | Eval seed. |
+| S4-05 | Reassess candidate institutional agents after three real closures. | next | Candidate table update after additional real closures. |
 
 ## Current PDCA Cycle
 
@@ -239,6 +246,10 @@ Act:
 - Phase 4 should wait until after Step 46 unless a review reveals an immediate
   need for the `刀匠` or `裁缝` templates.
 
+Supersession note: C002 below supersedes the Step 46 next-task assumption.
+Step 46 implementation later appeared as completed in the implementation
+roadmap, but no matching task card or completed-task archive was found.
+
 Retrospective:
 
 - What worked: keeping C001 docs-only avoided mixing with current dirty
@@ -248,23 +259,106 @@ Retrospective:
 - Adjustment: S1-02 must create the Step 46 task card before touching runtime
   code and must close with both roadmap update and completed-task archive.
 
+### C002: Step 46 Lifecycle Drift Reconciliation
+
+Plan:
+
+- reconcile the stale PDCA queue with the implementation roadmap;
+- do not backfill or invent lifecycle artifacts that were not created;
+- choose the next real high-risk task as the lifecycle sample.
+
+Do:
+
+- confirmed that Step 46 is marked done in
+  `docs/architecture/66-implementation-execution-roadmap.md` and
+  `docs/architecture/67-current-progress-and-next-steps.md`;
+- found no matching Step 46 task card or completed-task archive under
+  `docs/agentic/tasks/` or `docs/completed-tasks/`;
+- added `docs/agentic/near-term-agent-plan.md` to record the drift and next
+  actions;
+- moved the next lifecycle sample to Step 47 or the next high-risk engineering
+  task if Step 47 is deferred.
+
+Check:
+
+- roadmap now records S1-02 as reconciliation, not as an unstarted Step 46
+  implementation task;
+- Phase 3 no longer depends specifically on a missing Step 46 closure archive;
+- Phase 4 still waits for real artifacts before promoting institutional
+  agents.
+
+Act:
+
+- S1-06 is now the next Phase 1 lifecycle sample.
+- S1-03 and S1-05 should use C001 plus the next real lifecycle sample, not a
+  fabricated Step 46 archive.
+
+Supersession note: C003 below completes S1-06 and moves the next Phase 1 task
+to S1-03.
+
+### C003: Step 47 Lifecycle Execution
+
+Plan:
+
+- create a high-risk task card before touching runtime code;
+- execute Step 47 deterministic runtime replay evidence export;
+- preserve the Step 46 split between runtime report evidence and JSON scene
+  construction `history`;
+- close with implementation evidence, architecture updates, completed-task
+  archive, and `刀匠` learning extraction;
+- skip `裁缝` because the user explicitly requested not to run it.
+
+Do:
+
+- added `RuntimeReplayEvidenceStage` and `RuntimeReplayEvidenceExport`;
+- added `SessionRuntime::export_replay_evidence(ReplayRequest)`;
+- added session-runtime contract tests for deterministic export and missing
+  command evidence;
+- marked Step 47 complete and registered Step 48 as the consumer-path
+  follow-up;
+- created the Step 47 completed-task archive and `刀匠` forging note.
+
+Check:
+
+- task-card validation passed;
+- build passed after sandbox escalation for generated build output access;
+- focused `SessionRuntimeContract|ViewerBridgeContract` CTest selection passed
+  21/21;
+- full CTest passed 113/113;
+- CLI smoke on `fixtures\scene\basic\g1.txt` passed;
+- `validate-docs`, `validate-inventory`, and `check-dependencies` passed;
+- full `run-quality-gates` passed after sandbox escalation;
+- completed-task validation passed;
+- closure score passed at 37/40.
+
+Act:
+
+- S1-06 is complete.
+- S1-03 is now the next Phase 1 task: turn the lifecycle into a lightweight
+  task-to-archive checklist.
+- S1-05 should review C001 and Step 47 as the first two lifecycle archives.
+- S3-02 should add one negative E001 eval for archive pollution or false
+  completion.
+- Step 48 is the next implementation step for runtime replay evidence
+  consumption, not scene-history persistence.
+
 ## Next Agile Task
 
-S1-02 is the next task:
+S1-03 is the next task:
 
-1. Create a Step 46 task card.
-2. Classify it as high risk because it touches runtime history and scene
-   history ownership.
-3. Require `gcs-session-runtime-steward`, plus IO/viewer handoffs if needed.
-4. Execute only after preserving the current dirty worktree state.
-5. Close with a completed-task archive and update this roadmap again.
+1. Convert C001, C002, and C003 into a compact task-to-archive checklist.
+2. Update the lifecycle runbook with entry, execution, evidence, archive, and
+   learning-promotion checks.
+3. Add one checked example using the Step 47 task card and completed archive.
+4. Keep the checklist lightweight enough for future high-risk tasks to use
+   without becoming ceremony.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S1-02 Step 46 lifecycle loop | Proves the lifecycle on a real high-risk engineering boundary. | Step 46 task card, implementation evidence, archive, roadmap C002 update. |
-| 2 | S1-03 task-to-archive checklist | Converts C001/C002 lessons into a compact checklist. | Runbook checklist and one checked example. |
-| 3 | S1-05 first archive review | Tests whether E001 closure reports transfer enough context. | Two archive scores plus review note. |
-| 4 | S2-01 opt-in gate design | Only after two lifecycle examples exist. | Gate policy proposal, no default enforcement yet. |
-| 5 | S4-01/S4-02 seed-role templates | Makes institutional agents verifiable with real examples. | One template and one example for each seed role. |
+| 1 | S1-03 task-to-archive checklist | Converts C001/C002/C003 lessons into a compact checklist. | Runbook checklist and one checked Step 47 example. |
+| 2 | S1-05 first archive review | Tests whether E001 closure reports transfer enough context. | Two archive scores plus review note. |
+| 3 | S3-02 negative E001 eval | Uses real closure evidence to guard against archive pollution or false completion. | One failing/passing eval note. |
+| 4 | S2-01 opt-in gate design | Only after the checklist and archive review clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
+| 5 | S4-05 institutional-agent reassessment | `刀匠` and `裁缝` now each have one real example. | Candidate table update after additional real closures. |

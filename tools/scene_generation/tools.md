@@ -5,6 +5,7 @@ source is:
 
 ```text
 docs/architecture/scene-generation-tools.md
+docs/architecture/81-scene-generation-next-phase-plan.md
 ```
 
 The current implementation includes the compatibility command set plus a

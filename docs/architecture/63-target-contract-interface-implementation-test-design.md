@@ -570,6 +570,7 @@ Structured outputs:
 - `ReplayArtifactKind`.
 - `RollbackReport`.
 - `ReplayReport`.
+- `RuntimeReplayEvidenceExport`.
 - `RankEvidenceProjection`.
 - `PostLocalDiagnosticReport`.
 - `PostCommitVerificationReport`.
@@ -586,6 +587,8 @@ public:
     const kernel::ModelSnapshot& current_snapshot() const;
     ContractResult<CommandResult> execute(RuntimeCommand command);
     ContractResult<ReplayReport> replay(ReplayRequest request) const;
+    ContractResult<RuntimeReplayEvidenceExport> export_replay_evidence(
+        ReplayRequest request) const;
     ContractResult<HistoryView> history(HistoryQuery query) const;
 
 private:
@@ -617,6 +620,8 @@ Implementation responsibilities:
 - Runtime replay artifact separation from scene construction history. Current
   runtime history is `runtime_transaction_trace` report evidence and is not a
   JSON scene `history` action.
+- Deterministic runtime replay evidence export for command transaction traces,
+  ordered stages, report codes, and state-version ranges.
 - Post-commit verification.
 
 Contract tests:
@@ -631,6 +636,8 @@ Contract tests:
 - `runtime_post_local_diagnostics_preserve_numeric_evidence`.
 - `runtime_replay_reconstructs_stage_trace`.
 - `runtime_replay_artifact_is_runtime_trace_not_scene_construction_history`.
+- `runtime_replay_evidence_export_is_deterministic_report_evidence`.
+- `runtime_replay_evidence_export_reports_missing_command`.
 - `runtime_undo_redo_preserves_history_order`.
 
 ## IO Adapters Target Design

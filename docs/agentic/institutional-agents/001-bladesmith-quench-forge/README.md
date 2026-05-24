@@ -108,7 +108,8 @@ Slug：`001-bladesmith-quench-forge`
 
 ## 成长待办
 
-- 增加 `templates/experience-forging-note.md`。
-- 从两个 completed GCS sessions 中加入 examples。
-- 增加一个 eval：要求刀匠拒绝把一次性经验过度泛化。
+- 已增加 `prompts/invoke.md`。
+- 已增加 `templates/experience-forging-note.md`。
+- 已增加 `evals/refuse-unsupported-generalization.md`。
+- 已增加 Step 47 lifecycle example；还需要第二个 completed GCS session。
 - 将 promoted 输出链接到 `docs/agentic/experience/README.md`。

@@ -218,14 +218,15 @@ Status legend: `done`, `in_progress`, `pending`.
     current and legacy GUI-authored scenes.
 46. `done` - decide runtime-owned replay export boundaries between
     session history events and scene-embedded construction history.
-47. `pending` - build deterministic runtime replay evidence export tooling
+47. `done` - build deterministic runtime replay evidence export tooling
     on top of the Step 46 boundary without writing JSON scene `history`.
+48. `pending` - connect runtime replay evidence export to a CLI or viewer-facing
+    consumer path while preserving the runtime-report and scene-history split.
 
 Next registered candidate:
 
-- Complete Step 47 by producing a report-oriented runtime replay export path
-  that keeps command transaction traces separate from saved scene construction
-  history.
+- Complete Step 48 by wiring the deterministic runtime replay evidence export
+  into a consumer-facing report path without changing JSON scene history.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1654,6 +1655,34 @@ Reassessment after Step 46:
 - The next implementation risk is export packaging: a future tool or CLI path
   should emit runtime replay evidence as deterministic reports without writing
   solver transaction stages into scene JSON `history`.
+
+## Runtime Replay Evidence Export Package Step Plan
+
+Implemented scope:
+
+- Added `RuntimeReplayEvidenceStage` and `RuntimeReplayEvidenceExport` to
+  `gcs.session_runtime` as structured report evidence for runtime command
+  replay.
+- Added `SessionRuntime::export_replay_evidence(ReplayRequest)` to package
+  command ID, artifact kind, report-evidence flags, state-version range,
+  command status, commit/rollback flags, ordered stages, and stable report
+  codes.
+- Preserved the Step 46 ownership boundary: runtime replay export remains
+  `runtime_transaction_trace` report evidence and is not a JSON scene
+  construction `history` entry.
+- Added deterministic missing-command evidence via
+  `runtime.replay_missing_command`.
+- Added session-runtime contract coverage for deterministic export and missing
+  command reports.
+- Updated the session-runtime structured-output inventory and target contract
+  design.
+
+Reassessment after Step 47:
+
+- Runtime replay evidence now has a deterministic in-process export contract.
+- The first consumer path is intentionally not JSON scene IO. Step 48 should
+  decide whether the report is first exposed through CLI output, a viewer-facing
+  summary, or a small report adapter.
 
 ## Damped Numeric Local Solve Step Plan
 

@@ -8,17 +8,21 @@
 
 - 已建立目录：`docs/agentic/institutional-agents/`。
 - 已建立总览：`README.md`，包含命名范式、角色等级和候选角色体系。
-- 已制作 2 个 seed 角色：
+- 已制作 4 个 seed 角色：
   - `I001 刀匠: 淬炼-锻打`
   - `I002 裁缝: 裁剪-缝合`
+  - `I003 Atelier Steward: Calibrate-Review`
+  - `I004 Art Director: Frame-Judge`
 - 已提供新增角色模板：`templates/standing-agent-card.md`。
+- `I001` 已有 Step 47 真实 filled example。
 
 尚未完成范围：
 
 - 候选角色表中的 `舵手`、`磨镜师`、`铸印官`、`验收官`、`值夜官`、
   `复盘官`、`校雠者`、`策展人`、`铺路官`、`账房`、`法度官`、`园丁`
   还没有创建独立子目录。
-- 两个 seed 角色还没有正式 prompts、templates、examples、evals。
+- 核心 seed 角色正在补 examples；I001 和 I002 已有首批 invoke prompt、
+  output template、refusal eval，且各有一个真实 example。
 - 制度型 agent 还没有接入自动化工具或强制质量门。
 
 这是有意为之。制度型 agent 不是角色名清单，而是经过真实使用、可留下产物、

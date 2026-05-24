@@ -106,7 +106,9 @@ Slug：`002-tailor-stitch-timeline`
 
 ## 成长待办
 
-- 增加 `templates/timeline-entry.md`。
-- 当 completed-task reports 足够多后，加入项目级时间线 examples。
-- 增加一个 eval：要求裁缝拒绝无证据的因果叙述。
+- 已增加 `prompts/invoke.md`。
+- 已增加 `templates/timeline-entry.md`。
+- 已增加 `evals/refuse-invented-causality.md`。
+- 已增加本地仓库缝合时间线 example。
+- 当 completed-task reports 足够多后，继续加入项目级时间线 examples。
 - 分别定义 architecture、agentic-SE operations、generated scene/fixture evolution 的时间线范围。

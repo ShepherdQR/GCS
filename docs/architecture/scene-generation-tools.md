@@ -553,3 +553,6 @@ The next design step is structural: continue the Step 20 package split by
 moving topology, lift, validation, projection, parameterization, reporting, and
 explorer orchestration behind tested modules while preserving the current CLI
 facade.
+
+The detailed next-phase research and execution plan is stored in
+`docs/architecture/81-scene-generation-next-phase-plan.md`.

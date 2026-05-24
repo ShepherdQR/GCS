@@ -1,5 +1,6 @@
 module;
 
+#include <algorithm>
 #include <cstddef>
 #include <string>
 #include <utility>
@@ -480,6 +481,59 @@ ReplayReport SessionRuntime::replay(ReplayRequest request) const {
         }
     }
     return report;
+}
+
+RuntimeReplayEvidenceExport SessionRuntime::export_replay_evidence(
+    ReplayRequest request) const {
+    RuntimeReplayEvidenceExport export_report;
+    export_report.command_id = request.command_id;
+
+    const ReplayReport replay_report = replay(request);
+    export_report.found = replay_report.found;
+    export_report.replay_artifact_kind = replay_report.replay_artifact_kind;
+    export_report.scene_construction_history_entry =
+        replay_report.scene_construction_history_entry;
+    export_report.report_evidence = replay_report.report_evidence;
+
+    if (!replay_report.found) {
+        export_report.report_codes.push_back("runtime.replay_missing_command");
+        return export_report;
+    }
+
+    export_report.accepted = replay_report.accepted;
+    export_report.status = replay_report.status;
+    export_report.base_version = replay_report.transaction_trace.base_version;
+    export_report.final_version = replay_report.transaction_trace.final_version;
+    export_report.committed = replay_report.transaction_trace.committed;
+    export_report.rolled_back = replay_report.transaction_trace.rolled_back;
+
+    std::vector<StageTraceEntry> ordered_stages =
+        replay_report.transaction_trace.stages;
+    std::stable_sort(
+        ordered_stages.begin(),
+        ordered_stages.end(),
+        [](const StageTraceEntry& left, const StageTraceEntry& right) {
+            if (left.order != right.order) return left.order < right.order;
+            return left.stage < right.stage;
+        });
+
+    for (const auto& stage : ordered_stages) {
+        RuntimeReplayEvidenceStage export_stage;
+        export_stage.order = stage.order;
+        export_stage.stage = stage.stage;
+        export_stage.stage_status = stage.stage_status;
+        export_stage.status = stage.status;
+        export_stage.before_version = stage.before_version;
+        export_stage.after_version = stage.after_version;
+        export_stage.durable_mutation = stage.durable_mutation;
+        export_stage.report_code = stage.code;
+        export_report.stages.push_back(export_stage);
+        if (!stage.code.empty()) {
+            export_report.report_codes.push_back(stage.code);
+        }
+    }
+
+    return export_report;
 }
 
 std::vector<RankEvidenceProjection> project_rank_evidence(

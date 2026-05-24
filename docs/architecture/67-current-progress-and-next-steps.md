@@ -575,17 +575,38 @@ Delivered:
 - Added the new replay-boundary contract tests to the public evidence-chain
   quality gate.
 
-## Next Step 47
+## Completed Step 47
 
-The next step should build deterministic runtime replay evidence export
-tooling. The export should package command transaction traces and viewer
-history-frame evidence as reports, not write them into JSON scene `history`.
-`io_adapters` should remain out of scope unless a future migration explicitly
-converts runtime traces into stable scene construction actions.
+Step 47 added deterministic runtime replay evidence export on top of the Step
+46 ownership boundary. The export packages runtime command transaction traces
+as report evidence and does not write them into JSON scene `history`.
+
+Delivered:
+
+- Added `RuntimeReplayEvidenceStage` and `RuntimeReplayEvidenceExport` to
+  `gcs.session_runtime`.
+- Added `SessionRuntime::export_replay_evidence(ReplayRequest)` with command
+  ID, artifact kind, report-evidence flag, scene-history flag, state-version
+  range, command status, commit/rollback flags, ordered stages, and report
+  codes.
+- Added deterministic missing-command evidence using
+  `runtime.replay_missing_command`.
+- Added session-runtime contract tests for deterministic export and missing
+  command reports.
+- Updated target contract docs and module inventory for the new structured
+  output.
+
+## Next Step 48
+
+The next step should connect runtime replay evidence export to a consumer path,
+most likely CLI output, a viewer-facing summary, or a small report adapter.
+`io_adapters` and JSON scene `history` should remain out of scope unless a
+future migration explicitly converts runtime traces into stable scene
+construction actions.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-46 are registered in the implementation roadmap; Steps 31 through 46 are
+47 are registered in the implementation roadmap; Steps 31 through 48 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. Step 47 is registered as the runtime replay evidence
-export follow-up.
+in the forward plan. Step 48 is registered as the runtime replay evidence
+consumer follow-up.

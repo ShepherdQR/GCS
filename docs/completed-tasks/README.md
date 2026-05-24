@@ -31,6 +31,8 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-24 | [Step 47 runtime replay evidence export](2026-05-24-step-47-runtime-replay-evidence-export/README.md) | done |
+| 2026-05-24 | [Scene auto explorer design, implementation, and next-phase plan](2026-05-24-scene-auto-explorer-design-implementation-plan/README.md) | done |
 | 2026-05-24 | [Step 41-46 execution and dialogue archive](2026-05-24-step-41-46-execution-and-dialogue-archive/README.md) | done |
 | 2026-05-24 | [Agentic SE four-phase PDCA bootstrap](2026-05-24-agentic-se-four-phase-pdca/README.md) | done |
 | 2026-05-24 | [GCS architecture rewrite blueprint](2026-05-24-gcs-architecture-rewrite-blueprint/README.md) | done |

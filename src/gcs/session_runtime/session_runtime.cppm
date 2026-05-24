@@ -106,6 +106,34 @@ struct ReplayReport {
     std::vector<StageReport> stage_reports;
 };
 
+struct RuntimeReplayEvidenceStage {
+    int order = 0;
+    std::string stage;
+    StageStatus stage_status = StageStatus::ok;
+    SolveStatus status = SolveStatus::not_run;
+    StateVersionId before_version;
+    StateVersionId after_version;
+    bool durable_mutation = false;
+    std::string report_code;
+};
+
+struct RuntimeReplayEvidenceExport {
+    bool found = false;
+    ReplayArtifactKind replay_artifact_kind =
+        ReplayArtifactKind::runtime_transaction_trace;
+    bool scene_construction_history_entry = false;
+    bool report_evidence = true;
+    CommandId command_id;
+    bool accepted = false;
+    SolveStatus status = SolveStatus::not_run;
+    StateVersionId base_version;
+    StateVersionId final_version;
+    bool committed = false;
+    bool rolled_back = false;
+    std::vector<RuntimeReplayEvidenceStage> stages;
+    std::vector<std::string> report_codes;
+};
+
 struct RankEvidenceProjection {
     int local_report_index = 0;
     std::string source;
@@ -159,6 +187,7 @@ public:
     CommandResult execute(const Command& command);
     CommandResult solve(SolveIntent intent = SolveIntent{});
     ReplayReport replay(ReplayRequest request) const;
+    RuntimeReplayEvidenceExport export_replay_evidence(ReplayRequest request) const;
 
 private:
     ModelSnapshot current_snapshot_;

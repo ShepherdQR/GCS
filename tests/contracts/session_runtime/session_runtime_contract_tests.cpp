@@ -28,6 +28,13 @@ int durable_mutation_count(const runtime::TransactionTrace& trace) {
     return count;
 }
 
+bool has_report_code(const std::vector<std::string>& codes, const char* code) {
+    for (const auto& candidate : codes) {
+        if (candidate == code) return true;
+    }
+    return false;
+}
+
 runtime::Command make_external_solve_command(const kernel::ModelSnapshot& model,
                                              kernel::CommandId id) {
     runtime::Command command;
@@ -201,4 +208,69 @@ TEST(SessionRuntimeContract, ReplayArtifactIsRuntimeTraceNotSceneConstructionHis
     EXPECT_TRUE(replay.report_evidence);
     EXPECT_FALSE(replay.scene_construction_history_entry);
     EXPECT_EQ(replay.transaction_trace.command_id.value, result.command_id.value);
+}
+
+TEST(SessionRuntimeContract, ReplayEvidenceExportIsDeterministicReportEvidence) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::SessionRuntime session(model);
+
+    auto result = session.solve();
+    auto first = session.export_replay_evidence(
+        runtime::ReplayRequest{result.command_id});
+    auto second = session.export_replay_evidence(
+        runtime::ReplayRequest{result.command_id});
+
+    EXPECT_TRUE(first.found);
+    EXPECT_TRUE(first.report_evidence);
+    EXPECT_FALSE(first.scene_construction_history_entry);
+    EXPECT_EQ(first.replay_artifact_kind,
+              runtime::ReplayArtifactKind::runtime_transaction_trace);
+    EXPECT_EQ(first.command_id.value, result.command_id.value);
+    EXPECT_EQ(first.accepted, result.accepted);
+    EXPECT_EQ(first.status, result.user_visible_status);
+    EXPECT_EQ(first.base_version.value, 0U);
+    EXPECT_EQ(first.final_version.value, 1U);
+    EXPECT_TRUE(first.committed);
+    EXPECT_FALSE(first.rolled_back);
+
+    ASSERT_EQ(first.stages.size(), second.stages.size());
+    ASSERT_EQ(first.stages.size(), result.transaction_trace.stages.size());
+    for (int index = 0; index < static_cast<int>(first.stages.size());
+         ++index) {
+        const auto& first_stage =
+            first.stages[static_cast<std::size_t>(index)];
+        const auto& second_stage =
+            second.stages[static_cast<std::size_t>(index)];
+        EXPECT_EQ(first_stage.order, index);
+        EXPECT_EQ(first_stage.order, second_stage.order);
+        EXPECT_EQ(first_stage.stage, second_stage.stage);
+        EXPECT_EQ(first_stage.report_code, second_stage.report_code);
+        EXPECT_NE(first_stage.stage, "AddRigidSet");
+        EXPECT_NE(first_stage.stage, "AddGeometry");
+        EXPECT_NE(first_stage.stage, "AddConstraint");
+        EXPECT_NE(first_stage.stage, "UpdateConstraint");
+        EXPECT_NE(first_stage.stage, "Solve");
+    }
+
+    EXPECT_TRUE(has_report_code(first.report_codes, "runtime.commit"));
+}
+
+TEST(SessionRuntimeContract, ReplayEvidenceExportReportsMissingCommand) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::SessionRuntime session(model);
+
+    auto missing = session.export_replay_evidence(
+        runtime::ReplayRequest{kernel::CommandId{999}});
+
+    EXPECT_FALSE(missing.found);
+    EXPECT_TRUE(missing.report_evidence);
+    EXPECT_FALSE(missing.scene_construction_history_entry);
+    EXPECT_EQ(missing.replay_artifact_kind,
+              runtime::ReplayArtifactKind::runtime_transaction_trace);
+    EXPECT_EQ(missing.command_id.value, 999U);
+    EXPECT_FALSE(missing.accepted);
+    EXPECT_EQ(missing.status, kernel::SolveStatus::not_run);
+    EXPECT_TRUE(missing.stages.empty());
+    ASSERT_EQ(missing.report_codes.size(), 1U);
+    EXPECT_EQ(missing.report_codes.front(), "runtime.replay_missing_command");
 }

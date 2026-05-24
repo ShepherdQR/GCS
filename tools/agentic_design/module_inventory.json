@@ -106,7 +106,7 @@
       "target_heading": "Session Runtime Target Design",
       "contract_test": "tests/contracts/session_runtime/session_runtime_contract_tests.cpp",
       "structured_inputs": ["RuntimeCommand", "CommandPreconditions", "TransactionPolicy", "RuntimeServices", "ReplayRequest"],
-      "structured_outputs": ["CommandResult", "TransactionTrace", "HistoryEvent", "RollbackReport", "ReplayReport", "PostCommitVerificationReport"],
+      "structured_outputs": ["CommandResult", "TransactionTrace", "HistoryEvent", "RollbackReport", "ReplayReport", "RuntimeReplayEvidenceExport", "PostCommitVerificationReport"],
       "tools": ["command_validator", "transaction_journal", "pipeline_orchestrator", "stage_trace_collector", "commit_rollback_tool", "history_store", "replay_harness"],
       "allowed_imports": [
         "gcs.kernel",

@@ -25,12 +25,12 @@ Current baseline:
 
 | Field | Value |
 | --- | --- |
-| Current completed step | Step 46 |
-| Next implementation step | Step 47 runtime replay evidence export package |
+| Current completed step | Step 47 |
+| Next implementation step | Step 48 runtime replay evidence consumer path |
 | Default gate | `python tools\agentic_design\agentic_toolkit.py run-quality-gates` |
-| Contract test baseline | 111 CTest-discovered GTest cases |
+| Contract test baseline | 113 CTest-discovered GTest cases |
 | Public evidence sentinel | 26 selected CTest cases |
-| Main new boundary | runtime transaction replay is report evidence, not scene construction history |
+| Main new boundary | runtime transaction replay is deterministic report evidence, not scene construction history |
 
 ## Step Report
 
@@ -181,7 +181,7 @@ Validation:
 
 Handoff:
 
-- Step 47 should package runtime replay evidence as deterministic reports
+- Step 47 has now packaged runtime replay evidence as deterministic reports
   without writing transaction stages into JSON scene `history`.
 
 ## Cross-Step Themes
@@ -195,9 +195,16 @@ Handoff:
 
 ## Step 47 Handoff
 
-Step 47 is registered as the runtime replay evidence export package. It should
-define a deterministic report/export contract for command transaction traces,
+Step 47 fulfilled the runtime replay evidence export package handoff. It
+defined a deterministic report/export contract for command transaction traces,
 state-version ranges, artifact kind, report-evidence flags, ordered stages, and
-viewer frame projections. `io_adapters` should remain out of scope unless a
-future explicit migration converts runtime traces into stable scene action
-payloads.
+report codes. `io_adapters` remains out of scope unless a future explicit
+migration converts runtime traces into stable scene action payloads.
+
+Postscript after Step 47:
+
+- This handoff has been fulfilled by `RuntimeReplayEvidenceExport` and
+  `SessionRuntime::export_replay_evidence(ReplayRequest)`.
+- The next registered implementation step is Step 48: expose the runtime
+  replay evidence export through a CLI, viewer, or report-consumer path without
+  changing JSON scene `history`.

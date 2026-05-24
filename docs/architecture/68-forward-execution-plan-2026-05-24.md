@@ -1166,6 +1166,62 @@ Exit criteria:
   history.
 - The next consumer path, CLI or GUI, is documented with a clear owner.
 
+Completed summary:
+
+- Added `RuntimeReplayEvidenceStage` and `RuntimeReplayEvidenceExport` to
+  `gcs.session_runtime`.
+- Added `SessionRuntime::export_replay_evidence(ReplayRequest)` as a
+  deterministic runtime report export over stored command history.
+- The export includes command ID, artifact kind, report-evidence flag,
+  scene-history flag, state-version range, command status, commit/rollback
+  flags, ordered stages, and stable report codes.
+- Missing commands produce a deterministic rejected report with
+  `runtime.replay_missing_command`.
+- New `SessionRuntimeContract` coverage proves deterministic export behavior
+  and preserves the separation from JSON scene `history`.
+- The module inventory and target contract design now list
+  `RuntimeReplayEvidenceExport` as a session-runtime structured output.
+
+Reassessment after Step 47:
+
+- Runtime replay evidence has a structured in-process export contract.
+- The next risk is consumption: CLI, GUI, or report tooling needs a stable way
+  to ask for this evidence without turning runtime traces into scene
+  construction history.
+
+### Step 48: Runtime Replay Evidence Consumer Path
+
+Goal:
+
+- Connect the deterministic runtime replay evidence export to a consumer-facing
+  report path.
+
+Expected shape:
+
+- A CLI, viewer-facing, or report-adapter path that can request the export for
+  a command and present stable report evidence.
+- Tests proving the consumer path preserves `runtime_transaction_trace` report
+  semantics.
+- No JSON scene schema or saved-scene `history` behavior change.
+
+Detailed plan:
+
+- Inspect existing CLI, viewer bridge, and report output surfaces.
+- Choose the smallest consumer path that exercises
+  `SessionRuntime::export_replay_evidence` without adding scene IO ownership.
+- Add deterministic output or projection tests for command ID, artifact kind,
+  state versions, ordered stages, and report codes.
+- Reassess whether GUI replay should consume runtime evidence reports or keep
+  using scene construction `history` for topology reconstruction.
+
+Exit criteria:
+
+- A public consumer can observe runtime replay evidence without private runtime
+  inspection.
+- The consumer path keeps runtime replay reports separate from JSON scene
+  construction history.
+- Any CLI or viewer output has deterministic contract coverage.
+
 ## Reassessment Protocol
 
 After each step:
@@ -1184,13 +1240,13 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 46 update:
+As of the Step 47 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 46 have completed-step summaries in the roadmap and current
+- Steps 1 through 47 have completed-step summaries in the roadmap and current
   progress documents.
-- Steps 31 through 47 are detailed in this forward plan with goal, expected
+- Steps 31 through 48 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
-- Step 47 is registered as the runtime replay evidence export package step.
+- Step 48 is registered as the runtime replay evidence consumer path step.
 

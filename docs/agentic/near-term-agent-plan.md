@@ -1,0 +1,133 @@
+# Near-Term Agent Execution Plan
+
+Snapshot: 2026-05-24.
+
+## Purpose
+
+This plan turns the current agent discussion into immediate, reviewable work.
+It covers the next few GCS agentic-SE sessions. The goal is not to create more
+agent names. The goal is to make the existing agent system executable,
+auditable, and useful in real project work.
+
+## Current Facts
+
+- The agentic operating layer exists under `docs/agentic/`.
+- The lifecycle roadmap exists in `docs/agentic/agile-pdca-roadmap.md`.
+- The first institutional-agent directory exists under
+  `docs/agentic/institutional-agents/`.
+- `I001 刀匠: 淬炼-锻打` and `I002 裁缝: 裁剪-缝合` are the first core seed
+  institutional agents.
+- `I003 Atelier Steward: Calibrate-Review` and
+  `I004 Art Director: Frame-Judge` exist as visual-system seed agents and need
+  to be kept indexed and evaluated rather than overwritten.
+- Step 46 is marked done in the implementation roadmap. This plan reconciled
+  the earlier PDCA drift by recording that no matching Step 46 task card or
+  archive was found and by moving the next real lifecycle sample to Step 47 or
+  the next high-risk engineering task.
+- Step 47 has now completed the full lifecycle: task card, implementation,
+  tests, completed-task archive, roadmap update, closure score, and a real
+  `刀匠` example. `裁缝` was intentionally skipped for that sample, then later
+  used for an explicit local repository stitch timeline.
+
+## Execution Principle
+
+Near-term work follows this order:
+
+```text
+sync truth -> make seed agents verifiable -> validate closure on real work
+  -> add opt-in gates -> promote only from evidence
+```
+
+## Workstream A: Roadmap Truth Sync
+
+Goal: keep agentic roadmaps aligned with implementation reality.
+
+| ID | Task | Status | Output |
+| --- | --- | --- | --- |
+| A1 | Record that Step 46 implementation is done but the S1-02 lifecycle sample was not found as a task/archive pair. | done in this plan | This plan's Current Facts section. |
+| A2 | Decide whether to backfill a Step 46 retrospective archive or use Step 47 as the next true lifecycle sample. | done in this plan | `agile-pdca-roadmap.md` update. |
+| A3 | Update the PDCA queue after A2. | done in this plan | Roadmap C002 update. |
+| A4 | Record Step 47 lifecycle completion and move the queue to S1-03. | done in this plan | Roadmap C003 update and this plan. |
+
+Decision rule: do not fabricate lifecycle evidence. If no task card or archive
+exists, mark it as an escaped lifecycle sample and use the next high-risk task
+to prove the loop.
+
+## Workstream B: Make Seed Institutional Agents Verifiable
+
+Goal: each seed institutional agent should have a prompt, output template, and
+at least one eval that can fail.
+
+| ID | Task | Status | Output |
+| --- | --- | --- | --- |
+| B1 | Add invoke prompt for `刀匠`. | done in this plan | `001-bladesmith-quench-forge/prompts/invoke.md` |
+| B2 | Add experience-forging note template for `刀匠`. | done in this plan | `001-bladesmith-quench-forge/templates/experience-forging-note.md` |
+| B3 | Add unsupported-generalization eval for `刀匠`. | done in this plan | `001-bladesmith-quench-forge/evals/refuse-unsupported-generalization.md` |
+| B4 | Add invoke prompt for `裁缝`. | done in this plan | `002-tailor-stitch-timeline/prompts/invoke.md` |
+| B5 | Add timeline-entry template for `裁缝`. | done in this plan | `002-tailor-stitch-timeline/templates/timeline-entry.md` |
+| B6 | Add invented-causality eval for `裁缝`. | done in this plan | `002-tailor-stitch-timeline/evals/refuse-invented-causality.md` |
+| B7 | Add a real filled example for `刀匠`. | done in this plan | Step 47 lifecycle forging note. |
+| B8 | Add a real filled example for `裁缝`. | done in local stitch | `002-tailor-stitch-timeline/examples/2026-05-24-local-repo-stitch-timeline.md` |
+| B9 | Add similar prompt/template/eval packages for I003 and I004 if they remain seed agents after review. | pending | Visual-system institutional-agent packages. |
+
+Definition of done for B: each core seed agent can be invoked by reading its
+README plus `prompts/invoke.md`, can emit a structured artifact using its
+template, and has a refusal eval that prevents overreach.
+
+## Workstream C: Validate E001 Session Closure
+
+Goal: prove that task-scoped closure improves future resumption, not just that
+the templates exist.
+
+| ID | Task | Status | Output |
+| --- | --- | --- | --- |
+| C1 | Identify two completed archives to score with E001. | done in this plan | C001 and Step 47 are the first candidate pair. |
+| C2 | Score the archives and compare with human review notes. | next | Calibration note. |
+| C3 | Add one negative eval for archive pollution or false completion. | pending | `docs/agentic/evals/` or E001 eval note. |
+| C4 | Decide whether to promote E001 into an installed project skill. | pending | Promotion decision. |
+
+## Workstream D: Opt-In Agentic Quality Gates
+
+Goal: make agentic artifacts checkable without forcing ceremony on every small
+task.
+
+| ID | Task | Status | Output |
+| --- | --- | --- | --- |
+| D1 | Design `--include-task-cards` and `--include-completed-reports`. | pending | Tooling design note. |
+| D2 | Add task-card validator tests for missing fields and high-risk gates. | pending | `tests/tools/test_agentic_toolkit.py` cases. |
+| D3 | Add completed-report validator tests for new reports only. | pending | Tool tests and migration note. |
+| D4 | Define legacy archive exemption or migration policy. | pending | `docs/completed-tasks/README.md` update. |
+
+## Workstream E: Fuzzy Description To Agent Package
+
+Goal: prove that a vague role idea can become a usable agent package through
+the generator protocol.
+
+| ID | Task | Status | Output |
+| --- | --- | --- | --- |
+| E1 | Use `templates/role-card-generator-prompt.md` on one real fuzzy role request. | pending | Generated decision and role package. |
+| E2 | Check whether the result should be candidate, seed, or update-existing. | pending | Fit-check record. |
+| E3 | Add one accepted example and one rejected example to the generation pipeline. | pending | Generator examples. |
+
+## Immediate Next Task
+
+Start with S1-03:
+
+1. Convert C001, C002, and Step 47/C003 into a task-to-archive checklist.
+2. Add one checked example using the Step 47 task card and completed-task
+   archive.
+3. Keep the checklist lightweight and path-scoped so it helps high-risk tasks
+   without forcing ceremony on small work.
+4. Use the new `裁缝` local repository stitch as the first real timeline
+   example, but continue avoiding invented causality.
+
+## Acceptance Gate
+
+This near-term plan is working when:
+
+- the roadmap no longer points at stale Step 46 work as if it were still next;
+- `刀匠` and `裁缝` each have prompt, template, and eval seed;
+- at least one real filled example exists for both `刀匠` and `裁缝`;
+- E001 has at least two scored archives;
+- no new institutional-agent directory is created without generator fit-check
+  evidence.
