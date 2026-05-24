@@ -139,6 +139,20 @@ CONSTRAINT_GRAPH_LINE_STYLES = {
     for type_id, token in CONSTRAINT_TYPE_TOKENS.items()
 }
 
+STATE_COLORS = {
+    "focus": GCS_TOKENS["state.focus"],
+    "focus_active": GCS_TOKENS["state.focus.active"],
+    "selected": GCS_TOKENS["state.focus"],
+    "replay_current": GCS_TOKENS["state.replay.current"],
+    "solved": GCS_TOKENS["state.ok"],
+    "ok": GCS_TOKENS["state.ok"],
+    "info": GCS_TOKENS["state.info"],
+    "warning": GCS_TOKENS["state.warning"],
+    "error": GCS_TOKENS["state.error"],
+    "pending": GCS_TOKENS["state.pending"],
+    "violated": GCS_TOKENS["state.violation"],
+}
+
 GCS_THEME = {
     "bg_window": GCS_TOKENS["surface.paper"],
     "bg_primary": GCS_TOKENS["surface.paper"],
@@ -151,12 +165,12 @@ GCS_THEME = {
     "text_secondary": GCS_TOKENS["text.secondary"],
     "text_muted": GCS_TOKENS["text.muted"],
     "text_on_accent": GCS_TOKENS["text.inverse"],
-    "accent": GCS_TOKENS["state.focus"],
-    "accent_active": GCS_TOKENS["state.focus.active"],
-    "info": GCS_TOKENS["state.info"],
-    "success": GCS_TOKENS["state.ok"],
-    "warning": GCS_TOKENS["state.warning"],
-    "error": GCS_TOKENS["state.error"],
+    "accent": STATE_COLORS["focus"],
+    "accent_active": STATE_COLORS["focus_active"],
+    "info": STATE_COLORS["info"],
+    "success": STATE_COLORS["solved"],
+    "warning": STATE_COLORS["warning"],
+    "error": STATE_COLORS["error"],
     "border": GCS_TOKENS["rule.default"],
     "border_strong": GCS_TOKENS["rule.strong"],
     "grid": GCS_TOKENS["rule.soft"],

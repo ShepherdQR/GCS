@@ -22,7 +22,7 @@ from gcs_viz.algebra import (
     GCSGraph, GeometryType, ConstraintType,
     read_graph_file, write_graph_file,
 )
-from gcs_viz.color_scheme import GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME
+from gcs_viz.color_scheme import GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME, STATE_COLORS
 from gcs_viz.event_store import EventStore
 from gcs_viz.engine_bridge import EngineBridge
 from gcs_viz.viewer_bridge import build_history_graph, graph_summary, render_graph_view, render_message
@@ -331,16 +331,16 @@ class GCSPlatformGUI:
         self.log_label.pack(fill=tk.X)
 
     def _log_info(self, msg):
-        self.log_label.config(text=f"  INFO {msg}", fg=GCS_THEME["info"])
+        self.log_label.config(text=f"  INFO {msg}", fg=STATE_COLORS["info"])
 
     def _log_warning(self, msg):
-        self.log_label.config(text=f"  WARN {msg}", fg=GCS_THEME["warning"])
+        self.log_label.config(text=f"  WARN {msg}", fg=STATE_COLORS["warning"])
 
     def _log_error(self, msg):
-        self.log_label.config(text=f"  ERR  {msg}", fg=GCS_THEME["error"])
+        self.log_label.config(text=f"  ERR  {msg}", fg=STATE_COLORS["error"])
 
     def _log_success(self, msg):
-        self.log_label.config(text=f"  OK   {msg}", fg=GCS_THEME["success"])
+        self.log_label.config(text=f"  OK   {msg}", fg=STATE_COLORS["solved"])
 
     def _configure_theme(self, style):
         try:
@@ -361,7 +361,7 @@ class GCSPlatformGUI:
         style.map(
             "TNotebook.Tab",
             background=[("selected", GCS_THEME["bg_table"])],
-            foreground=[("selected", GCS_THEME["text_primary"]), ("active", GCS_THEME["accent_active"])],
+            foreground=[("selected", GCS_THEME["text_primary"]), ("active", STATE_COLORS["focus_active"])],
         )
         style.configure("TLabelframe", background=GCS_THEME["bg_panel"], bordercolor=GCS_THEME["border"], relief=tk.SOLID)
         style.configure(
@@ -389,20 +389,20 @@ class GCSPlatformGUI:
         )
         style.map(
             "Action.TButton",
-            background=[("active", GCS_THEME["bg_table_selected"]), ("pressed", GCS_THEME["accent"])],
+            background=[("active", GCS_THEME["bg_table_selected"]), ("pressed", STATE_COLORS["focus"])],
             foreground=[("pressed", GCS_THEME["text_on_accent"])],
         )
         style.configure(
             "Primary.TButton",
             padding=5,
-            background=GCS_THEME["accent"],
+            background=STATE_COLORS["focus"],
             foreground=GCS_THEME["text_on_accent"],
-            bordercolor=GCS_THEME["accent_active"],
-            focuscolor=GCS_THEME["accent_active"],
+            bordercolor=STATE_COLORS["focus_active"],
+            focuscolor=STATE_COLORS["focus_active"],
         )
         style.map(
             "Primary.TButton",
-            background=[("active", GCS_THEME["accent_active"]), ("pressed", GCS_THEME["accent_active"])],
+            background=[("active", STATE_COLORS["focus_active"]), ("pressed", STATE_COLORS["focus_active"])],
             foreground=[("active", GCS_THEME["text_on_accent"]), ("pressed", GCS_THEME["text_on_accent"])],
         )
         style.configure(
@@ -412,9 +412,9 @@ class GCSPlatformGUI:
             bordercolor=GCS_THEME["border"],
             focuscolor=GCS_THEME["border"],
         )
-        style.map("TButton", background=[("active", GCS_THEME["bg_table_selected"]), ("pressed", GCS_THEME["accent"])])
+        style.map("TButton", background=[("active", GCS_THEME["bg_table_selected"]), ("pressed", STATE_COLORS["focus"])])
         style.configure("TRadiobutton", background=GCS_THEME["bg_window"], foreground=GCS_THEME["text_secondary"])
-        style.map("TRadiobutton", foreground=[("selected", GCS_THEME["text_primary"]), ("active", GCS_THEME["accent_active"])])
+        style.map("TRadiobutton", foreground=[("selected", GCS_THEME["text_primary"]), ("active", STATE_COLORS["focus_active"])])
         style.configure("Horizontal.TScale", background=GCS_THEME["bg_panel"], troughcolor=GCS_THEME["bg_panel_alt"])
         style.configure(
             "Treeview",
@@ -497,11 +497,11 @@ class GCSPlatformGUI:
         dof = self.graph.compute_dof()
         status = self.graph.classify_dof_status()
         if status == "WellConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Well-constrained) ✓  ", foreground=GCS_THEME["success"])
+            self.dof_label.config(text=f"  Net DOF: {dof} (Well-constrained) ✓  ", foreground=STATE_COLORS["solved"])
         elif status == "UnderConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Under-constrained) ⚠  ", foreground=GCS_THEME["warning"])
+            self.dof_label.config(text=f"  Net DOF: {dof} (Under-constrained) ⚠  ", foreground=STATE_COLORS["warning"])
         elif status == "OverConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Over-constrained) ✗  ", foreground=GCS_THEME["error"])
+            self.dof_label.config(text=f"  Net DOF: {dof} (Over-constrained) ✗  ", foreground=STATE_COLORS["error"])
         else:
             self.dof_label.config(text="  Net DOF: — (Empty)  ", foreground=GCS_THEME["text_muted"])
 

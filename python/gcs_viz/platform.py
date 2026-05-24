@@ -28,7 +28,14 @@ from gcs_viz.algebra import (
     DOF_GEOMETRY, DOF_REMOVED_CONSTRAINT, VALID_CONSTRAINT_SIGNATURES,
     read_graph_file, write_graph_file,
 )
-from gcs_viz.color_scheme import RIGID_SET_COLORS, CONSTRAINT_COLORS, GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME
+from gcs_viz.color_scheme import (
+    RIGID_SET_COLORS,
+    CONSTRAINT_COLORS,
+    GEOMETRY_NAMES,
+    CONSTRAINT_NAMES,
+    GCS_THEME,
+    STATE_COLORS,
+)
 from gcs_viz.event_store import EventStore
 from gcs_viz.engine_bridge import EngineBridge
 from gcs_viz.screens.dialogs import AddRigidSetDialog, AddGeometryDialog, AddConstraintDialog
@@ -39,11 +46,11 @@ class DOFIndicator(Static):
 
     def render(self) -> Text:
         if self.dof_value == 0:
-            return Text(f"  Net DOF: 0 (Well-constrained) ✓  ", style=f"bold {GCS_THEME['success']}")
+            return Text(f"  Net DOF: 0 (Well-constrained) ✓  ", style=f"bold {STATE_COLORS['solved']}")
         elif self.dof_value > 0:
-            return Text(f"  Net DOF: {self.dof_value} (Under-constrained) ⚠  ", style=f"bold {GCS_THEME['warning']}")
+            return Text(f"  Net DOF: {self.dof_value} (Under-constrained) ⚠  ", style=f"bold {STATE_COLORS['warning']}")
         else:
-            return Text(f"  Net DOF: {self.dof_value} (Over-constrained) ✗  ", style=f"bold {GCS_THEME['error']}")
+            return Text(f"  Net DOF: {self.dof_value} (Over-constrained) ✗  ", style=f"bold {STATE_COLORS['error']}")
 
 
 class StatusBar(Static):

@@ -23,6 +23,7 @@ from gcs_viz.color_scheme import (
     GEOMETRY_NAMES,
     CONSTRAINT_NAMES,
     GCS_THEME,
+    STATE_COLORS,
 )
 
 
@@ -73,7 +74,7 @@ def _has_focus(focus: Optional[Mapping]) -> bool:
 
 def _constraint_color(constraint, focus: Optional[Mapping]) -> str:
     if _is_focused_constraint(constraint, focus):
-        return GCS_THEME["accent"]
+        return STATE_COLORS["focus"]
     return CONSTRAINT_COLORS.get(int(constraint.type), GCS_THEME["constraint_default"])
 
 
@@ -94,7 +95,7 @@ def _constraint_alpha(constraint, focus: Optional[Mapping]) -> float:
 
 
 def _geometry_label_color(color: str, focused: bool) -> str:
-    return GCS_THEME["accent_active"] if focused else color
+    return STATE_COLORS["focus_active"] if focused else color
 
 
 def _constraint_label(constraint, focused: bool) -> str:
@@ -178,7 +179,7 @@ def _draw_geometry_3d(ax, geometry, color: str, focused: bool):
         if focused:
             ax.scatter(
                 [point[0]], [point[1]], [point[2]],
-                color=GCS_THEME["accent"], s=190, alpha=0.18,
+                color=STATE_COLORS["selected"], s=190, alpha=0.18,
                 edgecolors="none", depthshade=False, zorder=7,
             )
         ax.scatter(
@@ -199,7 +200,7 @@ def _draw_geometry_3d(ax, geometry, color: str, focused: bool):
         if focused:
             ax.plot(
                 [p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]],
-                color=GCS_THEME["accent"], linewidth=5.5, alpha=0.24, zorder=6,
+                color=STATE_COLORS["selected"], linewidth=5.5, alpha=0.24, zorder=6,
             )
         ax.plot(
             [p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]],
@@ -241,7 +242,7 @@ def _draw_geometry_3d(ax, geometry, color: str, focused: bool):
         poly = Poly3DCollection(
             [corners],
             facecolor=to_rgba(color, 0.30 if focused else 0.22),
-            edgecolor=GCS_THEME["accent"] if focused else color,
+            edgecolor=STATE_COLORS["selected"] if focused else color,
             linewidth=2.0 if focused else 1.0,
         )
         ax.add_collection3d(poly)
@@ -291,7 +292,7 @@ def _draw_geometry_2d(ax, geometry, color: str, dim1: int, dim2: int, focused: b
     if geometry.type == GeometryType.Point:
         x, y = geometry.v[dim1], geometry.v[dim2]
         if focused:
-            ax.scatter(x, y, color=GCS_THEME["accent"], s=170, alpha=0.18, linewidths=0, zorder=7)
+            ax.scatter(x, y, color=STATE_COLORS["selected"], s=170, alpha=0.18, linewidths=0, zorder=7)
         ax.scatter(
             x, y, color=color, s=76 if focused else 54,
             edgecolors=GCS_THEME["bg_canvas"], linewidths=1.3 if focused else 0.8,
@@ -307,7 +308,7 @@ def _draw_geometry_2d(ax, geometry, color: str, dim1: int, dim2: int, focused: b
         xs = [geometry.v[dim1], geometry.v[dim1 + 3]]
         ys = [geometry.v[dim2], geometry.v[dim2 + 3]]
         if focused:
-            ax.plot(xs, ys, color=GCS_THEME["accent"], linewidth=5.0, alpha=0.20, zorder=6)
+            ax.plot(xs, ys, color=STATE_COLORS["selected"], linewidth=5.0, alpha=0.20, zorder=6)
         ax.plot(xs, ys, color=color, linewidth=2.5 if focused else 1.8, zorder=7 if focused else 4)
         ax.scatter(
             xs, ys, color=color, s=32 if focused else 20,
@@ -324,11 +325,11 @@ def _draw_geometry_2d(ax, geometry, color: str, dim1: int, dim2: int, focused: b
     if geometry.type == GeometryType.Plane:
         x, y = geometry.v[dim1], geometry.v[dim2]
         if focused:
-            ax.scatter(x, y, color=GCS_THEME["accent"], s=210, marker="s", alpha=0.18, linewidths=0, zorder=7)
+            ax.scatter(x, y, color=STATE_COLORS["selected"], s=210, marker="s", alpha=0.18, linewidths=0, zorder=7)
         ax.scatter(
             x, y, color=color, s=112 if focused else 88, marker="s",
             alpha=0.62 if focused else 0.48,
-            edgecolors=GCS_THEME["accent"] if focused else color,
+            edgecolors=STATE_COLORS["selected"] if focused else color,
             linewidths=1.7 if focused else 0.9,
             zorder=8 if focused else 5,
         )
@@ -424,7 +425,7 @@ def _legend_elements(graph: GCSGraph, focus: Optional[Mapping] = None):
         elements.append(
             Line2D(
                 [0], [0],
-                color=GCS_THEME["accent"],
+                color=STATE_COLORS["focus"],
                 linewidth=2.7,
                 label="Focus",
             )
@@ -542,7 +543,7 @@ def build_graph_on_figure(
                 nodelist=halo_nodes,
                 ax=ax,
                 node_shape=marker,
-                node_color=GCS_THEME["accent"],
+                node_color=STATE_COLORS["selected"],
                 node_size=[GEOMETRY_NODE_SIZES[geom_type] + 430 for _ in halo_nodes],
                 alpha=0.20,
                 linewidths=0,
@@ -558,7 +559,7 @@ def build_graph_on_figure(
             for node in nodes
         ]
         node_edges = [
-            GCS_THEME["accent"] if node in halo_nodes else GCS_THEME["bg_canvas"]
+            STATE_COLORS["selected"] if node in halo_nodes else GCS_THEME["bg_canvas"]
             for node in nodes
         ]
         nx.draw_networkx_nodes(
@@ -581,7 +582,7 @@ def build_graph_on_figure(
         constraint_id = data.get("constraint_id")
         focused = constraint_id in constraint_focus_ids
         constraint_type = data.get("constraint_type", 3)
-        color = GCS_THEME["accent"] if focused else CONSTRAINT_COLORS.get(
+        color = STATE_COLORS["focus"] if focused else CONSTRAINT_COLORS.get(
             constraint_type, GCS_THEME["constraint_default"]
         )
         nx.draw_networkx_edges(
