@@ -32,6 +32,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `lifecycle-runbook.md` | Action guide for moving from request to push. |
 | `task-to-archive-checklist.md` | Compact closure checklist with a checked Step 47 example. |
 | `../research/20260524/ai-agent-git-worktree-workflow-for-gcs.md` | Research-backed policy for multi-session Codex worktree isolation. |
+| `next-queue-forward-plan-2026-05-24.md` | Durable handoff for the immediate queue and later agentic-SE plan after Step 49. |
 | `experience/001-task-scoped-session-closure/calibration/` | E001 closure-score calibration notes comparing machine scores with human review. |
 | `agile-pdca-roadmap.md` | Four-phase Agentic SE execution plan, PDCA cadence, current backlog, and next task. |
 | `near-term-agent-plan.md` | Immediate agent execution plan for roadmap sync, seed-agent verification, E001 validation, and opt-in gates. |

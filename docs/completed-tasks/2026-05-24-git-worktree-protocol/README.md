@@ -86,6 +86,9 @@ Passed: completed-task archive validation.
 python tools\agentic_design\agentic_toolkit.py validate-docs
 Passed: module design coverage.
 
+python tools\agentic_design\agentic_toolkit.py validate-inventory
+Passed: structured module inventory.
+
 python tools\agentic_design\agentic_toolkit.py score-closure-report docs\completed-tasks\2026-05-24-git-worktree-protocol\README.md --min-score 30
 Passed: closure score 38/40.
 

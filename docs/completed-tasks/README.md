@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-24 | [Agentic lifecycle Step 47-49 session archive](2026-05-24-agentic-lifecycle-step-47-49-session/README.md) | done |
 | 2026-05-24 | [Git worktree protocol](2026-05-24-git-worktree-protocol/README.md) | done |
 | 2026-05-24 | [S1-05 and Step 49 replay report artifact](2026-05-24-s1-05-step-49-replay-report-artifact/README.md) | done |
 | 2026-05-24 | [Step 48 replay consumer and S1-03 checklist](2026-05-24-step-48-replay-consumer-and-s1-03-checklist/README.md) | done |
