@@ -537,17 +537,35 @@ Delivered:
 - Update scene behavior docs, then reassess the next implementation step.
 - Contract test baseline is now 109 CTest-discovered GTest cases.
 
-## Next Step 45
+## Completed Step 45
 
-The next step should define and test JSON history/replay compatibility policy.
+Step 45 defined and tested JSON history/replay compatibility policy.
 Python GUI scenes preserve `history` and can replay construction actions, while
 C++ IO currently treats `history` as scene metadata outside `ModelSnapshot`.
-Step 45 should make this boundary explicit so saved GUI scenes, public fixtures,
-and future C++ replay support do not drift.
+This boundary is now explicit so saved GUI scenes, public fixtures, and future
+C++ replay support do not drift.
+
+Delivered:
+
+- Add Python replay tests for `build_history_graph` and `apply_history_entry`.
+- Cover current and legacy saved scene history, including `Solve` marker
+  tolerance and unknown-action rejection.
+- Document that C++ IO tolerates `history` as non-solver metadata while Python
+  owns GUI replay reconstruction today.
+- Add the replay test to the default quality gate.
+- Make `viewer_bridge` replay helpers lightweight by lazy-loading visualizer
+  dependencies only when rendering is requested.
+
+## Next Step 46
+
+The next step should decide runtime-owned replay export boundaries. C++
+`session_runtime` already records command history events, while scene JSON
+`history` records construction/replay actions. Step 46 should define how these
+two histories are projected or exported without merging their semantics.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-44 are registered in the implementation roadmap; Steps 31 through 44 are
+45 are registered in the implementation roadmap; Steps 31 through 45 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. Step 45 is registered as the history/replay compatibility
-follow-up.
+in the forward plan. Step 46 is registered as the runtime replay export
+boundary follow-up.

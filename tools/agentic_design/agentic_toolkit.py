@@ -1128,6 +1128,10 @@ def build_quality_gate_commands(args: argparse.Namespace,
             "python.gcs_viz_algebra",
             [python, "-m", "unittest", "tests.tools.test_gcs_viz_algebra"],
         ))
+        commands.append(GateCommand(
+            "python.gcs_viz_history_replay",
+            [python, "-m", "unittest", "tests.tools.test_gcs_viz_history_replay"],
+        ))
 
     if not args.skip_build:
         commands.append(GateCommand("cmake.configure", ["cmake", "--preset", args.preset]))

@@ -1055,6 +1055,59 @@ Exit criteria:
 - Legacy saved scenes remain readable and their history policy is explicit.
 - The default quality gate covers the replay compatibility contract.
 
+Completion summary:
+
+- Added Python replay tests for prefix reconstruction, construction actions,
+  `UpdateConstraint`, non-mutating `Solve` markers, unknown-action rejection,
+  and legacy saved-scene replay.
+- Made `python/gcs_viz/viewer_bridge.py` lazy-load visualization functions so
+  history replay helpers do not require heavy rendering dependencies.
+- Added `python.gcs_viz_history_replay` to the default quality gate.
+- Updated domain/current-model and quality-gate docs to distinguish
+  solver-owned `behavior` from Python-owned scene `history`.
+
+Reassessment after Step 45:
+
+- Scene construction replay is covered on the Python side.
+- Runtime command history and scene construction history are still separate
+  concepts; their projection boundary should be specified before adding any
+  C++ history export.
+
+### Step 46: Runtime Replay Export Boundary
+
+Goal:
+
+- Define how C++ runtime history events relate to scene-embedded construction
+  history.
+
+Expected shape:
+
+- A documented boundary between `session_runtime` command history and JSON
+  scene `history`.
+- Contract tests or tool tests proving runtime history projections do not
+  masquerade as scene construction actions.
+- A clear path for future replay/export without corrupting saved scenes.
+
+Detailed plan:
+
+- Inspect `src/gcs/session_runtime` history event structures and
+  `viewer_bridge` history frame projection.
+- Decide whether runtime history export belongs to `session_runtime`,
+  `viewer_bridge`, or `io_adapters`.
+- Add a contract test that runtime command history is projectable as report
+  evidence without writing scene construction `history`.
+- Update architecture docs and quality gates if a new public projection is
+  introduced.
+- Reassess whether UI history replay should consume runtime history frames in
+  a later step.
+
+Exit criteria:
+
+- Runtime command history and scene construction history have distinct
+  contract names and ownership.
+- Tests cover the chosen projection boundary.
+- Future export work has a documented owner and non-goal list.
+
 ## Reassessment Protocol
 
 After each step:

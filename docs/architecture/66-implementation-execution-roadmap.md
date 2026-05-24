@@ -214,13 +214,15 @@ Status legend: `done`, `in_progress`, `pending`.
     public report package from the Step 42 scene assets.
 44. `done` - harden cross-language JSON scene behavior round-trip between
     C++ IO and Python visualization schemas.
-45. `pending` - define and test JSON history/replay compatibility policy for
+45. `done` - define and test JSON history/replay compatibility policy for
     current and legacy GUI-authored scenes.
+46. `pending` - decide runtime-owned replay export boundaries between
+    session history events and scene-embedded construction history.
 
 Next registered candidate:
 
-- Complete Step 45 by making saved-scene history/replay compatibility explicit
-  across Python GUI authoring, Python replay, and C++ IO boundaries.
+- Complete Step 46 by specifying how runtime history events should be exported
+  or projected without conflating them with scene construction history.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1596,6 +1598,32 @@ Reassessment after Step 44:
 - The remaining compatibility risk is history/replay: Python preserves saved
   construction history, while C++ scene IO currently treats history as
   non-solver metadata. Step 45 should make that policy explicit and tested.
+
+## JSON History And Replay Compatibility Step Plan
+
+Implemented scope:
+
+- Added Python history replay tests covering prefix reconstruction,
+  `AddRigidSet`, `AddGeometry`, `AddConstraint`, `UpdateConstraint`, `Solve`
+  marker tolerance, and unknown-action rejection.
+- Added legacy saved-scene replay coverage using
+  `fixtures/scene/saved/triangle_003_graph.json`.
+- Made `python/gcs_viz/viewer_bridge.py` lazy-load heavy visualization
+  dependencies so replay helpers remain usable in lightweight test and tooling
+  contexts.
+- Added the Python history-replay test to the default quality gate.
+- Documented that `behavior` is C++ solver input, while `history` is currently
+  Python GUI/replay metadata tolerated by C++ IO but not persisted in
+  `ModelSnapshot`.
+
+Reassessment after Step 45:
+
+- Saved scene construction history is now test-covered on the Python replay
+  side, and C++/Python ownership boundaries are explicit.
+- The next risk is runtime history export: C++ `session_runtime` has command
+  history events, while scene `history` stores construction/replay actions.
+  Step 46 should define their projection boundary before they accidentally
+  merge.
 
 ## Damped Numeric Local Solve Step Plan
 

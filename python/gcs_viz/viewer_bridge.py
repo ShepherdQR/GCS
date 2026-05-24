@@ -1,18 +1,20 @@
 from typing import Iterable, Mapping, Optional
 
 from gcs_viz.algebra import GCSGraph, GeometryType, ConstraintType
-from gcs_viz.visualizer import (
-    build_3d_on_figure,
-    build_graph_on_figure,
-    build_three_view_on_figure,
-)
 
 
-VIEW_RENDERERS = {
-    "3d": build_3d_on_figure,
-    "graph": build_graph_on_figure,
-    "3view": build_three_view_on_figure,
-}
+def view_renderers() -> dict:
+    from gcs_viz.visualizer import (
+        build_3d_on_figure,
+        build_graph_on_figure,
+        build_three_view_on_figure,
+    )
+
+    return {
+        "3d": build_3d_on_figure,
+        "graph": build_graph_on_figure,
+        "3view": build_three_view_on_figure,
+    }
 
 
 def graph_summary(graph: GCSGraph) -> dict:
@@ -32,7 +34,7 @@ def render_graph_view(
     title: Optional[str] = None,
     focus: Optional[Mapping] = None,
 ):
-    renderer = VIEW_RENDERERS.get(view)
+    renderer = view_renderers().get(view)
     if renderer is None:
         raise ValueError(f"Unknown view mode: {view}")
     if title is None:

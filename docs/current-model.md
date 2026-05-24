@@ -55,6 +55,15 @@ Python `gcs_viz.algebra` writes current public JSON scenes with
 Older GUI-saved scenes with `format_version: 1` remain readable by Python and
 are normalized to the current public shape when rewritten.
 
+History policy:
+
+- `behavior` is solver input and is loaded by C++ into `ModelSnapshot.solve_intent`.
+- `history` is GUI/replay metadata owned by Python viewer tooling today.
+- C++ JSON IO tolerates `history` fields but does not persist them in
+  `ModelSnapshot`.
+- Python `viewer_bridge.build_history_graph` replays supported construction
+  actions and treats `Solve` as a non-mutating marker.
+
 ## Module Boundary
 
 - `core`: model and type helpers.

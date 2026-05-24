@@ -57,6 +57,7 @@ class AgenticToolkitTests(unittest.TestCase):
                 "python.agentic_toolkit",
                 "python.showcase_scene_renderer",
                 "python.gcs_viz_algebra",
+                "python.gcs_viz_history_replay",
                 "cmake.configure",
                 "cmake.build",
                 "ctest.contracts",
@@ -104,6 +105,7 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertNotIn("python.agentic_toolkit", gate_ids)
         self.assertNotIn("python.showcase_scene_renderer", gate_ids)
         self.assertNotIn("python.gcs_viz_algebra", gate_ids)
+        self.assertNotIn("python.gcs_viz_history_replay", gate_ids)
         self.assertNotIn("ctest.contracts", gate_ids)
         self.assertNotIn("ctest.public_evidence_chain", gate_ids)
         self.assertNotIn("cli.basic_scene", gate_ids)

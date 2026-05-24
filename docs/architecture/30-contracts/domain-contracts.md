@@ -100,3 +100,8 @@ For `gcs-0.3` JSON, the scene-facing `behavior` object maps to
 `driven_geometry_ids`, and `target_constraint_ids` are solver inputs, not
 viewer annotations. Loaders must reject behavior references that do not resolve
 to stable entity or constraint IDs in the same scene.
+
+The scene-facing `history` array is replay metadata, not solver structure.
+Python viewer tooling owns current history reconstruction. C++ scene IO should
+tolerate history fields while keeping them outside `ModelSnapshot` until a
+runtime-owned replay contract is introduced.

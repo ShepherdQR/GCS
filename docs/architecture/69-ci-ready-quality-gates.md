@@ -1,6 +1,6 @@
 # CI-Ready Quality Gates
 
-Status: Step 42 showcase scene gate integrated.
+Status: Step 45 scene history/replay gate integrated.
 
 ## Purpose
 
@@ -39,15 +39,16 @@ The default gate runs:
 6. Python agentic toolkit unittest
 7. Python showcase-scene renderer unittest
 8. Python scene-schema algebra unittest
-9. `cmake --preset clang-ninja`
-10. `cmake --build --preset clang-ninja`
-11. full CTest contract suite
-12. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
-13. explicit public-evidence-chain CTest selection for rank, diagnostics,
+9. Python history-replay unittest
+10. `cmake --preset clang-ninja`
+11. `cmake --build --preset clang-ninja`
+12. full CTest contract suite
+13. explicit `ContractToolsContract` CTest selection for fixture corpus coverage
+14. explicit public-evidence-chain CTest selection for rank, diagnostics,
     runtime, viewer, corpus, and showcase evidence introduced in Steps 31
     through 44
-14. CLI smoke on `fixtures/scene/basic/g1.txt`
-15. CLI smoke on
+15. CLI smoke on `fixtures/scene/basic/g1.txt`
+16. CLI smoke on
     `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
 
 The command exits nonzero on the first failed gate by default and prints a
@@ -106,6 +107,7 @@ A change is Step 18 complete when:
 - scene-generation tests are part of the default gate;
 - showcase-scene renderer tests are part of the default gate;
 - Python scene-schema algebra tests are part of the default gate;
+- Python history-replay tests are part of the default gate;
 - the agentic toolkit gate sequence is unit-tested as a Python tools contract;
 - representative basic and showcase CLI fixtures are part of the default gate;
 - the implementation roadmap records the latest quality-gate extension step.
