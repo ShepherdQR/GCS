@@ -157,3 +157,17 @@ python tools\agentic_design\agentic_toolkit.py show-next-step docs\agentic\tasks
 checks E002 record structure for phase-step plans, step closures, phase
 summaries, and current-status records. `show-next-step` extracts the handoff
 point a fresh agent should execute next.
+
+## Remaining Plan
+
+The E002 roadmap has completed phases 1-3. The remaining planned work is:
+
+- Phase 4, empirical validation: run at least two substantial E002 pilots and
+  measure resumption cost, reviewability, commit hygiene, plan adaptation, and
+  reviewer load.
+- Phase 5, promotion and gates: decide from Phase 4 evidence whether E002
+  should become a project skill, task-card field, completed-task scorer
+  dimension, reviewer checklist item, or CI/toolkit gate.
+
+Do not promote mandatory gates before Phase 4 produces evidence. E002 should
+remain lightweight for one-step low-risk tasks.

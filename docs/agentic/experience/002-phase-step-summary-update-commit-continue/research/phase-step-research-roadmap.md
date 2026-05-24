@@ -18,8 +18,17 @@ review pauses, handoff, and changing evidence.
 | 1 | Theory formalization | Define the formal model, state machine, invariants, boundaries, and failure taxonomy. | `research/02-phase-step-formal-model.md` | complete |
 | 2 | Templates and protocol | Make the model directly usable through durable step, phase, and status templates. | `templates/*.md` | complete |
 | 3 | Tooling | Add minimal generator, validator, and resume-query support to `agentic_toolkit.py`. | `tools/agentic_design/agentic_toolkit.py`, tests | complete |
-| 4 | Empirical validation | Test whether E002 improves resumption, reviewability, commit hygiene, and plan adaptation. | Pilot report and eval rubric | planned |
-| 5 | Promotion and gates | Decide whether E002 should become a project skill, task-card field, completed-task scorer dimension, or CI-quality gate. | Skill or gate proposal | planned |
+| 4 | Empirical validation | Test whether E002 improves resumption, reviewability, commit hygiene, and plan adaptation. | Pilot report and eval rubric | remaining |
+| 5 | Promotion and gates | Decide whether E002 should become a project skill, task-card field, completed-task scorer dimension, or CI-quality gate. | Skill or gate proposal | remaining |
+
+## Current Remaining Plan
+
+Phases 4 and 5 are the active remaining plan.
+
+- Phase 4 should run empirical pilots before any new mandatory gate is added.
+- Phase 5 should only promote E002 into skills, task-card fields, scorer
+  dimensions, reviewer checklists, or CI/toolkit gates after Phase 4 evidence
+  shows the process overhead is justified.
 
 ## Phase 1: Theory Formalization
 

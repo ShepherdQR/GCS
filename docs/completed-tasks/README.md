@@ -41,5 +41,6 @@ evidence, and links to project files.
 | 2026-05-24 | [E001 deep research expansion](2026-05-24-e001-deep-research-expansion/README.md) | done |
 | 2026-05-24 | [E001 executable closure tooling](2026-05-24-e001-executable-closure-tooling/README.md) | done |
 | 2026-05-24 | [E001 dialogue summary and archive](2026-05-24-e001-dialogue-summary-and-archive/README.md) | done |
+| 2026-05-24 | [E002 phase-step research and tooling session](2026-05-24-e002-phase-step-research-tooling-session/README.md) | done |
 | 2026-05-24 | [Git branch consolidation session](2026-05-24-git-branch-consolidation-session/README.md) | done |
 | 2026-05-24 | [UI design development plan and session archive](2026-05-24-ui-design-development-plan-and-session-archive/README.md) | done |
