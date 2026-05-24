@@ -122,3 +122,16 @@ Acceptance:
 
 - future UI changes can be reviewed against stable aesthetic rules;
 - visual polish survives feature additions.
+
+## Phase 6 And Beyond
+
+The complete forward plan is now maintained in
+`docs/architecture/77-ui-design-development-plan-report.md`.
+
+Next planned phases:
+
+- Phase 6: Interaction Semantics;
+- Phase 7: Solve Diagnostics Overlay;
+- Phase 8: Accessibility And Contrast Refinement;
+- Phase 9: Replay Rail Refinement;
+- Phase 10: Manual Visual QA Pass.
