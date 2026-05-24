@@ -1,0 +1,68 @@
+{
+  "accepted_candidates": [
+    {
+      "candidate_id": "codex_complex10_20260524_run03_c0000",
+      "coverage_contributions": [
+        "biconnected_geometry_primal",
+        "mixed_rigid_sets"
+      ],
+      "digest": "sha256:cd171515fcc5461b94aa64630f0a475f5eca8529f12652653316d553565837b4",
+      "gcs_graph_id": "codex_complex10_20260524_run03_c0000_gcs",
+      "geometry_primal_biconnected": true,
+      "schema_valid": true,
+      "score": 28.030303
+    }
+  ],
+  "coverage": {
+    "histograms": {
+      "constraint_types": {
+        "Angle": 3,
+        "Coincident": 2,
+        "Distance": 8,
+        "Parallel": 10,
+        "Perpendicular": 10
+      },
+      "endpoint_signatures": {
+        "Line-Line": 10,
+        "Line-Plane": 15,
+        "Line-Point": 2,
+        "Plane-Plane": 5,
+        "Plane-Point": 1
+      },
+      "gate_statuses": {
+        "canonical_serialization:passed": 1,
+        "geometry_primal_biconnectivity:passed": 1,
+        "geometry_primal_projection:passed": 1,
+        "local_schema_validation:passed": 1
+      },
+      "geometry_types": {
+        "Line": 7,
+        "Plane": 6,
+        "Point": 1
+      },
+      "rejection_reasons": {},
+      "rigid_set_counts": {
+        "4": 1
+      },
+      "topology_sizes": {
+        "14": 1
+      }
+    },
+    "missing_goals": [],
+    "satisfied_goals": [
+      "biconnected_geometry_primal",
+      "mixed_rigid_sets"
+    ]
+  },
+  "exploration_id": "codex_complex10_20260524_run03",
+  "rejected_candidates": [],
+  "seed": 6202403,
+  "status": "accepted",
+  "stop_reason": "max_accepts",
+  "summary": {
+    "accepted": 1,
+    "attempted": 1,
+    "rejected": 0
+  },
+  "trace_id": "codex_complex10_20260524_run03_trace"
+}

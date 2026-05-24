@@ -1,0 +1,175 @@
+{
+  "artifacts": {
+    "gcs_graph_id": "codex_complex10_20260524_run08_c0000_gcs",
+    "projection_ids": [
+      "codex_complex10_20260524_run08_c0000_geom_primal"
+    ],
+    "skeleton_graph_id": "codex_complex10_20260524_run08_c0000_skel"
+  },
+  "candidate_id": "codex_complex10_20260524_run08_c0000",
+  "digest": "sha256:b01c44626a3f25acb94880b6835f42d845d95e9425d1c512f22fa6638cb1593c",
+  "parent_exploration_id": "codex_complex10_20260524_run08",
+  "policies": {
+    "gcs_policy": {
+      "constraint_types": [
+        "Coincident",
+        "Parallel",
+        "Perpendicular",
+        "Distance",
+        "Angle"
+      ],
+      "geometry_types": [
+        "Point",
+        "Line",
+        "Plane"
+      ],
+      "require_cross_rigid_set_constraints": true,
+      "rigid_set_counts": [
+        3,
+        4,
+        5
+      ]
+    },
+    "parameter_policy": {
+      "layout": "circular"
+    },
+    "topology": {
+      "extra_edges": 8,
+      "layout": "circular",
+      "method": "cycle_plus_chords",
+      "num_rigid_sets": 5,
+      "num_vertices": 10
+    }
+  },
+  "reports": {
+    "gates": [
+      {
+        "artifact_ids": [
+          "codex_complex10_20260524_run08_c0000_gcs"
+        ],
+        "duration_ms": 0,
+        "evidence": {
+          "violations": []
+        },
+        "gate_id": "local_schema_validation",
+        "reason_code": null,
+        "status": "passed"
+      },
+      {
+        "artifact_ids": [
+          "codex_complex10_20260524_run08_c0000_geom_primal"
+        ],
+        "duration_ms": 0,
+        "evidence": {
+          "num_edges": 18,
+          "num_vertices": 10
+        },
+        "gate_id": "geometry_primal_projection",
+        "reason_code": null,
+        "status": "passed"
+      },
+      {
+        "artifact_ids": [
+          "codex_complex10_20260524_run08_c0000_geom_primal"
+        ],
+        "duration_ms": 0,
+        "evidence": {
+          "articulation_points": [],
+          "num_connected_components": 1
+        },
+        "gate_id": "geometry_primal_biconnectivity",
+        "reason_code": null,
+        "status": "passed"
+      },
+      {
+        "artifact_ids": [
+          "codex_complex10_20260524_run08_c0000_gcs"
+        ],
+        "duration_ms": 0,
+        "evidence": {
+          "checksum": "b01c44626a3f25ac",
+          "format": "json"
+        },
+        "gate_id": "canonical_serialization",
+        "reason_code": null,
+        "status": "passed"
+      }
+    ],
+    "graph_report": {
+      "articulation_points": [],
+      "constraint_type_histogram": {
+        "Angle": 1,
+        "Coincident": 7,
+        "Distance": 8,
+        "Parallel": 1,
+        "Perpendicular": 1
+      },
+      "geometry_primal_biconnected": true,
+      "graph_id": "codex_complex10_20260524_run08_c0000_gcs",
+      "num_biconnected_components": 1,
+      "num_connected_components": 1,
+      "projection_statistics": {
+        "num_edges": 18,
+        "num_vertices": 10,
+        "projection": "geometry_primal"
+      },
+      "rigid_set_invariant_valid": true,
+      "rigidset_summary": [
+        {
+          "geometry_ids": [
+            3,
+            6
+          ],
+          "id": 0,
+          "num_geometries": 2
+        },
+        {
+          "geometry_ids": [
+            5,
+            9
+          ],
+          "id": 1,
+          "num_geometries": 2
+        },
+        {
+          "geometry_ids": [
+            4,
+            8
+          ],
+          "id": 2,
+          "num_geometries": 2
+        },
+        {
+          "geometry_ids": [
+            0,
+            2
+          ],
+          "id": 3,
+          "num_geometries": 2
+        },
+        {
+          "geometry_ids": [
+            1,
+            7
+          ],
+          "id": 4,
+          "num_geometries": 2
+        }
+      ],
+      "schema_valid": true,
+      "schema_violations": [],
+      "summary": {
+        "num_constraints": 18,
+        "num_geometries": 10,
+        "num_rigid_sets": 5
+      }
+    }
+  },
+  "seed_path": {
+    "exploration_seed": 6202408,
+    "lift_seed": 1784116890,
+    "parameter_seed": 1784116891,
+    "topology_seed": 1784116889
+  },
+  "variant": "positive"
+}

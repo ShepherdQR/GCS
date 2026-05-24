@@ -1,0 +1,345 @@
+{
+  "constraints": [
+    {
+      "geometry_ids": [
+        0,
+        1
+      ],
+      "id": 0,
+      "type": "Distance",
+      "value": 2.664629
+    },
+    {
+      "geometry_ids": [
+        0,
+        3
+      ],
+      "id": 1,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        0,
+        4
+      ],
+      "id": 2,
+      "type": "Parallel",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        0,
+        9
+      ],
+      "id": 3,
+      "type": "Parallel",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        1,
+        2
+      ],
+      "id": 4,
+      "type": "Perpendicular",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        1,
+        6
+      ],
+      "id": 5,
+      "type": "Parallel",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        2,
+        3
+      ],
+      "id": 6,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        2,
+        6
+      ],
+      "id": 7,
+      "type": "Parallel",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        3,
+        4
+      ],
+      "id": 8,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        4,
+        5
+      ],
+      "id": 9,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        4,
+        6
+      ],
+      "id": 10,
+      "type": "Angle",
+      "value": 67.491608
+    },
+    {
+      "geometry_ids": [
+        4,
+        8
+      ],
+      "id": 11,
+      "type": "Parallel",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        5,
+        6
+      ],
+      "id": 12,
+      "type": "Distance",
+      "value": 4.26197
+    },
+    {
+      "geometry_ids": [
+        5,
+        9
+      ],
+      "id": 13,
+      "type": "Distance",
+      "value": 4.386082
+    },
+    {
+      "geometry_ids": [
+        6,
+        7
+      ],
+      "id": 14,
+      "type": "Perpendicular",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        6,
+        8
+      ],
+      "id": 15,
+      "type": "Angle",
+      "value": 152.423432
+    },
+    {
+      "geometry_ids": [
+        7,
+        8
+      ],
+      "id": 16,
+      "type": "Perpendicular",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        8,
+        9
+      ],
+      "id": 17,
+      "type": "Perpendicular",
+      "value": 0.0
+    }
+  ],
+  "gcs_graph_id": "codex_complex10_20260524_run07_c0000_gcs",
+  "generation": {
+    "rigid_set_policy": {
+      "allow_new_rigid_sets": true,
+      "assignment": "random_balanced",
+      "num_rigid_sets": 4
+    },
+    "rigid_sets_expanded": false,
+    "seed": 1784016887,
+    "source_skeleton_graph_id": "codex_complex10_20260524_run07_c0000_skel"
+  },
+  "geometries": [
+    {
+      "id": 0,
+      "rigid_set_id": 2,
+      "type": "Plane",
+      "v": [
+        -0.1835372473292063,
+        -0.9077055880320453,
+        0.5333880730274076,
+        0.6002540164105075,
+        0.48067849590698697,
+        0.639252140673499
+      ]
+    },
+    {
+      "id": 1,
+      "rigid_set_id": 3,
+      "type": "Line",
+      "v": [
+        -1.0195763867965053,
+        0.3085659875387644,
+        2.7519395955491555,
+        0.3392321632255074,
+        1.5099343393534639,
+        1.8617451938876228
+      ]
+    },
+    {
+      "id": 2,
+      "rigid_set_id": 1,
+      "type": "Line",
+      "v": [
+        -2.0566944688240594,
+        2.4149494014176236,
+        -1.3521394544622696,
+        -2.756932265850638,
+        3.1038648427189903,
+        -0.8289109131708983
+      ]
+    },
+    {
+      "id": 3,
+      "rigid_set_id": 3,
+      "type": "Point",
+      "v": [
+        1.0662449978602346,
+        2.394272237212178,
+        1.6619100768475175,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 4,
+      "rigid_set_id": 1,
+      "type": "Line",
+      "v": [
+        1.1189836456805027,
+        -1.5613656695092395,
+        3.165534605515409,
+        1.156712653394692,
+        -3.3993485166180912,
+        2.221210777886301
+      ]
+    },
+    {
+      "id": 5,
+      "rigid_set_id": 3,
+      "type": "Point",
+      "v": [
+        -0.7727903237559088,
+        1.353878626352305,
+        2.2614968834495466,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 6,
+      "rigid_set_id": 0,
+      "type": "Line",
+      "v": [
+        1.0770285720576847,
+        1.074081826913542,
+        -1.5678983830172843,
+        -0.4165960365200755,
+        0.9402307775345394,
+        -3.2636686330327747
+      ]
+    },
+    {
+      "id": 7,
+      "rigid_set_id": 1,
+      "type": "Line",
+      "v": [
+        1.20328069760165,
+        -2.766192707506165,
+        2.1058231532722456,
+        0.02419667524131941,
+        -0.3750310865699156,
+        2.928165715118146
+      ]
+    },
+    {
+      "id": 8,
+      "rigid_set_id": 2,
+      "type": "Line",
+      "v": [
+        -0.16383768330738052,
+        0.7238391472413536,
+        -3.4851416630569902,
+        0.44652830029076634,
+        1.4276762680731703,
+        -2.202363089644922
+      ]
+    },
+    {
+      "id": 9,
+      "rigid_set_id": 0,
+      "type": "Line",
+      "v": [
+        -1.4263057853362793,
+        1.8500488759380975,
+        -2.0471511181440842,
+        -2.2232304774360374,
+        0.04299047090288499,
+        -0.029778708075111293
+      ]
+    }
+  ],
+  "num_constraints": 18,
+  "num_geometries": 10,
+  "num_rigid_sets": 4,
+  "rigid_sets": [
+    {
+      "geometry_ids": [
+        6,
+        9
+      ],
+      "id": 0
+    },
+    {
+      "geometry_ids": [
+        2,
+        4,
+        7
+      ],
+      "id": 1
+    },
+    {
+      "geometry_ids": [
+        0,
+        8
+      ],
+      "id": 2
+    },
+    {
+      "geometry_ids": [
+        1,
+        3,
+        5
+      ],
+      "id": 3
+    }
+  ],
+  "status": "parameters_assigned"
+}

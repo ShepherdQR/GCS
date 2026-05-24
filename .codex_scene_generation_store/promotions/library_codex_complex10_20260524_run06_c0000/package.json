@@ -1,0 +1,326 @@
+{
+  "candidate_provenance": {
+    "artifacts": {
+      "gcs_graph_id": "codex_complex10_20260524_run06_c0000_gcs",
+      "projection_ids": [
+        "codex_complex10_20260524_run06_c0000_geom_primal"
+      ],
+      "skeleton_graph_id": "codex_complex10_20260524_run06_c0000_skel"
+    },
+    "candidate_id": "codex_complex10_20260524_run06_c0000",
+    "digest": "sha256:47e20b682d8f064ca05cd7d9a7a1e3972bc331ed7284b3786dbe2989c3307270",
+    "parent_exploration_id": "codex_complex10_20260524_run06",
+    "policies": {
+      "gcs_policy": {
+        "constraint_types": [
+          "Coincident",
+          "Parallel",
+          "Perpendicular",
+          "Distance",
+          "Angle"
+        ],
+        "geometry_types": [
+          "Point",
+          "Line",
+          "Plane"
+        ],
+        "require_cross_rigid_set_constraints": true,
+        "rigid_set_counts": [
+          3,
+          4,
+          5
+        ]
+      },
+      "parameter_policy": {
+        "layout": "random"
+      },
+      "topology": {
+        "extra_edges": 6,
+        "layout": "random",
+        "method": "cycle_plus_chords",
+        "num_rigid_sets": 5,
+        "num_vertices": 14
+      }
+    },
+    "reports": {
+      "gates": [
+        {
+          "artifact_ids": [
+            "codex_complex10_20260524_run06_c0000_gcs"
+          ],
+          "duration_ms": 0,
+          "evidence": {
+            "violations": []
+          },
+          "gate_id": "local_schema_validation",
+          "reason_code": null,
+          "status": "passed"
+        },
+        {
+          "artifact_ids": [
+            "codex_complex10_20260524_run06_c0000_geom_primal"
+          ],
+          "duration_ms": 0,
+          "evidence": {
+            "num_edges": 20,
+            "num_vertices": 14
+          },
+          "gate_id": "geometry_primal_projection",
+          "reason_code": null,
+          "status": "passed"
+        },
+        {
+          "artifact_ids": [
+            "codex_complex10_20260524_run06_c0000_geom_primal"
+          ],
+          "duration_ms": 0,
+          "evidence": {
+            "articulation_points": [],
+            "num_connected_components": 1
+          },
+          "gate_id": "geometry_primal_biconnectivity",
+          "reason_code": null,
+          "status": "passed"
+        },
+        {
+          "artifact_ids": [
+            "codex_complex10_20260524_run06_c0000_gcs"
+          ],
+          "duration_ms": 0,
+          "evidence": {
+            "checksum": "47e20b682d8f064c",
+            "format": "json"
+          },
+          "gate_id": "canonical_serialization",
+          "reason_code": null,
+          "status": "passed"
+        }
+      ],
+      "graph_report": {
+        "articulation_points": [],
+        "constraint_type_histogram": {
+          "Coincident": 5,
+          "Distance": 13,
+          "Parallel": 1,
+          "Perpendicular": 1
+        },
+        "geometry_primal_biconnected": true,
+        "graph_id": "codex_complex10_20260524_run06_c0000_gcs",
+        "num_biconnected_components": 1,
+        "num_connected_components": 1,
+        "projection_statistics": {
+          "num_edges": 20,
+          "num_vertices": 14,
+          "projection": "geometry_primal"
+        },
+        "rigid_set_invariant_valid": true,
+        "rigidset_summary": [
+          {
+            "geometry_ids": [
+              0,
+              2,
+              12
+            ],
+            "id": 0,
+            "num_geometries": 3
+          },
+          {
+            "geometry_ids": [
+              4,
+              7,
+              11
+            ],
+            "id": 1,
+            "num_geometries": 3
+          },
+          {
+            "geometry_ids": [
+              1,
+              5,
+              8
+            ],
+            "id": 2,
+            "num_geometries": 3
+          },
+          {
+            "geometry_ids": [
+              6,
+              10,
+              13
+            ],
+            "id": 3,
+            "num_geometries": 3
+          },
+          {
+            "geometry_ids": [
+              3,
+              9
+            ],
+            "id": 4,
+            "num_geometries": 2
+          }
+        ],
+        "schema_valid": true,
+        "schema_violations": [],
+        "summary": {
+          "num_constraints": 20,
+          "num_geometries": 14,
+          "num_rigid_sets": 5
+        }
+      }
+    },
+    "seed_path": {
+      "exploration_seed": 6202406,
+      "lift_seed": 1783916884,
+      "parameter_seed": 1783916885,
+      "topology_seed": 1783916883
+    },
+    "variant": "positive"
+  },
+  "canonical_serialization": {
+    "json_checksum": "47e20b682d8f064c",
+    "json_digest": "sha256:47e20b682d8f064ca05cd7d9a7a1e3972bc331ed7284b3786dbe2989c3307270",
+    "public_scene_digest": "sha256:d8be7fe65aa9ee6ce7a211b34c8d2aeffe754c145a6b65a247dcaa1444ef0b72",
+    "text_checksum": "4c0ef862015d760e",
+    "text_digest": "sha256:4c0ef862015d760e4481d5d9c6dc1a353e5e7c1bc631955a8c35943c4c66594a"
+  },
+  "fixture_metadata_proposal": {
+    "fixture_id": "codex_complex10_20260524_run06_c0000",
+    "generator": "tools.scene_generation.explore_scene_space",
+    "schema": "scene-generation-promotion-v1"
+  },
+  "gate_reports": [
+    {
+      "artifact_ids": [
+        "codex_complex10_20260524_run06_c0000_gcs"
+      ],
+      "duration_ms": 0,
+      "evidence": {
+        "violations": []
+      },
+      "gate_id": "local_schema_validation",
+      "reason_code": null,
+      "status": "passed"
+    },
+    {
+      "artifact_ids": [
+        "codex_complex10_20260524_run06_c0000_promotion_geom_primal"
+      ],
+      "duration_ms": 0,
+      "evidence": {
+        "num_edges": 20,
+        "num_vertices": 14
+      },
+      "gate_id": "geometry_primal_projection",
+      "reason_code": null,
+      "status": "passed"
+    },
+    {
+      "artifact_ids": [
+        "codex_complex10_20260524_run06_c0000_promotion_geom_primal"
+      ],
+      "duration_ms": 0,
+      "evidence": {
+        "articulation_points": [],
+        "num_connected_components": 1
+      },
+      "gate_id": "geometry_primal_biconnectivity",
+      "reason_code": null,
+      "status": "passed"
+    },
+    {
+      "artifact_ids": [
+        "codex_complex10_20260524_run06_c0000_gcs"
+      ],
+      "duration_ms": 0,
+      "evidence": {
+        "checksum": "47e20b682d8f064c",
+        "format": "json"
+      },
+      "gate_id": "canonical_serialization",
+      "reason_code": null,
+      "status": "passed"
+    }
+  ],
+  "known_unsupported_gates": [],
+  "local_validation_report": {
+    "articulation_points": [],
+    "constraint_type_histogram": {
+      "Coincident": 5,
+      "Distance": 13,
+      "Parallel": 1,
+      "Perpendicular": 1
+    },
+    "geometry_primal_biconnected": true,
+    "graph_id": "codex_complex10_20260524_run06_c0000_gcs",
+    "num_biconnected_components": 1,
+    "num_connected_components": 1,
+    "projection_statistics": {
+      "num_edges": 20,
+      "num_vertices": 14,
+      "projection": "geometry_primal"
+    },
+    "rigid_set_invariant_valid": true,
+    "rigidset_summary": [
+      {
+        "geometry_ids": [
+          0,
+          2,
+          12
+        ],
+        "id": 0,
+        "num_geometries": 3
+      },
+      {
+        "geometry_ids": [
+          4,
+          7,
+          11
+        ],
+        "id": 1,
+        "num_geometries": 3
+      },
+      {
+        "geometry_ids": [
+          1,
+          5,
+          8
+        ],
+        "id": 2,
+        "num_geometries": 3
+      },
+      {
+        "geometry_ids": [
+          6,
+          10,
+          13
+        ],
+        "id": 3,
+        "num_geometries": 3
+      },
+      {
+        "geometry_ids": [
+          3,
+          9
+        ],
+        "id": 4,
+        "num_geometries": 2
+      }
+    ],
+    "schema_valid": true,
+    "schema_violations": [],
+    "summary": {
+      "num_constraints": 20,
+      "num_geometries": 14,
+      "num_rigid_sets": 5
+    }
+  },
+  "promotion_id": "library_codex_complex10_20260524_run06_c0000",
+  "reason_code": null,
+  "source": {
+    "candidate_id": "codex_complex10_20260524_run06_c0000",
+    "exploration_id": "codex_complex10_20260524_run06",
+    "gcs_graph_id": "codex_complex10_20260524_run06_c0000_gcs"
+  },
+  "status": "promotion_package_written"
+}

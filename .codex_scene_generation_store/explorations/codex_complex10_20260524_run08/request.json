@@ -1,0 +1,68 @@
+{
+  "allow_unsupported_gates": false,
+  "budget": {
+    "max_accepts": 1,
+    "max_candidates": 20,
+    "max_seconds": 0.0
+  },
+  "coverage_goals": [
+    "mixed_rigid_sets",
+    "biconnected_geometry_primal"
+  ],
+  "exploration_id": "codex_complex10_20260524_run08",
+  "gate_profile": "local_only",
+  "gcs_policy": {
+    "constraint_types": [
+      "Coincident",
+      "Parallel",
+      "Perpendicular",
+      "Distance",
+      "Angle"
+    ],
+    "geometry_types": [
+      "Point",
+      "Line",
+      "Plane"
+    ],
+    "require_cross_rigid_set_constraints": true,
+    "rigid_set_counts": [
+      3,
+      4,
+      5
+    ]
+  },
+  "parameter_policy": {
+    "avoid_degenerate_geometry": true,
+    "layouts": [
+      "circular",
+      "grid",
+      "random"
+    ],
+    "value_tolerance": 1e-09
+  },
+  "public_gate_config": {},
+  "seed": 6202408,
+  "topology_policy": {
+    "extra_edge_values": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "methods": [
+      "cycle_plus_chords",
+      "ear_decomposition"
+    ],
+    "require_vertex_biconnected": true,
+    "vertex_counts": [
+      10,
+      12,
+      14
+    ]
+  },
+  "write_policy": {
+    "keep_rejected": true,
+    "promote": false,
+    "store": "scratch"
+  }
+}

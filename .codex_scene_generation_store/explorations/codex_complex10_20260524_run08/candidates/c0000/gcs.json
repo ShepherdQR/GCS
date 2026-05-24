@@ -1,0 +1,350 @@
+{
+  "constraints": [
+    {
+      "geometry_ids": [
+        0,
+        1
+      ],
+      "id": 0,
+      "type": "Parallel",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        0,
+        3
+      ],
+      "id": 1,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        0,
+        4
+      ],
+      "id": 2,
+      "type": "Distance",
+      "value": 3.465119
+    },
+    {
+      "geometry_ids": [
+        0,
+        9
+      ],
+      "id": 3,
+      "type": "Perpendicular",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        1,
+        2
+      ],
+      "id": 4,
+      "type": "Angle",
+      "value": 10.932154
+    },
+    {
+      "geometry_ids": [
+        1,
+        5
+      ],
+      "id": 5,
+      "type": "Distance",
+      "value": 4.213756
+    },
+    {
+      "geometry_ids": [
+        1,
+        6
+      ],
+      "id": 6,
+      "type": "Distance",
+      "value": 4.235515
+    },
+    {
+      "geometry_ids": [
+        2,
+        3
+      ],
+      "id": 7,
+      "type": "Distance",
+      "value": 2.171707
+    },
+    {
+      "geometry_ids": [
+        2,
+        6
+      ],
+      "id": 8,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        3,
+        4
+      ],
+      "id": 9,
+      "type": "Distance",
+      "value": 1.236068
+    },
+    {
+      "geometry_ids": [
+        3,
+        5
+      ],
+      "id": 10,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        3,
+        9
+      ],
+      "id": 11,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        4,
+        5
+      ],
+      "id": 12,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        5,
+        6
+      ],
+      "id": 13,
+      "type": "Distance",
+      "value": 1.236068
+    },
+    {
+      "geometry_ids": [
+        6,
+        7
+      ],
+      "id": 14,
+      "type": "Distance",
+      "value": 1.236068
+    },
+    {
+      "geometry_ids": [
+        6,
+        8
+      ],
+      "id": 15,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        7,
+        8
+      ],
+      "id": 16,
+      "type": "Coincident",
+      "value": 0.0
+    },
+    {
+      "geometry_ids": [
+        8,
+        9
+      ],
+      "id": 17,
+      "type": "Distance",
+      "value": 1.825636
+    }
+  ],
+  "gcs_graph_id": "codex_complex10_20260524_run08_c0000_gcs",
+  "generation": {
+    "rigid_set_policy": {
+      "allow_new_rigid_sets": true,
+      "assignment": "random_balanced",
+      "num_rigid_sets": 5
+    },
+    "rigid_sets_expanded": false,
+    "seed": 1784116890,
+    "source_skeleton_graph_id": "codex_complex10_20260524_run08_c0000_skel"
+  },
+  "geometries": [
+    {
+      "id": 0,
+      "rigid_set_id": 3,
+      "type": "Line",
+      "v": [
+        1.3200080807918364,
+        -0.5966517214221857,
+        -0.48392786494716206,
+        2.6799919192081636,
+        0.5966517214221857,
+        0.48392786494716206
+      ]
+    },
+    {
+      "id": 1,
+      "rigid_set_id": 4,
+      "type": "Line",
+      "v": [
+        2.0710611954777494,
+        0.7511254590839536,
+        -0.7861360208920666,
+        1.1650067820220407,
+        1.600015550085939,
+        0.7861360208920666
+      ]
+    },
+    {
+      "id": 2,
+      "rigid_set_id": 3,
+      "type": "Line",
+      "v": [
+        1.2706464039882635,
+        1.2157987501528682,
+        -0.823511873677179,
+        -0.034578426488473535,
+        2.588427315027746,
+        0.823511873677179
+      ]
+    },
+    {
+      "id": 3,
+      "rigid_set_id": 0,
+      "type": "Point",
+      "v": [
+        -0.6180339887498947,
+        1.9021130325903073,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 4,
+      "rigid_set_id": 2,
+      "type": "Point",
+      "v": [
+        -1.6180339887498947,
+        1.1755705045849465,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 5,
+      "rigid_set_id": 1,
+      "type": "Point",
+      "v": [
+        -2.0,
+        2.4492935982947064e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 6,
+      "rigid_set_id": 0,
+      "type": "Point",
+      "v": [
+        -1.618033988749895,
+        -1.175570504584946,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 7,
+      "rigid_set_id": 4,
+      "type": "Point",
+      "v": [
+        -0.6180339887498951,
+        -1.902113032590307,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 8,
+      "rigid_set_id": 2,
+      "type": "Point",
+      "v": [
+        0.6180339887498945,
+        -1.9021130325903073,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 9,
+      "rigid_set_id": 1,
+      "type": "Line",
+      "v": [
+        1.7944254214315738,
+        -1.4433209826640767,
+        -1.3185451103244352,
+        1.4416425560682156,
+        -0.9078200265058167,
+        1.3185451103244352
+      ]
+    }
+  ],
+  "num_constraints": 18,
+  "num_geometries": 10,
+  "num_rigid_sets": 5,
+  "rigid_sets": [
+    {
+      "geometry_ids": [
+        3,
+        6
+      ],
+      "id": 0
+    },
+    {
+      "geometry_ids": [
+        5,
+        9
+      ],
+      "id": 1
+    },
+    {
+      "geometry_ids": [
+        4,
+        8
+      ],
+      "id": 2
+    },
+    {
+      "geometry_ids": [
+        0,
+        2
+      ],
+      "id": 3
+    },
+    {
+      "geometry_ids": [
+        1,
+        7
+      ],
+      "id": 4
+    }
+  ],
+  "status": "parameters_assigned"
+}

@@ -1,0 +1,73 @@
+{
+  "articulation_points": [],
+  "constraint_type_histogram": {
+    "Angle": 3,
+    "Coincident": 12,
+    "Distance": 12,
+    "Parallel": 1,
+    "Perpendicular": 4
+  },
+  "geometry_primal_biconnected": true,
+  "graph_id": "codex_complex10_20260524_run02_c0000_gcs",
+  "num_biconnected_components": 1,
+  "num_connected_components": 1,
+  "projection_statistics": {
+    "num_edges": 32,
+    "num_vertices": 14,
+    "projection": "geometry_primal"
+  },
+  "rigid_set_invariant_valid": true,
+  "rigidset_summary": [
+    {
+      "geometry_ids": [
+        1,
+        9
+      ],
+      "id": 0,
+      "num_geometries": 2
+    },
+    {
+      "geometry_ids": [
+        2,
+        7,
+        12
+      ],
+      "id": 1,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        3,
+        4,
+        5
+      ],
+      "id": 2,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        8,
+        11,
+        13
+      ],
+      "id": 3,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        0,
+        6,
+        10
+      ],
+      "id": 4,
+      "num_geometries": 3
+    }
+  ],
+  "schema_valid": true,
+  "schema_violations": [],
+  "summary": {
+    "num_constraints": 32,
+    "num_geometries": 14,
+    "num_rigid_sets": 5
+  }
+}
