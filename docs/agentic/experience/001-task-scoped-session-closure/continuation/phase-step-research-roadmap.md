@@ -73,8 +73,8 @@ of accountable micro-closures.
 | Step | Artifact | Status |
 | --- | --- | --- |
 | 1.1 | `continuation/phase-step-research-roadmap.md` | completed |
-| 1.2 | `continuation/phase-step-state-machine.md` | next |
-| 1.3 | `continuation/step-closure-record-template.md` | planned |
+| 1.2 | `continuation/phase-step-state-machine.md` | completed |
+| 1.3 | `continuation/step-closure-record-template.md` | next |
 | 1.4 | `continuation/phase-01-summary.md` | planned |
 
 ### Step 1.1 Summary
@@ -94,6 +94,23 @@ Updated Phase 1 sequence:
 1. Define the state machine and transition rules.
 2. Create the step closure record template.
 3. Summarize Phase 1 and replan later phases.
+
+### Step 1.2 Summary
+
+This step created `continuation/phase-step-state-machine.md`. It formalizes
+step states, phase states, transition rules, scoped commit discipline, phase
+completion rules, and failure modes for long-running agentic research.
+
+### Step 1.2 Update To Remaining Phase 1 Steps
+
+The next step should create a step closure record template that encodes the
+state machine directly. The template must include branch check, artifact
+summary, phase-step update, scoped commit evidence, and next-step declaration.
+
+Updated Phase 1 sequence:
+
+1. Create the step closure record template.
+2. Summarize Phase 1 and replan later phases.
 
 ## Phase 2: Templates And Tooling Ideas
 
