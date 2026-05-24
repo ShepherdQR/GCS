@@ -27,6 +27,8 @@ Completed:
 - P4.2 is complete: Figure 71 can run a browser export smoke through a local
   Chromium CLI, producing a manifest plus review PNG/PDF artifacts when browser
   tooling is available.
+- P5.1 is complete: token lint now prevents raw hex drift outside approved
+  token sources and fails unknown token references before asset rebuilds.
 
 Active phase:
 
@@ -37,8 +39,8 @@ Active phase:
 | Order | Work | Status | Purpose | Acceptance |
 | --- | --- | --- | --- | --- |
 | 1 | P4.2 Browser-rendered export path | Done | Export tokenized HTML figures to reviewable image/PDF artifacts when browser tooling is available. | Browser smoke renders the figure and proves `--gcs-*` variables survive export. |
-| 2 | P5.1 Token lint gate | Next | Enforce the P2/P3 rule that raw hex values belong only in token sources and unknown tokens fail fast. | Forced raw-hex fixture fails; current code passes. |
-| 3 | P4.3 Graph/chart backend decision | Pending | Decide whether execution-map panels need new graph/chart backends or can stay repo-native for now. | Dependency decision recorded before any new renderer package is added. |
+| 2 | P5.1 Token lint gate | Done | Enforce the P2/P3 rule that raw hex values belong only in token sources and unknown tokens fail fast. | Forced raw-hex fixture fails; current code passes. |
+| 3 | P4.3 Graph/chart backend decision | Next | Decide whether execution-map panels need new graph/chart backends or can stay repo-native for now. | Dependency decision recorded before any new renderer package is added. |
 | 4 | P4.4 Rebuild execution-map figure | Pending | Regenerate execution-map assets through the stable spec/compositor/QA path and demote old SVG output to prototype history. | `figure_qa.py` passes and generated artifacts are linked from architecture docs. |
 | 5 | P4 phase close | Pending | Reassess whether repo-native figure production is stable enough before considering Figma MCP. | Phase-close summary and downstream plan update committed. |
 | 6 | P5.2 Text overflow gate | Pending | Catch text that would spill from figure panels or compact UI surfaces. | Forced overflow fixture fails. |
@@ -58,17 +60,32 @@ Active phase:
   token proof in `figure71-gcs-step-1-40-browser-export.json`.
 - Extended figure QA so browser smoke evidence is checked through the spec.
 
+## P5.1 Completion Summary
+
+- Added `tools/ui_qa/gcs_token_lint.py` to scan viewer, figure-renderer, and UI
+  QA code for raw hex values outside approved token sources.
+- Added AST checks for string-literal references to unknown `GCS_TOKENS`,
+  `GCS_THEME`, `STATE_COLORS`, and renderer `COLORS` keys.
+- Added figure-spec checks for unknown `canonical_token` values.
+- Replaced renderer fallback color dictionaries with theme loading from
+  `figure1.theme.json`.
+- Added unit tests for current-repo pass, forced raw-hex failure, forced token
+  failure, and forced spec-token failure.
+- Promoted `python.gcs_token_lint` and `python.gcs_token_lint_tests` into the
+  default agentic quality-gate sequence.
+
 ## Updated Next Move
 
-The next implementation step should be **P5.1 Token Lint Gate**.
+The next implementation step should be **P4.3 Graph/Chart Backend Decision**.
 
 Reasoning:
 
 - P4.2 proved HTML-to-review-artifact export is feasible.
-- P4.4 should not rebuild the final execution-map asset set until token drift
-  is guarded automatically.
-- P4.3 can stay a small dependency decision and does not need to introduce a
-  renderer package before token lint exists.
+- P5.1 now guards token drift before any final asset rebuild.
+- P4.3 should stay a small governance decision and should not introduce a
+  renderer package unless P4.4 demonstrably needs it.
+- P4.4 can follow immediately after P4.3, using token lint plus Figure 71 QA as
+  its rebuild guardrail.
 
 ## Opportunistic Cleanup
 
@@ -90,9 +107,9 @@ I prefer the following operating order:
 
 1. Keep P4.2 closed as a thin browser-export smoke, not a large export
    framework.
-2. Do P5.1 token lint immediately after P4.2 and before P4.4 asset rebuild.
-3. Then rebuild the execution-map assets in P4.4 with token lint and QA already
-   guarding the output.
+2. Keep P5.1 token lint in the default quality-gate path before P4.4 rebuilds.
+3. Decide P4.3 as a governance step, then rebuild the execution-map assets in
+   P4.4 with token lint and QA already guarding the output.
 4. Continue with P5.2/P5.3 before spending time on showcase polish.
 5. Delay Figma MCP until the repo-native pipeline can already produce clean,
    QA-backed artifacts.

@@ -24,38 +24,16 @@ DEFAULT_THEME = Path(__file__).with_name("figure1.theme.json")
 DEFAULT_LAYOUT = Path(__file__).with_name("figure1.layout.json")
 
 
-COLORS = {
-    "ink": "#181715",
-    "muted": "#5f5b53",
-    "quiet": "#8b867a",
-    "rule": "#d8d1c4",
-    "rule_soft": "#ece7dd",
-    "panel": "#fffefa",
-    "paper": "#f7f4ec",
-    "surface": "#fffdf7",
-    "plot": "#fbfaf5",
-    "bar_track": "#efebe2",
-    "domain": "#e7edf8",
-    "domain_stroke": "#435f8c",
-    "graph": "#efe7f3",
-    "graph_stroke": "#765d87",
-    "planner": "#e3f0e4",
-    "planner_stroke": "#477861",
-    "numeric": "#edf2df",
-    "numeric_stroke": "#5e7d43",
-    "diagnostic": "#f6e7cf",
-    "diagnostic_stroke": "#a36b32",
-    "failure": "#f3ddd7",
-    "failure_stroke": "#a94c43",
-    "boundary": "#efede6",
-    "boundary_stroke": "#777166",
-    "constraint": "#b97834",
-    "point": "#334c78",
-    "ok": "#4b8a64",
-    "accent": "#c8643f",
-    "white": "#ffffff",
-    "cool_domain": "#e9f3f6",
-}
+def load_theme_colors(path: Path = DEFAULT_THEME) -> dict[str, str]:
+    with path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    colors = data.get("colors", {}) if isinstance(data, dict) else {}
+    if not isinstance(colors, dict):
+        raise ValueError(f"{path} must define a colors object")
+    return {str(key): str(value) for key, value in colors.items()}
+
+
+COLORS = load_theme_colors()
 
 
 SANS = "Anthropic Sans, Inter, Segoe UI, Arial, sans-serif"
@@ -591,7 +569,7 @@ def evidence_panel(scene: Scene, width: int = 520, height: int = 300) -> str:
     parts.append(svg_text("Free-column rank", rank_x + 16, rank_y + 25, size=11, fill=COLORS["muted"]))
     parts.append(svg_text(f"{scene.rank}", rank_x + 16, rank_y + 61, size=34, weight=700, fill=COLORS["numeric_stroke"]))
     parts.append(svg_text(f"/ {scene.residual_dimension} eqs", rank_x + 63, rank_y + 56, size=11, fill=COLORS["muted"]))
-    parts.append(svg_line(rank_x + 16, rank_y + 76, rank_x + rank_w - 16, rank_y + 76, "#d7dfc8", width=1.0))
+    parts.append(svg_line(rank_x + 16, rank_y + 76, rank_x + rank_w - 16, rank_y + 76, COLORS["numeric_stroke"], width=1.0))
     parts.append(svg_text(f"full vars {scene.variable_dimension}", rank_x + 16, rank_y + 98, size=10, fill=COLORS["muted"]))
     parts.append(svg_text(f"free cols {scene.free_variable_dimension}", rank_x + 16, rank_y + 119, size=10, fill=COLORS["muted"]))
     parts.append(svg_text(f"frozen cols {scene.frozen_variable_dimension}", rank_x + 16, rank_y + 140, size=10, fill=COLORS["muted"]))

@@ -46,7 +46,7 @@ commit message must name the step's purpose.
 | P2 | Token Unification | Done | Make GUI, figures, and reports consume the same semantic token vocabulary. |
 | P3 | Viewer UI Implementation | Done | Apply the design system to the Python viewer without moving solver truth into UI. |
 | P4 | Scientific Figure Pipeline | In progress | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
-| P5 | Visual Integrity QA | Pending | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
+| P5 | Visual Integrity QA | In progress | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
 | P6 | Showcase And Editorial Polish | Pending | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
 
 ## P0: Convention Foundation
@@ -407,7 +407,7 @@ Goal: make `GCS Visual Integrity Gate` measurable.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P5.1 | Pending | Add raw-hex and unknown-token linting for GUI, Matplotlib, and figure renderer code. | Forced raw-hex fixture fails |
+| P5.1 | Done | `gcs_token_lint.py` enforces raw-hex and unknown-token linting for GUI, Matplotlib, and figure renderer code. | Forced raw-hex fixture fails |
 | P5.2 | Pending | Add rendered text overflow checks. | QA fixture fails on forced overflow |
 | P5.3 | Pending | Add bounding-box overlap and contrast checks for text, status chips, and evidence panels. | Forced overlap plus contrast report |
 | P5.4 | Pending | Add screenshot baselines for core GUI/figure states. | Stable baseline policy |
@@ -416,6 +416,27 @@ Phase-close replanning requirement:
 
 - Decide which visual gates are required in default quality gates and which are
   reviewer-only.
+
+P5.1 completion summary:
+
+- Added `tools/ui_qa/gcs_token_lint.py` as a standard-library lint for raw
+  `#RRGGBB` values outside approved token sources, unknown Python token
+  dictionary references, and unknown figure-spec `canonical_token` values.
+- Replaced renderer-local raw hex fallback dictionaries with loading from
+  `tools/architecture_visualization/figure1.theme.json`.
+- Added `tests/tools/test_gcs_token_lint.py` with passing-current-repo and
+  forced-failure fixtures, then promoted the lint and test into the default
+  agentic quality-gate sequence.
+- Added `docs/architecture/70-visualization/token-lint-gate.md` as the durable
+  P5.1 rule.
+
+Updated P5 next steps:
+
+- P4.3 should record the graph/chart backend dependency decision before any
+  new renderer package is introduced.
+- P4.4 can now rebuild Figure 71 with token drift guarded automatically.
+- P5.2 should focus on rendered text overflow rather than expanding token
+  lint into a broader layout checker.
 
 ## P6: Showcase And Editorial Polish
 

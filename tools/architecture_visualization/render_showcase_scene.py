@@ -25,26 +25,31 @@ DEFAULT_OUT_REPORT = (
     ROOT / "docs" / "architecture" / "70-visualization"
     / "showcase-scene-report.md"
 )
+DEFAULT_THEME = Path(__file__).with_name("figure1.theme.json")
 
 GEOMETRY_NAMES = {0: "Point", 1: "Line", 2: "Plane"}
 CONSTRAINT_NAMES = {0: "Coincident", 1: "Parallel", 2: "Perpendicular", 3: "Distance", 4: "Angle"}
-COLORS = {
-    "paper": "#f7f4ec",
-    "panel": "#fffefa",
-    "rule": "#d8d1c4",
-    "muted": "#5f5b53",
-    "ink": "#181715",
-    "point": "#334c78",
-    "line": "#477861",
-    "plane": "#765d87",
-    "constraint": "#b97834",
-    "fixed": "#c8643f",
-    "positive": "#4b8a64",
-    "negative": "#a94c43",
-    "chip": "#efede6",
-    "component_a": "#e7edf8",
-    "component_b": "#e3f0e4",
-}
+def load_theme_colors(path: Path = DEFAULT_THEME) -> dict[str, str]:
+    with path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    colors = data.get("colors", {}) if isinstance(data, dict) else {}
+    if not isinstance(colors, dict):
+        raise ValueError(f"{path} must define a colors object")
+    loaded = {str(key): str(value) for key, value in colors.items()}
+    loaded.update({
+        "line": loaded["planner_stroke"],
+        "plane": loaded["graph_stroke"],
+        "fixed": loaded["accent"],
+        "positive": loaded["ok"],
+        "negative": loaded["failure_stroke"],
+        "chip": loaded["boundary"],
+        "component_a": loaded["domain"],
+        "component_b": loaded["planner"],
+    })
+    return loaded
+
+
+COLORS = load_theme_colors()
 FONT = "Anthropic Sans, Inter, Segoe UI, Arial, sans-serif"
 SERIF = "Anthropic Serif, Georgia, Cambria, Times New Roman, serif"
 
@@ -180,10 +185,11 @@ def display_position(entity: Entity) -> tuple[float, float]:
 
 
 def svg_text(text: str, x: float, y: float, size: int, weight: int = 400,
-             fill: str = COLORS["ink"], anchor: str = "start", family: str = FONT) -> str:
+             fill: str | None = None, anchor: str = "start", family: str = FONT) -> str:
+    color = fill or COLORS["ink"]
     return (
         f'<text x="{x:.1f}" y="{y:.1f}" font-family="{family}" font-size="{size}" '
-        f'font-weight="{weight}" fill="{fill}" text-anchor="{anchor}">{esc(text)}</text>'
+        f'font-weight="{weight}" fill="{color}" text-anchor="{anchor}">{esc(text)}</text>'
     )
 
 
@@ -309,7 +315,7 @@ def render_svg(model: ShowcaseModel) -> str:
     negative = model.negative_metadata.get("expected_public_evidence", {})
     parts.append(
         f'<rect x="{evidence_x + 24:.1f}" y="{evidence_y + 296:.1f}" width="248" height="112" rx="7" '
-        f'fill="#f3ddd7" stroke="{COLORS["negative"]}" stroke-width="1.1"/>'
+        f'fill="{COLORS["failure"]}" stroke="{COLORS["negative"]}" stroke-width="1.1"/>'
     )
     parts.append(svg_text("negative behavior boundary", evidence_x + 40, evidence_y + 322, 12, 700, COLORS["negative"]))
     parts.append(svg_text(str(negative.get("report_code", "missing report")), evidence_x + 40, evidence_y + 350, 11, 700))

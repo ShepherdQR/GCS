@@ -19,6 +19,7 @@ from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SPEC = ROOT / "tools" / "architecture_visualization" / "specs" / "figure71.yaml"
+DEFAULT_THEME = ROOT / "tools" / "architecture_visualization" / "figure1.theme.json"
 
 COLOR_ALIASES = {
     "surface.paper": "paper",
@@ -86,36 +87,7 @@ def load_json(path: Path) -> dict[str, object]:
 
 
 def load_theme(path: Path) -> dict[str, str]:
-    fallback = {
-        "ink": "#181715",
-        "muted": "#5f5b53",
-        "quiet": "#8b867a",
-        "rule": "#d8d1c4",
-        "rule_soft": "#ece7dd",
-        "panel": "#fffefa",
-        "paper": "#f7f4ec",
-        "surface": "#fffdf7",
-        "plot": "#fbfaf5",
-        "bar_track": "#efebe2",
-        "domain": "#e7edf8",
-        "domain_stroke": "#435f8c",
-        "graph": "#efe7f3",
-        "graph_stroke": "#765d87",
-        "planner": "#e3f0e4",
-        "planner_stroke": "#477861",
-        "numeric": "#edf2df",
-        "numeric_stroke": "#5e7d43",
-        "diagnostic": "#f6e7cf",
-        "diagnostic_stroke": "#a36b32",
-        "failure": "#f3ddd7",
-        "failure_stroke": "#a94c43",
-        "boundary": "#efede6",
-        "boundary_stroke": "#777166",
-        "accent": "#c8643f",
-        "point": "#334c78",
-        "constraint": "#b97834",
-        "ok": "#4b8a64",
-    }
+    fallback = load_theme_seed(DEFAULT_THEME)
     if not path.exists():
         return canonicalize_colors(fallback)
     raw = load_json(path)
@@ -125,6 +97,14 @@ def load_theme(path: Path) -> dict[str, str]:
     merged = dict(fallback)
     merged.update({str(key): str(value) for key, value in colors.items()})
     return canonicalize_colors(merged)
+
+
+def load_theme_seed(path: Path) -> dict[str, str]:
+    raw = load_json(path)
+    colors = raw.get("colors", {})
+    if not isinstance(colors, dict):
+        raise ValueError(f"{path} must define a colors object")
+    return {str(key): str(value) for key, value in colors.items()}
 
 
 def canonicalize_colors(colors: dict[str, str]) -> dict[str, str]:

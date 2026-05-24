@@ -1416,6 +1416,14 @@ def build_quality_gate_commands(args: argparse.Namespace,
             [python, "-m", "unittest", "tests.tools.test_showcase_scene_renderer"],
         ))
         commands.append(GateCommand(
+            "python.gcs_token_lint",
+            [python, "tools/ui_qa/gcs_token_lint.py"],
+        ))
+        commands.append(GateCommand(
+            "python.gcs_token_lint_tests",
+            [python, "-m", "unittest", "tests.tools.test_gcs_token_lint"],
+        ))
+        commands.append(GateCommand(
             "python.gcs_viz_algebra",
             [python, "-m", "unittest", "tests.tools.test_gcs_viz_algebra"],
         ))

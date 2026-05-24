@@ -20,38 +20,16 @@ DEFAULT_OUT_DIR = ROOT / "docs" / "architecture" / "70-visualization" / "assets"
 DEFAULT_OUT_NAME = "figure71-gcs-step-1-40-evidence-map.svg"
 
 
-COLORS = {
-    "ink": "#181715",
-    "muted": "#5f5b53",
-    "quiet": "#8b867a",
-    "rule": "#d8d1c4",
-    "rule_soft": "#ece7dd",
-    "panel": "#fffefa",
-    "paper": "#f7f4ec",
-    "surface": "#fffdf7",
-    "plot": "#fbfaf5",
-    "bar_track": "#efebe2",
-    "domain": "#e7edf8",
-    "domain_stroke": "#435f8c",
-    "graph": "#efe7f3",
-    "graph_stroke": "#765d87",
-    "planner": "#e3f0e4",
-    "planner_stroke": "#477861",
-    "numeric": "#edf2df",
-    "numeric_stroke": "#5e7d43",
-    "diagnostic": "#f6e7cf",
-    "diagnostic_stroke": "#a36b32",
-    "failure": "#f3ddd7",
-    "failure_stroke": "#a94c43",
-    "boundary": "#efede6",
-    "boundary_stroke": "#777166",
-    "constraint": "#b97834",
-    "point": "#334c78",
-    "ok": "#4b8a64",
-    "accent": "#c8643f",
-    "white": "#ffffff",
-    "cool_domain": "#e9f3f6"
-}
+def load_theme_colors(path: Path = DEFAULT_THEME) -> dict[str, str]:
+    with path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    colors = data.get("colors", {}) if isinstance(data, dict) else {}
+    if not isinstance(colors, dict):
+        raise ValueError(f"{path} must define a colors object")
+    return {str(key): str(value) for key, value in colors.items()}
+
+
+COLORS = load_theme_colors()
 SANS = "Anthropic Sans, Inter, Segoe UI, Arial, sans-serif"
 SERIF = "Anthropic Serif, Georgia, Cambria, Times New Roman, serif"
 THEME: dict[str, object] = {}
