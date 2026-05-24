@@ -44,6 +44,12 @@ DiagnosticOutput:
 Diagnostics should be usable before solving, after solving, and on isolated
 subproblems.
 
+`rank_report` must preserve structural and numeric evidence separately.
+Numeric evidence must include full active variable dimension, free variable
+dimension after boundary variables are frozen, frozen variable dimension,
+residual dimension, rank, nullity, singularity, over-constraint,
+under-constraint, and condition evidence when available.
+
 ## Numeric Engine Contract
 
 ```text

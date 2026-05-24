@@ -515,6 +515,8 @@ Implementation responsibilities:
 
 - Pre-solve structural diagnostics.
 - Post-local-solve numeric diagnostics.
+- Rank evidence propagation from numeric reports, preserving full active
+  variables, free solve variables, and frozen boundary variables separately.
 - Projection-aware boundary comparison.
 - Gauge consistency checks.
 - Conflict and redundancy search.
@@ -531,6 +533,7 @@ Contract tests:
 - `diagnostics_minimal_conflict_names_stable_ids`.
 - `diagnostics_status_precedence_is_deterministic`.
 - `diagnostics_redundancy_report_is_structured`.
+- `diagnostics_propagates_boundary_frozen_numeric_rank_evidence`.
 
 ## Session Runtime Target Design
 

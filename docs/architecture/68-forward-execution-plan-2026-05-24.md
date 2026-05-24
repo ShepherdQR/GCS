@@ -30,6 +30,8 @@ implementation step they describe.
   - the visualization architecture atlas and generated Figure 1 assets now
     show scene-generation promotion boundaries, contract tools, and
     free/frozen numeric rank evidence;
+  - diagnostics rank reports preserve numeric full/free/frozen rank
+    dimensions from `numeric::RankConditionReport`;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
@@ -191,21 +193,47 @@ Reassessment after Step 29:
 - Decomposition separator deepening remains useful after diagnostics can
   preserve the new rank evidence end to end.
 
-### Step 30: Diagnostics Free/Frozen Rank Propagation
+### Completed Step 30: Diagnostics Free/Frozen Rank Propagation
 
-Goal:
+Delivered:
 
 - Extend diagnostics rank reporting so downstream runtime, viewer, and
   promotion evidence can distinguish full active variables from free and frozen
   numeric solve dimensions.
+- Add `numeric_free_variable_dimension` and
+  `numeric_frozen_variable_dimension` to `diagnostics::RankReport`.
+- Populate those fields from `numeric::RankConditionReport`.
+- Add diagnostics contract coverage using a boundary-frozen numeric task.
+- Keep status precedence unchanged.
+
+Tests:
+
+- Focused `DiagnosticsContract` CTest suite.
+- Full quality gate remains the pre-push validation command.
+
+Reassessment after Step 30:
+
+- Step 31 should expose preserved rank evidence through runtime/viewer
+  projection contracts. Numeric and diagnostics now preserve the evidence, but
+  boundary consumers still need a public projection path.
+- Decomposition separator deepening remains useful after rank evidence is
+  visible at runtime/viewer/promotion boundaries.
+
+### Step 31: Runtime And Viewer Rank Evidence Projection
+
+Goal:
+
+- Make full/free/frozen rank evidence visible through command summaries,
+  viewer overlays, or another public boundary projection without requiring UI
+  or promotion tools to inspect numeric internals directly.
 
 Expected shape:
 
-- Add free/frozen numeric dimension fields to diagnostics rank reports.
-- Populate those fields from `numeric::RankConditionReport`.
-- Add diagnostics contract tests using a boundary-frozen numeric task.
-- Keep status precedence unchanged unless new evidence exposes a concrete
-  ordering bug.
+- Decide whether the source of truth is post-local-solve diagnostics or a
+  viewer projection over existing runtime numeric reports.
+- Add a small public summary/projection contract for rank evidence.
+- Cover accepted and boundary-frozen evidence paths with contract tests.
+- Keep solver math and diagnostic status precedence unchanged.
 
 ## Reassessment Protocol
 
@@ -225,6 +253,6 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 29 completion update, the active planned step is Step 30.
-Step 30 is the next implementation step.
+As of the Step 30 completion update, the active planned step is Step 31.
+Step 31 is the next implementation step.
 

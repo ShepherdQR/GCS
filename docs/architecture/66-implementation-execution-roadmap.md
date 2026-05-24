@@ -183,8 +183,10 @@ Status legend: `done`, `in_progress`, `pending`.
     leverage C++ module.
 29. `done` - synchronize the architecture atlas and tracked visualization
     assets with the current module state.
-30. `pending` - propagate numeric free/frozen rank dimensions through
+30. `done` - propagate numeric free/frozen rank dimensions through
     diagnostics rank evidence.
+31. `pending` - expose preserved rank evidence through runtime/viewer
+    projection contracts.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1003,6 +1005,44 @@ Reassessment after Step 29:
   can rely on it end to end.
 - Decomposition separator and solve-DAG deepening should wait until the rank
   evidence vocabulary is consistent across numeric and diagnostics.
+
+## Diagnostics Free/Frozen Rank Propagation Step Plan
+
+Implemented commit-level scope for Step 30:
+
+- Extend `gcs.diagnostics::RankReport` with free and frozen numeric variable
+  dimensions while preserving the existing full numeric variable dimension.
+- Populate the diagnostics rank report from
+  `numeric::RankConditionReport.variable_dimension`,
+  `free_variable_dimension`, and `frozen_variable_dimension`.
+- Add a diagnostics contract test that uses a boundary-frozen numeric task and
+  verifies diagnostics preserves rank, full/free/frozen dimensions, nullity,
+  and under-constrained evidence.
+- Keep status precedence behavior unchanged.
+
+## Diagnostics Free/Frozen Rank Propagation Milestone
+
+Implemented scope for Step 30:
+
+- `diagnostics::RankReport` now carries
+  `numeric_free_variable_dimension` and
+  `numeric_frozen_variable_dimension`.
+- `diagnostics::diagnose` preserves numeric full/free/frozen dimensions from
+  the numeric engine instead of collapsing all rank evidence to full active
+  variables.
+- Diagnostics contract coverage now includes
+  `DiagnosticsContract.PropagatesBoundaryFrozenNumericRankEvidence`.
+- Solver contract docs now state that diagnostics rank reports keep structural
+  evidence and numeric full/free/frozen evidence separate.
+
+Reassessment after Step 30:
+
+- Step 31 is runtime/viewer rank evidence projection. Numeric and diagnostics
+  now preserve the evidence, but command summaries and viewer overlays still
+  need a public projection path so UI, promotion gates, and review tooling can
+  consume the richer rank report without inspecting numeric internals.
+- Decomposition separator and solve-DAG deepening remain queued after the
+  public evidence path is visible at the boundary.
 
 ## Damped Numeric Local Solve Step Plan
 

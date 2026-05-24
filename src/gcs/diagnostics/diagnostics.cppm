@@ -52,6 +52,8 @@ struct RankReport {
     int structural_rank_estimate = 0;
     int numeric_rank_estimate = 0;
     int numeric_variable_dimension = 0;
+    int numeric_free_variable_dimension = 0;
+    int numeric_frozen_variable_dimension = 0;
     int numeric_residual_dimension = 0;
     int numeric_nullity_estimate = 0;
     bool numeric_under_constrained = false;

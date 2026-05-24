@@ -105,10 +105,32 @@ TEST(DiagnosticsContract, DistinguishesStructuralDofFromNumericRank) {
     EXPECT_EQ(output.rank_report.structural_rank_estimate, 1);
     EXPECT_EQ(output.rank_report.numeric_rank_estimate, 1);
     EXPECT_EQ(output.rank_report.numeric_variable_dimension, 6);
+    EXPECT_EQ(output.rank_report.numeric_free_variable_dimension, 6);
+    EXPECT_EQ(output.rank_report.numeric_frozen_variable_dimension, 0);
     EXPECT_EQ(output.rank_report.numeric_residual_dimension, 1);
     EXPECT_EQ(output.rank_report.numeric_nullity_estimate, 5);
     EXPECT_TRUE(output.rank_report.numeric_under_constrained);
     EXPECT_TRUE(output.rank_report.condition_estimate_available);
+}
+
+TEST(DiagnosticsContract, PropagatesBoundaryFrozenNumericRankEvidence) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    auto task = make_task_for_model(model);
+    task.boundary_variables.push_back(kernel::EntityId{0});
+    auto report = numeric::solve_local(task);
+
+    auto output = diagnose_after_local_solve(model, report);
+
+    EXPECT_EQ(output.status_code, kernel::SolveStatus::under_constrained);
+    EXPECT_EQ(output.rank_report.numeric_variable_dimension, 6);
+    EXPECT_EQ(output.rank_report.numeric_free_variable_dimension, 3);
+    EXPECT_EQ(output.rank_report.numeric_frozen_variable_dimension, 3);
+    EXPECT_EQ(output.rank_report.numeric_rank_estimate, 1);
+    EXPECT_EQ(output.rank_report.numeric_nullity_estimate, 2);
+    EXPECT_TRUE(output.rank_report.numeric_under_constrained);
+    EXPECT_FALSE(output.rank_report.numeric_over_constrained);
+    EXPECT_TRUE(has_evidence_code(output.status_precedence_trace,
+                                  "diagnostics.numeric_rank_under_constrained"));
 }
 
 TEST(DiagnosticsContract, PromotesNumericResidualBlocks) {

@@ -280,6 +280,10 @@ DiagnosticOutput diagnose(const DiagnosticInput& input) {
             numeric_report.rank_condition_report.rank_estimate;
         output.rank_report.numeric_variable_dimension =
             numeric_report.rank_condition_report.variable_dimension;
+        output.rank_report.numeric_free_variable_dimension =
+            numeric_report.rank_condition_report.free_variable_dimension;
+        output.rank_report.numeric_frozen_variable_dimension =
+            numeric_report.rank_condition_report.frozen_variable_dimension;
         output.rank_report.numeric_residual_dimension =
             numeric_report.rank_condition_report.residual_dimension;
         output.rank_report.numeric_nullity_estimate =

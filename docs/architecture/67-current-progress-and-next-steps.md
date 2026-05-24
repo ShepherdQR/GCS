@@ -42,6 +42,8 @@ Completed algorithm-deepening steps:
 - Step 29: synchronized the architecture atlas and Figure 1 assets with
   scene-generation promotion boundaries, contract tools, and free/frozen rank
   evidence.
+- Step 30: propagated numeric full/free/frozen rank dimensions through
+  diagnostics rank evidence.
 
 Current validation baseline:
 
@@ -260,16 +262,31 @@ Delivered:
   variables, free columns, frozen columns, and nullity.
 - Regenerate the main Figure 1 SVG and residual/rank panel SVG.
 
-## Next Step 30
+## Completed Step 30
 
-The next step is diagnostics free/frozen rank propagation. The numeric engine
-now exposes full/free/frozen rank dimensions, but diagnostics still exposes
-only the legacy numeric variable dimension. Propagating those fields will make
-runtime, viewer, and promotion evidence preserve the new rank contract end to
-end.
+Step 30 propagated free/frozen numeric rank evidence through diagnostics.
+
+Delivered:
+
+- Extend `diagnostics::RankReport` with
+  `numeric_free_variable_dimension` and
+  `numeric_frozen_variable_dimension`.
+- Populate diagnostics rank evidence from
+  `numeric::RankConditionReport` without changing status precedence.
+- Add diagnostics contract coverage for a boundary-frozen numeric task.
+- Update solver contract docs so diagnostics rank reports preserve structural
+  evidence separately from numeric full/free/frozen evidence.
+
+## Next Step 31
+
+The next step is runtime/viewer rank evidence projection. Numeric and
+diagnostics now preserve full/free/frozen rank evidence, but command summaries
+and viewer overlays still need a public projection path so UI, promotion
+gates, and review tooling can consume that evidence without reading numeric
+internals directly.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 25 through
-30 were registered there and in the implementation roadmap. After Step 29, the
-remaining steps were reconsidered; Step 30 is registered as the next
+31 were registered there and in the implementation roadmap. After Step 30, the
+remaining steps were reconsidered; Step 31 is registered as the next
 highest-leverage move.
