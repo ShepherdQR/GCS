@@ -20,6 +20,47 @@ from typing import Iterable
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SPEC = ROOT / "tools" / "architecture_visualization" / "specs" / "figure71.yaml"
 
+COLOR_ALIASES = {
+    "surface.paper": "paper",
+    "surface.panel": "panel",
+    "surface.panel.subtle": "boundary",
+    "surface.canvas": "plot",
+    "surface.track": "bar_track",
+    "text.primary": "ink",
+    "text.secondary": "muted",
+    "text.muted": "quiet",
+    "rule.default": "rule",
+    "rule.soft": "rule_soft",
+    "state.focus": "accent",
+    "state.ok": "ok",
+    "geometry.point.color": "point",
+    "constraint.emphasis.color": "constraint",
+    "evidence.domain.fill": "domain",
+    "evidence.domain.stroke": "domain_stroke",
+    "evidence.graph.fill": "graph",
+    "evidence.graph.stroke": "graph_stroke",
+    "evidence.planner.fill": "planner",
+    "evidence.planner.stroke": "planner_stroke",
+    "evidence.numeric.fill": "numeric",
+    "evidence.numeric.stroke": "numeric_stroke",
+    "evidence.diagnostic.fill": "diagnostic",
+    "evidence.diagnostic.stroke": "diagnostic_stroke",
+    "evidence.failure.fill": "failure",
+    "evidence.failure.stroke": "failure_stroke",
+    "evidence.boundary.fill": "boundary",
+    "evidence.boundary.stroke": "boundary_stroke",
+}
+
+EVIDENCE_TOKEN_ALIASES = {
+    "domain": "evidence.domain",
+    "graph": "evidence.graph",
+    "planner": "evidence.planner",
+    "numeric": "evidence.numeric",
+    "diagnostic": "evidence.diagnostic",
+    "failure": "evidence.failure",
+    "boundary": "evidence.boundary",
+}
+
 
 @dataclass(frozen=True)
 class Step:
@@ -52,6 +93,8 @@ def load_theme(path: Path) -> dict[str, str]:
         "panel": "#fffefa",
         "paper": "#f7f4ec",
         "surface": "#fffdf7",
+        "plot": "#fbfaf5",
+        "bar_track": "#efebe2",
         "domain": "#e7edf8",
         "domain_stroke": "#435f8c",
         "graph": "#efe7f3",
@@ -72,13 +115,23 @@ def load_theme(path: Path) -> dict[str, str]:
         "ok": "#4b8a64",
     }
     if not path.exists():
-        return fallback
+        return canonicalize_colors(fallback)
     raw = load_json(path)
     colors = raw.get("colors", {})
     if not isinstance(colors, dict):
-        return fallback
+        return canonicalize_colors(fallback)
     merged = dict(fallback)
     merged.update({str(key): str(value) for key, value in colors.items()})
+    return canonicalize_colors(merged)
+
+
+def canonicalize_colors(colors: dict[str, str]) -> dict[str, str]:
+    merged = dict(colors)
+    for canonical, legacy in COLOR_ALIASES.items():
+        if canonical not in merged and legacy in merged:
+            merged[canonical] = merged[legacy]
+        if legacy not in merged and canonical in merged:
+            merged[legacy] = merged[canonical]
     return merged
 
 
@@ -129,9 +182,15 @@ def root_path(path_value: object) -> Path:
 
 
 def token_style(token: str, colors: dict[str, str]) -> str:
-    fill = colors.get(token, colors["surface"])
-    stroke = colors.get(f"{token}_stroke", colors["rule"])
-    return f"--token-fill:{fill};--token-stroke:{stroke};"
+    canonical = EVIDENCE_TOKEN_ALIASES.get(token, token)
+    fill = colors.get(f"{canonical}.fill", colors.get(token, colors["surface.panel"]))
+    stroke = colors.get(f"{canonical}.stroke", colors.get(f"{token}_stroke", colors["rule.default"]))
+    return (
+        f"--gcs-token-fill:{fill};"
+        f"--gcs-token-stroke:{stroke};"
+        "--token-fill:var(--gcs-token-fill);"
+        "--token-stroke:var(--gcs-token-stroke);"
+    )
 
 
 def render_step(step: Step, colors: dict[str, str]) -> str:
@@ -155,6 +214,7 @@ def render_step(step: Step, colors: dict[str, str]) -> str:
 
 def render_arc(arc: dict[str, object], arc_steps: list[Step], colors: dict[str, str]) -> str:
     token = str(arc.get("token", "boundary"))
+    canonical_token = EVIDENCE_TOKEN_ALIASES.get(token, token)
     panel_type = str(arc.get("panel_type", "module-grid"))
     title = str(arc.get("title", "Untitled"))
     claim = str(arc.get("claim", ""))
@@ -176,7 +236,7 @@ def render_arc(arc: dict[str, object], arc_steps: list[Step], colors: dict[str, 
           <p class="panel-kicker">{escape(range_label)}</p>
           <h2>{escape(title)}</h2>
         </div>
-        <span class="token-chip">{escape(token)}</span>
+        <span class="token-chip">{escape(canonical_token)}</span>
       </header>
       <p class="panel-claim">{escape(claim)}</p>
       <div class="panel-body">
@@ -190,14 +250,14 @@ def render_showcase(colors: dict[str, str]) -> str:
     return f"""
       <div class="showcase-layout">
         <svg class="domain-sketch-svg" viewBox="0 0 260 170" role="img" aria-label="showcase constraint sketch">
-          <rect x="10" y="10" width="120" height="120" rx="20" fill="{colors['planner']}" stroke="{colors['planner_stroke']}" stroke-dasharray="5 5"/>
-          <rect x="90" y="28" width="130" height="112" rx="20" fill="{colors['domain']}" stroke="{colors['domain_stroke']}" stroke-dasharray="5 5"/>
-          <path d="M55 120 L118 48 L198 118 L124 142 Z" fill="none" stroke="{colors['constraint']}" stroke-width="3"/>
-          <path d="M55 120 L198 118" fill="none" stroke="{colors['failure_stroke']}" stroke-width="2.5" stroke-dasharray="6 5"/>
-          <circle cx="55" cy="120" r="8" fill="{colors['point']}"/>
-          <circle cx="118" cy="48" r="8" fill="{colors['point']}"/>
-          <circle cx="198" cy="118" r="8" fill="{colors['point']}"/>
-          <circle cx="124" cy="142" r="8" fill="{colors['point']}"/>
+          <rect x="10" y="10" width="120" height="120" rx="20" fill="{colors['evidence.planner.fill']}" stroke="{colors['evidence.planner.stroke']}" stroke-dasharray="5 5"/>
+          <rect x="90" y="28" width="130" height="112" rx="20" fill="{colors['evidence.domain.fill']}" stroke="{colors['evidence.domain.stroke']}" stroke-dasharray="5 5"/>
+          <path d="M55 120 L118 48 L198 118 L124 142 Z" fill="none" stroke="{colors['constraint.emphasis.color']}" stroke-width="3"/>
+          <path d="M55 120 L198 118" fill="none" stroke="{colors['evidence.failure.stroke']}" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <circle cx="55" cy="120" r="8" fill="{colors['geometry.point.color']}"/>
+          <circle cx="118" cy="48" r="8" fill="{colors['geometry.point.color']}"/>
+          <circle cx="198" cy="118" r="8" fill="{colors['geometry.point.color']}"/>
+          <circle cx="124" cy="142" r="8" fill="{colors['geometry.point.color']}"/>
         </svg>
         <div class="evidence-stack">
           <span>free rank <strong>8 / 10</strong></span>
@@ -212,15 +272,43 @@ def render_showcase(colors: dict[str, str]) -> str:
 def css(colors: dict[str, str]) -> str:
     return f"""
     :root {{
-      --ink: {colors['ink']};
-      --muted: {colors['muted']};
-      --quiet: {colors['quiet']};
-      --rule: {colors['rule']};
-      --rule-soft: {colors['rule_soft']};
-      --paper: {colors['paper']};
-      --panel: {colors['panel']};
-      --surface: {colors['surface']};
-      --accent: {colors['accent']};
+      --gcs-surface-paper: {colors['surface.paper']};
+      --gcs-surface-panel: {colors['surface.panel']};
+      --gcs-surface-subtle: {colors['surface.panel.subtle']};
+      --gcs-surface-canvas: {colors['surface.canvas']};
+      --gcs-surface-track: {colors['surface.track']};
+      --gcs-text-primary: {colors['text.primary']};
+      --gcs-text-secondary: {colors['text.secondary']};
+      --gcs-text-muted: {colors['text.muted']};
+      --gcs-rule-default: {colors['rule.default']};
+      --gcs-rule-soft: {colors['rule.soft']};
+      --gcs-state-focus: {colors['state.focus']};
+      --gcs-state-ok: {colors['state.ok']};
+      --gcs-geometry-point-color: {colors['geometry.point.color']};
+      --gcs-constraint-emphasis-color: {colors['constraint.emphasis.color']};
+      --gcs-evidence-domain-fill: {colors['evidence.domain.fill']};
+      --gcs-evidence-domain-stroke: {colors['evidence.domain.stroke']};
+      --gcs-evidence-graph-fill: {colors['evidence.graph.fill']};
+      --gcs-evidence-graph-stroke: {colors['evidence.graph.stroke']};
+      --gcs-evidence-planner-fill: {colors['evidence.planner.fill']};
+      --gcs-evidence-planner-stroke: {colors['evidence.planner.stroke']};
+      --gcs-evidence-numeric-fill: {colors['evidence.numeric.fill']};
+      --gcs-evidence-numeric-stroke: {colors['evidence.numeric.stroke']};
+      --gcs-evidence-diagnostic-fill: {colors['evidence.diagnostic.fill']};
+      --gcs-evidence-diagnostic-stroke: {colors['evidence.diagnostic.stroke']};
+      --gcs-evidence-failure-fill: {colors['evidence.failure.fill']};
+      --gcs-evidence-failure-stroke: {colors['evidence.failure.stroke']};
+      --gcs-evidence-boundary-fill: {colors['evidence.boundary.fill']};
+      --gcs-evidence-boundary-stroke: {colors['evidence.boundary.stroke']};
+      --ink: var(--gcs-text-primary);
+      --muted: var(--gcs-text-secondary);
+      --quiet: var(--gcs-text-muted);
+      --rule: var(--gcs-rule-default);
+      --rule-soft: var(--gcs-rule-soft);
+      --paper: var(--gcs-surface-paper);
+      --panel: var(--gcs-surface-panel);
+      --surface: var(--gcs-surface-subtle);
+      --accent: var(--gcs-state-focus);
     }}
     * {{ box-sizing: border-box; }}
     body {{
@@ -422,7 +510,7 @@ def css(colors: dict[str, str]) -> str:
       block-size: auto;
       border: 1px solid var(--rule-soft);
       border-radius: 8px;
-      background: #fbfaf5;
+      background: var(--gcs-surface-canvas);
     }}
     .evidence-stack {{
       display: grid;

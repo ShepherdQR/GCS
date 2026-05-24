@@ -133,7 +133,7 @@ Goal: make `GCS Warm Evidence Tokens` executable across figures and the viewer.
 | P2.1 | Done | `78-ui-token-inventory.md` inventories current GUI colors, figure tokens, Matplotlib styles, state colors, renderer fallbacks, and terminal/Rich styles. | Inventory doc |
 | P2.2 | Done | `79-ui-token-taxonomy.md` defines canonical token names and cross-surface mappings for surface, text, rule, evidence, state, geometry, constraint, rigid-set, figure, and viewer roles. | Token table diff |
 | P2.3 | Done | `python/gcs_viz/color_scheme.py` mirrors canonical tokens and preserves compatibility aliases for viewer code. | Python syntax check |
-| P2.4 | Pending | Align CSS/HTML figure compositor token usage and add notes for future renderers. | Figure QA smoke |
+| P2.4 | Done | `figure71_html_compositor.py` emits canonical `--gcs-*` CSS token aliases and `70-visualization/figure-renderer-token-usage.md` documents renderer token use. | Figure QA smoke |
 
 Phase-close replanning requirement:
 
@@ -195,6 +195,22 @@ Updated P2 next steps:
   and document CSS custom-property naming for future figure renderers.
 - P2 phase close should decide whether the token source should remain mirrored
   JSON/Python or move to generated artifacts.
+
+P2.4 completion summary:
+
+- Updated `figure71_html_compositor.py` to canonicalize theme colors into
+  dot-path token aliases while preserving existing short figure token keys.
+- Emitted canonical `--gcs-*` CSS custom properties and kept older CSS aliases
+  as transition shims.
+- Added `docs/architecture/70-visualization/figure-renderer-token-usage.md` to
+  define CSS custom-property naming and renderer token rules.
+
+Updated P2 phase-close work:
+
+- P2 can now close after a short source-of-truth decision: keep JSON/Python
+  mirrors for now, or add generation from one token artifact.
+- P3 should treat `python/gcs_viz/color_scheme.py` as the viewer mirror and
+  avoid new raw hex values in GUI or Matplotlib renderer code.
 
 ## P3: Viewer UI Implementation
 
