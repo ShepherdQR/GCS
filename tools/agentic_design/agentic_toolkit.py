@@ -1444,6 +1444,14 @@ def build_quality_gate_commands(args: argparse.Namespace,
             [python, "-m", "unittest", "tests.tools.test_gcs_overlap_contrast"],
         ))
         commands.append(GateCommand(
+            "python.gcs_screenshot_baseline",
+            [python, "tools/ui_qa/gcs_screenshot_baseline.py"],
+        ))
+        commands.append(GateCommand(
+            "python.gcs_screenshot_baseline_tests",
+            [python, "-m", "unittest", "tests.tools.test_gcs_screenshot_baseline"],
+        ))
+        commands.append(GateCommand(
             "python.gcs_viz_algebra",
             [python, "-m", "unittest", "tests.tools.test_gcs_viz_algebra"],
         ))

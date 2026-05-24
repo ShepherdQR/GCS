@@ -40,10 +40,12 @@ Completed:
   and the default quality gates include text overflow checks.
 - P5.3 is complete: generated Figure 71 HTML now carries layout-box and
   contrast markers, with forced overlap and weak-contrast fixtures in tests.
+- P5.4 is complete: Figure 71 now has a stable screenshot-baseline manifest,
+  exact PNG artifact checks, and forced baseline failure fixtures.
 
 Active phase:
 
-- P5 Visual Integrity QA.
+- P5 Visual Integrity QA phase close.
 
 ## Persisted Forward Plan
 
@@ -56,11 +58,12 @@ Active phase:
 | 5 | P4 phase close | Done | Reassess whether repo-native figure production is stable enough before considering Figma MCP. | Phase-close summary and downstream plan update committed. |
 | 6 | P5.2 Text overflow gate | Done | Catch text that would spill from figure panels or compact UI surfaces. | Forced overflow fixture fails. |
 | 7 | P5.3 Overlap and contrast gates | Done | Catch critical text/shape overlap and weak contrast in status/evidence surfaces. | Forced overlap fails and contrast report is produced. |
-| 8 | P5.4 Screenshot baselines | Next | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
-| 9 | P6.1 Showcase brief | Pending | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
-| 10 | P6.2 Showcase fixture | Pending | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
-| 11 | P6.3 Showcase figure | Pending | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
-| 12 | P6.4 Figma MCP decision | Pending | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
+| 8 | P5.4 Screenshot baselines | Done | Add stable visual baselines for core GUI and figure states. | Baseline policy and first stable screenshots exist. |
+| 9 | P5 phase close | Next | Decide default versus reviewer-only visual-integrity gates before P6. | Phase-close summary and downstream plan update committed. |
+| 10 | P6.1 Showcase brief | Pending | Define the integrated feature constraint graph showcase using canonical evidence vocabulary. | Brief review passes. |
+| 11 | P6.2 Showcase fixture | Pending | Promote or generate a showcase scene with rank, gluing, replay, and diagnostic evidence. | Public solver/report gate passes. |
+| 12 | P6.3 Showcase figure | Pending | Produce the showcase through the scientific figure pipeline and tokenized compositor. | Visual integrity QA passes. |
+| 13 | P6.4 Figma MCP decision | Pending | Decide whether external design-surface review adds enough value after repo-native QA is stable. | Governance decision recorded. |
 
 ## P4.2 Completion Summary
 
@@ -134,9 +137,21 @@ Active phase:
 - Promoted `python.gcs_overlap_contrast` and
   `python.gcs_overlap_contrast_tests` into the default quality-gate sequence.
 
+## P5.4 Completion Summary
+
+- Added `docs/architecture/70-visualization/assets/screenshot-baselines.json`
+  with Figure 71's browser-rendered review PNG as the first stable baseline.
+- Added `tools/ui_qa/gcs_screenshot_baseline.py` to validate PNG signature,
+  dimensions, byte count, minimum byte count, and SHA256 digest.
+- Added forced missing-file, dimension-mismatch, and digest-mismatch tests.
+- Promoted `python.gcs_screenshot_baseline` and
+  `python.gcs_screenshot_baseline_tests` into the default quality-gate
+  sequence.
+- Added `docs/architecture/70-visualization/screenshot-baseline-gate.md`.
+
 ## Updated Next Move
 
-The next implementation step should be **P5.4 Screenshot Baselines**.
+The next implementation step should be **P5 phase close**.
 
 Reasoning:
 
@@ -149,8 +164,9 @@ Reasoning:
   explicit phase summary.
 - P5.2 is now in place as a source-level text-budget gate.
 - P5.3 is now in place as a source-level overlap and contrast gate.
-- P5.4 should choose a stable screenshot baseline policy before P6 showcase
-  work begins.
+- P5.4 is now in place as an artifact-level screenshot baseline gate.
+- P5 should close by deciding which visual-integrity gates are default quality
+  gates and which remain reviewer-only before P6 showcase work begins.
 
 ## Opportunistic Cleanup
 
@@ -175,7 +191,7 @@ I prefer the following operating order:
 2. Keep P5.1 token lint in the default quality-gate path before P4.4 rebuilds.
 3. Decide P4.3 as a governance step, then rebuild the execution-map assets in
    P4.4 with token lint and QA already guarding the output.
-4. Continue with P5.2/P5.3 before spending time on showcase polish.
+4. Continue with P5.2/P5.3/P5.4 before spending time on showcase polish.
 5. Delay Figma MCP until the repo-native pipeline can already produce clean,
    QA-backed artifacts.
 

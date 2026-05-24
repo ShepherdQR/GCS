@@ -64,6 +64,8 @@ class AgenticToolkitTests(unittest.TestCase):
                 "python.gcs_text_overflow_tests",
                 "python.gcs_overlap_contrast",
                 "python.gcs_overlap_contrast_tests",
+                "python.gcs_screenshot_baseline",
+                "python.gcs_screenshot_baseline_tests",
                 "python.gcs_viz_algebra",
                 "python.gcs_viz_history_replay",
                 "cmake.configure",
@@ -121,6 +123,8 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertNotIn("python.gcs_text_overflow_tests", gate_ids)
         self.assertNotIn("python.gcs_overlap_contrast", gate_ids)
         self.assertNotIn("python.gcs_overlap_contrast_tests", gate_ids)
+        self.assertNotIn("python.gcs_screenshot_baseline", gate_ids)
+        self.assertNotIn("python.gcs_screenshot_baseline_tests", gate_ids)
         self.assertNotIn("python.gcs_viz_algebra", gate_ids)
         self.assertNotIn("python.gcs_viz_history_replay", gate_ids)
         self.assertNotIn("ctest.contracts", gate_ids)

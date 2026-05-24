@@ -1,0 +1,31 @@
+{
+  "schema_version": "gcs.screenshot_baselines.v1",
+  "snapshot_date": "2026-05-24",
+  "governing_conventions": [
+    "GCS Visual Integrity Gate",
+    "GCS Scientific Figure Pipeline",
+    "GCS Warm Evidence Tokens"
+  ],
+  "policy": {
+    "comparison": "exact_png_hash_until_pixel_diff_backend_is_approved",
+    "scope": "stable review artifacts for core figure and GUI states",
+    "change_rule": "update a baseline only with the task archive, validation evidence, and roadmap note that explain the visual change"
+  },
+  "baselines": [
+    {
+      "id": "figure71.execution_map.review_png.desktop_1600x2200",
+      "status": "stable",
+      "kind": "figure-review-png",
+      "path": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.review.png",
+      "source_html": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html",
+      "browser_manifest": "docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-browser-export.json",
+      "width": 1600,
+      "height": 2200,
+      "bytes": 281703,
+      "min_bytes": 200000,
+      "sha256": "d6f3f3cad2e33f2a1feec62744bcf06e672743b8a9fb1a153c8324da0e86d5ee",
+      "owner": "GCS Scientific Figure Pipeline",
+      "notes": "First P5.4 screenshot baseline, derived from the Figure 71 browser review artifact promoted in P4.4."
+    }
+  ]
+}

@@ -453,7 +453,7 @@ Goal: make `GCS Visual Integrity Gate` measurable.
 | P5.1 | Done | `gcs_token_lint.py` enforces raw-hex and unknown-token linting for GUI, Matplotlib, and figure renderer code. | Forced raw-hex fixture fails |
 | P5.2 | Done | `gcs_text_overflow.py` checks Figure 71 HTML text budgets and forced overflow fixtures. | QA fixture fails on forced overflow |
 | P5.3 | Done | `gcs_overlap_contrast.py` checks Figure 71 layout boxes and contrast targets. | Forced overlap plus contrast report |
-| P5.4 | Pending | Add screenshot baselines for core GUI/figure states. | Stable baseline policy |
+| P5.4 | Done | `gcs_screenshot_baseline.py` checks the first screenshot-baseline manifest and Figure 71 review PNG digest. | Stable baseline policy |
 
 Phase-close replanning requirement:
 
@@ -519,6 +519,26 @@ Updated P5 next steps after P5.3:
 - P5.4 should now add screenshot baselines over the same Figure 71 and viewer
   states.
 - P6 showcase work should wait until P5.4 records baseline policy.
+
+P5.4 completion summary:
+
+- Added `docs/architecture/70-visualization/assets/screenshot-baselines.json`
+  with the Figure 71 browser-rendered review PNG as the first stable baseline.
+- Added `tools/ui_qa/gcs_screenshot_baseline.py` as a standard-library checker
+  for PNG signature, dimensions, byte count, minimum byte count, and SHA256.
+- Added `tests/tools/test_gcs_screenshot_baseline.py` with current-manifest
+  pass, missing-file failure, dimension-mismatch failure, and hash-mismatch
+  failure.
+- Promoted `python.gcs_screenshot_baseline` and
+  `python.gcs_screenshot_baseline_tests` into default quality gates.
+- Added `docs/architecture/70-visualization/screenshot-baseline-gate.md`.
+
+Updated P5 next steps after P5.4:
+
+- Close P5 by deciding which visual-integrity gates are default quality gates
+  and which remain reviewer-only.
+- P6.1 showcase brief should start only after the phase-close decision records
+  how showcase artifacts will be judged.
 
 ## P6: Showcase And Editorial Polish
 
