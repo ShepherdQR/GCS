@@ -85,6 +85,39 @@ ways:
   or viewer evidence is collected;
 - the fixture corpus gains a better canonical local-to-global example.
 
+## Editorial Figure 71
+
+Figure 71 is the Step 1-40 reporting artifact. It is not a replacement for the
+roadmap; it is a presentation-grade map of how implementation work moved from
+contracts to executable solver evidence, public promotion gates,
+viewer-visible diagnostics, hardened quality gates, and the post-Step-40
+showcase frontier.
+
+![Figure 71 - GCS Evidence-Boundary Flight Map](assets/figure71-gcs-step-1-40-evidence-map.svg)
+
+Generated assets:
+
+- `assets/figure71-gcs-step-1-40-evidence-map.svg`
+
+Design controls:
+
+- `tools/architecture_visualization/render_gcs_figure71.py`
+- `tools/architecture_visualization/figure71.layout.json`
+- `tools/architecture_visualization/figure1.theme.json`
+
+Rebuild command:
+
+```powershell
+python -B tools\architecture_visualization\render_gcs_figure71.py
+```
+
+Figure 71 should be regenerated when one of these source documents changes:
+
+- `docs/architecture/71-step-1-40-execution-report.md`;
+- `docs/architecture/66-implementation-execution-roadmap.md`;
+- `docs/architecture/68-forward-execution-plan-2026-05-24.md`;
+- the visual taste guide or Figure 71 layout controls.
+
 ## Editorial Aesthetic Direction
 
 The Figure 1 aesthetic should follow a Claude-influenced scientific editorial
@@ -463,7 +496,7 @@ flowchart LR
     publicScene["public_scene.gcs.json"]
     publicGates["public promotion gates<br/>IO / runtime / diagnostics / viewer"]
     fixtures["fixture corpus"]
-    quality["run-quality-gates<br/>Python + CMake + CTest + CLI"]
+    quality["run-quality-gates<br/>Python + CMake + CTest + public evidence chain + CLI"]
 
     facade --> explorer
     facade --> package
@@ -513,16 +546,21 @@ Concern: choose the next work by contract maturity and blast radius.
 | Module | Current architecture maturity | Next visualization cue |
 | --- | --- | --- |
 | `kernel` | L2 | Highlight stable IDs, context validation, report registry. |
-| `constraint_catalog` | L1-L2 | Show residual/Jacobian ownership and degeneracy reports. |
-| `incidence_graph` | L1-L2 | Show hypergraph, reverse indices, body graph, separators. |
-| `decomposition_planner` | L1-L2 | Show coverage, overlaps, boundary projections, gauge, solve DAG. |
+| `constraint_catalog` | L2 | Show residual/Jacobian ownership and degeneracy reports. |
+| `incidence_graph` | L2 | Show hypergraph, reverse indices, body graph, separators. |
+| `decomposition_planner` | L2 | Show coverage, overlaps, boundary projections, gauge, solve DAG. |
 | `numeric_engine` | L2 | Show `NumericTask`, residual assembly, free/frozen rank evidence, iteration trace. |
-| `diagnostics` | L1-L2 | Show phase-specific DOF/rank/residual/gluing/obstruction evidence. |
+| `diagnostics` | L2 | Show phase-specific DOF/rank/residual/gluing/obstruction evidence. |
 | `session_runtime` | L2 | Show transaction boundary, rollback, replay, post-commit verification. |
-| `io_adapters` | L1-L2 | Show schema registry, migration, canonical output, round-trip diff. |
-| `viewer_bridge` | L1 | Show read-only projection, overlays, command drafts, hit-test mapping. |
-| `contract_tools` | L1-L2 | Show fixture provenance, invariant checks, dependency audits. |
+| `io_adapters` | L2 | Show schema registry, migration, canonical output, round-trip diff. |
+| `viewer_bridge` | L2 | Show read-only projection, overlays, command drafts, hit-test mapping. |
+| `contract_tools` | L2 | Show fixture provenance, invariant checks, dependency audits. |
 | `scene_generation` | L2 tooling | Show explorer, store adapter, promotion gates, public scene artifacts. |
+
+After Step 40, the atlas view treats all target modules as at least L2 for the
+implemented public evidence path. The next visual jump is not another box
+diagram; it is an integrated showcase graph that puts these contracts on one
+inspectable constraint scene.
 
 ## Diagram Maintenance Rules
 

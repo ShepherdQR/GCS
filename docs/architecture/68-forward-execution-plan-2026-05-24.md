@@ -751,6 +751,28 @@ Exit criteria:
 - Docs, diagrams, roadmap, and current implementation agree.
 - The next batch is registered with clear commit-level steps.
 
+Completion summary:
+
+- The roadmap, current-progress document, forward plan, and Step 1-40 report
+  now agree that Steps 1 through 40 are complete.
+- The architecture atlas embeds Figure 71 as the Step 1-40
+  evidence-boundary reporting figure and documents its deterministic rebuild
+  command.
+- The Figure 71 generator and layout controls are checked in with the SVG
+  asset regenerated from the current report.
+- The visual taste guide is part of the architecture index and records the
+  durable standard for diagrams, reports, GUI surfaces, and showcase visuals.
+- The module maturity lens reflects the implemented L2 public evidence path
+  across target modules.
+
+Reassessment after Step 40:
+
+- The Step 1-40 batch is closed.
+- The integrated feature showcase constraint graph is now the next
+  high-leverage candidate. It should be promoted through the scene or fixture
+  corpus with structured expectations and should demonstrate the full public
+  evidence chain.
+
 ### Post-Step-40 Candidate: Integrated Feature Showcase Constraint Graph
 
 Goal:
@@ -780,6 +802,15 @@ Detailed plan:
 - Render or document the graph through the viewer/atlas path after Step 40
   completes.
 
+Candidate commit-level slices:
+
+1. Define the showcase graph contract and fixture expectations.
+2. Generate or author the positive showcase scene through public scene formats.
+3. Add a negative diagnostic variant for residual conflict or gluing
+   obstruction.
+4. Promote both variants through public gate reports and add corpus tests.
+5. Add viewer or atlas projection evidence for reporting and demo use.
+
 Exit criteria:
 
 - The showcase graph is committed in the fixture/scene corpus with structured
@@ -805,15 +836,16 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 39 update:
+As of the Step 40 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 39 have completed-step summaries in the roadmap and current
+- Steps 1 through 40 have completed-step summaries in the roadmap and current
   progress documents.
 - Steps 31 through 40 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 40 is the next implementation step.
+- The Step 1-40 batch is complete; the showcase graph is the next registered
+  candidate.
 

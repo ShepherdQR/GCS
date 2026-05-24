@@ -53,9 +53,13 @@ order, not by historical source order. Background research notes live under
      pre-push and CI execution.
    - `71-step-1-40-execution-report.md`: reporting-oriented summary of Step 1
      through Step 40 status, core deliverables, evidence, and next batch.
-8. Visualization atlas
+8. Visualization and aesthetic system
    - `70-visualization/gcs-architecture-atlas.md`: architecture diagrams and
      visual grammar for the target GCS shape.
+   - `72-ui-aesthetic-roadmap.md`: phased visual refinement plan for the local
+     Python viewer.
+   - `73-gcs-visual-taste-guide.md`: canonical taste guide for GCS diagrams,
+     reports, GUI surfaces, and showcase visuals.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

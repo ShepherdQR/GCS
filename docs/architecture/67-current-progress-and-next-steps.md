@@ -444,17 +444,34 @@ Delivered:
 - Update the CI-ready quality-gate contract to describe the Step 39 hardened
   sequence.
 
-## Next Step 40
+## Completed Step 40
 
-The next step is architecture atlas and roadmap resynchronization. The Step
-31-39 evidence path is now public and gate-protected, so diagrams, reporting
-tables, maturity status, and next-batch planning should be reconciled against
-the actual implementation.
+Step 40 resynchronized the architecture atlas, roadmap, Step 1-40 report, and
+visual standards after the public evidence chain was gate-protected.
+
+Delivered:
+
+- Add Figure 71 to the architecture atlas as the Step 1-40
+  evidence-boundary reporting figure.
+- Regenerate Figure 71 from the current Step 1-40 execution report.
+- Promote the GCS visual taste guide into the architecture index and align its
+  Step 1-40 figure brief with the closure state.
+- Update the module maturity lens to show the implemented public evidence
+  path as L2 across target modules.
+- Mark Step 40 complete in roadmap, forward-plan, progress, and reporting
+  documents.
+
+## Next Candidate
+
+The next high-leverage implementation step is the integrated feature showcase
+constraint graph. It should be a reusable fixture or generated-scene promotion
+package that demonstrates decomposition, boundary variables, free/frozen rank,
+diagnostics, promotion gates, viewer projection, and quality gates together.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 39, the remaining steps were reconsidered;
-Step 40 is registered as the next highest-leverage move. A post-Step-40
-candidate remains recorded for an integrated feature showcase constraint graph.
+in the forward plan. After Step 40, the registered 1-40 batch is closed; the
+post-Step-40 candidate remains recorded for an integrated feature showcase
+constraint graph.

@@ -1,0 +1,297 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title">
+<title id="title">GCS Evidence-Boundary Flight Map</title>
+<defs>
+<marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+<path d="M0,0 L8,4 L0,8 Z" fill="#5f5b53"/>
+</marker>
+</defs>
+<rect id="figure71-background" x="0" y="0" width="1600" height="1000" fill="#f7f4ec"/>
+<text x="52.0" y="58.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="30" font-weight="650" fill="#181715" text-anchor="start">Figure 71 | GCS Evidence-Boundary Flight Map</text>
+<text x="52.0" y="88.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#5f5b53" text-anchor="start">A vivid procedure map for Step 1-40: from contracts to public evidence and the showcase frontier.</text>
+<text x="1548.0" y="88.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5f5b53" text-anchor="end">Source: docs/architecture/71-step-1-40-execution-report.md</text>
+<rect x="52.0" y="120.0" width="1496.0" height="58.0" rx="8.0" fill="#fffdf7" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="70.0" y="144.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#c8643f" text-anchor="start">Procedure claim</text>
+<text x="70.0" y="165.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="650" fill="#181715" text-anchor="start">canonical contracts -&gt; executable solver evidence -&gt; public promotion gates -&gt; viewer-visible diagnostics -&gt; post-Step-40 showcase</text>
+<text x="1520.0" y="156.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#a36b32" text-anchor="end">40 done / 0 pending</text>
+<g id="figure71-panel-foundation" data-layout-key="panels.foundation" transform="translate(52.0 208.0)"><rect x="0.0" y="0.0" width="500.0" height="272.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="22.0" y="34.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="23" font-weight="700" fill="#c8643f" text-anchor="start">a</text>
+<text x="58.0" y="29.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Foundation Runway</text>
+<rect x="388.0" y="17.0" width="84.0" height="24.0" rx="12.0" fill="#e7edf8" stroke="#435f8c" stroke-width="1.1"/>
+<text x="430.0" y="33.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#435f8c" text-anchor="middle">Steps 1-13</text>
+<text x="58.0" y="52.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" fill="#5f5b53"><tspan x="58.0" dy="0.0">Contract-tested kernel-to-viewer boundaries</tspan></text>
+<rect x="28.0" y="108.0" width="105.0" height="39.0" rx="7.0" fill="#e7edf8" stroke="#435f8c" stroke-width="1.1"/>
+<text x="41.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#435f8c" text-anchor="start">1</text>
+<text x="61.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">kernel</text>
+<circle cx="119.0" cy="123.0" r="8.5" fill="#fffefa" stroke="#435f8c" stroke-width="1.3"/>
+<path d="M 115.0 123.0 L 118.0 126.5 L 124.0 118.0" fill="none" stroke="#435f8c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="141.0" y="108.0" width="105.0" height="39.0" rx="7.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<text x="154.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#5e7d43" text-anchor="start">2</text>
+<text x="174.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">catalog</text>
+<circle cx="232.0" cy="123.0" r="8.5" fill="#fffefa" stroke="#5e7d43" stroke-width="1.3"/>
+<path d="M 228.0 123.0 L 231.0 126.5 L 237.0 118.0" fill="none" stroke="#5e7d43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="254.0" y="108.0" width="105.0" height="39.0" rx="7.0" fill="#efe7f3" stroke="#765d87" stroke-width="1.1"/>
+<text x="267.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#765d87" text-anchor="start">3</text>
+<text x="287.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">incidence</text>
+<circle cx="345.0" cy="123.0" r="8.5" fill="#fffefa" stroke="#765d87" stroke-width="1.3"/>
+<path d="M 341.0 123.0 L 344.0 126.5 L 350.0 118.0" fill="none" stroke="#765d87" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="367.0" y="108.0" width="105.0" height="39.0" rx="7.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="380.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#477861" text-anchor="start">4</text>
+<text x="400.0" y="132.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">planner</text>
+<circle cx="458.0" cy="123.0" r="8.5" fill="#fffefa" stroke="#477861" stroke-width="1.3"/>
+<path d="M 454.0 123.0 L 457.0 126.5 L 463.0 118.0" fill="none" stroke="#477861" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="28.0" y="160.0" width="105.0" height="39.0" rx="7.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<text x="41.0" y="184.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#5e7d43" text-anchor="start">5</text>
+<text x="61.0" y="184.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">numeric</text>
+<circle cx="119.0" cy="175.0" r="8.5" fill="#fffefa" stroke="#5e7d43" stroke-width="1.3"/>
+<path d="M 115.0 175.0 L 118.0 178.5 L 124.0 170.0" fill="none" stroke="#5e7d43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="141.0" y="160.0" width="105.0" height="39.0" rx="7.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<text x="154.0" y="184.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#5e7d43" text-anchor="start">6</text>
+<text x="174.0" y="184.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">rank</text>
+<circle cx="232.0" cy="175.0" r="8.5" fill="#fffefa" stroke="#5e7d43" stroke-width="1.3"/>
+<path d="M 228.0 175.0 L 231.0 178.5 L 237.0 170.0" fill="none" stroke="#5e7d43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="254.0" y="160.0" width="105.0" height="39.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="267.0" y="184.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#a36b32" text-anchor="start">7</text>
+<text x="287.0" y="184.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">diagnostics</text>
+<circle cx="345.0" cy="175.0" r="8.5" fill="#fffefa" stroke="#a36b32" stroke-width="1.3"/>
+<path d="M 341.0 175.0 L 344.0 178.5 L 350.0 170.0" fill="none" stroke="#a36b32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="367.0" y="160.0" width="105.0" height="39.0" rx="7.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="380.0" y="184.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#477861" text-anchor="start">8</text>
+<text x="400.0" y="184.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">gluing</text>
+<circle cx="458.0" cy="175.0" r="8.5" fill="#fffefa" stroke="#477861" stroke-width="1.3"/>
+<path d="M 454.0 175.0 L 457.0 178.5 L 463.0 170.0" fill="none" stroke="#477861" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="28.0" y="212.0" width="105.0" height="39.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="41.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#a36b32" text-anchor="start">9</text>
+<text x="61.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">runtime</text>
+<circle cx="119.0" cy="227.0" r="8.5" fill="#fffefa" stroke="#a36b32" stroke-width="1.3"/>
+<path d="M 115.0 227.0 L 118.0 230.5 L 124.0 222.0" fill="none" stroke="#a36b32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="141.0" y="212.0" width="105.0" height="39.0" rx="7.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="154.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">10</text>
+<text x="174.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">IO</text>
+<circle cx="232.0" cy="227.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 228.0 227.0 L 231.0 230.5 L 237.0 222.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="254.0" y="212.0" width="105.0" height="39.0" rx="7.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="267.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">11</text>
+<text x="287.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">viewer</text>
+<circle cx="345.0" cy="227.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 341.0 227.0 L 344.0 230.5 L 350.0 222.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="367.0" y="212.0" width="105.0" height="39.0" rx="7.0" fill="#efe7f3" stroke="#765d87" stroke-width="1.1"/>
+<text x="380.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#765d87" text-anchor="start">12</text>
+<text x="400.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">tools</text>
+<circle cx="458.0" cy="227.0" r="8.5" fill="#fffefa" stroke="#765d87" stroke-width="1.3"/>
+<path d="M 454.0 227.0 L 457.0 230.5 L 463.0 222.0" fill="none" stroke="#765d87" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="28.0" y="264.0" width="105.0" height="39.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="41.0" y="288.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#a36b32" text-anchor="start">13</text>
+<text x="61.0" y="288.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#181715" text-anchor="start">quality</text>
+<circle cx="119.0" cy="279.0" r="8.5" fill="#fffefa" stroke="#a36b32" stroke-width="1.3"/>
+<path d="M 115.0 279.0 L 118.0 282.5 L 124.0 274.0" fill="none" stroke="#a36b32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="34.0" y1="236.0" x2="464.0" y2="236.0" stroke="#435f8c" stroke-width="1.5" stroke-linecap="round" marker-end="url(#arrow)"/>
+<text x="34.0" y="224.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="400" fill="#5f5b53" text-anchor="start">source-of-truth contracts reach public viewer and quality boundaries</text></g>
+<g id="figure71-panel-algorithm" data-layout-key="panels.algorithm" transform="translate(584.0 208.0)"><rect x="0.0" y="0.0" width="424.0" height="272.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="22.0" y="34.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="23" font-weight="700" fill="#c8643f" text-anchor="start">b</text>
+<text x="58.0" y="29.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Algorithm Lift</text>
+<rect x="312.0" y="17.0" width="84.0" height="24.0" rx="12.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<text x="354.0" y="33.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#5e7d43" text-anchor="middle">Steps 14-18</text>
+<text x="58.0" y="52.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" fill="#5f5b53"><tspan x="58.0" dy="0.0">Real local solve, JSON IO, diagnostics, corpus, gates</tspan></text>
+<rect x="34.0" y="112.0" width="152.0" height="46.0" rx="7.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<text x="46.0" y="129.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#5e7d43" text-anchor="start">Step 14</text>
+<text x="46.0" y="144.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" fill="#181715"><tspan x="46.0" dy="0.0">Damped numeric local</tspan><tspan x="46.0" dy="11.0">solve</tspan></text>
+<circle cx="170.0" cy="128.0" r="8.5" fill="#fffefa" stroke="#5e7d43" stroke-width="1.3"/>
+<path d="M 166.0 128.0 L 169.0 131.5 L 175.0 123.0" fill="none" stroke="#5e7d43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232.0" y="112.0" width="152.0" height="46.0" rx="7.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="244.0" y="129.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#777166" text-anchor="start">Step 15</text>
+<text x="244.0" y="144.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" fill="#181715"><tspan x="244.0" dy="0.0">JSON scene IO</tspan></text>
+<circle cx="368.0" cy="128.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 364.0 128.0 L 367.0 131.5 L 373.0 123.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="133.0" y="182.0" width="152.0" height="46.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="145.0" y="199.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#a36b32" text-anchor="start">Step 16</text>
+<text x="145.0" y="214.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" fill="#181715"><tspan x="145.0" dy="0.0">Diagnostics</tspan><tspan x="145.0" dy="11.0">conflict/redundancy...</tspan></text>
+<circle cx="269.0" cy="198.0" r="8.5" fill="#fffefa" stroke="#a36b32" stroke-width="1.3"/>
+<path d="M 265.0 198.0 L 268.0 201.5 L 274.0 193.0" fill="none" stroke="#a36b32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="34.0" y="252.0" width="152.0" height="46.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="46.0" y="269.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#a36b32" text-anchor="start">Step 17</text>
+<text x="46.0" y="284.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" fill="#181715"><tspan x="46.0" dy="0.0">Fixture corpus and</tspan><tspan x="46.0" dy="11.0">golden digests</tspan></text>
+<circle cx="170.0" cy="268.0" r="8.5" fill="#fffefa" stroke="#a36b32" stroke-width="1.3"/>
+<path d="M 166.0 268.0 L 169.0 271.5 L 175.0 263.0" fill="none" stroke="#a36b32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232.0" y="252.0" width="152.0" height="46.0" rx="7.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="244.0" y="269.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#477861" text-anchor="start">Step 18</text>
+<text x="244.0" y="284.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" fill="#181715"><tspan x="244.0" dy="0.0">CI-ready quality gates</tspan></text>
+<circle cx="368.0" cy="268.0" r="8.5" fill="#fffefa" stroke="#477861" stroke-width="1.3"/>
+<path d="M 364.0 268.0 L 367.0 271.5 L 373.0 263.0" fill="none" stroke="#477861" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 110.0 158.0 C 110.0 183.0, 308.0 87.0, 308.0 112.0" fill="none" stroke="#5f5b53" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M 308.0 158.0 C 308.0 183.0, 209.0 157.0, 209.0 182.0" fill="none" stroke="#5f5b53" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M 209.0 228.0 C 209.0 253.0, 110.0 227.0, 110.0 252.0" fill="none" stroke="#5f5b53" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M 110.0 298.0 C 110.0 323.0, 308.0 227.0, 308.0 252.0" fill="none" stroke="#5f5b53" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="34.0" y="244.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">This batch turns scaffolding into executable evidence.</text></g>
+<g id="figure71-panel-scene_generation" data-layout-key="panels.scene_generation" transform="translate(1040.0 208.0)"><rect x="0.0" y="0.0" width="508.0" height="272.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="22.0" y="34.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="23" font-weight="700" fill="#c8643f" text-anchor="start">c</text>
+<text x="58.0" y="29.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Scene-Generation Loop</text>
+<rect x="396.0" y="17.0" width="84.0" height="24.0" rx="12.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="438.0" y="33.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#477861" text-anchor="middle">Steps 19-27</text>
+<text x="58.0" y="52.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" fill="#5f5b53"><tspan x="58.0" dy="0.0">Generated candidates pass public solver gates</tspan></text>
+<path d="M 178.0 158.0 A 76.0 76.0 0 1 1 330.0 158.0 A 76.0 76.0 0 1 1 178.0 158.0" fill="none" stroke="#477861" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 5"/>
+<rect x="184.0" y="133.0" width="140.0" height="50.0" rx="8.0" fill="#fffdf7" stroke="#477861" stroke-width="1.1"/>
+<text x="254.0" y="154.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#181715" text-anchor="middle">fixture corpus</text>
+<text x="254.0" y="173.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="400" fill="#5f5b53" text-anchor="middle">public gates</text>
+<rect x="118.0" y="81.0" width="96.0" height="30.0" rx="15.0" fill="#efe7f3" stroke="#765d87" stroke-width="1.1"/>
+<text x="166.0" y="100.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">19 explorer</text>
+<circle cx="204.0" cy="88.0" r="8.5" fill="#fffefa" stroke="#765d87" stroke-width="1.3"/>
+<path d="M 200.0 88.0 L 203.0 91.5 L 209.0 83.0" fill="none" stroke="#765d87" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="254.0" y="65.0" width="96.0" height="30.0" rx="15.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="302.0" y="84.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">20 package</text>
+<circle cx="340.0" cy="72.0" r="8.5" fill="#fffefa" stroke="#477861" stroke-width="1.3"/>
+<path d="M 336.0 72.0 L 339.0 75.5 L 345.0 67.0" fill="none" stroke="#477861" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="304.0" y="141.0" width="96.0" height="30.0" rx="15.0" fill="#efe7f3" stroke="#765d87" stroke-width="1.1"/>
+<text x="352.0" y="160.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">21 topology</text>
+<circle cx="390.0" cy="148.0" r="8.5" fill="#fffefa" stroke="#765d87" stroke-width="1.3"/>
+<path d="M 386.0 148.0 L 389.0 151.5 L 395.0 143.0" fill="none" stroke="#765d87" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="251.0" y="219.0" width="96.0" height="30.0" rx="15.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="299.0" y="238.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">22 validation</text>
+<circle cx="337.0" cy="226.0" r="8.5" fill="#fffefa" stroke="#a36b32" stroke-width="1.3"/>
+<path d="M 333.0 226.0 L 336.0 229.5 L 342.0 221.0" fill="none" stroke="#a36b32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="120.0" y="217.0" width="96.0" height="30.0" rx="15.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<text x="168.0" y="236.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">23 params</text>
+<circle cx="206.0" cy="224.0" r="8.5" fill="#fffefa" stroke="#5e7d43" stroke-width="1.3"/>
+<path d="M 202.0 224.0 L 205.0 227.5 L 211.0 219.0" fill="none" stroke="#5e7d43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="80.0" y="143.0" width="96.0" height="30.0" rx="15.0" fill="#f3ddd7" stroke="#a94c43" stroke-width="1.1"/>
+<text x="128.0" y="162.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">24 repair</text>
+<circle cx="166.0" cy="150.0" r="8.5" fill="#fffefa" stroke="#a94c43" stroke-width="1.3"/>
+<path d="M 162.0 150.0 L 165.0 153.5 L 171.0 145.0" fill="none" stroke="#a94c43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="156.0" y="43.0" width="96.0" height="30.0" rx="15.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="204.0" y="62.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">25 orchestrate</text>
+<circle cx="242.0" cy="50.0" r="8.5" fill="#fffefa" stroke="#477861" stroke-width="1.3"/>
+<path d="M 238.0 50.0 L 241.0 53.5 L 247.0 45.0" fill="none" stroke="#477861" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="318.0" y="201.0" width="96.0" height="30.0" rx="15.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="366.0" y="220.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">26 store</text>
+<circle cx="404.0" cy="208.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 400.0 208.0 L 403.0 211.5 L 409.0 203.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="84.0" y="193.0" width="96.0" height="30.0" rx="15.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="132.0" y="212.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">27 gates</text>
+<circle cx="170.0" cy="200.0" r="8.5" fill="#fffefa" stroke="#a36b32" stroke-width="1.3"/>
+<path d="M 166.0 200.0 L 169.0 203.5 L 175.0 195.0" fill="none" stroke="#a36b32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="34.0" y="246.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="400" fill="#5f5b53" text-anchor="start">Generated scenes become trustworthy only after public adapter evidence.</text></g>
+<g id="figure71-panel-rank_spine" data-layout-key="panels.rank_spine" transform="translate(52.0 512.0)"><rect x="0.0" y="0.0" width="620.0" height="330.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="22.0" y="34.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="23" font-weight="700" fill="#c8643f" text-anchor="start">d</text>
+<text x="58.0" y="29.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Rank Evidence Spine</text>
+<rect x="508.0" y="17.0" width="84.0" height="24.0" rx="12.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="550.0" y="33.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#a36b32" text-anchor="middle">Steps 28-35</text>
+<text x="58.0" y="52.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" fill="#5f5b53"><tspan x="58.0" dy="0.0">Free/frozen rank evidence reaches runtime, viewer,</tspan><tspan x="58.0" dy="13.0">promotion</tspan></text>
+<line x1="168.0" y1="92.0" x2="168.0" y2="272.0" stroke="#a36b32" stroke-width="2.2" stroke-linecap="round" marker-end="url(#arrow)"/>
+<text x="96.0" y="78.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#a36b32" text-anchor="start">rank evidence</text>
+<circle cx="168.0" cy="92.0" r="7.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.2"/>
+<line x1="178.0" y1="92.0" x2="292.0" y2="92.0" stroke="#d8d1c4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<rect x="294.0" y="74.0" width="86.0" height="36.0" rx="7.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<text x="311.0" y="96.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#5e7d43" text-anchor="start">28</text>
+<text x="333.0" y="88.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" fill="#181715"><tspan x="333.0" dy="0.0">free/frozen columns</tspan></text>
+<circle cx="168.0" cy="117.7" r="7.0" fill="#efede6" stroke="#777166" stroke-width="1.2"/>
+<line x1="178.0" y1="117.7" x2="502.0" y2="117.7" stroke="#d8d1c4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<rect x="504.0" y="99.7" width="86.0" height="36.0" rx="7.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="521.0" y="121.7" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">29</text>
+<text x="543.0" y="113.7" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" fill="#181715"><tspan x="543.0" dy="0.0">atlas sync</tspan></text>
+<circle cx="168.0" cy="143.4" r="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.2"/>
+<line x1="178.0" y1="143.4" x2="292.0" y2="143.4" stroke="#d8d1c4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<rect x="294.0" y="125.4" width="86.0" height="36.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="311.0" y="147.4" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#a36b32" text-anchor="start">30</text>
+<text x="333.0" y="139.4" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" fill="#181715"><tspan x="333.0" dy="0.0">diagnostics rank</tspan></text>
+<circle cx="168.0" cy="169.1" r="7.0" fill="#efede6" stroke="#777166" stroke-width="1.2"/>
+<line x1="178.0" y1="169.1" x2="502.0" y2="169.1" stroke="#d8d1c4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<rect x="504.0" y="151.1" width="86.0" height="36.0" rx="7.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="521.0" y="173.1" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">31</text>
+<text x="543.0" y="165.1" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" fill="#181715"><tspan x="543.0" dy="0.0">runtime/viewer</tspan><tspan x="543.0" dy="9.0">projection</tspan></text>
+<circle cx="168.0" cy="194.9" r="7.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.2"/>
+<line x1="178.0" y1="194.9" x2="292.0" y2="194.9" stroke="#d8d1c4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<rect x="294.0" y="176.9" width="86.0" height="36.0" rx="7.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="311.0" y="198.9" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#477861" text-anchor="start">32</text>
+<text x="333.0" y="190.9" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" fill="#181715"><tspan x="333.0" dy="0.0">promotion rank gate</tspan></text>
+<circle cx="168.0" cy="220.6" r="7.0" fill="#efe7f3" stroke="#765d87" stroke-width="1.2"/>
+<line x1="178.0" y1="220.6" x2="502.0" y2="220.6" stroke="#d8d1c4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<rect x="504.0" y="202.6" width="86.0" height="36.0" rx="7.0" fill="#efe7f3" stroke="#765d87" stroke-width="1.1"/>
+<text x="521.0" y="224.6" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#765d87" text-anchor="start">33</text>
+<text x="543.0" y="216.6" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" fill="#181715"><tspan x="543.0" dy="0.0">SolveDAG dependencies</tspan></text>
+<circle cx="168.0" cy="246.3" r="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.2"/>
+<line x1="178.0" y1="246.3" x2="292.0" y2="246.3" stroke="#d8d1c4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<rect x="294.0" y="228.3" width="86.0" height="36.0" rx="7.0" fill="#f6e7cf" stroke="#a36b32" stroke-width="1.1"/>
+<text x="311.0" y="250.3" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#a36b32" text-anchor="start">34</text>
+<text x="333.0" y="242.3" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" fill="#181715"><tspan x="333.0" dy="0.0">post-local diagnostics</tspan></text>
+<circle cx="168.0" cy="272.0" r="7.0" fill="#f3ddd7" stroke="#a94c43" stroke-width="1.2"/>
+<line x1="178.0" y1="272.0" x2="502.0" y2="272.0" stroke="#d8d1c4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<rect x="504.0" y="254.0" width="86.0" height="36.0" rx="7.0" fill="#f3ddd7" stroke="#a94c43" stroke-width="1.1"/>
+<text x="521.0" y="276.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#a94c43" text-anchor="start">35</text>
+<text x="543.0" y="268.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" fill="#181715"><tspan x="543.0" dy="0.0">conflict/redundancy</tspan><tspan x="543.0" dy="9.0">subjects</tspan></text>
+<rect x="28.0" y="292.0" width="564.0" height="26.0" rx="6.0" fill="#fffdf7" stroke="#ece7dd" stroke-width="1.1"/>
+<text x="42.0" y="310.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">Evidence moves outward without UI or gates reading numeric internals.</text></g>
+<g id="figure71-panel-next_batch" data-layout-key="panels.next_batch" transform="translate(704.0 512.0)"><rect x="0.0" y="0.0" width="404.0" height="330.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="22.0" y="34.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="23" font-weight="700" fill="#c8643f" text-anchor="start">e</text>
+<text x="58.0" y="29.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Evidence Closure Horizon</text>
+<rect x="292.0" y="17.0" width="84.0" height="24.0" rx="12.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="334.0" y="33.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#777166" text-anchor="middle">Steps 36-40</text>
+<text x="58.0" y="52.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" fill="#5f5b53"><tspan x="58.0" dy="0.0">Robustness, corpus, viewer evidence, quality, atlas</tspan><tspan x="58.0" dy="13.0">sync</tspan></text>
+<rect x="34.0" y="210.0" width="336.0" height="42.0" rx="21.0" fill="#fbfaf5" stroke="#ece7dd" stroke-width="1.1"/>
+<path d="M 48 238.0 C 122 192.0, 210 270.0, 356.0 222.0" fill="none" stroke="#c8643f" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="24.0" y="122.0" width="68.0" height="32.0" rx="8.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="37.0" y="143.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">36</text>
+<text x="60.0" y="134.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="7" fill="#181715"><tspan x="60.0" dy="0.0">Numeric</tspan><tspan x="60.0" dy="8.0">robustness...</tspan></text>
+<line x1="58.0" y1="155.0" x2="58.0" y2="210.0" stroke="#777166" stroke-width="1.0" stroke-linecap="round" stroke-dasharray="3 4"/>
+<circle cx="82.0" cy="131.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 78.0 131.0 L 81.0 134.5 L 87.0 126.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="96.0" y="150.0" width="68.0" height="32.0" rx="8.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="109.0" y="171.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">37</text>
+<text x="132.0" y="162.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="7" fill="#181715"><tspan x="132.0" dy="0.0">Fixture and</tspan><tspan x="132.0" dy="8.0">scene corpus...</tspan></text>
+<line x1="130.0" y1="183.0" x2="130.0" y2="210.0" stroke="#777166" stroke-width="1.0" stroke-linecap="round" stroke-dasharray="3 4"/>
+<circle cx="154.0" cy="159.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 150.0 159.0 L 153.0 162.5 L 159.0 154.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="168.0" y="122.0" width="68.0" height="32.0" rx="8.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="181.0" y="143.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">38</text>
+<text x="204.0" y="134.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="7" fill="#181715"><tspan x="204.0" dy="0.0">Viewer and GUI</tspan><tspan x="204.0" dy="8.0">evidence...</tspan></text>
+<line x1="202.0" y1="155.0" x2="202.0" y2="210.0" stroke="#777166" stroke-width="1.0" stroke-linecap="round" stroke-dasharray="3 4"/>
+<circle cx="226.0" cy="131.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 222.0 131.0 L 225.0 134.5 L 231.0 126.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="240.0" y="150.0" width="68.0" height="32.0" rx="8.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="253.0" y="171.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">39</text>
+<text x="276.0" y="162.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="7" fill="#181715"><tspan x="276.0" dy="0.0">Quality gate</tspan><tspan x="276.0" dy="8.0">hardening</tspan></text>
+<line x1="274.0" y1="183.0" x2="274.0" y2="210.0" stroke="#777166" stroke-width="1.0" stroke-linecap="round" stroke-dasharray="3 4"/>
+<circle cx="298.0" cy="159.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 294.0 159.0 L 297.0 162.5 L 303.0 154.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="312.0" y="122.0" width="68.0" height="32.0" rx="8.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="325.0" y="143.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#777166" text-anchor="start">40</text>
+<text x="348.0" y="134.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="7" fill="#181715"><tspan x="348.0" dy="0.0">Atlas and</tspan><tspan x="348.0" dy="8.0">roadmap...</tspan></text>
+<line x1="346.0" y1="155.0" x2="346.0" y2="210.0" stroke="#777166" stroke-width="1.0" stroke-linecap="round" stroke-dasharray="3 4"/>
+<circle cx="370.0" cy="131.0" r="8.5" fill="#fffefa" stroke="#777166" stroke-width="1.3"/>
+<path d="M 366.0 131.0 L 369.0 134.5 L 375.0 126.0" fill="none" stroke="#777166" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="34.0" y="304.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5f5b53" text-anchor="start">Quality gates and atlas now launch the showcase graph.</text></g>
+<g id="figure71-panel-showcase" data-layout-key="panels.showcase" transform="translate(1140.0 512.0)"><rect x="0.0" y="0.0" width="408.0" height="330.0" rx="8.0" fill="#fffefa" stroke="#d8d1c4" stroke-width="1.1"/>
+<text x="22.0" y="34.0" font-family="Anthropic Serif, Georgia, Cambria, Times New Roman, serif" font-size="23" font-weight="700" fill="#c8643f" text-anchor="start">f</text>
+<text x="58.0" y="29.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="650" fill="#181715" text-anchor="start">Showcase Candidate</text>
+<rect x="296.0" y="17.0" width="84.0" height="24.0" rx="12.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="338.0" y="33.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="650" fill="#477861" text-anchor="middle">after Step 40</text>
+<text x="58.0" y="52.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" fill="#5f5b53"><tspan x="58.0" dy="0.0">Integrated feature constraint graph</tspan></text>
+<rect x="34.0" y="88.0" width="218.0" height="178.0" rx="8.0" fill="#fbfaf5" stroke="#ece7dd" stroke-width="1.1"/>
+<rect x="64.0" y="120.0" width="108.0" height="118.0" rx="16.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1" stroke-dasharray="4 5"/>
+<rect x="122.0" y="130.0" width="112.0" height="118.0" rx="16.0" fill="#e9f3f6" stroke="#435f8c" stroke-width="1.1" stroke-dasharray="4 5"/>
+<line x1="80.0" y1="204.0" x2="142.0" y2="142.0" stroke="#b97834" stroke-width="2.0" stroke-linecap="round"/>
+<line x1="142.0" y1="142.0" x2="218.0" y2="206.0" stroke="#b97834" stroke-width="2.0" stroke-linecap="round"/>
+<line x1="218.0" y1="206.0" x2="146.0" y2="230.0" stroke="#b97834" stroke-width="2.0" stroke-linecap="round"/>
+<line x1="146.0" y1="230.0" x2="80.0" y2="204.0" stroke="#b97834" stroke-width="2.0" stroke-linecap="round"/>
+<line x1="80.0" y1="204.0" x2="218.0" y2="206.0" stroke="#a94c43" stroke-width="2.0" stroke-linecap="round" stroke-dasharray="5 4"/>
+<circle cx="80.0" cy="204.0" r="8" fill="#334c78" stroke="#ffffff" stroke-width="2"/>
+<text x="80.0" y="191.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">G1</text>
+<circle cx="142.0" cy="142.0" r="8" fill="#334c78" stroke="#ffffff" stroke-width="2"/>
+<text x="142.0" y="129.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">G2</text>
+<circle cx="218.0" cy="206.0" r="8" fill="#334c78" stroke="#ffffff" stroke-width="2"/>
+<text x="218.0" y="193.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">G3</text>
+<circle cx="146.0" cy="230.0" r="8" fill="#334c78" stroke="#ffffff" stroke-width="2"/>
+<text x="146.0" y="217.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="9" font-weight="650" fill="#181715" text-anchor="middle">G4</text>
+<rect x="274.0" y="102.0" width="100.0" height="34.0" rx="7.0" fill="#edf2df" stroke="#5e7d43" stroke-width="1.1"/>
+<text x="284.0" y="115.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">free rank</text>
+<text x="284.0" y="130.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="start">8 / 10</text>
+<rect x="274.0" y="150.0" width="100.0" height="34.0" rx="7.0" fill="#efede6" stroke="#777166" stroke-width="1.1"/>
+<text x="284.0" y="163.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">frozen cols</text>
+<text x="284.0" y="178.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="start">2</text>
+<rect x="274.0" y="198.0" width="100.0" height="34.0" rx="7.0" fill="#e3f0e4" stroke="#477861" stroke-width="1.1"/>
+<text x="284.0" y="211.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">gluing</text>
+<text x="284.0" y="226.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="start">ok</text>
+<rect x="274.0" y="246.0" width="100.0" height="34.0" rx="7.0" fill="#f3ddd7" stroke="#a94c43" stroke-width="1.1"/>
+<text x="284.0" y="259.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="8" font-weight="400" fill="#5f5b53" text-anchor="start">obstruction</text>
+<text x="284.0" y="274.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#181715" text-anchor="start">variant</text>
+<text x="34.0" y="304.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="400" fill="#5f5b53" text-anchor="start">A demo image should combine geometry, cover, rank, gluing, and variants.</text></g>
+<text x="52.0" y="936.0" font-family="Anthropic Sans, Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#5f5b53" text-anchor="start">Taste rule applied: evidence is the ornament; the diagram groups work by credibility boundaries, not by checklist rows.</text>
+</svg>

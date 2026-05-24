@@ -203,13 +203,13 @@ Status legend: `done`, `in_progress`, `pending`.
     surfaces.
 39. `done` - harden default quality gates for the new rank, promotion, and
     corpus evidence paths.
-40. `pending` - resynchronize architecture atlas, roadmap, and next-batch
+40. `done` - resynchronize architecture atlas, roadmap, and next-batch
     planning after Steps 31 through 39.
 
-Post-Step-40 candidate:
+Next registered candidate:
 
-- Build an integrated feature showcase constraint graph after Step 40
-  completes and the evidence path is stable.
+- Build an integrated feature showcase constraint graph now that Step 40
+  completed and the evidence path is stable.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1416,6 +1416,40 @@ Reassessment after Step 39:
   contract suite and a named sentinel gate.
 - Step 40 is the next highest-leverage move: resynchronize atlas, roadmap,
   maturity lens, and next-batch planning against the hardened gate behavior.
+
+## Architecture Atlas And Roadmap Resynchronization Step Plan
+
+Implemented commit-level scope:
+
+- Reconcile the roadmap, current-progress archive, forward plan, and Step
+  1-40 report after the Step 31-39 public evidence batch.
+- Add Figure 71 to the architecture atlas as the Step 1-40
+  evidence-boundary reporting figure.
+- Promote the visual taste guide into the architecture index and align the
+  Figure 71 generator with the Step 40 closure state.
+- Update the module maturity lens so the implemented public evidence path is
+  reflected as L2 across target modules.
+- Register the integrated feature showcase constraint graph as the next
+  candidate now that quality gates and atlas vocabulary are stable.
+
+Implemented scope:
+
+- `docs/architecture/70-visualization/gcs-architecture-atlas.md` now embeds
+  Figure 71, documents its rebuild command, and names its source documents.
+- `tools/architecture_visualization/render_gcs_figure71.py` renders the Step
+  36-40 band as an evidence-closure horizon once all steps are complete.
+- `docs/architecture/73-gcs-visual-taste-guide.md` defines the durable visual
+  quality standard for diagrams, reports, GUI surfaces, and showcase visuals.
+- `docs/architecture/71-step-1-40-execution-report.md` and this roadmap are
+  synchronized to Step 40 completion.
+
+Reassessment after Step 40:
+
+- Steps 1 through 40 are now registered, summarized, and closed in the
+  roadmap/reporting documents.
+- The next high-leverage implementation step is the integrated feature
+  showcase constraint graph. It should enter the fixture or generated-scene
+  corpus with structured expectations rather than remain a manual demo.
 
 ## Damped Numeric Local Solve Step Plan
 

@@ -1,0 +1,70 @@
+{
+  "canvas": {
+    "width": 1600,
+    "height": 1000
+  },
+  "title": {
+    "x": 52,
+    "y": 58,
+    "size": 30
+  },
+  "subtitle": {
+    "x": 52,
+    "y": 88,
+    "size": 13
+  },
+  "meta": {
+    "right": 52,
+    "y": 88,
+    "size": 12
+  },
+  "summary": {
+    "x": 52,
+    "y": 120,
+    "width": 1496,
+    "height": 58
+  },
+  "panels": {
+    "foundation": {
+      "x": 52,
+      "y": 208,
+      "width": 500,
+      "height": 272
+    },
+    "algorithm": {
+      "x": 584,
+      "y": 208,
+      "width": 424,
+      "height": 272
+    },
+    "scene_generation": {
+      "x": 1040,
+      "y": 208,
+      "width": 508,
+      "height": 272
+    },
+    "rank_spine": {
+      "x": 52,
+      "y": 512,
+      "width": 620,
+      "height": 330
+    },
+    "next_batch": {
+      "x": 704,
+      "y": 512,
+      "width": 404,
+      "height": 330
+    },
+    "showcase": {
+      "x": 1140,
+      "y": 512,
+      "width": 408,
+      "height": 330
+    }
+  },
+  "footer": {
+    "x": 52,
+    "y": 936,
+    "size": 13
+  }
+}

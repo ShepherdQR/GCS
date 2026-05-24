@@ -10,7 +10,7 @@ forward plan for Steps 31 through 40 remains
 
 ## Executive Summary
 
-Steps 1 through 39 are completed and pushed. They established the C++23 module
+Steps 1 through 40 are completed and pushed. They established the C++23 module
 solver architecture, contract-tested kernel-to-viewer boundaries, JSON IO,
 CI-ready quality gates, scene-generation promotion tooling, free-column rank
 evidence, diagnostics propagation, runtime/viewer rank evidence projection,
@@ -18,20 +18,20 @@ promotion rank-evidence gates, SolveDAG boundary dependency evidence,
 post-local runtime diagnostics, diagnostics conflict/redundancy
 responsible-set deepening, numeric robustness improvements, reusable
 boundary/tolerance/separator fixtures, structured viewer evidence surfaces,
-the architecture atlas, and hardened public-evidence quality gates.
+the architecture atlas, hardened public-evidence quality gates, and a
+resynchronized Step 1-40 reporting/visualization system.
 
-Step 40 is registered as the remaining evidence-boundary resynchronization
-step. Its theme is reconciling the roadmap, atlas, reporting tables, and next
-batch planning with the now-hardened public evidence contracts before the next
-major algorithm batch.
+The post-Step-40 showcase graph is now the next candidate. Its theme is to put
+the completed public evidence chain onto one reusable constraint graph rather
+than starting another abstract documentation batch.
 
 Current baseline:
 
 | Field | Value |
 | --- | --- |
 | Branch | `codex-e001-executable-closure-tooling` |
-| Current completed step | Step 39 |
-| Next implementation step | Step 40 |
+| Current completed step | Step 40 |
+| Next implementation step | Integrated feature showcase constraint graph candidate |
 | Default gate | `python tools\agentic_design\agentic_toolkit.py run-quality-gates` |
 | Contract test baseline | 100 CTest-discovered GTest cases |
 | Post-Step-40 candidate | Integrated feature showcase constraint graph |
@@ -88,7 +88,7 @@ and the post-Step-40 showcase candidate.
 | 37 | Done | Fixture and scene corpus expansion | Added reusable boundary-frozen, tolerance-edge, and separator-chain contract-tool fixtures and promoted tolerated residual evidence into the corpus. | Gives later algorithm work durable regression scenes. |
 | 38 | Done | Viewer and GUI evidence surface | Added structured residual, conflict, redundancy, and obstruction projections to viewer overlays and summaries while preserving rank evidence. | Makes solver evidence visible to humans without parsing free-form text. |
 | 39 | Done | Quality gate hardening | Added `python.agentic_toolkit` and `ctest.public_evidence_chain` while preserving full CTest and fixture-corpus gates. | Protects the Step 31-38 evidence paths by default and makes the sentinel visible in gate summaries. |
-| 40 | Pending | Atlas and roadmap resynchronization | Update diagrams, roadmap, maturity lens, and next-batch planning after Steps 31-39. | Re-closes the documentation, visualization, code, and test loop. |
+| 40 | Done | Atlas and roadmap resynchronization | Added Figure 71 to the atlas, promoted the visual taste guide, updated maturity status, regenerated the Step 1-40 figure, and closed the roadmap batch. | Re-closes the documentation, visualization, code, and test loop. |
 
 ## Reporting Themes
 
@@ -98,7 +98,7 @@ and the post-Step-40 showcase candidate.
 | Algorithm and IO deepening | 14-18 | Numeric solving, JSON IO, diagnostics candidates, fixture corpus, and CI gates moved from scaffolding into executable contracts. |
 | Scene-generation and promotion architecture | 19-27 | Generated scenes now flow through structured package modules, store adapters, public solver artifacts, and hardened promotion gates. |
 | Rank evidence correctness | 28-31 | Rank/nullity now respect boundary-frozen variables and propagate from numeric engine to diagnostics, runtime, and viewer projections. |
-| Public evidence boundary batch | 39-40 | Step 39 hardened quality gates; Step 40 remains to resynchronize the architecture. |
+| Public evidence boundary batch | 39-40 | Step 39 hardened quality gates; Step 40 resynchronized the atlas, roadmap, report, and next candidate. |
 
 ## Post-Step-40 Showcase Candidate
 
