@@ -246,7 +246,7 @@ solver/runtime/viewer boundaries.
 | P3.1 | Done | `70-visualization/viewer-token-audit.md` records the raw-token audit and `platform.py` now uses `GCS_THEME` for legacy textual DOF/status styles. | Raw-token audit plus Python syntax check |
 | P3.2 | Done | `STATE_COLORS` exposes canonical state aliases and viewer state/focus consumers now use those aliases without changing command ownership. | AST syntax checks and state-token audit |
 | P3.3 | Done | `70-visualization/viewer-inspector-layout-audit.md` confirms the active inspector layout and marks the old stacked left panel as legacy-unused. | Inspector audit plus AST syntax check |
-| P3.4 | Pending | Add replay and solve evidence polish with structured summary evidence ahead of logs. | Replay fixture smoke |
+| P3.4 | Done | `70-visualization/viewer-replay-solve-polish.md` records replay/solve rail state-color and message-tone polish. | AST syntax and focused diff checks |
 
 Phase-close replanning requirement:
 
@@ -299,6 +299,20 @@ Updated P3 next steps:
 
 - P3.4 should polish replay and solve evidence around the viewport and status
   rail, not start another left-inspector rewrite.
+
+P3.4 completion summary:
+
+- Added `docs/architecture/70-visualization/viewer-replay-solve-polish.md`.
+- Kept replay and solve rails as transient GUI evidence surfaces and colored
+  their state labels through `STATE_COLORS`.
+- Standardized solve/replay messages around `Solving`, `Solved`,
+  `Solve warning`, `Replay step`, and `Replay complete`.
+
+Updated P3 phase-close work:
+
+- P3 can close after a short review against `72-ui-aesthetic-roadmap.md`.
+- P4 should now proceed on the figure pipeline; P5 should later add screenshot
+  baselines for the viewer rail states touched here.
 
 ## P4: Scientific Figure Pipeline
 

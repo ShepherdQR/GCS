@@ -294,7 +294,8 @@ class GCSPlatformGUI:
 
         replay_frame = ttk.Frame(parent)
         replay_frame.pack(fill=tk.X, padx=2, pady=(0, 2))
-        ttk.Label(replay_frame, textvariable=self.replay_state_var, style="RailTitle.TLabel").pack(side=tk.LEFT, padx=(4, 8))
+        self.replay_state_label = ttk.Label(replay_frame, textvariable=self.replay_state_var, style="RailTitle.TLabel")
+        self.replay_state_label.pack(side=tk.LEFT, padx=(4, 8))
         ttk.Label(replay_frame, textvariable=self.replay_step_var, style="Rail.TLabel").pack(side=tk.LEFT, padx=(0, 8))
         ttk.Label(replay_frame, textvariable=self.replay_action_var, style="Rail.TLabel").pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Progressbar(replay_frame, variable=self.replay_progress_var, maximum=100, length=140).pack(side=tk.LEFT, padx=8)
@@ -302,7 +303,8 @@ class GCSPlatformGUI:
 
         solve_frame = ttk.Frame(parent)
         solve_frame.pack(fill=tk.X, padx=2, pady=(0, 2))
-        ttk.Label(solve_frame, textvariable=self.solve_summary_var, style="Rail.TLabel").pack(fill=tk.X, padx=4)
+        self.solve_summary_label = ttk.Label(solve_frame, textvariable=self.solve_summary_var, style="Rail.TLabel")
+        self.solve_summary_label.pack(fill=tk.X, padx=4)
 
         self.fig = plt.figure(figsize=(8, 6), dpi=100)
         self.canvas_widget = FigureCanvasTkAgg(self.fig, master=parent)
@@ -673,7 +675,26 @@ class GCSPlatformGUI:
 
     def _set_solve_summary(self, state: str, message: str):
         self.solve_state_var.set(state)
-        self.solve_summary_var.set(f"Solve {state}: {message}")
+        labels = {
+            "running": "Solving",
+            "success": "Solved",
+            "warning": "Solve warning",
+            "error": "Solve error",
+            "unknown": "Solve status",
+            "idle": "Solve idle",
+        }
+        colors = {
+            "running": STATE_COLORS["info"],
+            "success": STATE_COLORS["solved"],
+            "warning": STATE_COLORS["warning"],
+            "error": STATE_COLORS["error"],
+            "unknown": STATE_COLORS["pending"],
+            "idle": GCS_THEME["text_secondary"],
+        }
+        label = labels.get(state, f"Solve {state}")
+        self.solve_summary_var.set(f"{label}: {message}")
+        if hasattr(self, "solve_summary_label"):
+            self.solve_summary_label.configure(foreground=colors.get(state, GCS_THEME["text_secondary"]))
 
     def _parse_solve_report(self, output: str) -> dict:
         satisfied = 0
@@ -703,7 +724,7 @@ class GCSPlatformGUI:
             message = f"{satisfied}/{total} constraints satisfied; {global_status}"
         else:
             state = "warning"
-            message = f"{satisfied}/{total} satisfied, {violated} violated; {global_status}"
+            message = f"{violated} violated; {satisfied}/{total} satisfied; {global_status}"
 
         return {
             "state": state,
@@ -779,15 +800,15 @@ class GCSPlatformGUI:
         constraint_info = self._parse_satisfaction(output)
 
         if all_satisfied:
-            status_text = "Well-constrained ✓" if is_well else ("Under-constrained ⚠" if is_under else "Solved ✓")
-            self._log_success(f"Solve completed — {status_text} | All constraints satisfied | {constraint_info}")
+            status_text = "Well-constrained" if is_well else ("Under-constrained" if is_under else "Solved")
+            self._log_success(f"Solved: {constraint_info}; {status_text}")
         elif some_violated:
             status_text = "Well-constrained" if is_well else ("Under-constrained" if is_under else "Over-constrained")
-            self._log_error(f"Solve completed — {status_text} ✗ | Some constraints VIOLATED | {constraint_info}")
+            self._log_error(f"Solve warning: {constraint_info}; {status_text}")
         elif is_over:
-            self._log_error("Solve completed — Over-constrained ✗ (remove constraints or check conflicts)")
+            self._log_error("Solve warning: over-constrained; remove constraints or check conflicts")
         else:
-            self._log_info(f"Solve completed — status unknown")
+            self._log_info("Solve completed: status unknown")
 
     def _parse_satisfaction(self, output: str) -> str:
         satisfied = 0
@@ -848,6 +869,14 @@ class GCSPlatformGUI:
         self.replay_step_var.set(step)
         self.replay_action_var.set(action)
         self.replay_progress_var.set(max(0.0, min(100.0, progress)))
+        colors = {
+            "Replay running": STATE_COLORS["replay_current"],
+            "Replay complete": STATE_COLORS["solved"],
+            "Replay error": STATE_COLORS["error"],
+            "Replay ready": STATE_COLORS["pending"],
+        }
+        if hasattr(self, "replay_state_label"):
+            self.replay_state_label.configure(foreground=colors.get(state, GCS_THEME["text_secondary"]))
 
     def _stop_history_replay(self):
         if self._history_replay_job is None and not self._history_replay_history:
@@ -872,7 +901,7 @@ class GCSPlatformGUI:
         speed = self._history_replay_speed()
         total = len(self._history_replay_history)
         self._set_replay_state("Replay running", f"Step 0 / {total}", "Clearing viewport", 0.0)
-        self._log_info(f"Replay history: clearing view (0/{len(self._history_replay_history)}, {speed:.2f}x)")
+        self._log_info(f"Replay starting: clearing viewport (0/{len(self._history_replay_history)}, {speed:.2f}x)")
         self._history_replay_job = self.root.after(self._history_replay_delay_ms(350), self._advance_history_replay)
 
     def _advance_history_replay(self):
@@ -908,7 +937,7 @@ class GCSPlatformGUI:
                 focus=focus,
             )
             speed = self._history_replay_speed()
-            self._log_info(f"Replay history: step {next_index + 1}/{len(history)} {action} ({speed:.2f}x)")
+            self._log_info(f"Replay step {next_index + 1}/{len(history)}: {action} ({speed:.2f}x)")
         except Exception as exc:
             render_message(self.fig, f"Replay error:\n{exc}", title="Replay History")
             self.canvas_widget.draw()
@@ -981,7 +1010,7 @@ class GCSPlatformGUI:
         self.view_var.set(restore_view)
         self._set_replay_state("Replay complete", "Step 0 / 0", "Current model restored", 100.0)
         self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True)
-        self._log_success("Replay history complete; restored current view")
+        self._log_success("Replay complete: current model restored")
 
     def _cancel_history_replay(self):
         if self._history_replay_job is not None:
