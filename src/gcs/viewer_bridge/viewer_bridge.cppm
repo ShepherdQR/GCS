@@ -85,6 +85,7 @@ struct DiagnosticOverlay {
     SolveStatus status = SolveStatus::not_run;
     bool accepted = false;
     StateVersionId state_version;
+    std::vector<runtime::RankEvidenceProjection> rank_evidence;
     std::vector<OverlayItem> items;
 };
 
@@ -121,6 +122,7 @@ struct SnapshotSummary {
     int constraint_count = 0;
     std::uint64_t state_version = 0;
     SolveStatus last_status = SolveStatus::not_run;
+    std::vector<runtime::RankEvidenceProjection> rank_evidence;
     std::vector<std::string> messages;
 };
 

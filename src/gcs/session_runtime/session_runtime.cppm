@@ -15,6 +15,7 @@ export import gcs.diagnostics;
 export namespace gcs::runtime {
 
 using gcs::kernel::CommandId;
+using gcs::kernel::ContextId;
 using gcs::kernel::ModelSnapshot;
 using gcs::kernel::ProposedState;
 using gcs::kernel::ReportMessage;
@@ -93,6 +94,24 @@ struct ReplayReport {
     std::vector<StageReport> stage_reports;
 };
 
+struct RankEvidenceProjection {
+    int local_report_index = 0;
+    std::string source;
+    ContextId context_id;
+    SolveStatus result_status = SolveStatus::not_run;
+    int numeric_variable_dimension = 0;
+    int numeric_free_variable_dimension = 0;
+    int numeric_frozen_variable_dimension = 0;
+    int numeric_residual_dimension = 0;
+    int numeric_rank_estimate = 0;
+    int numeric_nullity_estimate = 0;
+    bool numeric_under_constrained = false;
+    bool numeric_over_constrained = false;
+    bool numeric_singular = false;
+    bool condition_estimate_available = false;
+    double condition_estimate = 0.0;
+};
+
 struct CommandResult {
     CommandId command_id;
     bool accepted = false;
@@ -134,5 +153,7 @@ private:
 gcs::kernel::ContractResult<CommandValidationReport> validate_command(
     const ModelSnapshot& current_snapshot,
     const Command& command);
+std::vector<RankEvidenceProjection> project_rank_evidence(
+    const CommandResult& result);
 
 }

@@ -185,7 +185,7 @@ Status legend: `done`, `in_progress`, `pending`.
     assets with the current module state.
 30. `done` - propagate numeric free/frozen rank dimensions through
     diagnostics rank evidence.
-31. `pending` - expose preserved rank evidence through runtime/viewer
+31. `done` - expose preserved rank evidence through runtime/viewer
     projection contracts.
 32. `pending` - make scene-generation promotion gates consume structured rank
     evidence from public reports.
@@ -1066,6 +1066,47 @@ Reassessment after Step 30:
   consume the richer rank report without inspecting numeric internals.
 - Decomposition separator and solve-DAG deepening remain queued after the
   public evidence path is visible at the boundary.
+
+## Runtime And Viewer Rank Evidence Projection Step Plan
+
+Implemented commit-level scope for Step 31:
+
+- Add a public runtime rank-evidence projection over command results instead
+  of forcing UI or promotion consumers to read numeric-engine internals.
+- Preserve full variable dimension, free variable dimension, frozen variable
+  dimension, residual dimension, rank, nullity, under/over/singular flags, and
+  condition evidence in the projection.
+- Extend viewer diagnostic overlays and command summaries to carry the runtime
+  projection as structured output.
+- Add accepted runtime and boundary-frozen viewer contract tests.
+- Keep numeric solving, diagnostics status precedence, transaction semantics,
+  and durable state mutation unchanged.
+
+## Runtime And Viewer Rank Evidence Projection Milestone
+
+Implemented scope for Step 31:
+
+- `runtime::RankEvidenceProjection` is now the public boundary shape for rank
+  evidence.
+- `runtime::project_rank_evidence(const CommandResult&)` projects evidence
+  from command results and records the source as
+  `runtime.numeric_rank_condition_report`.
+- `viewer::DiagnosticOverlay` and `viewer::SnapshotSummary` now include
+  structured rank evidence, and detailed overlays include
+  `viewer.rank_evidence` items for human review.
+- Session runtime contract coverage verifies accepted command rank evidence.
+- Viewer bridge contract coverage verifies boundary-frozen full/free/frozen
+  rank evidence through overlays and summaries.
+
+Reassessment after Step 31:
+
+- Step 32 is promotion gate rank evidence consumption. The public projection
+  shape now exists, so promotion-package gates should parse that shape rather
+  than introducing private numeric-report parsing.
+- Step 33 remains decomposition separator and SolveDAG deepening after the
+  promotion boundary consumes the new evidence.
+- Step 34 remains boundary-aware runtime diagnostics, where the same public
+  rank projection can later be backed by post-local diagnostics.
 
 ## Damped Numeric Local Solve Step Plan
 

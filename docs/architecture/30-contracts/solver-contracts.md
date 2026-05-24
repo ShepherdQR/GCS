@@ -116,10 +116,25 @@ CommandResult:
   gluing_report
   obstruction_report
   user_visible_status
+
+RankEvidenceProjection:
+  local_report_index
+  source
+  context_id
+  result_status
+  numeric full/free/frozen dimensions
+  residual dimension, rank, nullity
+  under/over/singular flags
+  condition evidence
 ```
 
 The runtime is responsible for transaction semantics, undo history, and
 coordinating reports into a coherent result.
+
+Rank evidence is exposed through `runtime::project_rank_evidence` returning
+`runtime::RankEvidenceProjection` records. Viewer, promotion, and reporting
+tools should consume this public projection rather than reading
+numeric-engine reports directly.
 
 ## Boundary Contract
 

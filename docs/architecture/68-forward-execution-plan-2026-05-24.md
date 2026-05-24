@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 30:
+- Completed through Step 31:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -32,10 +32,13 @@ implementation step they describe.
     free/frozen numeric rank evidence;
   - diagnostics rank reports preserve numeric full/free/frozen rank
     dimensions from `numeric::RankConditionReport`;
+  - session runtime now exposes `RankEvidenceProjection` records, and viewer
+    overlays/summaries project rank evidence without requiring UI or promotion
+    consumers to inspect numeric reports directly;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline is 86 tests.
+  - CTest contract baseline is 88 tests.
 
 ## Execution Cadence Contract
 
@@ -238,7 +241,7 @@ Reassessment after Step 30:
 - Decomposition separator deepening remains useful after rank evidence is
   visible at runtime/viewer/promotion boundaries.
 
-### Step 31: Runtime And Viewer Rank Evidence Projection
+### Completed Step 31: Runtime And Viewer Rank Evidence Projection
 
 Goal:
 
@@ -246,34 +249,45 @@ Goal:
   viewer overlays, or another public boundary projection without requiring UI
   or promotion tools to inspect numeric internals directly.
 
-Expected shape:
+Decision:
 
-- Decide whether the source of truth is post-local-solve diagnostics or a
-  viewer projection over existing runtime numeric reports.
-- Add a small public summary/projection contract for rank evidence.
-- Cover accepted and boundary-frozen evidence paths with contract tests.
-- Keep solver math and diagnostic status precedence unchanged.
+- Use `session_runtime` as the public projection boundary for this step.
+  `runtime::project_rank_evidence` currently builds from existing numeric
+  rank-condition reports, while viewer bridge consumes only the runtime
+  projection. Step 34 can later switch the projection source to post-local
+  diagnostics without changing UI or promotion consumers.
 
-Detailed plan:
+Delivered:
 
-- Inspect `runtime::CommandResult`, `viewer::DiagnosticOverlay`,
-  `viewer::SnapshotSummary`, and promotion gate report consumers.
-- Choose the smallest public boundary contract that preserves full/free/frozen
-  rank evidence without making viewer code interpret numeric internals.
-- Prefer a viewer/runtime summary structure that can be built from
-  `diagnostics::RankReport` or existing runtime numeric reports.
-- Add contract coverage for accepted solve evidence and boundary-frozen rank
-  evidence.
-- Persist the Step 31 summary and then reassess whether Step 32 should consume
-  the new projection directly or first require post-local-solve diagnostics in
-  runtime.
+- Add `runtime::RankEvidenceProjection` with local report index, source,
+  context ID, result status, full/free/frozen variable dimensions, residual
+  dimension, rank, nullity, under/over/singular flags, and condition evidence.
+- Add `runtime::project_rank_evidence(const CommandResult&)`.
+- Extend `viewer::DiagnosticOverlay` and `viewer::SnapshotSummary` with
+  structured rank evidence.
+- Add detailed overlay items with code `viewer.rank_evidence` for human-facing
+  review while preserving structured fields as the contract source.
+- Keep solver math, diagnostics status precedence, transaction semantics, and
+  durable state mutation behavior unchanged.
 
-Exit criteria:
+Tests:
 
-- Boundary consumers can read full variable dimension, free variable
-  dimension, frozen variable dimension, residual dimension, rank, nullity, and
-  under/over/singular flags through a public runtime/viewer projection.
-- Full quality gate passes.
+- `SessionRuntimeContract.ProjectsRankEvidenceFromAcceptedCommandResult`
+  verifies accepted command results expose rank evidence through the runtime
+  projection.
+- `ViewerBridgeContract.OverlayProjectsBoundaryFrozenRankEvidence` verifies
+  full/free/frozen/nullity evidence reaches viewer overlay and command
+  summary projections for a boundary-frozen task.
+- Focused Session Runtime and Viewer Bridge CTest suites pass.
+
+Reassessment after Step 31:
+
+- Step 32 remains the next highest-leverage move. Promotion gates can now
+  consume the public `RankEvidenceProjection` shape instead of inventing a
+  private parser over numeric reports.
+- Step 34 should remain after Step 33 unless Step 32 exposes a gap that
+  requires post-local diagnostics before promotion can validate rank evidence
+  robustly.
 
 ### Step 32: Promotion Gate Uses Rank Evidence
 
@@ -296,7 +310,9 @@ Detailed plan:
 
 - Inspect `gcs_scene_generation.promotion_package` structured runtime report
   parsing and existing public gate IDs.
-- Add a rank-evidence parser that accepts the Step 31 boundary projection.
+- Add a rank-evidence parser that accepts the Step 31
+  `RankEvidenceProjection` boundary shape from runtime/viewer structured
+  reports.
 - Preserve current `runtime_smoke` and `diagnostics_evidence` gate IDs unless
   a new explicit `rank_evidence` gate is clearer.
 - Add Python unit tests for structured report pass, missing evidence fallback,
@@ -604,5 +620,5 @@ As of the Step 31-40 planning update:
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 31 is the next implementation step.
+- Step 32 is the next implementation step.
 

@@ -93,6 +93,28 @@ TEST(SessionRuntimeContract, AcceptedCommandAdvancesStateVersionOnce) {
     EXPECT_EQ(session.history().size(), 1U);
 }
 
+TEST(SessionRuntimeContract, ProjectsRankEvidenceFromAcceptedCommandResult) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::SessionRuntime session(model);
+
+    auto result = session.solve();
+    auto rank_evidence = runtime::project_rank_evidence(result);
+
+    ASSERT_EQ(rank_evidence.size(), result.numeric_reports.size());
+    ASSERT_EQ(rank_evidence.size(), 1U);
+    EXPECT_EQ(rank_evidence.front().source, "runtime.numeric_rank_condition_report");
+    EXPECT_EQ(rank_evidence.front().context_id.value, 0U);
+    EXPECT_EQ(rank_evidence.front().result_status, kernel::SolveStatus::solved);
+    EXPECT_EQ(rank_evidence.front().numeric_variable_dimension, 6);
+    EXPECT_EQ(rank_evidence.front().numeric_free_variable_dimension, 6);
+    EXPECT_EQ(rank_evidence.front().numeric_frozen_variable_dimension, 0);
+    EXPECT_EQ(rank_evidence.front().numeric_residual_dimension, 1);
+    EXPECT_EQ(rank_evidence.front().numeric_rank_estimate, 1);
+    EXPECT_EQ(rank_evidence.front().numeric_nullity_estimate, 5);
+    EXPECT_TRUE(rank_evidence.front().numeric_under_constrained);
+    EXPECT_FALSE(rank_evidence.front().numeric_over_constrained);
+}
+
 TEST(SessionRuntimeContract, StageTraceIsCompleteForAcceptedSolve) {
     auto model = gcs::tools::make_two_point_distance_model();
     runtime::SessionRuntime session(model);

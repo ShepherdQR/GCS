@@ -44,11 +44,13 @@ Completed algorithm-deepening steps:
   evidence.
 - Step 30: propagated numeric full/free/frozen rank dimensions through
   diagnostics rank evidence.
+- Step 31: exposed preserved rank evidence through runtime projections and
+  viewer overlay/summary contracts.
 
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 86 CTest-discovered GTest cases.
+- Contract test baseline is 88 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -277,18 +279,35 @@ Delivered:
 - Update solver contract docs so diagnostics rank reports preserve structural
   evidence separately from numeric full/free/frozen evidence.
 
-## Next Step 31
+## Completed Step 31
 
-The next step is runtime/viewer rank evidence projection. Numeric and
-diagnostics now preserve full/free/frozen rank evidence, but command summaries
-and viewer overlays still need a public projection path so UI, promotion
-gates, and review tooling can consume that evidence without reading numeric
-internals directly.
+Step 31 exposed full/free/frozen rank evidence through public runtime and
+viewer contracts.
+
+Delivered:
+
+- Add `runtime::RankEvidenceProjection` and
+  `runtime::project_rank_evidence(const CommandResult&)`.
+- Project full variable dimension, free variable dimension, frozen variable
+  dimension, residual dimension, rank, nullity, under/over/singular flags, and
+  condition evidence from command results.
+- Extend viewer diagnostic overlays and command summaries with structured rank
+  evidence plus detailed `viewer.rank_evidence` overlay items.
+- Keep viewer code on the runtime public projection rather than parsing
+  numeric-engine internals directly.
+- Add accepted runtime and boundary-frozen viewer contract coverage.
+
+## Next Step 32
+
+The next step is promotion gate rank evidence consumption. Runtime and viewer
+now expose a public `RankEvidenceProjection` shape, so generated-scene
+promotion gates can validate full/free/frozen/nullity evidence without reading
+numeric reports or stdout directly.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 30, the remaining steps were reconsidered;
-Step 31 is registered as the next highest-leverage move. A post-Step-40
+in the forward plan. After Step 31, the remaining steps were reconsidered;
+Step 32 is registered as the next highest-leverage move. A post-Step-40
 candidate is also recorded for an integrated feature showcase constraint graph.

@@ -490,6 +490,7 @@ Structured output:
 - previous and new state versions;
 - stage reports;
 - planner, numeric, diagnostic, and gluing reports;
+- `RankEvidenceProjection` records for public rank evidence;
 - rollback reason;
 - replay artifact;
 - history event.
@@ -505,6 +506,7 @@ Tools:
 - undo/redo store;
 - dependency-injected module adapters;
 - command-result formatter;
+- rank-evidence projector;
 - replay harness.
 
 Skill definition:
@@ -524,6 +526,8 @@ Handoffs:
 
 - Math and structure decisions go to specialist module agents.
 - IO persistence questions go to `io-adapter-agent`.
+- Viewer and promotion evidence consumption goes through public runtime
+  projections, not numeric internals.
 
 Acceptance gates:
 
@@ -626,6 +630,7 @@ Structured output:
 - `ViewerSceneProjection`;
 - `SnapshotSummary`;
 - `DiagnosticOverlay`;
+- runtime rank-evidence projection in overlays and summaries;
 - `InteractionCommandDraft`;
 - `HistoryFrameProjection`.
 
@@ -634,6 +639,7 @@ Tools:
 - projection builder;
 - report summarizer;
 - diagnostic overlay generator;
+- rank-evidence overlay projector;
 - selection mapper;
 - hit-test mapper;
 - command-draft validator.
@@ -655,6 +661,8 @@ Handoffs:
 
 - Command validity goes to `session-runtime-agent`.
 - Diagnostic status mapping goes to `diagnostics-certification-agent`.
+- Rank evidence consumption goes through
+  `runtime::RankEvidenceProjection`.
 
 Acceptance gates:
 

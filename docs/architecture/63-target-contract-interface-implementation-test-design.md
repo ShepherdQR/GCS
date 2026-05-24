@@ -554,6 +554,7 @@ Structured outputs:
 - `HistoryEvent`.
 - `RollbackReport`.
 - `ReplayReport`.
+- `RankEvidenceProjection`.
 - `PostCommitVerificationReport`.
 
 Target public API:
@@ -574,6 +575,9 @@ private:
     class Transaction;
 };
 
+std::vector<RankEvidenceProjection> project_rank_evidence(
+    const CommandResult& result);
+
 }
 ```
 
@@ -587,6 +591,8 @@ Implementation responsibilities:
 - Dependency-injected planner, numeric, diagnostics, IO, and viewer adapters.
 - Transaction snapshot and journal.
 - Stage trace collection.
+- Public rank-evidence projection for command summaries, viewer overlays, and
+  promotion gates.
 - Atomic commit and rollback.
 - Undo/redo history.
 - Replay artifact generation.
@@ -600,6 +606,7 @@ Contract tests:
 - `runtime_stops_before_commit_when_numeric_fails`.
 - `runtime_stops_before_commit_when_gluing_fails`.
 - `runtime_accepted_command_advances_state_version_once`.
+- `runtime_projects_rank_evidence_from_accepted_command_result`.
 - `runtime_replay_reconstructs_stage_trace`.
 - `runtime_undo_redo_preserves_history_order`.
 
@@ -677,6 +684,7 @@ Structured outputs:
 - `DiagnosticOverlay`.
 - `InteractionCommandDraft`.
 - `HistoryFrameProjection`.
+- `SnapshotSummary` with public rank-evidence projection.
 
 Target public API:
 
@@ -695,6 +703,7 @@ Implementation responsibilities:
 
 - Stable ID projection.
 - Diagnostic overlay mapping from reports.
+- Runtime rank-evidence projection mapping into overlays and summaries.
 - Selection and hit-test mapping.
 - Interaction-to-runtime-command drafting.
 - History frame projection.
@@ -704,6 +713,7 @@ Contract tests:
 - `viewer_projection_is_deterministic`.
 - `viewer_projection_contains_state_version`.
 - `viewer_overlay_derives_status_from_reports`.
+- `viewer_overlay_projects_boundary_frozen_rank_evidence`.
 - `viewer_command_draft_validates_against_runtime_contract`.
 - `viewer_history_frame_resolves_stable_ids`.
 

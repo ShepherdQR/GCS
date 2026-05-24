@@ -1,5 +1,6 @@
 module;
 
+#include <cstddef>
 #include <string>
 #include <utility>
 #include <vector>
@@ -383,6 +384,39 @@ ReplayReport SessionRuntime::replay(ReplayRequest request) const {
         }
     }
     return report;
+}
+
+std::vector<RankEvidenceProjection> project_rank_evidence(
+    const CommandResult& result) {
+    std::vector<RankEvidenceProjection> projections;
+    for (int index = 0; index < static_cast<int>(result.numeric_reports.size());
+         ++index) {
+        const auto& numeric_report =
+            result.numeric_reports[static_cast<std::size_t>(index)];
+        const auto& rank_report = numeric_report.rank_condition_report;
+
+        RankEvidenceProjection projection;
+        projection.local_report_index = index;
+        projection.source = "runtime.numeric_rank_condition_report";
+        projection.context_id = numeric_report.local_section.context_id;
+        projection.result_status = numeric_report.result_code;
+        projection.numeric_variable_dimension = rank_report.variable_dimension;
+        projection.numeric_free_variable_dimension =
+            rank_report.free_variable_dimension;
+        projection.numeric_frozen_variable_dimension =
+            rank_report.frozen_variable_dimension;
+        projection.numeric_residual_dimension = rank_report.residual_dimension;
+        projection.numeric_rank_estimate = rank_report.rank_estimate;
+        projection.numeric_nullity_estimate = rank_report.nullity_estimate;
+        projection.numeric_under_constrained = rank_report.under_constrained;
+        projection.numeric_over_constrained = rank_report.over_constrained;
+        projection.numeric_singular = rank_report.numerically_singular;
+        projection.condition_estimate_available =
+            rank_report.condition_estimate_available;
+        projection.condition_estimate = rank_report.condition_estimate;
+        projections.push_back(std::move(projection));
+    }
+    return projections;
 }
 
 gcs::kernel::ContractResult<CommandValidationReport> validate_command(

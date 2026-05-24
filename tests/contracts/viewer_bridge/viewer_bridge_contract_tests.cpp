@@ -1,5 +1,6 @@
 import gcs.contract_tools;
 import gcs.kernel;
+import gcs.numeric_engine;
 import gcs.session_runtime;
 import gcs.viewer_bridge;
 
@@ -8,6 +9,7 @@ import gcs.viewer_bridge;
 namespace {
 
 namespace kernel = gcs::kernel;
+namespace numeric = gcs::numeric;
 namespace runtime = gcs::runtime;
 namespace viewer = gcs::viewer;
 
@@ -16,6 +18,18 @@ bool has_overlay_code(const viewer::DiagnosticOverlay& overlay, const char* code
         if (item.code == code) return true;
     }
     return false;
+}
+
+numeric::NumericTask make_boundary_frozen_task(kernel::ModelSnapshot model) {
+    auto context = gcs::tools::make_whole_context_for(model);
+    auto task = numeric::make_numeric_task(
+        model,
+        context,
+        context.entity_ids,
+        context.constraint_ids,
+        kernel::GaugePolicy{});
+    task.boundary_variables.push_back(kernel::EntityId{0});
+    return task;
 }
 
 }  // namespace
@@ -63,8 +77,52 @@ TEST(ViewerBridgeContract, OverlayDerivesStatusFromCommandResult) {
 
     EXPECT_TRUE(overlay.payload.accepted);
     EXPECT_EQ(overlay.payload.status, result.user_visible_status);
+    ASSERT_EQ(overlay.payload.rank_evidence.size(), result.numeric_reports.size());
+    ASSERT_FALSE(overlay.payload.rank_evidence.empty());
+    EXPECT_EQ(overlay.payload.rank_evidence.front().numeric_variable_dimension, 6);
+    EXPECT_EQ(overlay.payload.rank_evidence.front().numeric_free_variable_dimension, 6);
+    EXPECT_EQ(overlay.payload.rank_evidence.front().numeric_frozen_variable_dimension, 0);
     EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.status"));
     EXPECT_TRUE(has_overlay_code(overlay.payload, "runtime.commit"));
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.rank_evidence"));
+}
+
+TEST(ViewerBridgeContract, OverlayProjectsBoundaryFrozenRankEvidence) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    auto task = make_boundary_frozen_task(model);
+    auto numeric_report = numeric::solve_local(task);
+
+    runtime::CommandResult command_result;
+    command_result.accepted = true;
+    command_result.user_visible_status = kernel::SolveStatus::accepted_with_warnings;
+    command_result.numeric_reports.push_back(numeric_report);
+
+    auto overlay = viewer::build_overlay(
+        viewer::DiagnosticOverlayRequest{
+            model,
+            command_result,
+            viewer::DiagnosticVerbosity::detailed});
+
+    ASSERT_EQ(overlay.payload.rank_evidence.size(), 1U);
+    const auto& evidence = overlay.payload.rank_evidence.front();
+    EXPECT_EQ(evidence.source, "runtime.numeric_rank_condition_report");
+    EXPECT_EQ(evidence.local_report_index, 0);
+    EXPECT_EQ(evidence.context_id.value, task.context_snapshot.id.value);
+    EXPECT_EQ(evidence.result_status, kernel::SolveStatus::solved);
+    EXPECT_EQ(evidence.numeric_variable_dimension, 6);
+    EXPECT_EQ(evidence.numeric_free_variable_dimension, 3);
+    EXPECT_EQ(evidence.numeric_frozen_variable_dimension, 3);
+    EXPECT_EQ(evidence.numeric_residual_dimension, 1);
+    EXPECT_EQ(evidence.numeric_rank_estimate, 1);
+    EXPECT_EQ(evidence.numeric_nullity_estimate, 2);
+    EXPECT_TRUE(evidence.numeric_under_constrained);
+    EXPECT_FALSE(evidence.numeric_over_constrained);
+    EXPECT_TRUE(has_overlay_code(overlay.payload, "viewer.rank_evidence"));
+
+    auto summary = viewer::summarize_command_result(model, command_result);
+    ASSERT_EQ(summary.rank_evidence.size(), 1U);
+    EXPECT_EQ(summary.rank_evidence.front().numeric_frozen_variable_dimension, 3);
+    ASSERT_FALSE(summary.messages.empty());
 }
 
 TEST(ViewerBridgeContract, CommandDraftValidatesAgainstRuntimeContract) {

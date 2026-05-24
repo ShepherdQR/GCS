@@ -55,6 +55,21 @@ OverlayItem make_overlay_item(const kernel::ReportMessage& message,
     return item;
 }
 
+std::string rank_evidence_message(
+    const runtime::RankEvidenceProjection& evidence) {
+    return "rank " + std::to_string(evidence.numeric_rank_estimate) +
+           ", variables " +
+           std::to_string(evidence.numeric_variable_dimension) +
+           ", free " +
+           std::to_string(evidence.numeric_free_variable_dimension) +
+           ", frozen " +
+           std::to_string(evidence.numeric_frozen_variable_dimension) +
+           ", residuals " +
+           std::to_string(evidence.numeric_residual_dimension) +
+           ", nullity " +
+           std::to_string(evidence.numeric_nullity_estimate);
+}
+
 }  // namespace
 
 gcs::kernel::ContractResult<ViewerSceneProjection> project_scene(
@@ -100,6 +115,8 @@ gcs::kernel::ContractResult<DiagnosticOverlay> build_overlay(
     result.payload.status = request.command_result.user_visible_status;
     result.payload.accepted = request.command_result.accepted;
     result.payload.state_version = request.snapshot.state_version;
+    result.payload.rank_evidence =
+        runtime::project_rank_evidence(request.command_result);
 
     OverlayItem status_item;
     status_item.code = "viewer.status";
@@ -119,6 +136,16 @@ gcs::kernel::ContractResult<DiagnosticOverlay> build_overlay(
             result.payload.items.push_back(make_overlay_item(
                 message,
                 request.command_result.user_visible_status));
+        }
+    }
+
+    if (request.verbosity == DiagnosticVerbosity::detailed) {
+        for (const auto& evidence : result.payload.rank_evidence) {
+            OverlayItem rank_item;
+            rank_item.code = "viewer.rank_evidence";
+            rank_item.message = rank_evidence_message(evidence);
+            rank_item.status = evidence.result_status;
+            result.payload.items.push_back(std::move(rank_item));
         }
     }
 
@@ -194,6 +221,11 @@ SnapshotSummary summarize_command_result(const ModelSnapshot& snapshot,
                                          const runtime::CommandResult& result) {
     SnapshotSummary summary = summarize_snapshot(snapshot);
     summary.last_status = result.user_visible_status;
+    summary.rank_evidence = runtime::project_rank_evidence(result);
+    for (const auto& evidence : summary.rank_evidence) {
+        summary.messages.push_back(
+            evidence.source + ": " + rank_evidence_message(evidence));
+    }
     for (const auto& report : result.stage_reports) {
         summary.messages.push_back(report.stage + ": " + kernel::to_string(report.status));
         for (const auto& message : report.messages) {

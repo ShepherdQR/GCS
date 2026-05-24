@@ -10,12 +10,13 @@ forward plan for Steps 31 through 40 remains
 
 ## Executive Summary
 
-Steps 1 through 30 are completed and pushed. They established the C++23 module
+Steps 1 through 31 are completed and pushed. They established the C++23 module
 solver architecture, contract-tested kernel-to-viewer boundaries, JSON IO,
 CI-ready quality gates, scene-generation promotion tooling, free-column rank
-evidence, diagnostics propagation, and the architecture atlas.
+evidence, diagnostics propagation, runtime/viewer rank evidence projection,
+and the architecture atlas.
 
-Steps 31 through 40 are registered as the next evidence-boundary and
+Steps 32 through 40 are registered as the next evidence-boundary and
 algorithm-deepening batch. Their theme is making the richer rank, diagnostics,
 promotion, decomposition, fixture, viewer, and quality-gate evidence visible
 through public contracts before the next major algorithm batch.
@@ -25,10 +26,10 @@ Current baseline:
 | Field | Value |
 | --- | --- |
 | Branch | `master` |
-| Current completed step | Step 30 |
-| Next implementation step | Step 31 |
+| Current completed step | Step 31 |
+| Next implementation step | Step 32 |
 | Default gate | `python tools\agentic_design\agentic_toolkit.py run-quality-gates` |
-| Contract test baseline | 86 CTest-discovered GTest cases |
+| Contract test baseline | 88 CTest-discovered GTest cases |
 | Post-Step-40 candidate | Integrated feature showcase constraint graph |
 
 ## Step Report
@@ -65,7 +66,7 @@ Current baseline:
 | 28 | Done | Numeric free-column rank evidence | Added `free_variable_dimension` and `frozen_variable_dimension`; computed rank/nullity over free Jacobian columns after boundary freezing. | Fixed numeric rank semantics for boundary-frozen tasks. |
 | 29 | Done | Architecture atlas synchronization | Updated atlas and Figure 1 with scene-generation promotion boundaries, contract tools, and free/frozen rank evidence. | Made the visual architecture reflect implemented evidence paths. |
 | 30 | Done | Diagnostics rank propagation | Added free/frozen numeric dimensions to `diagnostics::RankReport` and boundary-frozen diagnostics coverage. | Preserved numeric rank semantics through diagnostics. |
-| 31 | Pending | Runtime/viewer rank evidence projection | Expose preserved rank evidence through command summaries, viewer overlays, or another public boundary projection. | Lets UI, promotion gates, and review tooling consume rank evidence without reading numeric internals. |
+| 31 | Done | Runtime/viewer rank evidence projection | Added `runtime::RankEvidenceProjection`, runtime command-result projection, viewer overlay evidence, viewer summary evidence, and accepted/boundary-frozen contract tests. | Lets UI, promotion gates, and review tooling consume rank evidence without reading numeric internals. |
 | 32 | Pending | Promotion gates consume rank evidence | Make promotion packages parse and validate structured rank evidence from public reports. | Makes generated scene promotion prove full/free/frozen/nullity evidence. |
 | 33 | Pending | Decomposition separator and SolveDAG deepening | Strengthen separator, boundary projection, solve-order dependency, and unsupported-plan evidence. | Improves explainable local-to-global planning. |
 | 34 | Pending | Boundary-aware runtime diagnostics | Add post-local-solve diagnostics to runtime command results and stage traces. | Makes runtime results carry structured rank/residual evidence, not only raw numeric reports. |
@@ -83,8 +84,8 @@ Current baseline:
 | Canonical C++23 solver foundation | 1-13 | The solver now has contract-tested kernel, catalog, graph, planner, numeric, diagnostics, runtime, IO, viewer, contract tools, and quality boundaries. |
 | Algorithm and IO deepening | 14-18 | Numeric solving, JSON IO, diagnostics candidates, fixture corpus, and CI gates moved from scaffolding into executable contracts. |
 | Scene-generation and promotion architecture | 19-27 | Generated scenes now flow through structured package modules, store adapters, public solver artifacts, and hardened promotion gates. |
-| Rank evidence correctness | 28-30 | Rank/nullity now respect boundary-frozen variables and propagate from numeric engine to diagnostics. |
-| Public evidence boundary batch | 31-40 | The next batch exposes evidence to runtime, viewer, promotion, quality gates, and reporting surfaces, then resynchronizes the architecture. |
+| Rank evidence correctness | 28-31 | Rank/nullity now respect boundary-frozen variables and propagate from numeric engine to diagnostics, runtime, and viewer projections. |
+| Public evidence boundary batch | 32-40 | The next batch consumes projected evidence in promotion, decomposition, quality gates, and reporting surfaces, then resynchronizes the architecture. |
 
 ## Post-Step-40 Showcase Candidate
 
