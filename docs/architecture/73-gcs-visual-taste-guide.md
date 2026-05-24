@@ -263,6 +263,11 @@ Current implementation:
 - `docs/architecture/70-visualization/assets/figure71-gcs-step-1-40-evidence-map.svg`
 - embedded from `docs/architecture/71-step-1-40-execution-report.md`
 
+This current implementation should be treated as a prototype, not the final
+top-tier production paradigm. For dense multi-panel figures, the target is the
+auto-laid-out, browser/Figma-composed, QA-checked workflow in
+`docs/research/20260524/scientific-figure-production-paradigm/README.md`.
+
 Do not hand-edit final step labels in the SVG. If step names change, the source
 Markdown or structured extraction should drive regeneration.
 

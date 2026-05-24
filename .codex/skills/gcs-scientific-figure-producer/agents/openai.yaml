@@ -1,0 +1,7 @@
+interface:
+  display_name: "GCS Scientific Figure Producer"
+  short_description: "Builds QA-checked GCS research and showcase figures."
+  brand_color: "#C8643F"
+  default_prompt: "Use $gcs-scientific-figure-producer to turn this GCS report into a publication-quality, QA-checked figure."
+policy:
+  allow_implicit_invocation: true

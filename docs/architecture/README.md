@@ -60,6 +60,10 @@ order, not by historical source order. Background research notes live under
      Python viewer.
    - `73-gcs-visual-taste-guide.md`: canonical taste guide for GCS diagrams,
      reports, GUI surfaces, and showcase visuals.
+   - `74-scientific-figure-production-paradigm.md`: target production pipeline
+     for publication-quality, auto-laid-out, QA-checked project and research
+     figures; full research notes are stored under
+     `docs/research/20260524/scientific-figure-production-paradigm/`.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

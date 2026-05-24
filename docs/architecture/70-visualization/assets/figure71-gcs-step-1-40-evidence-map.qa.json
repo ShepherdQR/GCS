@@ -1,0 +1,38 @@
+{
+  "figure": "figure71",
+  "spec": "tools\\architecture_visualization\\specs\\figure71.yaml",
+  "passed": true,
+  "checks": [
+    {
+      "name": "report_has_steps_1_40",
+      "passed": true,
+      "detail": "Missing report steps: []"
+    },
+    {
+      "name": "spec_covers_steps_1_40",
+      "passed": true,
+      "detail": "Missing spec steps: []; extra: []"
+    },
+    {
+      "name": "html_export_exists",
+      "passed": true,
+      "detail": "C:\\Codes\\Trae\\s002_GCS\\GCS\\docs\\architecture\\70-visualization\\assets\\figure71-gcs-step-1-40-evidence-map.html"
+    },
+    {
+      "name": "no_absolute_positioning",
+      "passed": true,
+      "detail": "Dense Figure 71 HTML should rely on grid/flex text flow, not absolute positioning."
+    },
+    {
+      "name": "overflow_wrap_rule",
+      "passed": true,
+      "detail": "CSS should include overflow-wrap for long report-derived labels."
+    },
+    {
+      "name": "minimum_font_size",
+      "passed": true,
+      "detail": "Minimum font size is 10px; observed too-small sizes: []."
+    }
+  ],
+  "browser_qa_required_before_final": false
+}

@@ -45,6 +45,12 @@ them as a flat checklist: foundation contracts, executable solver evidence,
 scene-generation promotion gates, rank-evidence propagation, the next batch,
 and the post-Step-40 showcase candidate.
 
+The original SVG remains the prototype artifact. The first production-pipeline
+landing is now the HTML/CSS compositor output:
+[`figure71-gcs-step-1-40-evidence-map.html`](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.html),
+with structural QA recorded in
+[`figure71-gcs-step-1-40-evidence-map.qa.json`](70-visualization/assets/figure71-gcs-step-1-40-evidence-map.qa.json).
+
 ## Step Report
 
 | Step | Status | Focus | Core Information | Reporting Value / Evidence |
