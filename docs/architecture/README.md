@@ -67,6 +67,9 @@ order, not by historical source order. Background research notes live under
    - `75-ui-design-system-conventions.md`: named UI design system conventions
      for GCS taste, tokens, evidence grammar, figure production, visual QA, and
      art-direction review.
+   - `76-ui-design-system-execution-plan.md`: phased execution plan and
+     step-by-step commit/replanning protocol for implementing the GCS UI design
+     system.
 9. `90-references/`
    - Commercial and research notes used as background material.
 
