@@ -492,6 +492,7 @@ Structured output:
 - previous and new state versions;
 - stage reports;
 - planner, numeric, diagnostic, and gluing reports;
+- post-local diagnostic reports;
 - `RankEvidenceProjection` records for public rank evidence;
 - rollback reason;
 - replay artifact;
@@ -503,6 +504,7 @@ Tools:
 - transaction snapshot/journal;
 - pipeline orchestrator;
 - stage trace collector;
+- post-local diagnostic runner;
 - runtime guardrail checker;
 - commit/rollback tool;
 - undo/redo store;

@@ -117,6 +117,7 @@ CommandResult:
   accepted
   new_state_version
   stage_reports
+  post_local_diagnostics
   gluing_report
   obstruction_report
   user_visible_status
@@ -134,6 +135,11 @@ RankEvidenceProjection:
 
 The runtime is responsible for transaction semantics, undo history, and
 coordinating reports into a coherent result.
+
+`post_local_diagnostics` records diagnostics-owned rank and residual evidence
+after each successful local numeric solve and before gluing. Blocking
+post-local diagnostic statuses roll back before durable commit; warning
+statuses may still commit as accepted-with-warnings.
 
 Rank evidence is exposed through `runtime::project_rank_evidence` returning
 `runtime::RankEvidenceProjection` records. Viewer, promotion, and reporting

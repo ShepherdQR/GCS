@@ -10,14 +10,14 @@ forward plan for Steps 31 through 40 remains
 
 ## Executive Summary
 
-Steps 1 through 33 are completed and pushed. They established the C++23 module
+Steps 1 through 34 are completed and pushed. They established the C++23 module
 solver architecture, contract-tested kernel-to-viewer boundaries, JSON IO,
 CI-ready quality gates, scene-generation promotion tooling, free-column rank
 evidence, diagnostics propagation, runtime/viewer rank evidence projection,
-promotion rank-evidence gates, SolveDAG boundary dependency evidence, and the
-architecture atlas.
+promotion rank-evidence gates, SolveDAG boundary dependency evidence,
+post-local runtime diagnostics, and the architecture atlas.
 
-Steps 34 through 40 are registered as the next evidence-boundary and
+Steps 35 through 40 are registered as the next evidence-boundary and
 algorithm-deepening batch. Their theme is making the richer rank, diagnostics,
 promotion, decomposition, fixture, viewer, and quality-gate evidence visible
 through public contracts before the next major algorithm batch.
@@ -27,10 +27,10 @@ Current baseline:
 | Field | Value |
 | --- | --- |
 | Branch | `master` |
-| Current completed step | Step 33 |
-| Next implementation step | Step 34 |
+| Current completed step | Step 34 |
+| Next implementation step | Step 35 |
 | Default gate | `python tools\agentic_design\agentic_toolkit.py run-quality-gates` |
-| Contract test baseline | 90 CTest-discovered GTest cases |
+| Contract test baseline | 91 CTest-discovered GTest cases |
 | Post-Step-40 candidate | Integrated feature showcase constraint graph |
 
 ## Step Report
@@ -70,7 +70,7 @@ Current baseline:
 | 31 | Done | Runtime/viewer rank evidence projection | Added `runtime::RankEvidenceProjection`, runtime command-result projection, viewer overlay evidence, viewer summary evidence, and accepted/boundary-frozen contract tests. | Lets UI, promotion gates, and review tooling consume rank evidence without reading numeric internals. |
 | 32 | Done | Promotion gates consume rank evidence | Added a first-class `rank_evidence` gate over public runtime/viewer rank projections with pass, skipped, and malformed-evidence tests. | Makes generated scene promotion prove full/free/frozen/nullity evidence. |
 | 33 | Done | Decomposition separator and SolveDAG deepening | Added `SolveDag` structures, DAG validation reports, boundary projection dependency edges, and accepted/backward-dependency contract tests. | Improves explainable local-to-global planning. |
-| 34 | Pending | Boundary-aware runtime diagnostics | Add post-local-solve diagnostics to runtime command results and stage traces. | Makes runtime results carry structured rank/residual evidence, not only raw numeric reports. |
+| 34 | Done | Boundary-aware runtime diagnostics | Added `PostLocalDiagnosticReport`, `CommandResult.post_local_diagnostics`, post-local stage traces, and diagnostics-first rank projection. | Makes runtime results carry structured rank/residual evidence, not only raw numeric reports. |
 | 35 | Pending | Diagnostics conflict/redundancy deepening | Improve residual conflict and over-constrained redundancy evidence toward smaller responsible sets. | Makes failed solves more actionable and reportable. |
 | 36 | Pending | Numeric robustness batch | Harden scaling, rank tolerance, condition estimates, stopping criteria, and boundary/frozen-column edge cases. | Improves trustworthiness of dense numeric baseline reports. |
 | 37 | Pending | Fixture and scene corpus expansion | Add reusable boundary-frozen, rank-deficient, separator, gluing-obstruction, and promotion scenarios. | Gives later algorithm work durable regression scenes. |
@@ -86,7 +86,7 @@ Current baseline:
 | Algorithm and IO deepening | 14-18 | Numeric solving, JSON IO, diagnostics candidates, fixture corpus, and CI gates moved from scaffolding into executable contracts. |
 | Scene-generation and promotion architecture | 19-27 | Generated scenes now flow through structured package modules, store adapters, public solver artifacts, and hardened promotion gates. |
 | Rank evidence correctness | 28-31 | Rank/nullity now respect boundary-frozen variables and propagate from numeric engine to diagnostics, runtime, and viewer projections. |
-| Public evidence boundary batch | 34-40 | The next batch deepens runtime/diagnostics evidence, expands corpus and quality gates, and then resynchronizes the architecture. |
+| Public evidence boundary batch | 35-40 | The next batch deepens diagnostics/numeric evidence, expands corpus and quality gates, and then resynchronizes the architecture. |
 
 ## Post-Step-40 Showcase Candidate
 

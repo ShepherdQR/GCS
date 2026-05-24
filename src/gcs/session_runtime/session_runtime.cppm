@@ -112,6 +112,12 @@ struct RankEvidenceProjection {
     double condition_estimate = 0.0;
 };
 
+struct PostLocalDiagnosticReport {
+    int local_report_index = 0;
+    ContextId context_id;
+    diagnostics::DiagnosticOutput diagnostic_output;
+};
+
 struct CommandResult {
     CommandId command_id;
     bool accepted = false;
@@ -124,6 +130,7 @@ struct CommandResult {
     planning::PlannerOutput planner_output;
     std::vector<numeric::NumericReport> numeric_reports;
     diagnostics::DiagnosticOutput pre_solve_diagnostics;
+    std::vector<PostLocalDiagnosticReport> post_local_diagnostics;
     diagnostics::GluingReport gluing_report;
     diagnostics::ObstructionReport obstruction_report;
 };

@@ -557,6 +557,7 @@ Structured outputs:
 - `RollbackReport`.
 - `ReplayReport`.
 - `RankEvidenceProjection`.
+- `PostLocalDiagnosticReport`.
 - `PostCommitVerificationReport`.
 
 Target public API:
@@ -595,6 +596,7 @@ Implementation responsibilities:
 - Stage trace collection.
 - Public rank-evidence projection for command summaries, viewer overlays, and
   promotion gates.
+- Post-local diagnostic report collection before gluing.
 - Atomic commit and rollback.
 - Undo/redo history.
 - Replay artifact generation.
@@ -609,6 +611,7 @@ Contract tests:
 - `runtime_stops_before_commit_when_gluing_fails`.
 - `runtime_accepted_command_advances_state_version_once`.
 - `runtime_projects_rank_evidence_from_accepted_command_result`.
+- `runtime_post_local_diagnostics_preserve_numeric_evidence`.
 - `runtime_replay_reconstructs_stage_trace`.
 - `runtime_undo_redo_preserves_history_order`.
 

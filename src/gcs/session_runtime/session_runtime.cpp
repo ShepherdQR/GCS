@@ -100,6 +100,56 @@ void rollback(CommandResult& result,
     record_stage(result, "rollback", rollback_report, restored_version, restored_version);
 }
 
+bool post_local_diagnostics_blocks(SolveStatus status) {
+    return status == SolveStatus::invalid_model ||
+           status == SolveStatus::failed ||
+           status == SolveStatus::inconsistent ||
+           status == SolveStatus::numerically_singular ||
+           status == SolveStatus::unsupported;
+}
+
+bool has_post_local_diagnostic_warnings(
+    const std::vector<PostLocalDiagnosticReport>& reports) {
+    for (const auto& report : reports) {
+        if (report.diagnostic_output.status_code != SolveStatus::solved) {
+            return true;
+        }
+    }
+    return false;
+}
+
+StageReport make_post_local_diagnostics_report(
+    const PostLocalDiagnosticReport& report) {
+    StageReport stage_report =
+        kernel::make_stage_report("session_runtime.post_local_diagnostics");
+    const SolveStatus status = report.diagnostic_output.status_code;
+    const bool blocks = post_local_diagnostics_blocks(status);
+    if (blocks) {
+        stage_report.status = kernel::StageStatus::error;
+    } else if (status != SolveStatus::solved) {
+        stage_report.status = kernel::StageStatus::warning;
+    }
+
+    kernel::ReportSeverity severity = kernel::ReportSeverity::info;
+    const char* code = "runtime.post_local_diagnostics";
+    if (blocks) {
+        severity = kernel::ReportSeverity::error;
+        code = "runtime.post_local_diagnostics_blocked";
+    } else if (status != SolveStatus::solved) {
+        severity = kernel::ReportSeverity::warning;
+        code = "runtime.post_local_diagnostics_warning";
+    }
+
+    kernel::append_report_message(
+        stage_report,
+        make_message(
+            severity,
+            code,
+            "Post-local-solve diagnostics completed.",
+            {kernel::StableId{"context", report.context_id.value}}));
+    return stage_report;
+}
+
 HistoryEvent make_history_event(const CommandResult& result) {
     HistoryEvent event;
     event.command_id = result.command_id;
@@ -296,6 +346,43 @@ CommandResult SessionRuntime::execute(const Command& command) {
             history_.push_back(make_history_event(result));
             return result;
         }
+
+        diagnostics::DiagnosticInput post_local_input;
+        post_local_input.phase = diagnostics::DiagnosticPhase::post_local_solve;
+        post_local_input.model = transaction_snapshot;
+        post_local_input.context = *context;
+        post_local_input.numeric_report = numeric_report;
+        post_local_input.gauge_policy = result.planner_output.gauge_policy;
+
+        PostLocalDiagnosticReport post_local;
+        post_local.local_report_index =
+            static_cast<int>(result.post_local_diagnostics.size());
+        post_local.context_id = context->id;
+        post_local.diagnostic_output = diagnostics::diagnose(post_local_input);
+        result.post_local_diagnostics.push_back(post_local);
+
+        StageReport post_local_report =
+            make_post_local_diagnostics_report(post_local);
+        record_stage(
+            result,
+            "post_local_diagnostics",
+            post_local_report,
+            transaction_snapshot.state_version,
+            transaction_snapshot.state_version);
+
+        if (post_local_diagnostics_blocks(post_local.diagnostic_output.status_code)) {
+            result.user_visible_status = post_local.diagnostic_output.status_code;
+            result.obstruction_report = diagnostics::make_obstruction(
+                "runtime.post_local_diagnostics_blocked",
+                "Post-local-solve diagnostics blocked commit.");
+            result.obstruction_report.context_ids.push_back(context->id);
+            rollback(
+                result,
+                "Post-local-solve diagnostics blocked commit.",
+                current_snapshot_.state_version);
+            history_.push_back(make_history_event(result));
+            return result;
+        }
     }
 
     result.gluing_report = diagnostics::glue_local_sections(
@@ -327,7 +414,8 @@ CommandResult SessionRuntime::execute(const Command& command) {
     result.transaction_trace.committed = true;
     result.transaction_trace.final_version = current_snapshot_.state_version;
     result.user_visible_status =
-        result.pre_solve_diagnostics.status_code == SolveStatus::solved
+        result.pre_solve_diagnostics.status_code == SolveStatus::solved &&
+                !has_post_local_diagnostic_warnings(result.post_local_diagnostics)
             ? SolveStatus::solved
             : SolveStatus::accepted_with_warnings;
     StageReport commit_report = kernel::make_stage_report("session_runtime.commit");
@@ -389,6 +477,40 @@ ReplayReport SessionRuntime::replay(ReplayRequest request) const {
 std::vector<RankEvidenceProjection> project_rank_evidence(
     const CommandResult& result) {
     std::vector<RankEvidenceProjection> projections;
+    if (!result.post_local_diagnostics.empty()) {
+        for (const auto& post_local : result.post_local_diagnostics) {
+            const auto& rank_report =
+                post_local.diagnostic_output.rank_report;
+            RankEvidenceProjection projection;
+            projection.local_report_index = post_local.local_report_index;
+            projection.source = "runtime.post_local_diagnostics.rank_report";
+            projection.context_id = post_local.context_id;
+            projection.result_status = post_local.diagnostic_output.status_code;
+            projection.numeric_variable_dimension =
+                rank_report.numeric_variable_dimension;
+            projection.numeric_free_variable_dimension =
+                rank_report.numeric_free_variable_dimension;
+            projection.numeric_frozen_variable_dimension =
+                rank_report.numeric_frozen_variable_dimension;
+            projection.numeric_residual_dimension =
+                rank_report.numeric_residual_dimension;
+            projection.numeric_rank_estimate =
+                rank_report.numeric_rank_estimate;
+            projection.numeric_nullity_estimate =
+                rank_report.numeric_nullity_estimate;
+            projection.numeric_under_constrained =
+                rank_report.numeric_under_constrained;
+            projection.numeric_over_constrained =
+                rank_report.numeric_over_constrained;
+            projection.numeric_singular = rank_report.numeric_singular;
+            projection.condition_estimate_available =
+                rank_report.condition_estimate_available;
+            projection.condition_estimate = rank_report.condition_estimate;
+            projections.push_back(std::move(projection));
+        }
+        return projections;
+    }
+
     for (int index = 0; index < static_cast<int>(result.numeric_reports.size());
          ++index) {
         const auto& numeric_report =

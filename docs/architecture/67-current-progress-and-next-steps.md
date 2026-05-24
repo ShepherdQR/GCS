@@ -50,11 +50,13 @@ Completed algorithm-deepening steps:
   evidence from public runtime/viewer reports.
 - Step 33: added typed SolveDAG evidence for decomposition boundary
   projection dependencies.
+- Step 34: added boundary-aware post-local diagnostics to session runtime
+  command results and stage traces.
 
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 90 CTest-discovered GTest cases.
+- Contract test baseline is 91 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -334,17 +336,32 @@ Delivered:
 - Add contract coverage for accepted boundary-projection dependencies and
   rejected backward dependency evidence.
 
-## Next Step 34
+## Completed Step 34
 
-The next step is boundary-aware runtime diagnostics. Runtime should record
-post-local diagnostic evidence as a structured transaction stage so command
-results expose diagnostics-owned rank/residual evidence instead of requiring
-callers to inspect raw numeric reports.
+Step 34 added boundary-aware runtime diagnostics.
+
+Delivered:
+
+- Add `PostLocalDiagnosticReport`.
+- Extend `CommandResult` with `post_local_diagnostics`.
+- Run `diagnostics::diagnose(post_local_solve)` after each successful local
+  numeric solve.
+- Record `post_local_diagnostics` as a transaction stage before gluing.
+- Make `runtime::project_rank_evidence` prefer diagnostics-owned post-local
+  rank reports with numeric-report fallback for legacy/manual results.
+- Preserve rollback semantics for blocking post-local diagnostic statuses.
+
+## Next Step 35
+
+The next step is diagnostics conflict and redundancy deepening. Runtime now
+hands post-local diagnostics through public command results, so diagnostics can
+improve conflict/redundancy responsibility sets without forcing callers back
+to raw numeric reports.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
 40 are registered in the implementation roadmap; Steps 31 through 40 are
 expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. After Step 33, the remaining steps were reconsidered;
-Step 34 is registered as the next highest-leverage move. A post-Step-40
+in the forward plan. After Step 34, the remaining steps were reconsidered;
+Step 35 is registered as the next highest-leverage move. A post-Step-40
 candidate is also recorded for an integrated feature showcase constraint graph.

@@ -9,6 +9,7 @@ import gcs.session_runtime;
 
 namespace {
 
+namespace diagnostics = gcs::diagnostics;
 namespace kernel = gcs::kernel;
 namespace runtime = gcs::runtime;
 
@@ -102,9 +103,9 @@ TEST(SessionRuntimeContract, ProjectsRankEvidenceFromAcceptedCommandResult) {
 
     ASSERT_EQ(rank_evidence.size(), result.numeric_reports.size());
     ASSERT_EQ(rank_evidence.size(), 1U);
-    EXPECT_EQ(rank_evidence.front().source, "runtime.numeric_rank_condition_report");
+    EXPECT_EQ(rank_evidence.front().source, "runtime.post_local_diagnostics.rank_report");
     EXPECT_EQ(rank_evidence.front().context_id.value, 0U);
-    EXPECT_EQ(rank_evidence.front().result_status, kernel::SolveStatus::solved);
+    EXPECT_EQ(rank_evidence.front().result_status, kernel::SolveStatus::under_constrained);
     EXPECT_EQ(rank_evidence.front().numeric_variable_dimension, 6);
     EXPECT_EQ(rank_evidence.front().numeric_free_variable_dimension, 6);
     EXPECT_EQ(rank_evidence.front().numeric_frozen_variable_dimension, 0);
@@ -113,6 +114,29 @@ TEST(SessionRuntimeContract, ProjectsRankEvidenceFromAcceptedCommandResult) {
     EXPECT_EQ(rank_evidence.front().numeric_nullity_estimate, 5);
     EXPECT_TRUE(rank_evidence.front().numeric_under_constrained);
     EXPECT_FALSE(rank_evidence.front().numeric_over_constrained);
+}
+
+TEST(SessionRuntimeContract, PostLocalDiagnosticsPreserveNumericEvidence) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    runtime::SessionRuntime session(model);
+
+    auto result = session.solve();
+
+    ASSERT_EQ(result.post_local_diagnostics.size(), result.numeric_reports.size());
+    ASSERT_EQ(result.post_local_diagnostics.size(), 1U);
+    const auto& post_local = result.post_local_diagnostics.front();
+    EXPECT_EQ(post_local.local_report_index, 0);
+    EXPECT_EQ(post_local.context_id.value, 0U);
+    EXPECT_EQ(post_local.diagnostic_output.phase,
+              diagnostics::DiagnosticPhase::post_local_solve);
+    EXPECT_TRUE(post_local.diagnostic_output.residual_report.from_numeric_report);
+    EXPECT_TRUE(post_local.diagnostic_output.residual_report.within_tolerance);
+    EXPECT_EQ(post_local.diagnostic_output.rank_report.numeric_variable_dimension, 6);
+    EXPECT_EQ(post_local.diagnostic_output.rank_report.numeric_free_variable_dimension, 6);
+    EXPECT_EQ(post_local.diagnostic_output.rank_report.numeric_frozen_variable_dimension, 0);
+    EXPECT_EQ(post_local.diagnostic_output.rank_report.numeric_rank_estimate, 1);
+    EXPECT_EQ(post_local.diagnostic_output.rank_report.numeric_nullity_estimate, 5);
+    EXPECT_TRUE(has_stage(result.transaction_trace, "post_local_diagnostics"));
 }
 
 TEST(SessionRuntimeContract, StageTraceIsCompleteForAcceptedSolve) {
@@ -128,6 +152,7 @@ TEST(SessionRuntimeContract, StageTraceIsCompleteForAcceptedSolve) {
     EXPECT_TRUE(has_stage(result.transaction_trace, "planning"));
     EXPECT_TRUE(has_stage(result.transaction_trace, "pre_solve_diagnostics"));
     EXPECT_TRUE(has_stage(result.transaction_trace, "numeric_solve"));
+    EXPECT_TRUE(has_stage(result.transaction_trace, "post_local_diagnostics"));
     EXPECT_TRUE(has_stage(result.transaction_trace, "gluing"));
     EXPECT_TRUE(has_stage(result.transaction_trace, "commit"));
     ASSERT_FALSE(result.transaction_trace.stages.empty());

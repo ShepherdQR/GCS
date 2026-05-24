@@ -191,7 +191,7 @@ Status legend: `done`, `in_progress`, `pending`.
     evidence from public reports.
 33. `done` - deepen decomposition separator, boundary projection, and
     SolveDAG evidence.
-34. `pending` - add boundary-aware post-local-solve diagnostics to session
+34. `done` - add boundary-aware post-local-solve diagnostics to session
     runtime command results.
 35. `pending` - deepen diagnostics conflict and redundancy evidence toward
     smaller responsible sets.
@@ -1182,6 +1182,42 @@ Reassessment after Step 33:
 - Separator/articulation algorithms remain useful but can be deepened after
   runtime carries richer post-local evidence.
 - Step 35 remains diagnostics conflict/redundancy deepening after Step 34.
+
+## Boundary-Aware Runtime Diagnostics Step Plan
+
+Implemented commit-level scope for Step 34:
+
+- Add a post-local diagnostic carrier to `gcs.session_runtime`.
+- Run diagnostics after each successful local numeric solve and before gluing.
+- Record post-local diagnostics in transaction stage traces.
+- Make runtime rank evidence projection prefer diagnostics-owned rank reports.
+- Preserve transaction isolation and rollback before durable commit for
+  blocking post-local diagnostic statuses.
+
+## Boundary-Aware Runtime Diagnostics Milestone
+
+Implemented scope for Step 34:
+
+- `CommandResult` now carries `post_local_diagnostics`.
+- Each `PostLocalDiagnosticReport` names the local report index, context ID,
+  and `diagnostics::DiagnosticOutput`.
+- The runtime records `post_local_diagnostics` stage entries between
+  `numeric_solve` and `gluing`.
+- `runtime::project_rank_evidence` now prefers
+  `runtime.post_local_diagnostics.rank_report` and falls back to raw numeric
+  rank reports only when post-local diagnostics are absent.
+- Session runtime contract coverage verifies post-local residual/rank evidence
+  and the expanded stage trace.
+
+Reassessment after Step 34:
+
+- Step 35 is diagnostics conflict/redundancy deepening. Runtime now exposes
+  post-local diagnostics, so diagnostics can improve responsible-set evidence
+  through a public runtime handoff.
+- Step 36 remains numeric robustness after diagnostics has richer conflict and
+  redundancy contracts.
+- Step 37 remains fixture/corpus expansion after the next diagnostics and
+  numeric evidence changes clarify which fixtures are durable.
 
 ## Damped Numeric Local Solve Step Plan
 

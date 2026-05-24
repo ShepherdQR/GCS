@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 33:
+- Completed through Step 34:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -40,10 +40,12 @@ implementation step they describe.
   - decomposition planning now exposes a typed `SolveDag` whose edges explain
     boundary-projection dependencies from local component solves to aggregation
     contexts;
+  - session runtime now records post-local-solve diagnostic reports as
+    transaction stages and rank projections prefer diagnostics-owned evidence;
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline is 90 tests.
+  - CTest contract baseline is 91 tests.
 
 ## Execution Cadence Contract
 
@@ -405,7 +407,7 @@ Reassessment after Step 33:
 - Incidence-level separator or biconnected reports remain queued for a later
   planner/graph batch once post-local diagnostics are in place.
 
-### Step 34: Boundary-Aware Runtime Diagnostics Pass
+### Completed Step 34: Boundary-Aware Runtime Diagnostics Pass
 
 Goal:
 
@@ -421,19 +423,34 @@ Expected shape:
   state unless policy explicitly accepts warnings.
 - Avoid duplicating numeric report interpretation in runtime.
 
-Detailed plan:
+Delivered:
 
-- Inspect current runtime solve stages and where numeric reports are collected.
-- Add a post-local-solve diagnostics field or summary to `CommandResult`.
-- Record a stage trace entry for post-local diagnostics.
-- Add runtime contract tests for accepted solve diagnostics and failed or
-  boundary-frozen diagnostic evidence.
-- Persist Step 34 summary and reassess viewer/promotion consumption.
+- Add `PostLocalDiagnosticReport` to `gcs.session_runtime`.
+- Extend `CommandResult` with `post_local_diagnostics`.
+- Run `diagnostics::diagnose` with phase `post_local_solve` after each
+  successful local numeric solve.
+- Record `post_local_diagnostics` as a transaction stage before gluing.
+- Preserve rollback semantics: blocking post-local diagnostic statuses roll
+  back before durable commit.
+- Update `runtime::project_rank_evidence` so rank projection prefers
+  diagnostics-owned post-local rank reports and only falls back to numeric
+  reports for older/manual command results.
 
-Exit criteria:
+Tests:
 
-- `CommandResult` exposes post-local diagnostics through public contracts.
-- Accepted and rejected command paths preserve state-version semantics.
+- `SessionRuntimeContract.PostLocalDiagnosticsPreserveNumericEvidence` verifies
+  post-local diagnostics preserve numeric residual and rank evidence.
+- Existing runtime stage-trace and rank-projection contract tests now cover the
+  `post_local_diagnostics` stage and diagnostics-owned rank source.
+- Focused Session Runtime CTest suite passes with 7 tests.
+
+Reassessment after Step 34:
+
+- Step 35 remains the next highest-leverage move. Runtime now carries
+  post-local diagnostic evidence, so diagnostics conflict/redundancy deepening
+  can operate on a better public handoff path.
+- Viewer and promotion already consume rank projections; they do not need to
+  move before the diagnostics conflict/redundancy batch.
 
 ### Step 35: Diagnostics Conflict And Redundancy Deepening
 
@@ -670,5 +687,5 @@ As of the Step 31-40 planning update:
   shape, detailed plan, and exit criteria.
 - A post-Step-40 candidate is registered for an integrated feature showcase
   constraint graph.
-- Step 34 is the next implementation step.
+- Step 35 is the next implementation step.
 
