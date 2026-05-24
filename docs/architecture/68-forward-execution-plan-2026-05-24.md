@@ -14,7 +14,7 @@ implementation step they describe.
 
 - Branch target: `master`
 - Current remote baseline at planning time: `origin/master`
-- Completed through Step 29:
+- Completed through Step 30:
   - scene-generation repair policy has been extracted into
     `gcs_scene_generation.repair`;
   - scene-generation exploration and promotion-package orchestration have been
@@ -35,7 +35,26 @@ implementation step they describe.
   - `tools.py` remains the compatibility CLI facade;
   - default quality gate is `python tools\agentic_design\agentic_toolkit.py
     run-quality-gates`;
-  - CTest contract baseline is 85 tests.
+  - CTest contract baseline is 86 tests.
+
+## Execution Cadence Contract
+
+For Steps 31 through 40, each commit-level step must follow this cadence:
+
+1. Execute only the current registered step unless new evidence makes it
+   unsafe or obsolete.
+2. Add or update durable contract tests, scene fixtures, generated scenes, or
+   quality-gate checks whenever the step introduces executable behavior.
+3. After implementation and validation, persist a completed-step summary in
+   this document with delivered changes, tests, and reassessment.
+4. Update `docs/architecture/66-implementation-execution-roadmap.md` and
+   `docs/architecture/67-current-progress-and-next-steps.md`.
+5. Reconsider all remaining steps before starting the next step:
+   - keep the next step if it remains highest leverage;
+   - split it if the blast radius is too large;
+   - reorder it if boundary evidence exposes a more urgent gap;
+   - replace it if completed work makes it obsolete.
+6. Commit and push at every clean, validated commit boundary.
 
 ## Registered Next Steps
 
@@ -235,6 +254,328 @@ Expected shape:
 - Cover accepted and boundary-frozen evidence paths with contract tests.
 - Keep solver math and diagnostic status precedence unchanged.
 
+Detailed plan:
+
+- Inspect `runtime::CommandResult`, `viewer::DiagnosticOverlay`,
+  `viewer::SnapshotSummary`, and promotion gate report consumers.
+- Choose the smallest public boundary contract that preserves full/free/frozen
+  rank evidence without making viewer code interpret numeric internals.
+- Prefer a viewer/runtime summary structure that can be built from
+  `diagnostics::RankReport` or existing runtime numeric reports.
+- Add contract coverage for accepted solve evidence and boundary-frozen rank
+  evidence.
+- Persist the Step 31 summary and then reassess whether Step 32 should consume
+  the new projection directly or first require post-local-solve diagnostics in
+  runtime.
+
+Exit criteria:
+
+- Boundary consumers can read full variable dimension, free variable
+  dimension, frozen variable dimension, residual dimension, rank, nullity, and
+  under/over/singular flags through a public runtime/viewer projection.
+- Full quality gate passes.
+
+### Step 32: Promotion Gate Uses Rank Evidence
+
+Goal:
+
+- Make scene-generation promotion gates consume structured rank evidence from
+  public runtime/viewer/diagnostics reports instead of relying only on
+  executable smoke success or loose stdout evidence.
+
+Expected shape:
+
+- Extend promotion-package gate records with rank evidence fields when a
+  structured runtime report is available.
+- Validate full/free/frozen/nullity evidence for promoted scenes where the
+  evidence exists.
+- Keep executable smoke as fallback for environments without structured
+  reports.
+
+Detailed plan:
+
+- Inspect `gcs_scene_generation.promotion_package` structured runtime report
+  parsing and existing public gate IDs.
+- Add a rank-evidence parser that accepts the Step 31 boundary projection.
+- Preserve current `runtime_smoke` and `diagnostics_evidence` gate IDs unless
+  a new explicit `rank_evidence` gate is clearer.
+- Add Python unit tests for structured report pass, missing evidence fallback,
+  and unsupported evidence shape.
+- Persist Step 32 summary and reassess the solver algorithm queue.
+
+Exit criteria:
+
+- Promotion packages can prove rank evidence through structured public reports.
+- Existing smoke fallback remains explicit and tested.
+
+### Step 33: Decomposition Separator And Solve-DAG Deepening
+
+Goal:
+
+- Deepen `gcs.decomposition_planner` from coverage/order validation toward
+  stronger separator, boundary projection, and SolveDAG evidence.
+
+Expected shape:
+
+- Strengthen separator detection or articulation/biconnected evidence where it
+  directly improves context cover quality.
+- Make solve ordering explain boundary dependencies and unsupported plan
+  causes.
+- Keep planner policy separate from numeric solve iteration.
+
+Detailed plan:
+
+- Inspect incidence graph component/BCC evidence and current planner
+  `CoverPlan`, `Subproblem`, `BoundaryProjection`, and solve order contracts.
+- Add a focused contract for a graph where separator structure should produce
+  a stable boundary projection or solve-order dependency.
+- Add or promote a reusable fixture if test-local construction would hide the
+  graph semantics.
+- Persist Step 33 summary and reassess diagnostics/runtime follow-up needs.
+
+Exit criteria:
+
+- Planner output exposes stronger separator or SolveDAG evidence through
+  deterministic public contracts.
+- Contract tests cover both accepted and unsupported/degraded plan evidence.
+
+### Step 34: Boundary-Aware Runtime Diagnostics Pass
+
+Goal:
+
+- Add post-local-solve diagnostic evidence to `session_runtime` so command
+  results carry structured rank/residual evidence rather than only pre-solve
+  diagnostics and raw numeric reports.
+
+Expected shape:
+
+- Run diagnostics after local numeric solves when local numeric reports are
+  available.
+- Preserve transaction semantics: failed diagnostics must not commit durable
+  state unless policy explicitly accepts warnings.
+- Avoid duplicating numeric report interpretation in runtime.
+
+Detailed plan:
+
+- Inspect current runtime solve stages and where numeric reports are collected.
+- Add a post-local-solve diagnostics field or summary to `CommandResult`.
+- Record a stage trace entry for post-local diagnostics.
+- Add runtime contract tests for accepted solve diagnostics and failed or
+  boundary-frozen diagnostic evidence.
+- Persist Step 34 summary and reassess viewer/promotion consumption.
+
+Exit criteria:
+
+- `CommandResult` exposes post-local diagnostics through public contracts.
+- Accepted and rejected command paths preserve state-version semantics.
+
+### Step 35: Diagnostics Conflict And Redundancy Deepening
+
+Goal:
+
+- Improve diagnostics from broad conflict/redundancy candidates toward smaller
+  and more explainable responsible sets.
+
+Expected shape:
+
+- Minimize residual conflicts when evidence allows stable smaller constraint
+  sets.
+- Improve redundancy evidence for over-constrained contexts without changing
+  status precedence accidentally.
+- Preserve gluing obstruction conflicts separately from residual conflicts.
+
+Detailed plan:
+
+- Inspect current `find_conflicts`, `find_redundancies`, fixture corpus, and
+  golden report evidence.
+- Add contract tests for at least one residual conflict minimization case and
+  one redundancy evidence case.
+- Prefer reusable contract-tools fixtures over ad hoc local model construction.
+- Persist Step 35 summary and reassess numeric robustness needs.
+
+Exit criteria:
+
+- Diagnostics names smaller stable subject sets where current evidence supports
+  it.
+- Existing obstruction and status-precedence contracts remain stable.
+
+### Step 36: Numeric Robustness Batch
+
+Goal:
+
+- Harden dense numeric baseline behavior around scaling, rank tolerance,
+  condition evidence, stopping criteria, and boundary/frozen-column edge cases.
+
+Expected shape:
+
+- Improve numeric report reliability without adding an external linear algebra
+  dependency.
+- Preserve `NumericTask`, `NumericReport`, and `RankConditionReport`
+  contracts.
+- Keep local solve proposals separate from runtime commit decisions.
+
+Detailed plan:
+
+- Inspect residual/Jacobian assembly, damping, trust radius, rank tolerance,
+  and condition estimate code paths.
+- Add focused fixtures for near-singular, scaled, and boundary-frozen cases.
+- Update contract tests before or with implementation so robustness claims are
+  executable.
+- Persist Step 36 summary and reassess scene corpus expansion.
+
+Exit criteria:
+
+- Numeric robustness improvements are covered by deterministic contract tests.
+- Diagnostics receives stable rank/condition evidence for the new cases.
+
+### Step 37: Fixture And Scene Corpus Expansion
+
+Goal:
+
+- Expand reusable model and scene evidence for boundary-frozen,
+  rank-deficient, separator, gluing-obstruction, and promotion-positive or
+  promotion-negative scenarios.
+
+Expected shape:
+
+- Add reusable fixtures through `gcs.contract_tools` or scene fixture storage.
+- Add golden/report digest coverage where stable.
+- Avoid leaving one-off validation data outside tests or scene repositories.
+
+Detailed plan:
+
+- Inventory existing contract-tools fixture kinds and scene-generation outputs.
+- Add only fixtures that support current or immediately next contract tests.
+- Promote generated scenes through public gates when they enter fixture
+  storage.
+- Persist Step 37 summary and reassess quality gate hardening.
+
+Exit criteria:
+
+- New fixtures are reusable, documented by expectations, and covered by tests.
+- Scene corpus supports the next solver/decomposition/diagnostics steps.
+
+### Step 38: Viewer And GUI Evidence Surface
+
+Goal:
+
+- Make rank, residual, gluing, obstruction, conflict, and boundary mismatch
+  evidence visible to viewer/GUI consumers through stable viewer-bridge
+  contracts.
+
+Expected shape:
+
+- Extend viewer projections or overlays with structured evidence instead of
+  prose-only messages.
+- Keep Python GUI as a consumer of public viewer/runtime contracts, not a
+  solver-truth owner.
+
+Detailed plan:
+
+- Inspect `viewer_bridge`, Python `gcs_viz`, and history/replay UI boundaries.
+- Add or refine viewer contract tests before GUI consumption.
+- Update Python GUI only if the public bridge contract is ready and the change
+  stays small.
+- Persist Step 38 summary and reassess CI/quality gates.
+
+Exit criteria:
+
+- Viewer bridge exposes structured evidence that can drive UI without parsing
+  free-form text.
+- GUI changes, if any, are covered by local behavior or bridge tests.
+
+### Step 39: Quality Gate Hardening
+
+Goal:
+
+- Promote new rank projection, diagnostics, promotion evidence, and scene
+  corpus checks into the default quality gate where useful.
+
+Expected shape:
+
+- Add only gates that are deterministic and affordable for the default local
+  path.
+- Keep slow exploratory generation outside the default gate unless explicitly
+  requested.
+
+Detailed plan:
+
+- Inspect `tools\agentic_design\agentic_toolkit.py run-quality-gates` and
+  recent test additions.
+- Add focused CTest, Python, scene, or report checks that protect the new
+  contracts.
+- Update `docs/architecture/69-ci-ready-quality-gates.md` if gate behavior
+  changes.
+- Persist Step 39 summary and reassess atlas synchronization.
+
+Exit criteria:
+
+- Default quality gate catches rank projection, promotion evidence, and corpus
+  regressions relevant to Steps 31 through 38.
+
+### Step 40: Architecture Atlas And Roadmap Resynchronization
+
+Goal:
+
+- Resynchronize diagrams, roadmap, and current-progress documents after the
+  Step 31 through Step 39 implementation batch.
+
+Expected shape:
+
+- Update Mermaid atlas, Figure 1 if needed, module maturity lens, and roadmap
+  status.
+- Keep visual/editorial changes separate from solver behavior unless a diagram
+  generator needs semantic updates.
+
+Detailed plan:
+
+- Compare implemented module boundaries and evidence paths against the
+  architecture atlas and roadmap.
+- Regenerate Figure 1 only if the structural/evidence vocabulary changed.
+- Archive or summarize the completed Step 31 through Step 39 batch.
+- Register the next algorithm batch based on current evidence.
+
+Exit criteria:
+
+- Docs, diagrams, roadmap, and current implementation agree.
+- The next batch is registered with clear commit-level steps.
+
+### Post-Step-40 Candidate: Integrated Feature Showcase Constraint Graph
+
+Goal:
+
+- Build a moderately complex constraint graph that demonstrates the completed
+  feature chain across decomposition, boundary variables, free/frozen rank
+  evidence, diagnostics, promotion gates, viewer projection, and quality gates.
+
+Expected shape:
+
+- A reusable scene or generated-scene promotion package, not a one-off manual
+  scratch file.
+- Multiple rigid sets and at least one meaningful separator or overlap.
+- Boundary-frozen variables that make full/free/frozen rank evidence visible.
+- A mix of satisfied constraints, rank/DOF evidence, and at least one optional
+  negative variant for gluing obstruction or residual conflict.
+- Viewer/atlas-ready projection so the graph can be used as a demonstration
+  artifact after Step 40.
+
+Detailed plan:
+
+- Start from the Step 37 fixture/corpus expansion output or generate a new
+  candidate through `tools/scene_generation`.
+- Promote it through public IO/runtime/diagnostics/viewer gates.
+- Add a contract or scene test that checks the showcase graph exercises the
+  intended evidence surface.
+- Render or document the graph through the viewer/atlas path after Step 40
+  completes.
+
+Exit criteria:
+
+- The showcase graph is committed in the fixture/scene corpus with structured
+  expectations.
+- It demonstrates the Step 31 through Step 40 evidence path without requiring
+  private implementation inspection.
+
 ## Reassessment Protocol
 
 After each step:
@@ -253,6 +594,15 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 30 completion update, the active planned step is Step 31.
-Step 31 is the next implementation step.
+As of the Step 31-40 planning update:
+
+- Steps 1 through 40 are registered in
+  `docs/architecture/66-implementation-execution-roadmap.md`.
+- Steps 1 through 30 have completed-step summaries in the roadmap and current
+  progress documents.
+- Steps 31 through 40 are detailed in this forward plan with goal, expected
+  shape, detailed plan, and exit criteria.
+- A post-Step-40 candidate is registered for an integrated feature showcase
+  constraint graph.
+- Step 31 is the next implementation step.
 

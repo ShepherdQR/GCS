@@ -48,7 +48,7 @@ Completed algorithm-deepening steps:
 Current validation baseline:
 
 - C++23 module build passes through `scripts\build_clang_ninja.cmd`.
-- Contract test baseline is 85 CTest-discovered GTest cases.
+- Contract test baseline is 86 CTest-discovered GTest cases.
 - Representative CLI fixture `fixtures\scene\basic\g1.txt` solves and commits
   through session runtime.
 - Architecture docs, module inventory, and dependency boundary checks pass.
@@ -286,7 +286,9 @@ gates, and review tooling can consume that evidence without reading numeric
 internals directly.
 
 The registered forward plan is persisted in
-`docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 25 through
-31 were registered there and in the implementation roadmap. After Step 30, the
-remaining steps were reconsidered; Step 31 is registered as the next
-highest-leverage move.
+`docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
+40 are registered in the implementation roadmap; Steps 31 through 40 are
+expanded with detailed goal, expected shape, detailed plan, and exit criteria
+in the forward plan. After Step 30, the remaining steps were reconsidered;
+Step 31 is registered as the next highest-leverage move. A post-Step-40
+candidate is also recorded for an integrated feature showcase constraint graph.

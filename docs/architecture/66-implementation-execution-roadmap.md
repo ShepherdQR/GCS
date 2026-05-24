@@ -187,6 +187,29 @@ Status legend: `done`, `in_progress`, `pending`.
     diagnostics rank evidence.
 31. `pending` - expose preserved rank evidence through runtime/viewer
     projection contracts.
+32. `pending` - make scene-generation promotion gates consume structured rank
+    evidence from public reports.
+33. `pending` - deepen decomposition separator, boundary projection, and
+    SolveDAG evidence.
+34. `pending` - add boundary-aware post-local-solve diagnostics to session
+    runtime command results.
+35. `pending` - deepen diagnostics conflict and redundancy evidence toward
+    smaller responsible sets.
+36. `pending` - harden numeric robustness around scaling, rank tolerance,
+    condition evidence, stopping, and boundary edge cases.
+37. `pending` - expand reusable fixture and scene corpus for rank, separator,
+    boundary, gluing, and promotion scenarios.
+38. `pending` - expose structured evidence through viewer bridge and GUI
+    surfaces.
+39. `pending` - harden default quality gates for the new rank, promotion, and
+    corpus evidence paths.
+40. `pending` - resynchronize architecture atlas, roadmap, and next-batch
+    planning after Steps 31 through 39.
+
+Post-Step-40 candidate:
+
+- Build an integrated feature showcase constraint graph after Step 40
+  completes and the evidence path is stable.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
