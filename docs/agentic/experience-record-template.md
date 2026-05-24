@@ -3,6 +3,10 @@
 Use this when a failure, review finding, or repeated agent mistake might teach
 the project something durable.
 
+For promoted lessons, place this record in the `README.md` of a folder under
+`docs/agentic/experience/` and add supporting skill, agent, template, eval, or
+tool material beside it.
+
 ```yaml
 ---
 experience_id: 2026-05-24-source-short-slug

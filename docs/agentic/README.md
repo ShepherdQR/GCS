@@ -33,7 +33,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `evals/module-agent-evals.md` | Seed eval tasks for module agents. |
 | `evals/review-rubrics.md` | Independent review rubrics by change type. |
 | `tasks/` | Checked-in task cards that are large enough to persist. |
-| `experience/` | Promoted learning records. |
+| `experience/` | Folder-per-experience library for promoted agentic-SE lessons, candidate skills, agent role cards, and templates. |
 
 ## Minimum Workflow
 
@@ -53,7 +53,9 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 3. Write an execution plan when risk is high or the task spans modules.
 4. Implement in the owning module or support tool boundary.
 5. Collect evidence with the standard quality gates.
-6. Record any repeated failure as an experience record before changing skills.
+6. Close non-trivial sessions with a task execution report before archive.
+7. Record any repeated failure or reusable practice as an experience record
+   before changing skills.
 
 ## Boundaries
 

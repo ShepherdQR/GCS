@@ -34,3 +34,6 @@ evidence, and links to project files.
 | 2026-05-24 | [GCS architecture visualization and SVG editing workflow](2026-05-24-gcs-architecture-visualization-svg-workflow/README.md) | done |
 | 2026-05-24 | [Generated constraint model library](2026-05-24-generated-constraint-model-library/README.md) | done |
 | 2026-05-24 | [Agentic operating layer and rank evidence](2026-05-24-agentic-operating-layer-rank-evidence/README.md) | done |
+| 2026-05-24 | [Agentic SE experience library](2026-05-24-agentic-se-experience-library/README.md) | done |
+| 2026-05-24 | [E001 deep research expansion](2026-05-24-e001-deep-research-expansion/README.md) | done |
+| 2026-05-24 | [E001 executable closure tooling](2026-05-24-e001-executable-closure-tooling/README.md) | done |

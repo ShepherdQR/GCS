@@ -58,6 +58,24 @@ Validate an agentic task card:
 python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-24-agentic-tooling.md
 ```
 
+Create a completed-task execution report skeleton:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py new-completed-task-report --slug agentic-tooling --session-goal "Add task-card validation" --experience-link docs/agentic/experience/001-task-scoped-session-closure/
+```
+
+Validate a completed-task execution report:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py validate-completed-task-report docs\completed-tasks\2026-05-24-agentic-tooling\README.md
+```
+
+Score a completed-task report against the E001 closure-quality rubric:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py score-closure-report docs\completed-tasks\2026-05-24-agentic-tooling\README.md --min-score 30
+```
+
 Run the full local/CI quality gate:
 
 ```bat
@@ -119,13 +137,16 @@ Module agents should use the toolkit in this order:
 1. `validate-docs` before changing module contracts.
 2. `new-task-card` and `validate-task-card` before non-trivial or high-risk
    work that should persist beyond the current conversation.
-3. `validate-inventory` after changing module IO, tool, or import metadata.
-4. `emit-design-card --module <id>` to start a structured design report.
-5. `scaffold-module --module <id>` to preview C++23 interface and
+3. `new-completed-task-report`, `validate-completed-task-report`, and
+   `score-closure-report` when closing a non-trivial task into
+   `docs/completed-tasks/`.
+4. `validate-inventory` after changing module IO, tool, or import metadata.
+5. `emit-design-card --module <id>` to start a structured design report.
+6. `scaffold-module --module <id>` to preview C++23 interface and
    implementation paths.
-6. `scaffold-contract-test --module <id>` to preview contract-test placement.
-7. `check-dependencies` after C++ imports change.
-8. `validate-skills` after skill or agent metadata changes.
+7. `scaffold-contract-test --module <id>` to preview contract-test placement.
+8. `check-dependencies` after C++ imports change.
+9. `validate-skills` after skill or agent metadata changes.
 
 ## Current Scope
 
@@ -136,6 +157,7 @@ the infrastructure needed to implement modules safely:
 - design coverage validation;
 - dependency boundary scanning;
 - task-card creation and validation;
+- completed-task report generation, validation, and closure scoring;
 - design-card generation;
 - C++23 module skeleton preview/write;
 - contract-test skeleton preview/write.

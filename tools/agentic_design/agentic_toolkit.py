@@ -23,6 +23,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INVENTORY = ROOT / "tools" / "agentic_design" / "module_inventory.json"
 AGENTIC_TASK_DIR = ROOT / "docs" / "agentic" / "tasks"
+COMPLETED_TASK_DIR = ROOT / "docs" / "completed-tasks"
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,13 @@ class GateResult:
     exit_code: int
 
 
+@dataclass(frozen=True)
+class ScoreDimension:
+    name: str
+    score: int
+    reason: str
+
+
 def load_inventory(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
@@ -47,6 +55,13 @@ def load_inventory(path: Path) -> dict[str, Any]:
 
 def repo_path(path: str | Path) -> Path:
     return ROOT / path
+
+
+def display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT)).replace("\\", "/")
+    except ValueError:
+        return str(path)
 
 
 def read_text(path: Path) -> str:
@@ -160,6 +175,32 @@ def normalize_list(value: Any) -> list[str]:
     if isinstance(value, str):
         return [item.strip() for item in value.split(",") if item.strip()]
     return [str(value)]
+
+
+def normalize_slug(slug: str) -> str:
+    return re.sub(r"[^a-z0-9-]+", "-", slug.lower()).strip("-")
+
+
+def section_body(text: str, heading: str) -> str:
+    match = re.search(rf"^{re.escape(heading)}\s*$", text, flags=re.MULTILINE)
+    if not match:
+        return ""
+    start = match.end()
+    next_match = re.search(r"^##\s+", text[start:], flags=re.MULTILINE)
+    end = start + next_match.start() if next_match else len(text)
+    return text[start:end].strip()
+
+
+def has_index_link(path: Path) -> bool:
+    index = COMPLETED_TASK_DIR / "README.md"
+    if not index.exists():
+        return False
+    try:
+        folder = path.parent.relative_to(COMPLETED_TASK_DIR).as_posix()
+    except ValueError:
+        return False
+    index_text = read_text(index)
+    return f"{folder}/README.md" in index_text or f"{folder}\\README.md" in index_text
 
 
 def validate_skills(inventory: dict[str, Any]) -> list[CheckResult]:
@@ -641,6 +682,320 @@ def validate_task_card_command(args: argparse.Namespace) -> int:
     return run_checks(results)
 
 
+COMPLETED_TASK_REQUIRED_SECTIONS = [
+    "## Task Objective",
+    "## Scope And Non-Goals",
+    "## Interaction Summary",
+    "## Work Completed",
+    "## Files And Artifacts",
+    "## Evidence",
+    "## Decisions",
+    "## Skipped Checks And Risks",
+    "## Follow-Up",
+    "## Archive Handoff",
+]
+
+
+COMPLETED_TASK_PLACEHOLDERS = [
+    "Write the concrete task objective.",
+    "Describe what was in scope.",
+    "Describe what stayed out of scope.",
+    "Summarize the important turns.",
+    "List completed work.",
+    "path/to/file",
+    "<command or check>",
+    "<pass/fail summary>",
+    "Record key decisions.",
+    "Record skipped checks.",
+    "Pending:",
+    "TODO",
+]
+
+
+def completed_task_report_template(args: argparse.Namespace) -> str:
+    today = args.date or _datetime.date.today().isoformat()
+    slug = normalize_slug(args.slug)
+    task_id = f"{today}-{slug}"
+    session_goal = args.session_goal.replace('"', '\\"')
+    archive_target = f"docs/completed-tasks/{task_id}/"
+    experience_links = args.experience_link or []
+    experience_lines = "\n".join(f"  - {item}" for item in experience_links)
+    if not experience_lines:
+        experience_lines = "  - none"
+
+    return f"""---
+task_id: {task_id}
+status: {args.status}
+session_goal: "{session_goal}"
+archive_target: {archive_target}
+experience_links:
+{experience_lines}
+---
+
+# {args.title or task_id}
+
+## Task Objective
+
+Write the concrete task objective.
+
+## Scope And Non-Goals
+
+In scope:
+
+- Describe what was in scope.
+
+Out of scope:
+
+- Describe what stayed out of scope.
+
+## Interaction Summary
+
+Summarize the important turns without copying raw chat logs.
+
+## Work Completed
+
+- List completed work.
+
+## Files And Artifacts
+
+- `path/to/file`: why it changed or why it was produced.
+
+## Evidence
+
+```text
+<command or check>
+<pass/fail summary>
+```
+
+## Decisions
+
+- Record key decisions and their rationale.
+
+## Skipped Checks And Risks
+
+- Record skipped checks, reasons, and residual risks.
+
+## Follow-Up
+
+- Separate future work from completed work.
+
+## Archive Handoff
+
+- Archive path: `{archive_target}`
+- Related experience:
+{experience_lines}
+- Skill, eval, fixture, or tool update needed:
+"""
+
+
+def new_completed_task_report(args: argparse.Namespace) -> int:
+    today = args.date or _datetime.date.today().isoformat()
+    slug = normalize_slug(args.slug)
+    if not slug:
+        raise ValueError("--slug must contain at least one letter or number")
+    target = repo_path(args.output) if args.output else COMPLETED_TASK_DIR / f"{today}-{slug}" / "README.md"
+    text = completed_task_report_template(args)
+    if args.write:
+        write_text(target, text, args.force)
+        print(f"wrote {display_path(target)}")
+    else:
+        print(f"# target: {display_path(target)}")
+        print(text)
+    return 0
+
+
+def validate_completed_task_report_file(path: Path,
+                                        require_index: bool = True) -> list[CheckResult]:
+    results: list[CheckResult] = []
+    if not path.exists():
+        return [CheckResult(False, f"completed-task-report: missing file {path}")]
+    if path.name.lower() != "readme.md":
+        results.append(CheckResult(False, f"{display_path(path)}: completed-task reports must be README.md files"))
+
+    text = read_text(path)
+    data = parse_frontmatter_values(text)
+    required_fields = [
+        "task_id",
+        "status",
+        "session_goal",
+        "archive_target",
+    ]
+    for field in required_fields:
+        if field not in data or data[field] in ("", []):
+            results.append(CheckResult(False, f"{display_path(path)}: missing frontmatter field {field}"))
+
+    task_id = str(data.get("task_id", ""))
+    if task_id and not re.match(r"^\d{4}-\d{2}-\d{2}-[a-z0-9][a-z0-9-]*$", task_id):
+        results.append(CheckResult(False, f"{display_path(path)}: task_id must look like YYYY-MM-DD-slug"))
+    if task_id and path.parent.name != task_id:
+        results.append(CheckResult(False, f"{display_path(path)}: folder name must match task_id {task_id}"))
+
+    valid_statuses = {"complete", "accepted_with_risk", "blocked", "abandoned"}
+    status = str(data.get("status", ""))
+    if status and status not in valid_statuses:
+        results.append(CheckResult(False, f"{display_path(path)}: status must be one of {sorted(valid_statuses)}"))
+
+    archive_target = str(data.get("archive_target", "")).replace("\\", "/").rstrip("/")
+    expected_archive = f"docs/completed-tasks/{path.parent.name}"
+    if archive_target and archive_target != expected_archive:
+        results.append(CheckResult(
+            False,
+            f"{display_path(path)}: archive_target {archive_target!r} must be {expected_archive!r}",
+        ))
+
+    for section in COMPLETED_TASK_REQUIRED_SECTIONS:
+        body = section_body(text, section)
+        if not body:
+            results.append(CheckResult(False, f"{display_path(path)}: missing or empty section {section}"))
+
+    for pattern in COMPLETED_TASK_PLACEHOLDERS:
+        if pattern in text:
+            results.append(CheckResult(False, f"{display_path(path)}: placeholder text remains: {pattern}"))
+
+    evidence = section_body(text, "## Evidence")
+    if evidence and not (
+        "```" in evidence
+        or "[OK]" in evidence
+        or "Passed" in evidence
+        or "Skipped" in evidence
+        or "not relevant" in evidence.lower()
+    ):
+        results.append(CheckResult(
+            False,
+            f"{display_path(path)}: Evidence section must include commands, pass/fail summaries, or explicit skipped checks",
+        ))
+
+    if re.search(r"^\s*(User|Assistant|Tool):", text, flags=re.MULTILINE):
+        results.append(CheckResult(False, f"{display_path(path)}: raw chat transcript marker appears in report"))
+
+    for link in normalize_list(data.get("experience_links")):
+        if link.lower() == "none":
+            continue
+        target = repo_path(link)
+        if not target.exists():
+            results.append(CheckResult(False, f"{display_path(path)}: experience link does not exist: {link}"))
+
+    if require_index and path.is_relative_to(COMPLETED_TASK_DIR) and path != COMPLETED_TASK_DIR / "README.md":
+        if not has_index_link(path):
+            results.append(CheckResult(False, f"{display_path(path)}: missing index link in docs/completed-tasks/README.md"))
+
+    if not results:
+        results.append(CheckResult(True, f"completed-task-report: {display_path(path)} passed"))
+    return results
+
+
+def validate_completed_task_report_command(args: argparse.Namespace) -> int:
+    paths = [repo_path(path) if not Path(path).is_absolute() else Path(path) for path in args.paths]
+    results: list[CheckResult] = []
+    for path in paths:
+        results.extend(validate_completed_task_report_file(path, require_index=not args.skip_index_check))
+    return run_checks(results)
+
+
+def score_from_body(body: str, score_if_good: int = 3) -> int:
+    if not body:
+        return 0
+    if len(body) < 40:
+        return 1
+    if len(body) < 120:
+        return 2
+    return score_if_good
+
+
+def closure_score_dimensions(path: Path) -> list[ScoreDimension]:
+    if not path.exists():
+        return [ScoreDimension("file", 0, f"missing file {path}")]
+
+    text = read_text(path)
+    data = parse_frontmatter_values(text)
+    objective = section_body(text, "## Task Objective")
+    scope = section_body(text, "## Scope And Non-Goals")
+    evidence = section_body(text, "## Evidence")
+    files = section_body(text, "## Files And Artifacts")
+    decisions = section_body(text, "## Decisions")
+    risks = section_body(text, "## Skipped Checks And Risks")
+    follow_up = section_body(text, "## Follow-Up")
+    archive = section_body(text, "## Archive Handoff")
+    work = section_body(text, "## Work Completed")
+
+    dimensions: list[ScoreDimension] = []
+
+    objective_score = score_from_body(objective)
+    if objective and data.get("session_goal") and len(objective) >= 80:
+        objective_score = 4
+    dimensions.append(ScoreDimension("objective_clarity", objective_score, "task objective and session_goal coverage"))
+
+    scope_score = score_from_body(scope)
+    if "In scope" in scope and "Out of scope" in scope:
+        scope_score = min(4, scope_score + 1)
+    dimensions.append(ScoreDimension("scope_discipline", scope_score, "scope and non-goal separation"))
+
+    evidence_score = score_from_body(evidence)
+    if "```" in evidence and ("[OK]" in evidence or "Passed" in evidence or "Skipped" in evidence):
+        evidence_score = 4
+    dimensions.append(ScoreDimension("evidence_completeness", evidence_score, "commands and interpreted results"))
+
+    files_score = score_from_body(files)
+    if "`" in files and ":" in files:
+        files_score = min(4, files_score + 1)
+    dimensions.append(ScoreDimension("changed_state_traceability", files_score, "paths mapped to task reasons"))
+
+    decisions_score = score_from_body(decisions)
+    if "rationale" in decisions.lower() or "because" in decisions.lower():
+        decisions_score = min(4, decisions_score + 1)
+    dimensions.append(ScoreDimension("decision_traceability", decisions_score, "durable rationale capture"))
+
+    risk_score = score_from_body(risks)
+    if "skipped" in risks.lower() and ("risk" in risks.lower() or "residual" in risks.lower()):
+        risk_score = min(4, risk_score + 1)
+    dimensions.append(ScoreDimension("risk_visibility", risk_score, "skipped checks and residual risk"))
+
+    archive_score = score_from_body(archive)
+    if data.get("archive_target") and has_index_link(path):
+        archive_score = min(4, archive_score + 1)
+    dimensions.append(ScoreDimension("archive_usefulness", archive_score, "archive target and index discoverability"))
+
+    learning_score = 0
+    links = [link for link in normalize_list(data.get("experience_links")) if link.lower() != "none"]
+    if links:
+        learning_score = 3
+    if re.search(r"\b(skill|eval|fixture|tool|experience)\b", archive, flags=re.IGNORECASE):
+        learning_score = max(learning_score, 3)
+    if links and "needed" in archive.lower():
+        learning_score = 4
+    dimensions.append(ScoreDimension("learning_promotion", learning_score, "experience or promotion analysis"))
+
+    follow_up_score = score_from_body(follow_up)
+    if "future" in follow_up.lower() or "follow" in follow_up.lower():
+        follow_up_score = min(4, follow_up_score + 1)
+    dimensions.append(ScoreDimension("follow_up_separation", follow_up_score, "future work separated from completed work"))
+
+    report_length = len(text)
+    concision_score = 2
+    if 1200 <= report_length <= 7000 and work:
+        concision_score = 4
+    elif 7000 < report_length <= 10000:
+        concision_score = 3
+    elif report_length < 1200:
+        concision_score = 1
+    dimensions.append(ScoreDimension("concision_and_signal", concision_score, "rough length and section signal heuristic"))
+
+    return dimensions
+
+
+def score_closure_report(args: argparse.Namespace) -> int:
+    path = repo_path(args.path) if not Path(args.path).is_absolute() else Path(args.path)
+    dimensions = closure_score_dimensions(path)
+    total = sum(item.score for item in dimensions)
+    print(f"Closure score: {total}/40 for {display_path(path)}")
+    for item in dimensions:
+        print(f"[{item.score:02d}/04] {item.name}: {item.reason}")
+    if args.min_score and total < args.min_score:
+        print(f"score below required minimum {args.min_score}")
+        return 1
+    return 0
+
+
 def run_checks(checks: list[CheckResult]) -> int:
     failed = False
     for check in checks:
@@ -780,6 +1135,34 @@ def build_parser() -> argparse.ArgumentParser:
     new_task.add_argument("--write", action="store_true")
     new_task.add_argument("--force", action="store_true")
 
+    new_completed = subparsers.add_parser(
+        "new-completed-task-report",
+        help="Create a completed-task execution report skeleton",
+    )
+    new_completed.add_argument("--slug", required=True)
+    new_completed.add_argument("--session-goal", required=True)
+    new_completed.add_argument("--title", default="")
+    new_completed.add_argument("--status", default="complete")
+    new_completed.add_argument("--experience-link", action="append", default=[])
+    new_completed.add_argument("--date", default="")
+    new_completed.add_argument("--output", default="")
+    new_completed.add_argument("--write", action="store_true")
+    new_completed.add_argument("--force", action="store_true")
+
+    validate_completed = subparsers.add_parser(
+        "validate-completed-task-report",
+        help="Validate completed-task report frontmatter, sections, evidence, and archive link",
+    )
+    validate_completed.add_argument("paths", nargs="+")
+    validate_completed.add_argument("--skip-index-check", action="store_true")
+
+    score_closure = subparsers.add_parser(
+        "score-closure-report",
+        help="Emit a heuristic E001 closure-quality score for a completed-task report",
+    )
+    score_closure.add_argument("path")
+    score_closure.add_argument("--min-score", type=int, default=0)
+
     gates = subparsers.add_parser(
         "run-quality-gates",
         help="Run CI-ready build, test, scene, and architecture quality gates",
@@ -826,6 +1209,12 @@ def main(argv: list[str]) -> int:
         return validate_task_card_command(args)
     if args.command == "new-task-card":
         return new_task_card(args)
+    if args.command == "new-completed-task-report":
+        return new_completed_task_report(args)
+    if args.command == "validate-completed-task-report":
+        return validate_completed_task_report_command(args)
+    if args.command == "score-closure-report":
+        return score_closure_report(args)
     if args.command == "run-quality-gates":
         return run_quality_gates(args)
     if args.command == "emit-design-card":

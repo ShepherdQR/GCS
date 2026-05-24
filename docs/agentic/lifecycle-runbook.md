@@ -93,7 +93,21 @@ Review for:
 Stage only scoped files. Commit with a concise message. Push the current
 branch. Do not include unrelated dirty files.
 
-## Step 8: Learn
+## Step 8: Close And Archive
+
+For non-trivial tasks, create or update a completed-task execution report
+before declaring the task closed.
+
+```bat
+python tools\agentic_design\agentic_toolkit.py new-completed-task-report --slug my-task --session-goal "Describe the completed task" --experience-link docs/agentic/experience/001-task-scoped-session-closure/
+python tools\agentic_design\agentic_toolkit.py validate-completed-task-report docs\completed-tasks\<task>\README.md
+python tools\agentic_design\agentic_toolkit.py score-closure-report docs\completed-tasks\<task>\README.md --min-score 30
+```
+
+Use the score as a closure heuristic, not as a replacement for review. A low
+score means the report likely fails to transfer task state into project memory.
+
+## Step 9: Learn
 
 Create an experience record when:
 
