@@ -1,41 +1,165 @@
-RIGID_SET_COLORS = [
-    "#587C7A", "#B88746", "#7C617B", "#788C5D", "#C66E4E",
-    "#66738F", "#8A8178", "#9A7A5F", "#5F7D9A", "#A86E73",
-    "#6F8B72", "#9B8A5F", "#6E6A86", "#A06F4F", "#557D8A",
-]
+"""Shared GCS visual tokens and compatibility aliases."""
 
-CONSTRAINT_COLORS = {
-    0: "#B8574E",
-    1: "#788C5D",
-    2: "#66738F",
-    3: "#B88746",
-    4: "#7C617B",
+GCS_TOKENS = {
+    "surface.paper": "#F7F4EC",
+    "surface.panel": "#FFFEFA",
+    "surface.panel.subtle": "#EFEDE6",
+    "surface.panel.muted": "#E8DFD0",
+    "surface.canvas": "#FBFAF5",
+    "surface.table.selected": "#EAD9CF",
+    "surface.track": "#EFEBE2",
+    "text.primary": "#181715",
+    "text.secondary": "#5F5B53",
+    "text.muted": "#8B867A",
+    "text.inverse": "#FAF9F5",
+    "rule.default": "#D8D1C4",
+    "rule.soft": "#ECE7DD",
+    "rule.strong": "#C9BDAA",
+    "rule.axis": "#8B867A",
+    "evidence.domain.fill": "#E7EDF8",
+    "evidence.domain.stroke": "#435F8C",
+    "evidence.graph.fill": "#EFE7F3",
+    "evidence.graph.stroke": "#765D87",
+    "evidence.planner.fill": "#E3F0E4",
+    "evidence.planner.stroke": "#477861",
+    "evidence.numeric.fill": "#EDF2DF",
+    "evidence.numeric.stroke": "#5E7D43",
+    "evidence.diagnostic.fill": "#F6E7CF",
+    "evidence.diagnostic.stroke": "#A36B32",
+    "evidence.failure.fill": "#F3DDD7",
+    "evidence.failure.stroke": "#A94C43",
+    "evidence.boundary.fill": "#EFEDE6",
+    "evidence.boundary.stroke": "#777166",
+    "state.focus": "#C8643F",
+    "state.focus.active": "#B85F45",
+    "state.ok": "#4B8A64",
+    "state.info": "#6A8FB5",
+    "state.warning": "#B88746",
+    "state.error": "#B8574E",
+    "state.pending": "#8B867A",
+    "state.replay.current": "#C8643F",
+    "state.violation": "#A94C43",
+    "geometry.point.color": "#334C78",
+    "geometry.point.marker": "o",
+    "geometry.line.marker": "D",
+    "geometry.plane.marker": "s",
+    "geometry.point.nodeSize": 300,
+    "geometry.line.nodeSize": 390,
+    "geometry.plane.nodeSize": 480,
+    "constraint.default.color": "#8B867A",
+    "constraint.emphasis.color": "#B97834",
+    "constraint.type.coincident.color": "#B8574E",
+    "constraint.type.coincident.lineStyle": "dotted",
+    "constraint.type.coincident.graphStyle": "dotted",
+    "constraint.type.parallel.color": "#788C5D",
+    "constraint.type.parallel.lineStyle": "dashed",
+    "constraint.type.parallel.graphStyle": "dashed",
+    "constraint.type.perpendicular.color": "#66738F",
+    "constraint.type.perpendicular.lineStyle": "dashdot",
+    "constraint.type.perpendicular.graphStyle": "dashdot",
+    "constraint.type.distance.color": "#B88746",
+    "constraint.type.distance.lineStyle": "solid",
+    "constraint.type.distance.graphStyle": "solid",
+    "constraint.type.angle.color": "#7C617B",
+    "constraint.type.angle.lineStyle": (0, (3, 2)),
+    "constraint.type.angle.graphStyle": "dashed",
+    "rigidSet.palette.01": "#587C7A",
+    "rigidSet.palette.02": "#B88746",
+    "rigidSet.palette.03": "#7C617B",
+    "rigidSet.palette.04": "#788C5D",
+    "rigidSet.palette.05": "#C66E4E",
+    "rigidSet.palette.06": "#66738F",
+    "rigidSet.palette.07": "#8A8178",
+    "rigidSet.palette.08": "#9A7A5F",
+    "rigidSet.palette.09": "#5F7D9A",
+    "rigidSet.palette.10": "#A86E73",
+    "rigidSet.palette.11": "#6F8B72",
+    "rigidSet.palette.12": "#9B8A5F",
+    "rigidSet.palette.13": "#6E6A86",
+    "rigidSet.palette.14": "#A06F4F",
+    "rigidSet.palette.15": "#557D8A",
+    "figure.font.sans": "Anthropic Sans, Inter, Segoe UI, Arial, sans-serif",
+    "figure.font.serif": "Anthropic Serif, Georgia, Cambria, Times New Roman, serif",
+    "figure.radius.panel": 8,
+    "figure.radius.card": 6,
+    "figure.radius.small": 4,
+    "figure.radius.pill": 12,
+    "figure.stroke.default": 1.1,
+    "figure.stroke.grid": 1.0,
+    "figure.stroke.arrow": 1.4,
+    "figure.stroke.constraint": 2.4,
 }
 
+RIGID_SET_COLORS = [
+    GCS_TOKENS[f"rigidSet.palette.{index:02d}"]
+    for index in range(1, 16)
+]
+
 GEOMETRY_NAMES = {0: "Point", 1: "Line", 2: "Plane"}
-CONSTRAINT_NAMES = {0: "Coincident", 1: "Parallel", 2: "Perpendicular", 3: "Distance", 4: "Angle"}
+CONSTRAINT_NAMES = {
+    0: "Coincident",
+    1: "Parallel",
+    2: "Perpendicular",
+    3: "Distance",
+    4: "Angle",
+}
+
+CONSTRAINT_TYPE_TOKENS = {
+    0: "constraint.type.coincident",
+    1: "constraint.type.parallel",
+    2: "constraint.type.perpendicular",
+    3: "constraint.type.distance",
+    4: "constraint.type.angle",
+}
+
+CONSTRAINT_COLORS = {
+    type_id: GCS_TOKENS[f"{token}.color"]
+    for type_id, token in CONSTRAINT_TYPE_TOKENS.items()
+}
+
+GEOMETRY_MARKERS = {
+    0: GCS_TOKENS["geometry.point.marker"],
+    1: GCS_TOKENS["geometry.line.marker"],
+    2: GCS_TOKENS["geometry.plane.marker"],
+}
+
+GEOMETRY_NODE_SIZES = {
+    0: GCS_TOKENS["geometry.point.nodeSize"],
+    1: GCS_TOKENS["geometry.line.nodeSize"],
+    2: GCS_TOKENS["geometry.plane.nodeSize"],
+}
+
+CONSTRAINT_LINE_STYLES = {
+    type_id: GCS_TOKENS[f"{token}.lineStyle"]
+    for type_id, token in CONSTRAINT_TYPE_TOKENS.items()
+}
+
+CONSTRAINT_GRAPH_LINE_STYLES = {
+    type_id: GCS_TOKENS[f"{token}.graphStyle"]
+    for type_id, token in CONSTRAINT_TYPE_TOKENS.items()
+}
 
 GCS_THEME = {
-    "bg_window": "#F7F3EA",
-    "bg_primary": "#F7F3EA",
-    "bg_panel": "#EFE8DC",
-    "bg_panel_alt": "#E8DFD0",
-    "bg_canvas": "#FAF9F5",
-    "bg_table": "#FFFCF7",
-    "bg_table_selected": "#EAD9CF",
-    "text_primary": "#141413",
-    "text_secondary": "#635D53",
-    "text_muted": "#8A8178",
-    "text_on_accent": "#FAF9F5",
-    "accent": "#D97757",
-    "accent_active": "#B85F45",
-    "info": "#6A8FB5",
-    "success": "#788C5D",
-    "warning": "#B88746",
-    "error": "#B8574E",
-    "border": "#DDD5C7",
-    "border_strong": "#C9BDAA",
-    "grid": "#E6DED1",
-    "axis": "#8A8178",
-    "constraint_default": "#8A8178",
+    "bg_window": GCS_TOKENS["surface.paper"],
+    "bg_primary": GCS_TOKENS["surface.paper"],
+    "bg_panel": GCS_TOKENS["surface.panel.subtle"],
+    "bg_panel_alt": GCS_TOKENS["surface.panel.muted"],
+    "bg_canvas": GCS_TOKENS["surface.canvas"],
+    "bg_table": GCS_TOKENS["surface.panel"],
+    "bg_table_selected": GCS_TOKENS["surface.table.selected"],
+    "text_primary": GCS_TOKENS["text.primary"],
+    "text_secondary": GCS_TOKENS["text.secondary"],
+    "text_muted": GCS_TOKENS["text.muted"],
+    "text_on_accent": GCS_TOKENS["text.inverse"],
+    "accent": GCS_TOKENS["state.focus"],
+    "accent_active": GCS_TOKENS["state.focus.active"],
+    "info": GCS_TOKENS["state.info"],
+    "success": GCS_TOKENS["state.ok"],
+    "warning": GCS_TOKENS["state.warning"],
+    "error": GCS_TOKENS["state.error"],
+    "border": GCS_TOKENS["rule.default"],
+    "border_strong": GCS_TOKENS["rule.strong"],
+    "grid": GCS_TOKENS["rule.soft"],
+    "axis": GCS_TOKENS["rule.axis"],
+    "constraint_default": GCS_TOKENS["constraint.default.color"],
 }

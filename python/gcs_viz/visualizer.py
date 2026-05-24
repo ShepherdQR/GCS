@@ -16,39 +16,14 @@ from gcs_viz.algebra import GCSGraph, GeometryType
 from gcs_viz.color_scheme import (
     RIGID_SET_COLORS,
     CONSTRAINT_COLORS,
+    GEOMETRY_MARKERS,
+    GEOMETRY_NODE_SIZES,
+    CONSTRAINT_LINE_STYLES,
+    CONSTRAINT_GRAPH_LINE_STYLES,
     GEOMETRY_NAMES,
     CONSTRAINT_NAMES,
     GCS_THEME,
 )
-
-
-GEOMETRY_MARKERS = {
-    int(GeometryType.Point): "o",
-    int(GeometryType.Line): "D",
-    int(GeometryType.Plane): "s",
-}
-
-GEOMETRY_NODE_SIZES = {
-    int(GeometryType.Point): 300,
-    int(GeometryType.Line): 390,
-    int(GeometryType.Plane): 480,
-}
-
-CONSTRAINT_LINE_STYLES = {
-    0: "dotted",
-    1: "dashed",
-    2: "dashdot",
-    3: "solid",
-    4: (0, (3, 2)),
-}
-
-CONSTRAINT_GRAPH_LINE_STYLES = {
-    0: "dotted",
-    1: "dashed",
-    2: "dashdot",
-    3: "solid",
-    4: "dashed",
-}
 
 
 def _get_rs_color(graph: GCSGraph, rs_id: int) -> str:

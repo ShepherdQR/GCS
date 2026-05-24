@@ -132,7 +132,7 @@ Goal: make `GCS Warm Evidence Tokens` executable across figures and the viewer.
 | --- | --- | --- | --- |
 | P2.1 | Done | `78-ui-token-inventory.md` inventories current GUI colors, figure tokens, Matplotlib styles, state colors, renderer fallbacks, and terminal/Rich styles. | Inventory doc |
 | P2.2 | Done | `79-ui-token-taxonomy.md` defines canonical token names and cross-surface mappings for surface, text, rule, evidence, state, geometry, constraint, rigid-set, figure, and viewer roles. | Token table diff |
-| P2.3 | Pending | Mirror figure tokens into `python/gcs_viz/color_scheme.py` without changing interaction logic. | Python syntax check |
+| P2.3 | Done | `python/gcs_viz/color_scheme.py` mirrors canonical tokens and preserves compatibility aliases for viewer code. | Python syntax check |
 | P2.4 | Pending | Align CSS/HTML figure compositor token usage and add notes for future renderers. | Figure QA smoke |
 
 Phase-close replanning requirement:
@@ -178,6 +178,23 @@ Updated P2 next steps:
   without changing renderer behavior.
 - P2.4 should consume the canonical names from the figure compositor side after
   the Python mirror has landed.
+
+P2.3 completion summary:
+
+- Added `GCS_TOKENS` to `python/gcs_viz/color_scheme.py` using the canonical
+  token names from `79-ui-token-taxonomy.md`.
+- Preserved `GCS_THEME`, `RIGID_SET_COLORS`, and `CONSTRAINT_COLORS` as
+  compatibility aliases for existing GUI and renderer code.
+- Moved geometry marker, geometry node-size, constraint line-style, and
+  graph-line-style tokens into `color_scheme.py`; `visualizer.py` now imports
+  those aliases instead of defining local duplicates.
+
+Updated P2 next steps:
+
+- P2.4 should align `figure71_html_compositor.py` with canonical token names
+  and document CSS custom-property naming for future figure renderers.
+- P2 phase close should decide whether the token source should remain mirrored
+  JSON/Python or move to generated artifacts.
 
 ## P3: Viewer UI Implementation
 
