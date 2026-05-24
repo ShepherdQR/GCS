@@ -245,7 +245,7 @@ solver/runtime/viewer boundaries.
 | --- | --- | --- | --- |
 | P3.1 | Done | `70-visualization/viewer-token-audit.md` records the raw-token audit and `platform.py` now uses `GCS_THEME` for legacy textual DOF/status styles. | Raw-token audit plus Python syntax check |
 | P3.2 | Done | `STATE_COLORS` exposes canonical state aliases and viewer state/focus consumers now use those aliases without changing command ownership. | AST syntax checks and state-token audit |
-| P3.3 | Pending | Reshape inspector layout toward model summary plus tabbed object tables using existing tokens. | Narrow-window smoke |
+| P3.3 | Done | `70-visualization/viewer-inspector-layout-audit.md` confirms the active inspector layout and marks the old stacked left panel as legacy-unused. | Inspector audit plus AST syntax check |
 | P3.4 | Pending | Add replay and solve evidence polish with structured summary evidence ahead of logs. | Replay fixture smoke |
 
 Phase-close replanning requirement:
@@ -285,6 +285,20 @@ Updated P3 next steps:
 - P3.3 can reshape inspector layout using existing token and state aliases.
 - P3.4 should reuse `STATE_COLORS["replay_current"]` for replay-current
   evidence and `STATE_COLORS["violated"]` for constraint violation surfaces.
+
+P3.3 completion summary:
+
+- Added `docs/architecture/70-visualization/viewer-inspector-layout-audit.md`.
+- Confirmed that the active Tk inspector already has the required model
+  summary, tabbed object browser, local object controls, and command zone.
+- Renamed the unused old `_build_left_panel` path to
+  `_build_left_panel_legacy_unused` and marked it as legacy comparison code so
+  future work does not accidentally revive the stacked debug layout.
+
+Updated P3 next steps:
+
+- P3.4 should polish replay and solve evidence around the viewport and status
+  rail, not start another left-inspector rewrite.
 
 ## P4: Scientific Figure Pipeline
 

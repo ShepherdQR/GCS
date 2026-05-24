@@ -184,7 +184,8 @@ class GCSPlatformGUI:
         ttk.Button(file_tools, text="Save", command=self._save).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
         ttk.Button(file_tools, text="Load", command=self._load).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
 
-    def _build_left_panel(self, parent):
+    def _build_left_panel_legacy_unused(self, parent):
+        """Legacy stacked inspector retained only for comparison during P3."""
         canvas = tk.Canvas(parent, width=290, highlightthickness=0, bg=GCS_THEME["bg_panel"])
         scrollbar = ttk.Scrollbar(parent, orient=tk.VERTICAL, command=canvas.yview)
         scroll_frame = ttk.Frame(canvas)
