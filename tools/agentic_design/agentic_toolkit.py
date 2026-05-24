@@ -82,6 +82,17 @@ def write_text(path: Path, text: str, force: bool) -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
+def resolve_repo_or_absolute(path: str | Path) -> Path:
+    candidate = Path(path)
+    if candidate.is_absolute():
+        return candidate
+    return ROOT / candidate
+
+
+def quote_for_powershell(value: str | Path) -> str:
+    return '"' + str(value).replace('"', '`"') + '"'
+
+
 def extract_frontmatter(text: str) -> dict[str, str]:
     match = re.match(r"^---\r?\n(.*?)\r?\n---\r?\n", text, flags=re.DOTALL)
     if not match:
@@ -692,6 +703,179 @@ def new_task_card(args: argparse.Namespace) -> int:
     else:
         print(f"# target: {target.relative_to(ROOT)}")
         print(text)
+    return 0
+
+
+def worktree_task_values(args: argparse.Namespace) -> dict[str, Any]:
+    today = args.date or _datetime.date.today().isoformat()
+    slug = normalize_slug(args.slug)
+    if not slug:
+        raise ValueError("--slug must contain at least one letter or number")
+
+    task_id = f"{today}-{slug}"
+    branch = args.branch or f"codex/{task_id}"
+    base = args.base or "origin/HEAD"
+    if args.path:
+        worktree_path = resolve_repo_or_absolute(args.path)
+    else:
+        worktree_path = resolve_repo_or_absolute(Path(args.worktree_root) / task_id)
+    target = repo_path(args.output) if args.output else AGENTIC_TASK_DIR / f"{task_id}.md"
+    affected_paths = args.affected_path or ["docs/agentic/", "tools/agentic_design/"]
+    evidence = args.evidence or ["validate-task-card", "validate-docs", "validate-inventory"]
+
+    return {
+        "task_id": task_id,
+        "slug": slug,
+        "branch": branch,
+        "base": base,
+        "worktree_path": worktree_path,
+        "target": target,
+        "affected_paths": affected_paths,
+        "evidence": evidence,
+    }
+
+
+def yaml_lines(values: list[str]) -> str:
+    return "\n".join(f"  - {value}" for value in values)
+
+
+def worktree_task_card_template(args: argparse.Namespace, values: dict[str, Any]) -> str:
+    human_gate = "true" if args.human_gate or args.risk == "high" else "false"
+    human_gate_reason = args.human_gate_reason
+    if human_gate == "true" and not human_gate_reason:
+        human_gate_reason = "High-risk or explicitly gated task."
+    specialists = args.specialist or ["none"]
+    request = args.request.replace('"', '\\"')
+    worktree_display = display_path(values["worktree_path"])
+    target_display = display_path(values["target"])
+    root_arg = quote_for_powershell(ROOT)
+    worktree_arg = quote_for_powershell(values["worktree_path"])
+
+    return f"""---
+task_id: {values["task_id"]}
+status: draft
+request: "{request}"
+scope: {args.scope}
+risk: {args.risk}
+owning_agent: {args.owner}
+specialist_agents:
+{yaml_lines(specialists)}
+affected_contracts:
+  - none
+affected_paths:
+{yaml_lines(values["affected_paths"])}
+required_evidence:
+{yaml_lines(values["evidence"])}
+human_gate_required: {human_gate}
+human_gate_reason: "{human_gate_reason}"
+---
+
+# {values["task_id"]}
+
+## Scope
+
+Execute the task in an isolated worktree and keep the resulting diff scoped to
+the request.
+
+Request: {args.request}
+
+Worktree plan:
+
+- Base ref: `{values["base"]}`
+- Branch: `{values["branch"]}`
+- Worktree path: `{worktree_display}`
+- Task card: `{target_display}`
+
+## Non-Goals
+
+- Do not switch branches in the shared Local checkout for this task.
+- Do not include unrelated dirty files from another session.
+- Do not redefine solver architecture contracts unless the task scope names
+  that boundary.
+
+## Context To Read
+
+- `docs/agentic/lifecycle-runbook.md`
+- `docs/research/20260524/ai-agent-git-worktree-workflow-for-gcs.md`
+- Owning skill: `{args.owner}`
+
+## Acceptance Gates
+
+- The worktree path, branch, base ref, and merge order are explicit.
+- Implementation stays inside the affected paths or records why scope changed.
+- Required evidence is produced or an explicit skip reason is recorded.
+
+## Verification Plan
+
+```bat
+python tools\\agentic_design\\agentic_toolkit.py validate-task-card docs\\agentic\\tasks\\{values["task_id"]}.md
+```
+
+## Worktree Commands
+
+```powershell
+git -C {root_arg} fetch origin
+git -C {root_arg} worktree add -b {quote_for_powershell(values["branch"])} {worktree_arg} {quote_for_powershell(values["base"])}
+git -C {worktree_arg} status --short --branch
+```
+
+After completion:
+
+```powershell
+git worktree remove {worktree_arg}
+git worktree prune
+```
+
+## Evidence Bundle
+
+Evidence will be added after the worktree task runs. At minimum, include the
+final `git status --short --branch`, the validation commands, pass/fail
+summaries, and any skipped checks.
+
+## Residual Risks
+
+The generated commands do not create the worktree until an operator runs them.
+Review the base ref and current dirty-tree state before executing mutating Git
+commands.
+"""
+
+
+def new_worktree_task(args: argparse.Namespace) -> int:
+    values = worktree_task_values(args)
+    text = worktree_task_card_template(args, values)
+
+    if args.write:
+        write_text(values["target"], text, args.force)
+        print(f"wrote {display_path(values['target'])}")
+
+    commands = [
+        f"git -C {quote_for_powershell(ROOT)} fetch origin",
+        (
+            f"git -C {quote_for_powershell(ROOT)} worktree add -b "
+            f"{quote_for_powershell(values['branch'])} "
+            f"{quote_for_powershell(values['worktree_path'])} "
+            f"{quote_for_powershell(values['base'])}"
+        ),
+        f"git -C {quote_for_powershell(values['worktree_path'])} status --short --branch",
+    ]
+    if args.json:
+        print(json.dumps({
+            "task_id": values["task_id"],
+            "task_card": display_path(values["target"]),
+            "branch": values["branch"],
+            "base": values["base"],
+            "worktree_path": str(values["worktree_path"]),
+            "commands": commands,
+        }, indent=2, sort_keys=True))
+    else:
+        print(f"task_id: {values['task_id']}")
+        print(f"task_card: {display_path(values['target'])}")
+        print(f"branch: {values['branch']}")
+        print(f"base: {values['base']}")
+        print(f"worktree_path: {values['worktree_path']}")
+        print("commands:")
+        for command in commands:
+            print(f"  {command}")
     return 0
 
 
@@ -1589,6 +1773,30 @@ def build_parser() -> argparse.ArgumentParser:
     new_task.add_argument("--write", action="store_true")
     new_task.add_argument("--force", action="store_true")
 
+    new_worktree = subparsers.add_parser(
+        "new-worktree-task",
+        help="Create a task card and command plan for an isolated git worktree task",
+    )
+    new_worktree.add_argument("--slug", required=True)
+    new_worktree.add_argument("--request", required=True)
+    new_worktree.add_argument("--scope", default="implementation")
+    new_worktree.add_argument("--risk", default="medium")
+    new_worktree.add_argument("--owner", default="gcs-architecture-steward")
+    new_worktree.add_argument("--specialist", action="append", default=[])
+    new_worktree.add_argument("--affected-path", action="append", default=[])
+    new_worktree.add_argument("--evidence", action="append", default=[])
+    new_worktree.add_argument("--human-gate", action="store_true")
+    new_worktree.add_argument("--human-gate-reason", default="")
+    new_worktree.add_argument("--date", default="")
+    new_worktree.add_argument("--base", default="origin/HEAD")
+    new_worktree.add_argument("--branch", default="")
+    new_worktree.add_argument("--worktree-root", default=".codex/worktrees")
+    new_worktree.add_argument("--path", default="")
+    new_worktree.add_argument("--output", default="")
+    new_worktree.add_argument("--write", action="store_true")
+    new_worktree.add_argument("--force", action="store_true")
+    new_worktree.add_argument("--json", action="store_true")
+
     new_completed = subparsers.add_parser(
         "new-completed-task-report",
         help="Create a completed-task execution report skeleton",
@@ -1693,6 +1901,8 @@ def main(argv: list[str]) -> int:
         return validate_task_card_command(args)
     if args.command == "new-task-card":
         return new_task_card(args)
+    if args.command == "new-worktree-task":
+        return new_worktree_task(args)
     if args.command == "new-completed-task-report":
         return new_completed_task_report(args)
     if args.command == "validate-completed-task-report":

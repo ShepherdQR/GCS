@@ -9,6 +9,34 @@ Use `task-to-archive-checklist.md` as the compact per-task checklist. The
 runbook explains the full workflow; the checklist is the quick gate before
 declaring a task done.
 
+## Step 0: Choose Workspace
+
+Choose the workspace before any mutating command.
+
+- Use the local checkout only for read-only work, foreground review,
+  integration, or a single active writing session.
+- Use a dedicated Codex app Worktree, git worktree, or clone for every parallel
+  session that can edit files, generate artifacts, run mutating scripts, or
+  switch branches.
+- Treat branch state as a repository/worktree fact, not a chat-session fact.
+  Do not run `git switch`, `git checkout -b`, or branch cleanup in a shared
+  local checkout while another session may be using it.
+- Prefer the Codex app Worktree flow. If a manual in-repo worktree is required,
+  use `.codex/worktrees/<date>-<slug>`; `.codex/worktrees/` is ignored while
+  `.codex/skills/` remains tracked.
+- Use stacked branches only when a task truly depends on another unmerged
+  branch. Record the parent branch and merge order in the task card.
+
+For non-trivial writing tasks, generate the branch/worktree plan and task card
+together:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py new-worktree-task --slug my-task --scope tool --risk medium --owner gcs-architecture-steward --base origin/master --request "Describe the task" --write
+```
+
+The command prints the git commands to run; it does not create the worktree by
+itself. Review the base branch and dirty-tree state before executing them.
+
 ## Step 1: Classify
 
 Classify the request by scope:
@@ -44,6 +72,10 @@ python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\t
 
 For tiny low-risk tasks, the task card may stay in the chat or PR description.
 Persist it when the work spans modules, commits, or future follow-up.
+
+When the task will use an isolated worktree, prefer `new-worktree-task` over
+`new-task-card` so the worktree path, branch name, base ref, and cleanup command
+are recorded at intake time.
 
 ## Step 3: Plan
 

@@ -31,6 +31,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
 | `lifecycle-runbook.md` | Action guide for moving from request to push. |
 | `task-to-archive-checklist.md` | Compact closure checklist with a checked Step 47 example. |
+| `../research/20260524/ai-agent-git-worktree-workflow-for-gcs.md` | Research-backed policy for multi-session Codex worktree isolation. |
 | `experience/001-task-scoped-session-closure/calibration/` | E001 closure-score calibration notes comparing machine scores with human review. |
 | `agile-pdca-roadmap.md` | Four-phase Agentic SE execution plan, PDCA cadence, current backlog, and next task. |
 | `near-term-agent-plan.md` | Immediate agent execution plan for roadmap sync, seed-agent verification, E001 validation, and opt-in gates. |
@@ -43,25 +44,32 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 
 ## Minimum Workflow
 
-1. Create a task card for non-trivial work:
+1. Choose the workspace boundary. Use a dedicated worktree for any parallel
+   writing session:
+
+   ```bat
+   python tools\agentic_design\agentic_toolkit.py new-worktree-task --slug agentic-tooling --scope tool --risk medium --owner gcs-architecture-steward --base origin/master --request "Add task-card validation" --write
+   ```
+
+2. Create a task card for non-trivial single-session work:
 
    ```bat
    python tools\agentic_design\agentic_toolkit.py new-task-card --slug agentic-tooling --scope tool --risk medium --owner gcs-contract-tools-steward --request "Add task-card validation" --write
    ```
 
-2. Fill the generated scope, evidence, and risk fields, then validate the task
+3. Fill the generated scope, evidence, and risk fields, then validate the task
    card:
 
    ```bat
    python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-24-agentic-tooling.md
    ```
 
-3. Write an execution plan when risk is high or the task spans modules.
-4. Implement in the owning module or support tool boundary.
-5. Collect evidence with the standard quality gates.
-6. Check `task-to-archive-checklist.md` before closure.
-7. Close non-trivial sessions with a task execution report before archive.
-8. Record any repeated failure or reusable practice as an experience record
+4. Write an execution plan when risk is high or the task spans modules.
+5. Implement in the owning module or support tool boundary.
+6. Collect evidence with the standard quality gates.
+7. Check `task-to-archive-checklist.md` before closure.
+8. Close non-trivial sessions with a task execution report before archive.
+9. Record any repeated failure or reusable practice as an experience record
    before changing skills.
 
 ## Boundaries

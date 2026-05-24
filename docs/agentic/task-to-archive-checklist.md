@@ -25,6 +25,7 @@ it.
 
 | Check | Required Evidence | Done When |
 | --- | --- | --- |
+| Workspace | Local, Worktree, or clone boundary | Mutating parallel work has an isolated worktree or an explicit single-session Local rationale. |
 | Classify | Scope, risk, owner, affected contracts | The task card names the owning module or institutional agent. |
 | Gate | Human-gate reason for high-risk work | High-risk task cards explain why the user request authorizes execution. |
 | Boundaries | Non-goals and refused ownership | The task says what will not be changed. |
