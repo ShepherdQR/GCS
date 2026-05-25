@@ -51,6 +51,7 @@ and numeric task surface were inspected before writing the reports.
   `constraint_catalog`, `decomposition_planner`, `numeric_engine`,
   `diagnostics`, and `session_runtime`.
 - Wrote a feasibility analysis recommending staged, contract-first adoption.
+- Wrote a detailed implementation plan and design-readiness confirmation.
 - Created this closure archive and a scoped task card.
 
 ## Files And Artifacts
@@ -61,6 +62,11 @@ and numeric task surface were inspected before writing the reports.
   proposed GCS architecture and phased implementation plan.
 - `docs/research/20260525/lgs-spanning-tree/03-feasibility-analysis.md`:
   feasibility matrix, risk register, and recommendation.
+- `docs/research/20260525/lgs-spanning-tree/04-detailed-implementation-plan.md`:
+  detailed phased implementation plan for future contract-only work.
+- `docs/research/20260525/lgs-spanning-tree/05-design-readiness-confirmation.md`:
+  readiness confirmation, task-start prerequisites, acceptance criteria,
+  unit-test design, and pause decision.
 - `docs/agentic/tasks/2026-05-25-lgs-spanning-tree-method-research.md`: task
   card for this research/plan work.
 - `docs/completed-tasks/2026-05-25-lgs-spanning-tree-method-research/README.md`:
@@ -142,6 +148,9 @@ Result: 36/40, passed min score 30.
 - Recommend contract-only planning evidence before any reduced nonlinear solve.
 - Keep broad LGS 3D pattern-catalog implementation out of the immediate next
   task.
+- Confirm `Rigid-set spanning-tree plan contracts` are not implemented yet;
+  only design preparation, prerequisites, acceptance criteria, and unit-test
+  design are complete.
 
 ## Skipped Checks And Risks
 
@@ -171,6 +180,14 @@ Initial affected modules:
 - `constraint_catalog`
 - `decomposition_planner`
 - contract tests
+
+Current status:
+
+- Spanning-tree design and preparation are complete.
+- The next task prerequisites, acceptance criteria, unit-test design, and
+  quality gates are registered.
+- No development is being started in this closeout.
+- Spanning-tree work is paused until a future implementation task is opened.
 
 ## Archive Handoff
 
