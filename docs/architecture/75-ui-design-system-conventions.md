@@ -32,6 +32,21 @@ The design system is not a skin. It is an evidence contract:
 - temporal workflows such as replay and solve progress feel deliberate;
 - generated figures remain rebuildable and QA-checked.
 
+## Solver Evidence Workbench Adjustment
+
+The 2026-05-25 UI architecture adjustment reframes the local viewer target as a
+**GCS Solver Evidence Workbench**. **GCS Quiet Technical Atelier** remains the
+visual taste thesis, but future GUI work should be judged by whether it helps
+users construct, inspect, diagnose, repair, replay, and export solver evidence.
+
+The adjustment record is
+`docs/architecture/92-gcs-ui-architecture-adjustment-record.md`. It adds
+workbench zones for model canvas, model/constraint inspector, solver evidence
+rail, diagnostics workbench, replay/provenance timeline, and repair drafts.
+These zones must still follow the existing boundary rule: the viewer observes
+snapshots, histories, reports, and projections; it does not own durable solver
+truth.
+
 ## Required Conventions
 
 ### Color And State

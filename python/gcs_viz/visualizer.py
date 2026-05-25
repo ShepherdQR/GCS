@@ -53,6 +53,30 @@ def _focus_ids(focus: Optional[Mapping], key: str) -> set[int]:
     return result
 
 
+def _constraint_states(focus: Optional[Mapping]) -> dict[int, str]:
+    if not focus:
+        return {}
+    states = {}
+    for key, value in (focus.get("constraint_states") or {}).items():
+        try:
+            constraint_id = int(key)
+        except (TypeError, ValueError):
+            continue
+        normalized = str(value or "unknown").strip().lower()
+        if normalized not in ("satisfied", "violated", "unknown"):
+            normalized = "unknown"
+        states[constraint_id] = normalized
+    return states
+
+
+def _constraint_state(constraint, focus: Optional[Mapping]) -> Optional[str]:
+    return _constraint_states(focus).get(constraint.id)
+
+
+def _has_constraint_states(focus: Optional[Mapping]) -> bool:
+    return bool(_constraint_states(focus))
+
+
 def _is_focused_geometry(geometry, focus: Optional[Mapping]) -> bool:
     return (
         geometry.id in _focus_ids(focus, "geometry_ids")
@@ -73,6 +97,13 @@ def _has_focus(focus: Optional[Mapping]) -> bool:
 
 
 def _constraint_color(constraint, focus: Optional[Mapping]) -> str:
+    state = _constraint_state(constraint, focus)
+    if state == "violated":
+        return STATE_COLORS["violated"]
+    if state == "satisfied":
+        return STATE_COLORS["solved"]
+    if state == "unknown":
+        return STATE_COLORS["pending"]
     if _is_focused_constraint(constraint, focus):
         return STATE_COLORS["focus"]
     return CONSTRAINT_COLORS.get(int(constraint.type), GCS_THEME["constraint_default"])
@@ -87,23 +118,45 @@ def _constraint_graph_line_style(constraint_type) -> str:
 
 
 def _constraint_line_width(constraint, focus: Optional[Mapping]) -> float:
-    return 2.7 if _is_focused_constraint(constraint, focus) else 1.35
+    if _is_focused_constraint(constraint, focus):
+        return 2.7
+    state = _constraint_state(constraint, focus)
+    if state == "violated":
+        return 2.35
+    if state == "satisfied":
+        return 1.15
+    return 1.35
 
 
 def _constraint_alpha(constraint, focus: Optional[Mapping]) -> float:
-    return 0.95 if _is_focused_constraint(constraint, focus) else 0.56
+    if _is_focused_constraint(constraint, focus):
+        return 0.95
+    state = _constraint_state(constraint, focus)
+    if state == "violated":
+        return 0.92
+    if state == "satisfied":
+        return 0.42
+    if state == "unknown":
+        return 0.50
+    return 0.56
 
 
 def _geometry_label_color(color: str, focused: bool) -> str:
     return STATE_COLORS["focus_active"] if focused else color
 
 
-def _constraint_label(constraint, focused: bool) -> str:
+def _constraint_label(constraint, focused: bool, state: Optional[str] = None) -> str:
     if focused:
         label = f"C{constraint.id} {CONSTRAINT_NAMES.get(int(constraint.type), '?')}"
         if constraint.value != 0:
             label += f"={constraint.value:g}"
+        if state:
+            label += f" {state.upper()}"
         return label
+    if state == "violated":
+        return f"C{constraint.id} VIOL"
+    if state == "unknown":
+        return f"C{constraint.id} UNK"
     return f"C{constraint.id}"
 
 
@@ -262,6 +315,7 @@ def _draw_constraints_3d(graph: GCSGraph, ax, focus: Optional[Mapping]):
                 positions.append(_geometry_anchor_3d(geometry))
 
         focused = _is_focused_constraint(constraint, focus)
+        state = _constraint_state(constraint, focus)
         color = _constraint_color(constraint, focus)
         linewidth = _constraint_line_width(constraint, focus)
         alpha = _constraint_alpha(constraint, focus)
@@ -279,7 +333,7 @@ def _draw_constraints_3d(graph: GCSGraph, ax, focus: Optional[Mapping]):
                     mid = (p1 + p2) / 2
                     ax.text(
                         mid[0], mid[1], mid[2] - 0.1,
-                        _constraint_label(constraint, focused),
+                        _constraint_label(constraint, focused, state),
                         fontsize=7 if focused else 6,
                         ha="center", color=color, alpha=0.94 if focused else 0.68,
                     )
@@ -349,6 +403,7 @@ def _draw_constraints_2d(graph: GCSGraph, ax, dim1: int, dim2: int, focus: Optio
                 positions.append(_geometry_anchor_2d(geometry, dim1, dim2))
 
         focused = _is_focused_constraint(constraint, focus)
+        state = _constraint_state(constraint, focus)
         color = _constraint_color(constraint, focus)
         linewidth = _constraint_line_width(constraint, focus)
         alpha = _constraint_alpha(constraint, focus)
@@ -365,7 +420,7 @@ def _draw_constraints_2d(graph: GCSGraph, ax, dim1: int, dim2: int, focus: Optio
                 if focused or show_default_labels:
                     mid = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
                     ax.annotate(
-                        _constraint_label(constraint, focused),
+                        _constraint_label(constraint, focused, state),
                         mid, xytext=(4, -8), textcoords="offset points",
                         fontsize=6, color=color, alpha=0.92 if focused else 0.64,
                     )
@@ -430,6 +485,26 @@ def _legend_elements(graph: GCSGraph, focus: Optional[Mapping] = None):
                 label="Focus",
             )
         )
+    if _has_constraint_states(focus):
+        state_labels = {
+            "violated": ("Violated", STATE_COLORS["violated"], 2.3, 0.92),
+            "satisfied": ("Satisfied", STATE_COLORS["solved"], 1.4, 0.52),
+            "unknown": ("Unknown", STATE_COLORS["pending"], 1.4, 0.62),
+        }
+        present_states = set(_constraint_states(focus).values())
+        for state in ("violated", "satisfied", "unknown"):
+            if state not in present_states:
+                continue
+            label, color, linewidth, alpha = state_labels[state]
+            elements.append(
+                Line2D(
+                    [0], [0],
+                    color=color,
+                    linewidth=linewidth,
+                    alpha=alpha,
+                    label=label,
+                )
+            )
     return elements
 
 
@@ -582,9 +657,17 @@ def build_graph_on_figure(
         constraint_id = data.get("constraint_id")
         focused = constraint_id in constraint_focus_ids
         constraint_type = data.get("constraint_type", 3)
-        color = STATE_COLORS["focus"] if focused else CONSTRAINT_COLORS.get(
-            constraint_type, GCS_THEME["constraint_default"]
-        )
+        constraint = graph.find_constraint(int(constraint_id)) if constraint_id is not None else None
+        if constraint is not None:
+            color = _constraint_color(constraint, focus)
+            width = _constraint_line_width(constraint, focus)
+            alpha = _constraint_alpha(constraint, focus)
+        else:
+            color = STATE_COLORS["focus"] if focused else CONSTRAINT_COLORS.get(
+                constraint_type, GCS_THEME["constraint_default"]
+            )
+            width = 2.8 if focused else 1.35
+            alpha = 0.95 if focused else 0.58
         nx.draw_networkx_edges(
             network,
             pos,
@@ -592,8 +675,8 @@ def build_graph_on_figure(
             ax=ax,
             edge_color=color,
             style=_constraint_graph_line_style(constraint_type),
-            width=2.8 if focused else 1.35,
-            alpha=0.95 if focused else 0.58,
+            width=width,
+            alpha=alpha,
         )
 
     edge_labels = {}
@@ -601,9 +684,16 @@ def build_graph_on_figure(
         constraint_id = data.get("constraint_id", "?")
         constraint_type = data.get("constraint_type", 3)
         focused = constraint_id in constraint_focus_ids
-        label = f"C{constraint_id}"
-        if focused:
-            label += f" {CONSTRAINT_NAMES.get(constraint_type, '?')}"
+        try:
+            constraint = graph.find_constraint(int(constraint_id))
+        except (TypeError, ValueError):
+            constraint = None
+        if constraint is not None:
+            label = _constraint_label(constraint, focused, _constraint_state(constraint, focus))
+        else:
+            label = f"C{constraint_id}"
+            if focused:
+                label += f" {CONSTRAINT_NAMES.get(constraint_type, '?')}"
         edge_labels[(u, v)] = label
     nx.draw_networkx_edge_labels(
         network,
@@ -658,7 +748,7 @@ def build_three_view_on_figure(
     axes[1, 1].set_facecolor(GCS_THEME["bg_canvas"])
     axes[1, 1].text(
         0.5,
-        0.5,
+        0.58 if _has_constraint_states(focus) else 0.5,
         info,
         ha="center",
         va="center",
@@ -666,6 +756,14 @@ def build_three_view_on_figure(
         transform=axes[1, 1].transAxes,
         color=GCS_THEME["text_secondary"],
     )
+    if _has_constraint_states(focus):
+        _style_legend(
+            axes[1, 1].legend(
+                handles=_legend_elements(graph, focus),
+                loc="lower center",
+                fontsize=7,
+            )
+        )
     axes[1, 1].set_title("Summary")
     axes[1, 1].title.set_color(GCS_THEME["text_primary"])
 

@@ -27,7 +27,25 @@ outside the GUI.
 - `docs/architecture/73-gcs-visual-taste-guide.md`
 - `docs/architecture/75-ui-design-system-conventions.md`
 - `docs/architecture/76-ui-design-system-execution-plan.md`
+- `docs/architecture/92-gcs-ui-architecture-adjustment-record.md`
 - `tools/ui_qa/gcs_ui_qa.py`
+
+## 2026-05-25 Solver Workbench Adjustment
+
+The UI architecture is now interpreted as a **GCS Solver Evidence Workbench**.
+The visual thesis remains **GCS Quiet Technical Atelier**, but the product
+architecture now requires workbench surfaces for constraint inspection,
+diagnostic evidence, replay provenance, and safe repair drafts.
+
+This adjustment is recorded in
+`docs/architecture/92-gcs-ui-architecture-adjustment-record.md` and is backed
+by
+`docs/research/20260525/gcs-ui-requirements/01-advanced-ui-and-gcs-solver-requirements.md`.
+
+Practical consequence: future UI phases must identify which workbench zone they
+affect and must preserve the projection boundary. `viewer_bridge` and
+`session_runtime` expose structured evidence; `platform_gui.py` orchestrates
+Tk state and user actions; `visualizer.py` draws supplied states only.
 
 ## Current Phase Ledger
 
@@ -38,11 +56,13 @@ outside the GUI.
 | 3 | Inspector Layout | Complete | Model summary, object browser notebook, command zone |
 | 4 | Replay And Solve Polish | Complete | Replay rail, progress, action text, solve summary |
 | 5 | Design QA And Accessibility | Complete | `tools/ui_qa/gcs_ui_qa.py`, UI QA fixture and unittest |
-| 6 | Interaction Semantics | Planned | Selection/focus projection hardening |
-| 7 | Solve Diagnostics Overlay | Planned | Constraint state projection and renderer overlays |
+| 6 | Interaction Semantics | Complete | `selection_focus`, replay focus projection, table-selection highlighting |
+| 7 | Solve Diagnostics Overlay | Complete | `constraint_states`, safe fallback, renderer overlays |
 | 8 | Accessibility And Contrast Refinement | Planned | Status text colors, node label strategy, stale UI cleanup |
 | 9 | Replay Rail Refinement | Planned | History frame projection, rail controls, deletion hints |
 | 10 | Manual Visual QA Pass | Planned | Local GUI screenshot and taste calibration cycle |
+| 11 | Constraint Manager And Repair Drafts | Backlog | Constraint row projection, diagnostic filters, safe repair candidates |
+| 12 | Local-To-Global Evidence Inspector | Backlog | Context covers, boundary projections, gluing, obstruction paths |
 
 ## Execution Protocol
 
@@ -212,12 +232,16 @@ Completion evidence:
 
 ## Phase 6: Interaction Semantics
 
-Status: planned.
+Status: complete.
 
 Goal:
 
 Make selection a first-class UI state. Table selection and future viewport
 selection should share the same focus projection used by replay.
+
+Detailed implementation plan:
+
+- `docs/architecture/93-ui-phase6-focus-projection-work-plan.md`
 
 Deliverables:
 
@@ -247,13 +271,29 @@ Acceptance:
 - replay focus still works;
 - focus projection can be tested without importing Tk.
 
+Completion evidence:
+
+- `python/gcs_viz/viewer_bridge.py` now owns pure `selection_focus(...)` and
+  `history_focus_from_entry(...)` projection helpers.
+- `python/gcs_viz/platform_gui.py` binds rigid-set, geometry, and constraint
+  table selection to canvas focus and keeps replay focus authoritative while
+  replay is active.
+- `tests/tools/test_gcs_viz_history_replay.py` covers selection and replay
+  focus projection without importing Tk.
+- `docs/architecture/93-ui-phase6-focus-projection-work-plan.md` records the
+  detailed plan, completion evidence, and environment-limited checks.
+
 ## Phase 7: Solve Diagnostics Overlay
 
-Status: planned.
+Status: complete.
 
 Goal:
 
 Make solve results visible in the viewport, not just in a summary rail.
+
+Detailed implementation plan:
+
+- `docs/architecture/94-ui-phase7-diagnostics-overlay-work-plan.md`
 
 Deliverables:
 
@@ -283,6 +323,21 @@ Acceptance:
 - violated constraints are visible in all view modes;
 - satisfied states remain quiet and do not overpower focus;
 - solve summary and viewport states agree.
+
+Completion evidence:
+
+- `python/gcs_viz/viewer_bridge.py` now owns conservative constraint-state
+  projection, solver-text extraction, and focus/state merge helpers.
+- `python/gcs_viz/platform_gui.py` stores diagnostic constraint states from
+  solve output and merges them with selection focus outside replay.
+- `python/gcs_viz/visualizer.py` renders supplied `satisfied`, `violated`, and
+  `unknown` states in 3D, graph, and three-view modes with diagnostic legend
+  entries only when states are present.
+- `tests/tools/test_gcs_viz_history_replay.py` covers safe fallback behavior:
+  aggregate-only output does not invent per-constraint satisfied/violated
+  states.
+- `docs/architecture/94-ui-phase7-diagnostics-overlay-work-plan.md` records
+  the detailed plan, evidence, and environment-limited checks.
 
 ## Phase 8: Accessibility And Contrast Refinement
 
@@ -395,21 +450,105 @@ Acceptance:
 - visual notes separate defects from future preferences;
 - this report is updated with the next UI phase recommendation.
 
+## Phase 11: Constraint Manager And Repair Drafts
+
+Status: backlog.
+
+Goal:
+
+Turn constraints into a navigable solver workbench surface rather than a simple
+object table.
+
+Deliverables:
+
+- constraint-manager rows with stable constraint IDs, type, attached entities,
+  value, residual state, conflict/redundancy tags, and selection link;
+- filters for type, state, rigid set/entity involvement, and diagnostic
+  responsibility set;
+- repair candidates presented as command drafts, not direct graph mutation;
+- report export or snapshot evidence for the active diagnostic selection;
+- focused tests for projection/filter behavior without importing Tk.
+
+Suggested files:
+
+- `python/gcs_viz/viewer_bridge.py`
+- `python/gcs_viz/platform_gui.py`
+- future C++ or CLI viewer projection export if structured reports are needed
+- `tools/ui_qa/gcs_ui_qa.py`
+
+Boundary:
+
+- do not compute residuals, redundancies, or conflicts in GUI table code;
+- do not let repair drafts bypass `session_runtime` command validation;
+- do not persist UI filters or selected rows in scene files.
+
+Acceptance:
+
+- users can find a violated or redundant constraint and highlight affected
+  geometry;
+- candidate repair actions explain their evidence source;
+- repair drafts remain non-mutating until explicitly accepted through runtime
+  command flow.
+
+## Phase 12: Local-To-Global Evidence Inspector
+
+Status: backlog.
+
+Goal:
+
+Expose the solver's context-cover, boundary-projection, gluing, and obstruction
+evidence once planner and diagnostics contracts are ready enough for UI
+projection.
+
+Deliverables:
+
+- read-only context cover summary;
+- overlap and boundary-projection table;
+- gluing status and boundary residual view;
+- obstruction path view linking contexts, projections, entities, and
+  constraints;
+- compact canvas hints for active context or failed overlap.
+
+Suggested files:
+
+- `src/gcs/viewer_bridge`
+- `python/gcs_viz/viewer_bridge.py`
+- `python/gcs_viz/platform_gui.py`
+- `python/gcs_viz/visualizer.py` only for supplied context/overlap states
+
+Boundary:
+
+- consume planner/diagnostic reports only;
+- do not expose speculative planner internals before contracts stabilize;
+- do not turn the UI into a decomposition-planner policy layer.
+
+Acceptance:
+
+- a user can tell which local context solved, which overlap failed, and which
+  evidence supports that conclusion;
+- mathematician-facing rank/residual/gluing evidence remains traceable to
+  reports;
+- renderer support is driven by explicit projection state.
+
 ## Scheduling Recommendation
 
-The next standalone work item should be Phase 6, followed by Phase 7.
+The next standalone work item should be Phase 8.
 
 Reasoning:
 
-- Phase 6 turns the existing focus contract into a reusable interaction
+- Phase 6 turned the existing focus contract into a reusable interaction
   primitive.
-- Phase 7 then builds diagnostics overlays on top of the same projection path.
-- Phase 8 should follow once the active interaction paths reveal where contrast
-  and text strategy actually matter most.
+- Phase 7 built diagnostics overlays on top of the same projection path.
+- Phase 8 should now refine contrast and text/state strategy around the active
+  focus and diagnostic states.
 - Phase 9 should refine replay after selection and diagnostic state precedence
   are clear.
 - Phase 10 should be run after Phase 8 or Phase 9, unless a manual GUI review
   is needed sooner to unblock confidence.
+- Phase 11 should follow once diagnostic projections are stable enough to make
+  constraint filtering meaningful.
+- Phase 12 should wait until planner and diagnostics reports expose enough
+  context-cover and gluing evidence to avoid UI-side inference.
 
 ## Known Risks
 

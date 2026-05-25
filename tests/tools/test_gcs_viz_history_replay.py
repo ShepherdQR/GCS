@@ -11,7 +11,16 @@ if str(PYTHON_ROOT) not in sys.path:
     sys.path.insert(0, str(PYTHON_ROOT))
 
 from gcs_viz.algebra import read_graph_json  # noqa: E402
-from gcs_viz.viewer_bridge import apply_history_entry, build_history_graph, graph_summary  # noqa: E402
+from gcs_viz.viewer_bridge import (  # noqa: E402
+    apply_history_entry,
+    build_history_graph,
+    combine_focus_with_constraint_states,
+    constraint_state_projection,
+    constraint_states_from_solve_text,
+    graph_summary,
+    history_focus_from_entry,
+    selection_focus,
+)
 
 
 class GcsVizHistoryReplayTests(unittest.TestCase):
@@ -75,6 +84,128 @@ class GcsVizHistoryReplayTests(unittest.TestCase):
         self.assertEqual(len(replay.geometries), 3)
         self.assertEqual(len(replay.constraints), 3)
         self.assertEqual(replay.constraints[-1].value, 2.0)
+
+    def test_selection_focus_projects_related_ids(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        self.assertEqual(
+            selection_focus(graph, rigid_set_ids=[0]),
+            {
+                "mode": "selection",
+                "rigid_set_ids": [0],
+                "geometry_ids": [0],
+                "constraint_ids": [],
+            },
+        )
+        self.assertEqual(
+            selection_focus(graph, geometry_ids=[1]),
+            {
+                "mode": "selection",
+                "rigid_set_ids": [1],
+                "geometry_ids": [1],
+                "constraint_ids": [],
+            },
+        )
+        self.assertEqual(
+            selection_focus(graph, constraint_ids=[0]),
+            {
+                "mode": "selection",
+                "rigid_set_ids": [0, 1],
+                "geometry_ids": [0, 1],
+                "constraint_ids": [0],
+            },
+        )
+
+    def test_selection_focus_ignores_bad_or_missing_ids(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        self.assertIsNone(
+            selection_focus(
+                graph,
+                rigid_set_ids=["missing"],
+                geometry_ids=[99],
+                constraint_ids=[None],
+            )
+        )
+
+    def test_history_focus_from_entry_matches_replay_action_context(self):
+        history = self.make_history()
+        replay = build_history_graph(history, 5)
+
+        self.assertEqual(
+            history_focus_from_entry(history[5], replay),
+            {
+                "mode": "replay",
+                "rigid_set_ids": [0, 1],
+                "geometry_ids": [0, 1],
+                "constraint_ids": [0],
+            },
+        )
+
+    def test_history_focus_returns_none_for_unfocused_markers(self):
+        history = self.make_history()
+        replay = build_history_graph(history, 6)
+
+        self.assertIsNone(history_focus_from_entry(history[6], replay))
+
+    def test_constraint_state_projection_normalizes_known_states(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        self.assertEqual(
+            constraint_state_projection(graph, {0: "VIOLATED"}),
+            {
+                "mode": "diagnostic",
+                "rigid_set_ids": [],
+                "geometry_ids": [],
+                "constraint_ids": [],
+                "constraint_states": {0: "violated"},
+            },
+        )
+
+    def test_constraint_state_projection_can_fill_unknowns(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        self.assertEqual(
+            constraint_state_projection(graph, {}, fill_unknown=True)["constraint_states"],
+            {0: "unknown"},
+        )
+
+    def test_constraint_states_from_solve_text_requires_constraint_ids(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        aggregate_only = "Constraint report: 1 SATISFIED\n>>> All constraints satisfied <<<"
+        self.assertEqual(constraint_states_from_solve_text(graph, aggregate_only), {})
+        self.assertEqual(
+            constraint_states_from_solve_text(graph, aggregate_only, fill_unknown=True),
+            {0: "unknown"},
+        )
+
+    def test_constraint_states_from_solve_text_extracts_safe_ids(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        self.assertEqual(
+            constraint_states_from_solve_text(graph, "Constraint 0 distance VIOLATED"),
+            {0: "violated"},
+        )
+        self.assertEqual(
+            constraint_states_from_solve_text(graph, "C0 distance SATISFIED"),
+            {0: "satisfied"},
+        )
+
+    def test_combine_focus_with_constraint_states_preserves_selection(self):
+        graph = build_history_graph(self.make_history(), 4)
+        focus = selection_focus(graph, constraint_ids=[0])
+
+        self.assertEqual(
+            combine_focus_with_constraint_states(focus, graph, {0: "violated"}),
+            {
+                "mode": "selection",
+                "rigid_set_ids": [0, 1],
+                "geometry_ids": [0, 1],
+                "constraint_ids": [0],
+                "constraint_states": {0: "violated"},
+            },
+        )
 
 
 if __name__ == "__main__":
