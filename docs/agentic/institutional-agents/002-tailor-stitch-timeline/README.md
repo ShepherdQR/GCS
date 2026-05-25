@@ -1,6 +1,6 @@
 # 裁缝: 裁剪-缝合
 
-状态：seed institutional agent
+状态：practiced promoted seed institutional agent
 
 Slug：`002-tailor-stitch-timeline`
 

@@ -1,6 +1,6 @@
 # 刀匠: 淬炼-锻打
 
-状态：seed institutional agent
+状态：practiced promoted seed institutional agent
 
 Slug：`001-bladesmith-quench-forge`
 

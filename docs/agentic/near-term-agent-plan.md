@@ -79,7 +79,7 @@ at least one eval that can fail.
 | B6 | Add invented-causality eval for `裁缝`. | done in this plan | `002-tailor-stitch-timeline/evals/refuse-invented-causality.md` |
 | B7 | Add a real filled example for `刀匠`. | done in this plan | Step 47 lifecycle forging note. |
 | B8 | Add a real filled example for `裁缝`. | done in local stitch | `002-tailor-stitch-timeline/examples/2026-05-24-local-repo-stitch-timeline.md` |
-| B9 | Add similar prompt/template/eval packages for I003 and I004 if they remain seed agents after review. | pending | Visual-system institutional-agent packages. |
+| B9 | Add similar prompt/template/eval packages for I003 and I004 if a real visual task invokes them. | pending | Visual-system institutional-agent packages. |
 
 Definition of done for B: each core seed agent can be invoked by reading its
 README plus `prompts/invoke.md`, can emit a structured artifact using its
@@ -122,14 +122,14 @@ the generator protocol.
 
 ## Immediate Next Task
 
-Start with S4-05 or S2-02 depending on whether the next turn should make an
-institutional-agent decision or implement tooling. Keep Step 51 as the next GCS
-implementation candidate, separate from Agentic SE quality-gate adoption:
+Start with S2-02 for Agentic SE tooling, or Step 51 for the next GCS
+implementation candidate. Visual institutional agents should receive more
+artifacts only when a real UI or figure task invokes them:
 
 1. Add task-card include tests and then implement `--include-task-cards`.
-2. Reassess institutional agents using the active E001 skill plus the latest
-   Bladesmith and Tailor examples.
-3. Keep E001 out of default quality gates until S2-05.
+2. Keep E001 out of default quality gates until S2-05.
+3. Add I003/I004 prompt/template/eval/example packages only from real visual
+   review work.
 4. Execute Step 51 fixture-library gating after promoted scene expected
    outcomes are explicit.
 

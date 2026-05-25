@@ -25,13 +25,13 @@ Current task counts:
 | Phase 1: Lifecycle Closure | 6 | 0 | 0 | How often should escaped chat-only work be audited for drift? |
 | Phase 2: Quality-Gate Adoption | 1 | 1 | 3 | Which opt-in artifact gate should be implemented first? |
 | Phase 3: E001 Closure Experience Validation | 4 | 0 | 0 | How soon should E001 checks move from skill guidance into optional or default gates? |
-| Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
+| Phase 4: Institutional Agents Become Verifiable | 5 | 0 | 0 | Which visual seed agent should get real artifacts first? |
 
 Priority order:
 
-1. Reassess institutional agents now that E001 is an active skill and
-   `Bladesmith` plus `Tailor` each have real examples.
-2. Implement S2-02 task-card include tests before wiring default behavior.
+1. Implement S2-02 task-card include tests before wiring default behavior.
+2. Use the next real UI or figure task to produce I003/I004 artifacts instead
+   of promoting visual seed roles speculatively.
 3. Implement S2-03 completed-report include design only after task-card include
    tests are stable.
 4. Keep Step 51 fixture-library gating separate from Agentic SE gates until
@@ -88,18 +88,18 @@ Stage conclusion:
 
 ### Phase 4 Analysis
 
-Institutional agents are becoming operational. `刀匠` now has an invoke prompt,
-template, refusal eval, and a real Step 47 example. `裁缝` has its
-prompt/template/eval seed and a real local repository stitch example created
-only after explicit timeline work was requested.
+Institutional agents completed their first reassessment. `刀匠` and `裁缝`
+now have invoke prompts, templates, refusal evals, and multiple real examples,
+so S4-05 upgrades them to practiced promoted seed roles. Atelier Steward and
+Art Director remain seed roles until a real UI or figure task creates
+prompt/template/eval/example artifacts.
 
 Stage conclusion:
 
 - Freeze new institutional-agent creation for now.
-- Use the Step 47 `刀匠` artifact as the first real institutional-agent
-  example.
-- Use the first `裁缝` example as evidence for timeline stitching, but wait for
-  more samples before promotion.
+- Treat Bladesmith and Tailor as practiced promoted seed roles.
+- Keep Atelier Steward and Art Director at seed until real visual review
+  evidence exists.
 
 ## Operating Adjustments
 
@@ -217,7 +217,7 @@ Backlog:
 | S4-02 | Add `timeline-entry` template for `裁缝`. | done | Template exists; local repository stitch timeline added after explicit request. |
 | S4-03 | Add eval for refusing unsupported generalization. | done | Eval seed. |
 | S4-04 | Add eval for refusing invented timeline causality. | done | Eval seed. |
-| S4-05 | Reassess candidate institutional agents after three real closures. | next | Candidate table update after additional real closures. |
+| S4-05 | Reassess candidate institutional agents after three real closures. | done | `institutional-agents/2026-05-25-s4-05-reassessment.md`. |
 
 ## Current PDCA Cycle
 
@@ -602,24 +602,55 @@ Check:
 Act:
 
 - S3-04 is complete.
-- S4-05 is the next institutional-agent decision task.
+- At C010 close, S4-05 became the institutional-agent decision task. C011
+  below completes it and moves the queue forward.
 - S2-02 remains the next Phase 2 implementation task.
+
+### C011: S4-05 Institutional-Agent Reassessment
+
+Plan:
+
+- reassess Bladesmith, Tailor, Atelier Steward, Art Director, and candidate
+  roles after multiple real closures;
+- update status without creating new standing-agent directories;
+- close Phase 4's first verification pass.
+
+Do:
+
+- added `docs/agentic/institutional-agents/2026-05-25-s4-05-reassessment.md`;
+- upgraded Bladesmith and Tailor to practiced promoted seed roles;
+- kept Atelier Steward and Art Director as seed roles pending real visual
+  review artifacts;
+- kept candidate roles in the candidate table.
+
+Check:
+
+- task-card validation passed;
+- completed-task validation passed;
+- closure score passed;
+- docs validation passed.
+
+Act:
+
+- Phase 4 is complete for the first verification pass.
+- S2-02 is now the next Agentic SE implementation task.
+- Step 51 remains the next GCS implementation candidate.
 
 ## Next Agile Task
 
-S4-05 is the next institutional-agent decision task, while S2-02 remains the
-next Phase 2 implementation task:
+S2-02 is now the next Agentic SE implementation task, while Step 51 remains the
+next GCS implementation candidate:
 
 1. Add task-card include tests before implementing completed-report includes.
-2. Reassess institutional agents after E001 active-skill promotion.
-3. Keep E001 out of default gates until S2-05.
+2. Keep E001 out of default gates until S2-05.
+3. Add I003/I004 artifacts only when a real visual task invokes them.
 4. Execute Step 51 only after promoted fixture expected outcomes are explicit.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S4-05 institutional-agent reassessment | E001 is active and Bladesmith/Tailor now each have multiple real examples. | Candidate table update after additional real closures. |
-| 2 | S2-02 task-card include tests | S2-01 defined pathspec policy; implementation should start with task cards. | Unit tests for valid, missing-field, high-risk-without-gate, and unmatched include cases. |
-| 3 | S2-03 completed-report include tests | E001 is active, but completed-report gates still need new-report-only implementation. | Unit tests for explicit completed-report includes without legacy tree validation. |
-| 4 | Step 51 promoted fixture-library gate | Promoted scene fixtures need repeatable expected-outcome evidence. | Focused fixture gate selected or implemented without broad default expansion. |
+| 1 | S2-02 task-card include tests | S2-01 defined pathspec policy; implementation should start with task cards. | Unit tests for valid, missing-field, high-risk-without-gate, and unmatched include cases. |
+| 2 | S2-03 completed-report include tests | E001 is active, but completed-report gates still need new-report-only implementation. | Unit tests for explicit completed-report includes without legacy tree validation. |
+| 3 | Step 51 promoted fixture-library gate | Promoted scene fixtures need repeatable expected-outcome evidence. | Focused fixture gate selected or implemented without broad default expansion. |
+| 4 | I003/I004 first real artifact | Visual institutional agents remain seed until used on a real UI or figure task. | Prompt/template/eval/example package for the invoked role only. |
