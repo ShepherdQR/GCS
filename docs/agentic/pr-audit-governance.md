@@ -110,6 +110,16 @@ The command:
 It does not run tests, approve PRs, merge, push, delete branches, promote
 fixtures, or replace human review.
 
+Validate an audit artifact with:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py validate-pr-audit docs\agentic\pr-audits\<audit>.json
+```
+
+The validator checks the v1 audit shape, missing evidence posture, high-risk
+human-gate posture, and the permission boundary defined in
+`docs/agentic/agent-permission-policy.md`.
+
 ## Review Rubric
 
 ### Intent Fit

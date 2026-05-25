@@ -377,6 +377,9 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertIn("Agentic toolkit command surface", audit["affected_contracts"])
         self.assertEqual(audit["forbidden_action_check"]["merge"], "not_performed")
 
+        results = toolkit.validate_pr_audit_record(audit)
+        self.assertEqual([(item.ok, item.message) for item in results], [(True, "pr-audit: pr-audit passed")])
+
     def test_pr_audit_flags_fixture_promotion_gate(self):
         toolkit = load_toolkit()
 
@@ -392,6 +395,49 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertEqual(audit["decision"], "needs_author_revision")
         self.assertTrue(any(finding["severity"] == "P1" for finding in audit["findings"]))
         self.assertTrue(any(item["check"] == "focused contract tests or explicit skip risk" for item in audit["evidence"]["skipped"]))
+
+    def test_pr_audit_validator_rejects_ready_with_skipped_evidence(self):
+        toolkit = load_toolkit()
+        audit = toolkit.build_pr_audit(
+            base="origin/master",
+            head="HEAD",
+            changed_paths=["tools/agentic_design/agentic_toolkit.py"],
+            task_card="docs/agentic/tasks/2026-05-25-agentic-governance-execution.md",
+        )
+        audit["decision"] = "ready_for_human_review"
+        audit["next_action"] = "human_review"
+
+        results = toolkit.validate_pr_audit_record(audit)
+
+        self.assertTrue(any(not item.ok and "ready audit cannot include skipped evidence" in item.message for item in results))
+
+    def test_pr_audit_validator_rejects_forbidden_actions(self):
+        toolkit = load_toolkit()
+        audit = toolkit.build_pr_audit(
+            base="origin/master",
+            head="HEAD",
+            changed_paths=["docs/research/example.md"],
+        )
+        audit["forbidden_action_check"]["force_push"] = "performed"
+
+        results = toolkit.validate_pr_audit_record(audit)
+
+        self.assertTrue(any(not item.ok and "unattended force_push is forbidden" in item.message for item in results))
+
+    def test_pr_audit_validator_rejects_high_risk_ready(self):
+        toolkit = load_toolkit()
+        audit = toolkit.build_pr_audit(
+            base="origin/master",
+            head="HEAD",
+            changed_paths=["src/gcs/kernel/kernel.cppm"],
+            task_card="docs/agentic/tasks/2026-05-25-agentic-governance-execution.md",
+            evidence_passed=["focused contract tests or explicit skip risk"],
+        )
+        audit["decision"] = "ready_for_human_review"
+
+        results = toolkit.validate_pr_audit_record(audit)
+
+        self.assertTrue(any(not item.ok and "high-risk audit cannot be ready" in item.message for item in results))
 
     def test_nightly_index_summarizes_findings_json(self):
         toolkit = load_toolkit()

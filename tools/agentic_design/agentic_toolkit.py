@@ -1499,6 +1499,186 @@ def audit_pr_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def validate_pr_audit_record(record: dict[str, Any], source: Path | None = None) -> list[CheckResult]:
+    label = display_path(source) if source else "pr-audit"
+    results: list[CheckResult] = []
+    required_fields = [
+        "schema_version",
+        "generated_at",
+        "base",
+        "head",
+        "pr_class",
+        "risk_tier",
+        "decision",
+        "task_card",
+        "completed_archive",
+        "affected_contracts",
+        "affected_paths",
+        "evidence",
+        "review_focus",
+        "forbidden_action_check",
+        "findings",
+        "next_action",
+    ]
+    for field in required_fields:
+        if field not in record:
+            results.append(CheckResult(False, f"{label}: missing field {field}"))
+
+    if record.get("schema_version") != PR_AUDIT_SCHEMA_VERSION:
+        results.append(CheckResult(False, f"{label}: schema_version must be {PR_AUDIT_SCHEMA_VERSION}"))
+
+    valid_classes = set(PR_CLASS_PRIORITY)
+    if record.get("pr_class") not in valid_classes:
+        results.append(CheckResult(False, f"{label}: invalid pr_class {record.get('pr_class')!r}"))
+
+    valid_risks = set(RISK_PRIORITY)
+    if record.get("risk_tier") not in valid_risks:
+        results.append(CheckResult(False, f"{label}: invalid risk_tier {record.get('risk_tier')!r}"))
+
+    valid_decisions = {
+        "ready_for_human_review",
+        "needs_author_revision",
+        "needs_human_gate",
+        "exploratory_only",
+        "blocked",
+    }
+    if record.get("decision") not in valid_decisions:
+        results.append(CheckResult(False, f"{label}: invalid decision {record.get('decision')!r}"))
+
+    valid_next_actions = {
+        "human_review",
+        "revise",
+        "create_task_card",
+        "run_gate",
+        "split_pr",
+        "close_exploratory",
+    }
+    if record.get("next_action") not in valid_next_actions:
+        results.append(CheckResult(False, f"{label}: invalid next_action {record.get('next_action')!r}"))
+
+    affected_paths = record.get("affected_paths", [])
+    if not isinstance(affected_paths, list) or not all(isinstance(path, str) for path in affected_paths):
+        results.append(CheckResult(False, f"{label}: affected_paths must be a list of strings"))
+        affected_paths = []
+    elif not affected_paths and record.get("decision") != "blocked":
+        results.append(CheckResult(False, f"{label}: affected_paths must not be empty unless blocked"))
+
+    affected_contracts = record.get("affected_contracts", [])
+    if not isinstance(affected_contracts, list) or not all(isinstance(item, str) for item in affected_contracts):
+        results.append(CheckResult(False, f"{label}: affected_contracts must be a list of strings"))
+
+    review_focus = record.get("review_focus", [])
+    if not isinstance(review_focus, list) or not all(isinstance(item, str) for item in review_focus):
+        results.append(CheckResult(False, f"{label}: review_focus must be a list of strings"))
+
+    evidence = record.get("evidence", {})
+    if not isinstance(evidence, dict):
+        results.append(CheckResult(False, f"{label}: evidence must be an object"))
+        evidence = {}
+    passed = evidence.get("passed", [])
+    failed = evidence.get("failed", [])
+    skipped = evidence.get("skipped", [])
+    for field, value in [("passed", passed), ("failed", failed)]:
+        if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+            results.append(CheckResult(False, f"{label}: evidence.{field} must be a list of strings"))
+    if not isinstance(skipped, list):
+        results.append(CheckResult(False, f"{label}: evidence.skipped must be a list"))
+        skipped = []
+    else:
+        for index, item in enumerate(skipped):
+            if not isinstance(item, dict):
+                results.append(CheckResult(False, f"{label}: evidence.skipped[{index}] must be an object"))
+                continue
+            for field in ["check", "reason", "risk"]:
+                if not str(item.get(field, "")).strip():
+                    results.append(CheckResult(False, f"{label}: evidence.skipped[{index}] missing {field}"))
+
+    forbidden = record.get("forbidden_action_check", {})
+    if not isinstance(forbidden, dict):
+        results.append(CheckResult(False, f"{label}: forbidden_action_check must be an object"))
+        forbidden = {}
+    required_forbidden = ["merge", "approve", "force_push", "branch_delete", "fixture_promotion"]
+    for action in required_forbidden:
+        if action not in forbidden:
+            results.append(CheckResult(False, f"{label}: forbidden_action_check missing {action}"))
+    for action in ["merge", "approve", "force_push", "branch_delete"]:
+        if forbidden.get(action) != "not_performed":
+            results.append(CheckResult(False, f"{label}: unattended {action} is forbidden"))
+    if forbidden.get("fixture_promotion") == "performed_without_gate":
+        results.append(CheckResult(False, f"{label}: fixture promotion without a gate is forbidden"))
+    if forbidden.get("fixture_promotion") not in {"not_performed", "explicitly_authorized", None}:
+        if forbidden.get("fixture_promotion") != "performed_without_gate":
+            results.append(CheckResult(False, f"{label}: invalid fixture_promotion value {forbidden.get('fixture_promotion')!r}"))
+
+    findings = record.get("findings", [])
+    if not isinstance(findings, list):
+        results.append(CheckResult(False, f"{label}: findings must be a list"))
+        findings = []
+    serious_findings = []
+    for index, finding in enumerate(findings):
+        if not isinstance(finding, dict):
+            results.append(CheckResult(False, f"{label}: findings[{index}] must be an object"))
+            continue
+        severity = finding.get("severity")
+        if severity not in {"P0", "P1", "P2", "P3"}:
+            results.append(CheckResult(False, f"{label}: findings[{index}] has invalid severity {severity!r}"))
+        if severity in {"P0", "P1", "P2"}:
+            serious_findings.append(finding)
+        for field in ["category", "subject", "summary"]:
+            if not str(finding.get(field, "")).strip():
+                results.append(CheckResult(False, f"{label}: findings[{index}] missing {field}"))
+
+    task_card = record.get("task_card")
+    if record.get("risk_tier") in {"medium", "high"} and not task_card:
+        results.append(CheckResult(False, f"{label}: medium/high risk PR audits require task_card"))
+    if isinstance(task_card, str) and task_card:
+        task_path = resolve_repo_or_absolute(task_card)
+        if not task_path.exists():
+            results.append(CheckResult(False, f"{label}: task_card does not exist: {task_card}"))
+
+    completed_archive = record.get("completed_archive")
+    if isinstance(completed_archive, str) and completed_archive:
+        archive_path = resolve_repo_or_absolute(completed_archive)
+        if archive_path.is_dir():
+            archive_path = archive_path / "README.md"
+        if not archive_path.exists():
+            results.append(CheckResult(False, f"{label}: completed_archive does not exist: {completed_archive}"))
+
+    if record.get("risk_tier") == "high" and record.get("decision") == "ready_for_human_review":
+        results.append(CheckResult(False, f"{label}: high-risk audit cannot be ready without a human gate"))
+    if record.get("decision") == "ready_for_human_review":
+        if failed:
+            results.append(CheckResult(False, f"{label}: ready audit cannot include failed evidence"))
+        if skipped:
+            results.append(CheckResult(False, f"{label}: ready audit cannot include skipped evidence"))
+        if serious_findings:
+            results.append(CheckResult(False, f"{label}: ready audit cannot include P0/P1/P2 findings"))
+
+    if not results:
+        results.append(CheckResult(True, f"pr-audit: {label} passed"))
+    return results
+
+
+def validate_pr_audit_file(path: Path) -> list[CheckResult]:
+    if not path.exists():
+        return [CheckResult(False, f"pr-audit: missing file {path}")]
+    try:
+        data = json.loads(read_text(path))
+    except json.JSONDecodeError as exc:
+        return [CheckResult(False, f"{display_path(path)}: invalid JSON: {exc}")]
+    if not isinstance(data, dict):
+        return [CheckResult(False, f"{display_path(path)}: top-level JSON must be an object")]
+    return validate_pr_audit_record(data, path)
+
+
+def validate_pr_audit_command(args: argparse.Namespace) -> int:
+    paths = [repo_path(path) if not Path(path).is_absolute() else Path(path) for path in args.paths]
+    results: list[CheckResult] = []
+    for path in paths:
+        results.extend(validate_pr_audit_file(path))
+    return run_checks(results)
+
+
 def summarize_nightly_run(run_dir: Path) -> dict[str, Any]:
     findings_path = run_dir / "findings.json"
     summary: dict[str, Any] = {
@@ -2409,6 +2589,12 @@ def build_parser() -> argparse.ArgumentParser:
     audit_pr.add_argument("--output", default="")
     audit_pr.add_argument("--force", action="store_true")
 
+    validate_pr_audit = subparsers.add_parser(
+        "validate-pr-audit",
+        help="Validate PR audit JSON shape, evidence posture, and forbidden action policy",
+    )
+    validate_pr_audit.add_argument("paths", nargs="+")
+
     nightly_index = subparsers.add_parser(
         "update-nightly-index",
         help="Generate docs/agentic/nightly-runs/README.md from dated findings.json files",
@@ -2515,6 +2701,8 @@ def main(argv: list[str]) -> int:
         return validate_completed_report_includes_command(args)
     if args.command == "audit-pr":
         return audit_pr_command(args)
+    if args.command == "validate-pr-audit":
+        return validate_pr_audit_command(args)
     if args.command == "update-nightly-index":
         return update_nightly_index_command(args)
     if args.command == "score-closure-report":

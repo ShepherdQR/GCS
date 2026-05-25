@@ -1,7 +1,7 @@
 # GCS AI Governance Next Actions
 
 Status: active roadmap.
-Date: 2026-05-25.
+Date: 2026-05-26.
 
 ## Purpose
 
@@ -34,6 +34,11 @@ Planned outputs:
 - `python tools\agentic_design\agentic_toolkit.py audit-pr`;
 - optional PR description block generated from the JSON;
 - later validator once two opt-in cycles are reviewed.
+
+Current state:
+
+- schema, `audit-pr`, first sample artifact, and `validate-pr-audit` now exist;
+- PR description generation remains open.
 
 Minimum artifact fields:
 
@@ -86,6 +91,13 @@ Planned outputs:
 - a lightweight permission-policy validator;
 - command/action classes for write, network, dependency, Git, fixture, and
   protected-branch operations.
+
+Current state:
+
+- `agent-permission-policy.md` exists;
+- `validate-pr-audit` enforces the initial forbidden-action and ready-state
+  rules for PR audit artifacts;
+- standalone automation action-log validation remains open.
 
 Forbidden unattended actions:
 
@@ -156,8 +168,9 @@ Acceptance signal:
 
 ## Execution Order
 
-1. Implement `pr-audit.schema.json` and `audit-pr`.
-2. Implement `nightly-runs/README.md` generation.
-3. Run both on the current governance branch as a calibration sample.
-4. Add permission-policy-as-code after the first sample output is reviewed.
-5. Build the AI review eval set from historical completed-task archives.
+1. Done: implement `pr-audit.schema.json` and `audit-pr`.
+2. Done: implement `nightly-runs/README.md` generation.
+3. Done: run both on the governance branch as a calibration sample.
+4. Done: add permission-policy-as-code and `validate-pr-audit`.
+5. Next: review the first two nightly diagnostic runs and label signal/noise.
+6. Next: build the AI review eval set from historical completed-task archives.

@@ -30,6 +30,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
 | `ai-governance-next-actions.md` | Active roadmap for executable AI governance work after the first PR audit and nightly-diagnostics design. |
+| `agent-permission-policy.md` | Permission-as-code policy for unattended agent actions, human gates, and PR audit enforcement. |
 | `pr-audit-governance.md` | PR-class, risk, evidence, exploratory-PR, and automated-audit governance. |
 | `schemas/pr-audit.schema.json` | Machine-readable v1 PR audit artifact schema. |
 | `pr-audits/` | Saved PR audit JSON artifacts for opt-in calibration cycles. |
