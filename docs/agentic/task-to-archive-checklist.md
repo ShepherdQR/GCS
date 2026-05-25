@@ -15,11 +15,13 @@ Create a persisted task card when any of these are true:
   IO schemas, quality gates, or public CLI/viewer behavior;
 - the task spans more than one module, workstream, or institutional-agent role;
 - the task will need a completed-task archive to resume later;
-- the user asks for a plan, lifecycle execution, commit, or durable process
-  update.
+- the user asks for a plan, lifecycle execution, repository cleanup, commit, or
+  durable process update.
 
-Tiny low-risk edits may stay chat-only only when S1-04's low-risk table allows
-it.
+Tiny low-risk work may skip persisted task/archive closure only when
+`lifecycle-runbook.md` Step 1.5 allows it. Escalate immediately when work
+changes branch state, generated artifacts, fixtures, quality gates, lifecycle
+policy, public CLI/viewer behavior, or future task context.
 
 ## Checklist
 

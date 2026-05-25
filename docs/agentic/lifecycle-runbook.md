@@ -60,6 +60,31 @@ Classify risk:
 
 High-risk tasks require a human gate and an execution plan.
 
+## Step 1.5: Low-Risk Chat-Only Boundary
+
+Use the smallest durable memory that preserves future project state. A task may
+skip a persisted task card and completed-task archive only when the table below
+allows it and no escalation trigger applies.
+
+| Task class | Examples | Durable memory | Escalate when |
+| --- | --- | --- | --- |
+| Chat-only | status check, command output explanation, read-only code/doc answer, current task list | conversation plus any command result the user requested | the answer changes project policy, commits files, deletes branches, or future agents must rely on it |
+| Commit/PR-note only | typo, link fix, index ordering, tiny wording correction, formatting-only docs cleanup | commit message or PR note | more than one file cluster changes, a roadmap changes, or a skipped check matters |
+| Persisted task card, archive required | solver/runtime/IO/viewer behavior, quality gates, generated fixtures, scene schemas, institutional-agent evals/templates, branch cleanup, multi-step plans | task card, evidence bundle, completed-task archive, index update, and learning check | always; these are non-trivial lifecycle tasks |
+
+Escalation triggers:
+
+- user asks for `/plan`, staged execution, commit/push, repository cleanup, or
+  durable process update;
+- the task touches `docs/architecture/`, `docs/agentic/experience/`,
+  `fixtures/scene/`, `tools/agentic_design/`, quality gates, or public CLI
+  behavior;
+- generated artifacts are promoted, ignored, deleted, or reclassified;
+- branch/worktree state is changed;
+- validation fails, is skipped for a meaningful reason, or reveals residual
+  risk;
+- another future task depends on the decision.
+
 ## Step 2: Create A Task Card
 
 Use `new-task-card` or copy `task-card-template.md`, then replace the skeleton
@@ -70,8 +95,9 @@ python tools\agentic_design\agentic_toolkit.py new-task-card --slug my-task --sc
 python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\<task>.md
 ```
 
-For tiny low-risk tasks, the task card may stay in the chat or PR description.
-Persist it when the work spans modules, commits, or future follow-up.
+For tiny low-risk tasks, the task card may stay in the chat, commit message, or
+PR description only when Step 1.5 allows it. Persist it when the work spans
+modules, commits, generated artifacts, lifecycle policy, or future follow-up.
 
 When the task will use an isolated worktree, prefer `new-worktree-task` over
 `new-task-card` so the worktree path, branch name, base ref, and cleanup command

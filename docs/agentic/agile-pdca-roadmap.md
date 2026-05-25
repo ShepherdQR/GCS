@@ -22,38 +22,41 @@ Current task counts:
 
 | Phase | Done | Next | Pending | Main remaining question |
 | --- | ---: | ---: | ---: | --- |
-| Phase 1: Lifecycle Closure | 5 | 1 | 0 | Which low-risk tasks may stay chat-only without weakening project memory? |
+| Phase 1: Lifecycle Closure | 6 | 0 | 0 | How often should escaped chat-only work be audited for drift? |
 | Phase 2: Quality-Gate Adoption | 0 | 0 | 5 | Which checks become opt-in gates before any default enforcement? |
 | Phase 3: E001 Closure Experience Validation | 3 | 1 | 0 | Should E001 remain an experience or become an installed project skill? |
 | Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
 
 Priority order:
 
-1. Finish Phase 1 S1-04 by defining which low-risk tasks may stay chat-only.
-2. Use Step 49's saved report artifact in Step 50 before adding GUI or
+1. Use Step 49's saved report artifact in Step 50 before adding GUI or
    diagnostics integration.
-3. Add Phase 2 opt-in checks only after the lifecycle loop has multiple clean
-   examples.
-4. Decide S3-04 after S1-04 clarifies what tiny tasks may skip archives.
+2. Add Phase 2 opt-in checks now that negative eval and chat-only boundary
+   evidence exist.
+3. Decide S3-04 after at least one more closure sample confirms E001's
+   promotion value.
+4. Add Phase 2 implementation tests only after S2-01 keeps legacy archives
+   exempt.
 5. Keep new institutional-agent examples tied to real requested work.
 
 ## Phase Analysis Snapshot
 
 ### Phase 1 Analysis
 
-Phase 1 is now proven on documentation work, a real solver-adjacent task, and
-combined engineering/process tasks. C001 demonstrated the docs-only loop; C003
-demonstrated a high-risk runtime contract change; C004 completed S1-03 by
-turning the loop into a compact task-to-archive checklist while also advancing
-Step 48. C005 completed S1-05 by reviewing the first two lifecycle archives
-against E001 while advancing Step 49.
+Phase 1 is now complete for the first lifecycle pass. C001 demonstrated the
+docs-only loop; C003 demonstrated a high-risk runtime contract change; C004
+completed S1-03 by turning the loop into a compact task-to-archive checklist
+while also advancing Step 48. C005 completed S1-05 by reviewing the first two
+lifecycle archives against E001 while advancing Step 49. C007 completed S1-04
+by defining the low-risk chat-only boundary.
 
 Stage conclusion:
 
-- Keep Phase 1 active only for S1-04's low-risk chat-only boundary.
-- Treat S1-05 as complete for the first two archives.
-- Do not start Phase 2 default-gate work until S3-02 adds a negative closure
-  eval.
+- Treat Phase 1 as complete for the first operating loop.
+- Audit future chat-only escapes if they start hiding decisions, skipped
+  checks, or generated artifacts.
+- Phase 2 can now start opt-in gate design, but default enforcement should
+  remain deferred.
 
 ### Phase 2 Analysis
 
@@ -143,7 +146,7 @@ Backlog:
 | S1-01 | Persist four-phase Agile PDCA roadmap and close this planning task. | done | This roadmap, task card, completed-task archive. |
 | S1-02 | Reconcile Step 46 lifecycle drift without fabricating a missing task card or archive. | done | `near-term-agent-plan.md` and this roadmap update. |
 | S1-03 | Add a lightweight task-to-archive cross-link checklist. | done | `task-to-archive-checklist.md`, runbook update, checked Step 47 example. |
-| S1-04 | Decide which low-risk tasks may stay chat-only. | next | Entry-criteria table in lifecycle runbook. |
+| S1-04 | Decide which low-risk tasks may stay chat-only. | done | Step 1.5 entry-criteria table in `lifecycle-runbook.md`. |
 | S1-05 | Review the first two archives with E001 closure rubric. | done | `experience/001-task-scoped-session-closure/calibration/2026-05-24-s1-05-first-archive-review.md`. |
 | S1-06 | Apply the lifecycle loop to Step 47 deterministic runtime replay evidence export tooling. | done | Task card, implementation evidence, completed-task report, roadmap C003 update, `刀匠` note. |
 
@@ -472,24 +475,54 @@ Act:
   must not over-reject tiny low-risk work.
 - S3-04 should wait until S1-04 clarifies the chat-only boundary.
 
+### C007: S1-04 Low-Risk Chat-Only Boundary
+
+Plan:
+
+- define which low-risk work can stay chat-only, commit-note-only, or must use
+  persisted task/archive closure;
+- update the checklist so S3-02's negative eval does not over-reject tiny work;
+- close Phase 1's first lifecycle pass.
+
+Do:
+
+- added Step 1.5 to the lifecycle runbook with a three-tier boundary table;
+- added escalation triggers for generated artifacts, fixtures, branch cleanup,
+  quality gates, lifecycle policy, public behavior, and future task context;
+- updated the task-to-archive checklist and completed-task index;
+- added a Bladesmith note for the reusable escape-hatch lesson.
+
+Check:
+
+- task-card validation passed;
+- completed-task validation passed;
+- closure score passed;
+- docs validation passed.
+
+Act:
+
+- Phase 1 is complete for the initial Agentic SE lifecycle loop.
+- Step 50 is the next engineering task.
+- S2-01 is now unblocked for opt-in gate design because S3-02 and S1-04 define
+  both the reject cases and the low-risk escape hatch.
+
 ## Next Agile Task
 
-S1-04 is the next lifecycle-boundary task, with Step 50 as the next engineering
-consumer-review task:
+Step 50 is the next engineering consumer-review task, with S2-01 as the next
+Agentic SE tooling design task:
 
-1. Define the low-risk task class that may stay chat-only.
-2. Use Step 49's saved report artifact in Step 50 before adding GUI or
+1. Use Step 49's saved report artifact in Step 50 before adding GUI or
    diagnostics integration.
-3. Design Phase 2 quality gates as opt-in now that negative eval evidence
+2. Design Phase 2 quality gates as opt-in now that negative eval evidence
    exists.
-4. Decide S3-04 after S1-04 and at least one more closure sample.
+3. Decide S3-04 after at least one more closure sample.
+4. Reassess institutional agents after the next real closure.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S1-04 low-risk chat-only boundary | Completes the remaining Phase 1 lifecycle entry rule and bounds S3-02's rejection behavior. | Entry-criteria table in lifecycle runbook. |
-| 2 | Step 50 replay evidence report workflow review | Uses the saved report artifact before adding another consumer surface. | GUI, diagnostics, or report-only direction selected. |
-| 3 | S2-01 opt-in gate design | Negative eval exists; chat-only boundary should land before enforcement design. | Gate policy proposal, no default enforcement yet. |
-| 4 | S3-04 E001 promotion decision | E001 now has positive and negative samples, but should wait for S1-04. | Keep as experience, promote to skill, or keep provisional. |
-| 5 | S4-05 institutional-agent reassessment | `刀匠` and `裁缝` now each have multiple real examples. | Candidate table update after additional real closures. |
+| 1 | Step 50 replay evidence report workflow review | Uses the saved report artifact before adding another consumer surface. | GUI, diagnostics, or report-only direction selected. |
+| 2 | S2-01 opt-in gate design | Negative eval and chat-only boundary now clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
+| 3 | S3-04 E001 promotion decision | E001 now has positive and negative samples; one more closure sample would improve confidence. | Keep as experience, promote to skill, or keep provisional. |
+| 4 | S4-05 institutional-agent reassessment | `刀匠` and `裁缝` now each have multiple real examples. | Candidate table update after additional real closures. |
