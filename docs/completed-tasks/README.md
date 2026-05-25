@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-25 | [UI Phase 7 diagnostics overlay](2026-05-25-ui-phase7-diagnostics-overlay/README.md) | done |
 | 2026-05-25 | [GCS commercial architecture and behavior model update](2026-05-25-gcs-commercial-architecture-behavior-model/README.md) | done |
 | 2026-05-25 | [UI Phase 6 focus projection](2026-05-25-ui-phase6-focus-projection/README.md) | done |
 | 2026-05-25 | [Agentic SE roadmap items 1, 2, 3, and 5](2026-05-25-agentic-se-roadmap-items-1-2-3-5/README.md) | done |

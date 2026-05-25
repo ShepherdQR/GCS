@@ -14,6 +14,9 @@ from gcs_viz.algebra import read_graph_json  # noqa: E402
 from gcs_viz.viewer_bridge import (  # noqa: E402
     apply_history_entry,
     build_history_graph,
+    combine_focus_with_constraint_states,
+    constraint_state_projection,
+    constraint_states_from_solve_text,
     graph_summary,
     history_focus_from_entry,
     selection_focus,
@@ -144,6 +147,65 @@ class GcsVizHistoryReplayTests(unittest.TestCase):
         replay = build_history_graph(history, 6)
 
         self.assertIsNone(history_focus_from_entry(history[6], replay))
+
+    def test_constraint_state_projection_normalizes_known_states(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        self.assertEqual(
+            constraint_state_projection(graph, {0: "VIOLATED"}),
+            {
+                "mode": "diagnostic",
+                "rigid_set_ids": [],
+                "geometry_ids": [],
+                "constraint_ids": [],
+                "constraint_states": {0: "violated"},
+            },
+        )
+
+    def test_constraint_state_projection_can_fill_unknowns(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        self.assertEqual(
+            constraint_state_projection(graph, {}, fill_unknown=True)["constraint_states"],
+            {0: "unknown"},
+        )
+
+    def test_constraint_states_from_solve_text_requires_constraint_ids(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        aggregate_only = "Constraint report: 1 SATISFIED\n>>> All constraints satisfied <<<"
+        self.assertEqual(constraint_states_from_solve_text(graph, aggregate_only), {})
+        self.assertEqual(
+            constraint_states_from_solve_text(graph, aggregate_only, fill_unknown=True),
+            {0: "unknown"},
+        )
+
+    def test_constraint_states_from_solve_text_extracts_safe_ids(self):
+        graph = build_history_graph(self.make_history(), 4)
+
+        self.assertEqual(
+            constraint_states_from_solve_text(graph, "Constraint 0 distance VIOLATED"),
+            {0: "violated"},
+        )
+        self.assertEqual(
+            constraint_states_from_solve_text(graph, "C0 distance SATISFIED"),
+            {0: "satisfied"},
+        )
+
+    def test_combine_focus_with_constraint_states_preserves_selection(self):
+        graph = build_history_graph(self.make_history(), 4)
+        focus = selection_focus(graph, constraint_ids=[0])
+
+        self.assertEqual(
+            combine_focus_with_constraint_states(focus, graph, {0: "violated"}),
+            {
+                "mode": "selection",
+                "rigid_set_ids": [0, 1],
+                "geometry_ids": [0, 1],
+                "constraint_ids": [0],
+                "constraint_states": {0: "violated"},
+            },
+        )
 
 
 if __name__ == "__main__":

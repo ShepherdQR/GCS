@@ -57,7 +57,7 @@ Tk state and user actions; `visualizer.py` draws supplied states only.
 | 4 | Replay And Solve Polish | Complete | Replay rail, progress, action text, solve summary |
 | 5 | Design QA And Accessibility | Complete | `tools/ui_qa/gcs_ui_qa.py`, UI QA fixture and unittest |
 | 6 | Interaction Semantics | Complete | `selection_focus`, replay focus projection, table-selection highlighting |
-| 7 | Solve Diagnostics Overlay | Planned | Constraint state projection and renderer overlays |
+| 7 | Solve Diagnostics Overlay | Complete | `constraint_states`, safe fallback, renderer overlays |
 | 8 | Accessibility And Contrast Refinement | Planned | Status text colors, node label strategy, stale UI cleanup |
 | 9 | Replay Rail Refinement | Planned | History frame projection, rail controls, deletion hints |
 | 10 | Manual Visual QA Pass | Planned | Local GUI screenshot and taste calibration cycle |
@@ -285,11 +285,15 @@ Completion evidence:
 
 ## Phase 7: Solve Diagnostics Overlay
 
-Status: planned.
+Status: complete.
 
 Goal:
 
 Make solve results visible in the viewport, not just in a summary rail.
+
+Detailed implementation plan:
+
+- `docs/architecture/94-ui-phase7-diagnostics-overlay-work-plan.md`
 
 Deliverables:
 
@@ -319,6 +323,21 @@ Acceptance:
 - violated constraints are visible in all view modes;
 - satisfied states remain quiet and do not overpower focus;
 - solve summary and viewport states agree.
+
+Completion evidence:
+
+- `python/gcs_viz/viewer_bridge.py` now owns conservative constraint-state
+  projection, solver-text extraction, and focus/state merge helpers.
+- `python/gcs_viz/platform_gui.py` stores diagnostic constraint states from
+  solve output and merges them with selection focus outside replay.
+- `python/gcs_viz/visualizer.py` renders supplied `satisfied`, `violated`, and
+  `unknown` states in 3D, graph, and three-view modes with diagnostic legend
+  entries only when states are present.
+- `tests/tools/test_gcs_viz_history_replay.py` covers safe fallback behavior:
+  aggregate-only output does not invent per-constraint satisfied/violated
+  states.
+- `docs/architecture/94-ui-phase7-diagnostics-overlay-work-plan.md` records
+  the detailed plan, evidence, and environment-limited checks.
 
 ## Phase 8: Accessibility And Contrast Refinement
 
@@ -513,16 +532,15 @@ Acceptance:
 
 ## Scheduling Recommendation
 
-The next standalone work item should be Phase 7.
+The next standalone work item should be Phase 8.
 
 Reasoning:
 
 - Phase 6 turned the existing focus contract into a reusable interaction
   primitive.
-- Phase 7 should now build diagnostics overlays on top of the same projection
-  path.
-- Phase 8 should follow once the active interaction paths reveal where contrast
-  and text strategy actually matter most.
+- Phase 7 built diagnostics overlays on top of the same projection path.
+- Phase 8 should now refine contrast and text/state strategy around the active
+  focus and diagnostic states.
 - Phase 9 should refine replay after selection and diagnostic state precedence
   are clear.
 - Phase 10 should be run after Phase 8 or Phase 9, unless a manual GUI review

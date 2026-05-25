@@ -27,6 +27,8 @@ from gcs_viz.event_store import EventStore
 from gcs_viz.engine_bridge import EngineBridge
 from gcs_viz.viewer_bridge import (
     build_history_graph,
+    combine_focus_with_constraint_states,
+    constraint_states_from_solve_text,
     graph_summary,
     history_focus_from_entry,
     render_graph_view,
@@ -49,6 +51,7 @@ class GCSPlatformGUI:
         self._history_replay_index = -1
         self._history_replay_view = None
         self._selection_focus = None
+        self._constraint_states = {}
         self._refreshing_tables = False
 
         self.root = tk.Tk()
@@ -546,7 +549,7 @@ class GCSPlatformGUI:
             self.graph,
             self.view_var.get(),
             use_welcome=True,
-            focus=self._selection_focus,
+            focus=self._current_view_focus(),
         )
 
     def _selected_tree_ids(self, tree):
@@ -583,8 +586,20 @@ class GCSPlatformGUI:
             self.graph,
             self.view_var.get(),
             use_welcome=True,
-            focus=self._selection_focus,
+            focus=self._current_view_focus(),
         )
+
+    def _current_view_focus(self):
+        if not self._constraint_states:
+            return self._selection_focus
+        return combine_focus_with_constraint_states(
+            self._selection_focus,
+            self.graph,
+            self._constraint_states,
+        )
+
+    def _clear_constraint_states(self):
+        self._constraint_states = {}
 
     def _set_current_model(self, filepath):
         self.current_model_name = os.path.basename(filepath) if filepath else "Untitled"
@@ -609,6 +624,7 @@ class GCSPlatformGUI:
     def _add_rigid_set(self):
         dialog = AddRigidSetDialog(self.root, self.graph)
         if dialog.result is not None:
+            self._clear_constraint_states()
             rs_id = dialog.result
             self.graph.add_rigid_set(rs_id)
             self.graph.history.append({"action": "AddRigidSet", "payload": {"id": rs_id}})
@@ -623,6 +639,7 @@ class GCSPlatformGUI:
         rs_id = self.graph.rigid_sets[-1].id
         dialog = DeleteConfirmDialog(self.root, f"Rigid Set {rs_id}")
         if dialog.result:
+            self._clear_constraint_states()
             self.graph.remove_rigid_set(rs_id)
             self.graph.history.append({"action": "RemoveRigidSet", "payload": {"id": rs_id}})
             self.event_store.append(self.scene_id, "RigidSetRemoved", {"id": rs_id})
@@ -636,6 +653,7 @@ class GCSPlatformGUI:
             return
         dialog = AddGeometryDialog(self.root, self.graph)
         if dialog.result is not None:
+            self._clear_constraint_states()
             r = dialog.result
             geom_id = self.graph.next_geometry_id()
             self.graph.add_geometry(r["type"], r["rs_id"], v=r["v"], geom_id=geom_id)
@@ -654,6 +672,7 @@ class GCSPlatformGUI:
         gid = self.graph.geometries[-1].id
         dialog = DeleteConfirmDialog(self.root, f"Geometry {gid}")
         if dialog.result:
+            self._clear_constraint_states()
             self.graph.remove_geometry(gid)
             self.graph.history.append({"action": "RemoveGeometry", "payload": {"id": gid}})
             self.event_store.append(self.scene_id, "GeometryRemoved", {"id": gid})
@@ -667,6 +686,7 @@ class GCSPlatformGUI:
             return
         dialog = AddConstraintDialog(self.root, self.graph)
         if dialog.result is not None:
+            self._clear_constraint_states()
             r = dialog.result
             if not self.graph.geometries_span_rigid_sets(r["geometry_ids"]):
                 self._log_warning("Constraint geometries must belong to different rigid sets")
@@ -688,6 +708,7 @@ class GCSPlatformGUI:
         cid = self.graph.constraints[-1].id
         dialog = DeleteConfirmDialog(self.root, f"Constraint {cid}")
         if dialog.result:
+            self._clear_constraint_states()
             self.graph.remove_constraint(cid)
             self.graph.history.append({"action": "RemoveConstraint", "payload": {"id": cid}})
             self.event_store.append(self.scene_id, "ConstraintRemoved", {"id": cid})
@@ -722,6 +743,7 @@ class GCSPlatformGUI:
             return
         dialog = EditConstraintDialog(self.root, self.graph, cid)
         if dialog.result is not None:
+            self._clear_constraint_states()
             new_value = dialog.result["value"]
             c.value = new_value
             self.graph.history.append({"action": "UpdateConstraint", "payload": {"id": cid, "value": new_value}})
@@ -764,6 +786,11 @@ class GCSPlatformGUI:
                 violated += 1
 
         total = satisfied + violated
+        constraint_states = constraint_states_from_solve_text(
+            self.graph,
+            output,
+            fill_unknown=total > 0,
+        )
         if "Global status: WellConstrained" in output:
             global_status = "Well-constrained"
         elif "Global status: UnderConstrained" in output:
@@ -790,12 +817,14 @@ class GCSPlatformGUI:
             "violated": violated,
             "total": total,
             "global_status": global_status,
+            "constraint_states": constraint_states,
         }
 
     def _solve(self):
         if not self.graph.geometries:
             self._log_warning("Nothing to solve — add geometries first")
             return
+        self._clear_constraint_states()
 
         temp_dir = os.path.join(FIXTURE_SCENE_DIR, "_tui_temp")
         os.makedirs(temp_dir, exist_ok=True)
@@ -820,6 +849,7 @@ class GCSPlatformGUI:
 
     def _on_solve_done(self, result, temp_path):
         if "error" in result:
+            self._clear_constraint_states()
             self._set_solve_summary("error", result["error"])
             self._log_error(f"Solve error: {result['error']}")
             return
@@ -827,6 +857,7 @@ class GCSPlatformGUI:
         output = result.get("output", "")
         report = self._parse_solve_report(output)
         self._last_solve_report = report
+        self._constraint_states = dict(report.get("constraint_states") or {})
         self.event_store.append(self.scene_id, "SolveCompleted", {"input": temp_path})
 
         is_well = "Global status: WellConstrained" in output
@@ -912,6 +943,7 @@ class GCSPlatformGUI:
         )
         if filepath:
             try:
+                self._clear_constraint_states()
                 self.graph = read_graph_file(filepath)
                 self._set_current_model(filepath)
                 self.event_store.append(self.scene_id, "GraphLoaded", {"path": filepath})
@@ -941,7 +973,7 @@ class GCSPlatformGUI:
         restore_view = self._history_replay_view or self.view_var.get()
         self._cancel_history_replay()
         self.view_var.set(restore_view)
-        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True, focus=self._selection_focus)
+        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True, focus=self._current_view_focus())
         self._log_info("Replay stopped; restored current view")
 
     def _replay_history(self):
@@ -1013,7 +1045,7 @@ class GCSPlatformGUI:
         self._history_replay_view = None
         self.view_var.set(restore_view)
         self._set_replay_state("Replay complete", "Step 0 / 0", "Current model restored", 100.0)
-        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True, focus=self._selection_focus)
+        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True, focus=self._current_view_focus())
         self._log_success("Replay complete: current model restored")
 
     def _cancel_history_replay(self):

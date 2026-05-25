@@ -1,3 +1,4 @@
+import re
 from typing import Iterable, Mapping, Optional
 
 from gcs_viz.algebra import GCSGraph, GeometryType, ConstraintType
@@ -47,7 +48,23 @@ def _normalized_focus(mode: str, focus: dict) -> Optional[dict]:
         values = sorted(set(focus.get(key, [])))
         normalized[key] = values
         has_targets = has_targets or bool(values)
+    if "constraint_states" in focus:
+        states = {
+            int(constraint_id): state
+            for constraint_id, state in focus["constraint_states"].items()
+        }
+        normalized["constraint_states"] = states
+        has_targets = has_targets or bool(states)
     return normalized if has_targets else None
+
+
+def _normal_constraint_state(state) -> str:
+    normalized = str(state or "").strip().lower()
+    if normalized in ("satisfied", "ok", "solved"):
+        return "satisfied"
+    if normalized in ("violated", "violation", "failed", "error"):
+        return "violated"
+    return "unknown"
 
 
 def selection_focus(
@@ -127,6 +144,81 @@ def history_focus_from_entry(entry: Mapping, graph: GCSGraph) -> Optional[dict]:
                 _append_int(focus, "rigid_set_ids", geometry.rigid_set_id)
 
     return _normalized_focus("replay", focus)
+
+
+def constraint_state_projection(
+    graph: GCSGraph,
+    constraint_states: Optional[Mapping] = None,
+    fill_unknown: bool = False,
+) -> Optional[dict]:
+    projected_states = {}
+    raw_states = constraint_states or {}
+    for constraint in graph.constraints:
+        if constraint.id in raw_states:
+            projected_states[constraint.id] = _normal_constraint_state(raw_states[constraint.id])
+            continue
+        string_id = str(constraint.id)
+        if string_id in raw_states:
+            projected_states[constraint.id] = _normal_constraint_state(raw_states[string_id])
+            continue
+        if fill_unknown:
+            projected_states[constraint.id] = "unknown"
+
+    if not projected_states:
+        return None
+    return {
+        "mode": "diagnostic",
+        "rigid_set_ids": [],
+        "geometry_ids": [],
+        "constraint_ids": [],
+        "constraint_states": projected_states,
+    }
+
+
+def combine_focus_with_constraint_states(
+    focus: Optional[Mapping],
+    graph: GCSGraph,
+    constraint_states: Optional[Mapping] = None,
+    fill_unknown: bool = False,
+) -> Optional[dict]:
+    projected = constraint_state_projection(graph, constraint_states, fill_unknown=fill_unknown)
+    if focus is None:
+        return projected
+
+    combined = {
+        "mode": focus.get("mode", "selection"),
+        "rigid_set_ids": list(focus.get("rigid_set_ids", [])),
+        "geometry_ids": list(focus.get("geometry_ids", [])),
+        "constraint_ids": list(focus.get("constraint_ids", [])),
+    }
+    if projected is not None:
+        combined["constraint_states"] = dict(projected["constraint_states"])
+    elif "constraint_states" in focus:
+        combined["constraint_states"] = dict(focus.get("constraint_states") or {})
+    return _normalized_focus(combined["mode"], combined)
+
+
+def constraint_states_from_solve_text(
+    graph: GCSGraph,
+    output: str,
+    fill_unknown: bool = False,
+) -> dict:
+    raw_states = {}
+    pattern = re.compile(
+        r"\b(?:C|Constraint)\s*#?\s*(\d+)\b.*\b(SATISFIED|VIOLATED)\b",
+        re.IGNORECASE,
+    )
+    for line in output.splitlines():
+        match = pattern.search(line.strip())
+        if not match:
+            continue
+        state = "satisfied" if match.group(2).upper() == "SATISFIED" else "violated"
+        raw_states[int(match.group(1))] = state
+
+    projected = constraint_state_projection(graph, raw_states, fill_unknown=fill_unknown)
+    if projected is None:
+        return {}
+    return projected["constraint_states"]
 
 
 def render_graph_view(
