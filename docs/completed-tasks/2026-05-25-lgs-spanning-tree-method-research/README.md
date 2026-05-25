@@ -200,3 +200,44 @@ Current status:
   - Future implementation should use `gcs-decomposition-planning-steward`,
     `gcs-constraint-semantics-steward`, `gcs-numeric-engine-steward`, and
     `gcs-quality-steward`.
+
+## Session Closeout
+
+Closeout date: 2026-05-25.
+
+Final state:
+
+- Spanning-tree research/design/preparation is complete for this session.
+- `Rigid-set spanning-tree plan contracts` are explicitly not implemented.
+- Future development should start from a fresh task card and remain
+  contract-only in its first phase.
+- The current branch is `master`.
+- The spanning-tree commits were pushed to `origin/master`.
+
+Committed spanning-tree work:
+
+```text
+7cc0e5a docs: add lgs spanning tree research
+a059657 docs: close lgs research task
+71ca6d0 docs: add lgs spanning tree implementation plan
+257a9ac docs: confirm lgs spanning tree readiness
+```
+
+Closeout checks:
+
+```text
+git status --short --branch
+Result: master was aligned with origin/master before this final closeout edit;
+unrelated institutional-agent/tooling changes remained in the worktree.
+```
+
+Known unrelated dirty worktree entries at closeout:
+
+- `docs/agentic/institutional-agents/003-atelier-steward-calibrate-review/`
+- `docs/agentic/institutional-agents/004-art-director-frame-judge/`
+- `tests/tools/test_agentic_toolkit.py`
+- `tools/agentic_design/agentic_toolkit.py`
+- `docs/agentic/tasks/2026-05-25-gcs-solver-ui-requirements-architecture.md`
+
+These were not part of the spanning-tree task and were intentionally left
+untouched.
