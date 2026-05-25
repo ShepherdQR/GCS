@@ -1,0 +1,70 @@
+{
+  "affected_contracts": [
+    "Agentic operating layer",
+    "Documentation",
+    "Agentic and support-tool tests",
+    "Unclassified repository path"
+  ],
+  "affected_paths": [
+    "docs/agentic/pr-audits/2026-05-26-repository-audit-collector-mvp.json",
+    "docs/agentic/tasks/2026-05-26-repository-audit-collector-mvp.md",
+    "docs/completed-tasks/2026-05-26-repository-audit-collector-mvp/README.md",
+    "docs/completed-tasks/README.md",
+    "tests/tools/test_repository_audit.py",
+    "tools/repository_audit/README.md",
+    "tools/repository_audit/gcs_repository_audit/__init__.py",
+    "tools/repository_audit/gcs_repository_audit/classify.py",
+    "tools/repository_audit/gcs_repository_audit/collect.py",
+    "tools/repository_audit/gcs_repository_audit/models.py",
+    "tools/repository_audit/gcs_repository_audit/policy.py",
+    "tools/repository_audit/repository_audit.py"
+  ],
+  "base": "HEAD~1",
+  "completed_archive": "docs/completed-tasks/2026-05-26-repository-audit-collector-mvp",
+  "decision": "ready_for_human_review",
+  "evidence": {
+    "failed": [],
+    "passed": [
+      "python -m unittest tests.tools.test_repository_audit",
+      "python -m unittest tests.tools.test_agentic_toolkit",
+      "repository_audit collect wrote var/repository-audit/latest.snapshot.json",
+      "repository_audit check returned 0 errors and 2 warnings",
+      "validate-task-card docs/agentic/tasks/2026-05-26-repository-audit-collector-mvp.md",
+      "validate-docs",
+      "validate-completed-task-report docs/completed-tasks/2026-05-26-repository-audit-collector-mvp/README.md",
+      "score-closure-report docs/completed-tasks/2026-05-26-repository-audit-collector-mvp/README.md --min-score 30"
+    ],
+    "skipped": []
+  },
+  "findings": [],
+  "forbidden_action_check": {
+    "approve": "not_performed",
+    "branch_delete": "not_performed",
+    "fixture_promotion": "not_performed",
+    "force_push": "not_performed",
+    "merge": "not_performed"
+  },
+  "generated_at": "2026-05-26T18:29:55+08:00",
+  "head": "HEAD",
+  "next_action": "human_review",
+  "pr_class": "quality-gate",
+  "review_focus": [
+    "Agentic operating layer",
+    "Documentation",
+    "Agentic and support-tool tests",
+    "Unclassified repository path",
+    "docs/agentic/pr-audits/2026-05-26-repository-audit-collector-mvp.json",
+    "docs/agentic/tasks/2026-05-26-repository-audit-collector-mvp.md",
+    "docs/completed-tasks/2026-05-26-repository-audit-collector-mvp/README.md",
+    "docs/completed-tasks/README.md",
+    "tests/tools/test_repository_audit.py",
+    "tools/repository_audit/README.md",
+    "tools/repository_audit/gcs_repository_audit/__init__.py",
+    "tools/repository_audit/gcs_repository_audit/classify.py",
+    "tools/repository_audit/gcs_repository_audit/collect.py",
+    "tools/repository_audit/gcs_repository_audit/models.py"
+  ],
+  "risk_tier": "medium",
+  "schema_version": "gcs.pr-audit.v1",
+  "task_card": "docs/agentic/tasks/2026-05-26-repository-audit-collector-mvp.md"
+}

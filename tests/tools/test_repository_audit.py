@@ -1,0 +1,138 @@
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+REPOSITORY_AUDIT_ROOT = REPO_ROOT / "tools" / "repository_audit"
+sys.path.insert(0, str(REPOSITORY_AUDIT_ROOT))
+
+from gcs_repository_audit.classify import ARTIFACT_LAYERS, classify_path, normalize_path
+from gcs_repository_audit.collect import collect_snapshot, write_snapshot
+from gcs_repository_audit.models import GitInfo
+
+
+class RepositoryAuditTests(unittest.TestCase):
+    def test_classifier_covers_architecture_artifact_classes(self):
+        examples = {
+            "solver_source": "src/gcs/kernel/kernel.cppm",
+            "application_shell": "apps/gcs_cli/main.cpp",
+            "viewer_python": "python/gcs_viz/visualizer.py",
+            "tooling": "tools/repository_audit/repository_audit.py",
+            "contract_test": "tests/contracts/kernel/kernel_contract_tests.cpp",
+            "tool_test": "tests/tools/test_repository_audit.py",
+            "fixture": "fixtures/scene/basic/g1.txt",
+            "architecture_doc": "docs/architecture/README.md",
+            "research_doc": "docs/research/topic.md",
+            "agentic_process_doc": "docs/agentic/README.md",
+            "completed_task_archive": "docs/completed-tasks/demo/README.md",
+            "codex_skill": ".codex/skills/gcs-kernel-contract-steward/SKILL.md",
+            "generated_store": ".codex_scene_generation_store/demo/scene.json",
+            "visual_asset": "docs/architecture/70-visualization/assets/figure.svg",
+            "repo_root_config": "README.md",
+            "unknown": "misc/unclassified.bin",
+        }
+
+        self.assertEqual(set(examples), set(ARTIFACT_LAYERS))
+        for artifact_class, path in examples.items():
+            self.assertEqual(classify_path(path), artifact_class)
+
+    def test_normalize_path_preserves_non_ascii_and_windows_separators(self):
+        self.assertEqual(normalize_path(r".\docs\research\几何\约束.md"), "docs/research/几何/约束.md")
+
+    def test_collect_snapshot_joins_module_inventory(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            inventory = root / "tools" / "agentic_design" / "module_inventory.json"
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text(
+                json.dumps({
+                    "modules": [
+                        {
+                            "id": "kernel",
+                            "source_dir": "src/gcs/kernel",
+                            "contract_test": "tests/contracts/kernel/kernel_contract_tests.cpp",
+                            "skill": ".codex/skills/gcs-kernel-contract-steward",
+                        }
+                    ]
+                }),
+                encoding="utf-8",
+            )
+            files = {
+                "src/gcs/kernel/kernel.cppm": "export module gcs.kernel;\n",
+                "src/gcs/kernel/kernel.cpp": "module gcs.kernel;\n",
+                "tests/contracts/kernel/kernel_contract_tests.cpp": "#include <gtest/gtest.h>\n",
+                ".codex/skills/gcs-kernel-contract-steward/SKILL.md": "---\nname: gcs-kernel-contract-steward\n---\n",
+                "docs/research/几何/约束.md": "# 非 ASCII path\n",
+            }
+            for relative, content in files.items():
+                path = root / Path(*relative.split("/"))
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding="utf-8")
+
+            snapshot = collect_snapshot(
+                root,
+                tracked_paths=[
+                    "src/gcs/kernel/kernel.cppm",
+                    "src/gcs/kernel/kernel.cpp",
+                    "tests/contracts/kernel/kernel_contract_tests.cpp",
+                    ".codex/skills/gcs-kernel-contract-steward/SKILL.md",
+                    r"docs\research\几何\约束.md",
+                ],
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="abc", branch="test", dirty=False),
+            )
+
+        self.assertEqual(snapshot.schema_version, "gcs-repository-audit-0.1")
+        self.assertEqual(snapshot.totals["files"], 5)
+        self.assertTrue(any(metric.path == "docs/research/几何/约束.md" for metric in snapshot.files))
+        kernel = next(metric for metric in snapshot.modules if metric.module_id == "kernel")
+        self.assertEqual(kernel.source_files, 2)
+        self.assertEqual(kernel.interface_files, 1)
+        self.assertEqual(kernel.implementation_files, 1)
+        self.assertEqual(kernel.contract_test_files, 1)
+        self.assertEqual(kernel.skill_files, 1)
+        self.assertEqual(snapshot.findings, [])
+
+    def test_policy_reports_tracked_build_output_error(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            output = root / "out" / "build" / "artifact.txt"
+            output.parent.mkdir(parents=True)
+            output.write_text("generated\n", encoding="utf-8")
+
+            snapshot = collect_snapshot(
+                root,
+                tracked_paths=["out/build/artifact.txt"],
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="abc", branch="test", dirty=False),
+            )
+
+        self.assertTrue(any(finding.id == "tracked-build-output" and finding.severity == "error" for finding in snapshot.findings))
+
+    def test_write_snapshot_outputs_stable_json(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            readme = root / "README.md"
+            readme.write_text("# Demo\n", encoding="utf-8")
+            snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md"],
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="abc", branch="test", dirty=False),
+            )
+            output = root / "snapshot.json"
+
+            write_snapshot(snapshot, output)
+
+            data = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(data["schema_version"], "gcs-repository-audit-0.1")
+        self.assertEqual(data["totals"]["files"], 1)
+        self.assertEqual(data["files"][0]["artifact_class"], "repo_root_config")
+
+
+if __name__ == "__main__":
+    unittest.main()
