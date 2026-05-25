@@ -24,16 +24,18 @@ Current task counts:
 | --- | ---: | ---: | ---: | --- |
 | Phase 1: Lifecycle Closure | 5 | 1 | 0 | Which low-risk tasks may stay chat-only without weakening project memory? |
 | Phase 2: Quality-Gate Adoption | 0 | 0 | 5 | Which checks become opt-in gates before any default enforcement? |
-| Phase 3: E001 Closure Experience Validation | 2 | 1 | 1 | Does E001 catch weak closure evidence in real work, not only in templates? |
+| Phase 3: E001 Closure Experience Validation | 3 | 1 | 0 | Should E001 remain an experience or become an installed project skill? |
 | Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
 
 Priority order:
 
-1. Add S3-02 negative E001 eval for false completion or archive pollution.
-2. Finish Phase 1 S1-04 by defining which low-risk tasks may stay chat-only.
+1. Finish Phase 1 S1-04 by defining which low-risk tasks may stay chat-only.
+2. Use Step 49's saved report artifact in Step 50 before adding GUI or
+   diagnostics integration.
 3. Add Phase 2 opt-in checks only after the lifecycle loop has multiple clean
    examples.
-4. Keep new institutional-agent examples tied to real requested work.
+4. Decide S3-04 after S1-04 clarifies what tiny tasks may skip archives.
+5. Keep new institutional-agent examples tied to real requested work.
 
 ## Phase Analysis Snapshot
 
@@ -76,8 +78,9 @@ catch weak closure evidence and guide human review.
 Stage conclusion:
 
 - Use the S1-05 calibration note as the first human-review comparison sample.
-- Add one negative eval for archive pollution or false completion.
-- Compare additional engineering samples after Step 49 closes.
+- Treat S3-02 as complete: E001 now has a seed negative eval for false
+  completion and archive pollution.
+- Defer S3-04 promotion until S1-04 defines the low-risk chat-only boundary.
 
 ### Phase 4 Analysis
 
@@ -185,9 +188,9 @@ Backlog:
 | ID | Task | Status | Evidence |
 | --- | --- | --- | --- |
 | S3-01 | Use E001 on Step 47 or the next high-risk engineering closure. | done | Step 47 completed-task report and 37/40 closure score. |
-| S3-02 | Add one negative eval for archive pollution or false completion. | next | Eval note under E001 or `docs/agentic/evals`. |
+| S3-02 | Add one negative eval for archive pollution or false completion. | done | `experience/001-task-scoped-session-closure/evals/2026-05-25-false-completion-archive-pollution.md`. |
 | S3-03 | Compare scorer output with human review on two archives. | done | S1-05 calibration note. |
-| S3-04 | Decide whether to install a project skill for session closure. | pending | Promotion decision record. |
+| S3-04 | Decide whether to install a project skill for session closure. | next | Promotion decision record after S1-04. |
 
 ## Phase 4: Institutional Agents Become Verifiable
 
@@ -440,23 +443,53 @@ Act:
   reports should feed GUI review, diagnostics packaging, or remain CLI/report
   artifacts.
 
+### C006: S3-02 Negative E001 Eval
+
+Plan:
+
+- add one E001 negative eval for false completion and archive pollution;
+- keep it documentation-level until Phase 2 opt-in gates decide enforcement;
+- update the roadmap and archive the task through the lifecycle.
+
+Do:
+
+- added a seed eval with a positive control, false-completion negative case,
+  archive-pollution negative case, expected decisions, and minimal repairs;
+- added a Bladesmith forging note for the reusable lesson;
+- updated the E001 README and completed-task index.
+
+Check:
+
+- task-card validation passed;
+- completed-task validation passed;
+- closure score passed;
+- docs validation passed.
+
+Act:
+
+- S3-02 is complete.
+- S1-04 is now the next Agentic SE lifecycle task because the negative eval
+  must not over-reject tiny low-risk work.
+- S3-04 should wait until S1-04 clarifies the chat-only boundary.
+
 ## Next Agile Task
 
-S3-02 is the next E001 hardening task, with S1-04 as the remaining Phase 1
-boundary task:
+S1-04 is the next lifecycle-boundary task, with Step 50 as the next engineering
+consumer-review task:
 
-1. Add one negative E001 eval for false completion or archive pollution.
-2. Define the low-risk task class that may stay chat-only.
-3. Use Step 49's saved report artifact in Step 50 before adding GUI or
+1. Define the low-risk task class that may stay chat-only.
+2. Use Step 49's saved report artifact in Step 50 before adding GUI or
    diagnostics integration.
-4. Keep Phase 2 quality gates opt-in until negative eval evidence exists.
+3. Design Phase 2 quality gates as opt-in now that negative eval evidence
+   exists.
+4. Decide S3-04 after S1-04 and at least one more closure sample.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S3-02 negative E001 eval | Uses real closure evidence to guard against archive pollution or false completion. | One failing/passing eval note. |
-| 2 | S1-04 low-risk chat-only boundary | Completes the remaining Phase 1 lifecycle entry rule. | Entry-criteria table in lifecycle runbook. |
-| 3 | Step 50 replay evidence report workflow review | Uses the saved report artifact before adding another consumer surface. | GUI, diagnostics, or report-only direction selected. |
-| 4 | S2-01 opt-in gate design | Only after negative eval and chat-only boundary clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
-| 5 | S4-05 institutional-agent reassessment | `刀匠` and `裁缝` now each have one real example. | Candidate table update after additional real closures. |
+| 1 | S1-04 low-risk chat-only boundary | Completes the remaining Phase 1 lifecycle entry rule and bounds S3-02's rejection behavior. | Entry-criteria table in lifecycle runbook. |
+| 2 | Step 50 replay evidence report workflow review | Uses the saved report artifact before adding another consumer surface. | GUI, diagnostics, or report-only direction selected. |
+| 3 | S2-01 opt-in gate design | Negative eval exists; chat-only boundary should land before enforcement design. | Gate policy proposal, no default enforcement yet. |
+| 4 | S3-04 E001 promotion decision | E001 now has positive and negative samples, but should wait for S1-04. | Keep as experience, promote to skill, or keep provisional. |
+| 5 | S4-05 institutional-agent reassessment | `刀匠` and `裁缝` now each have multiple real examples. | Candidate table update after additional real closures. |

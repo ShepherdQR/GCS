@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-25 | [S3-02 negative E001 eval](2026-05-25-s3-02-negative-e001-eval/README.md) | done |
 | 2026-05-25 | [Repository cleanup and scene fixture hygiene](2026-05-25-repository-cleanup-scene-fixture-hygiene/README.md) | done |
 | 2026-05-24 | [Agentic lifecycle Step 47-49 session archive](2026-05-24-agentic-lifecycle-step-47-49-session/README.md) | done |
 | 2026-05-24 | [Git worktree protocol](2026-05-24-git-worktree-protocol/README.md) | done |
