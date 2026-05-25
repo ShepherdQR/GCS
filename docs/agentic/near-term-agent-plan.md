@@ -104,6 +104,7 @@ the templates exist.
 | C2 | Score the archives and compare with human review notes. | done in this plan | `experience/001-task-scoped-session-closure/calibration/2026-05-24-s1-05-first-archive-review.md` |
 | C3 | Add one negative eval for archive pollution or false completion. | done in this plan | `experience/001-task-scoped-session-closure/evals/2026-05-25-false-completion-archive-pollution.md`. |
 | C4 | Decide whether to promote E001 into an installed project skill. | done in this plan | `.codex/skills/task-scoped-session-closer` and E001 promotion decision. |
+| C5 | Calibrate post-push closeout behavior against the E001 rubric. | next | More examples comparing roadmap updates, archive usefulness, and resume cost. |
 
 ## Workstream D: Opt-In Agentic Quality Gates
 
@@ -117,6 +118,7 @@ task.
 | D3 | Add completed-report validator tests for new reports only. | done in this plan | `tests/tools/test_agentic_toolkit.py` cases and `agentic.completed-task-reports`. |
 | D4 | Define legacy archive exemption or migration policy. | done in this plan | `docs/agentic/legacy-artifact-policy.md` and `docs/completed-tasks/README.md`. |
 | D5 | Decide whether Agentic artifact gates should become default. | done in this plan | `docs/agentic/default-agentic-gate-decision.md`; broad default enforcement remains deferred. |
+| D6 | Spike current-task artifact declaration only if manual include pathspecs become costly. | pending | Proposal or tool change with no broad archive scan. |
 
 ## Workstream E: Fuzzy Description To Agent Package
 
@@ -140,6 +142,20 @@ implementation candidate after the parallel item 4 session lands:
    needed for active work.
 4. Keep completed-report validation and closure scoring as opt-in closeout
    checks unless a future PDCA cycle proves they should move earlier.
+
+## Next Agentic-SE Direction
+
+Near-term Agentic-SE work should now move from gate design to evidence-bearing
+operation. Use this order unless a user request narrows the scope:
+
+| Order | Direction | First Action | Exit Condition |
+| --- | --- | --- | --- |
+| 1 | I003/I004 rendered-artifact review | Run Atelier Steward and Art Director against live rendered HTML/PNG/PDF artifacts. | Reports cite actual rendered evidence and decide whether seed roles can move toward promotion. |
+| 2 | Parallel item4 integration review | Inspect the owning session's item4 output after it lands. | Roadmap either accepts the output or records a focused repair task. |
+| 3 | Current-task declaration spike | Draft the smallest way for `run-quality-gates` to know the active task card without scanning history. | Proposal or implementation keeps legacy archives exempt and remains opt-in unless justified. |
+| 4 | E001 closure calibration | Compare closure scores with human resume usefulness across more archives. | Calibration note states whether scoring needs rubric or template changes. |
+| 5 | E002 empirical pilot | Use phase-step summary/update/commit/continue on two substantial tasks. | Pilot notes decide whether E002 deserves skill or gate promotion. |
+| 6 | Fuzzy role generator sample | Use the role-card generator on one real fuzzy role request. | Accepted and rejected examples show when to create, update, or refuse an agent package. |
 
 ## Superseded Immediate Task Note
 

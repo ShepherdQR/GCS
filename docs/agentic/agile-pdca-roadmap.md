@@ -724,10 +724,44 @@ Act:
   I003/I004 or a future current-task declaration only if the workflow demands
   less manual include syntax.
 
+### C014: Next-Direction And Post-Push Closeout
+
+Plan:
+
+- write the next Agentic-SE direction into the active roadmap and near-term
+  plan;
+- summarize the post-S2-04/S2-05 session into completed tasks;
+- capture any reusable closeout experience under E001;
+- validate the closeout artifacts through explicit opt-in gates.
+
+Do:
+
+- added a next-direction table to `docs/agentic/near-term-agent-plan.md`;
+- made the next PDCA queue more explicit in this roadmap;
+- added the closeout task card and completed-task archive;
+- added an E001 calibration note for post-push closeout practice.
+
+Check:
+
+- closeout task card validated;
+- closeout completed-task archive validated and scored 37/40;
+- docs validation passed;
+- opt-in task-card and completed-report gate passed on the closeout artifacts.
+
+Act:
+
+- The next Agentic-SE work should prioritize evidence-bearing operation over
+  new policy design.
+- I003/I004 promotion needs rendered evidence, not only seed package presence.
+- Current-task declaration remains a spike unless repeated manual include usage
+  proves it is worth implementing.
+- Post-push closeout is reusable when it changes project memory, but should not
+  become ceremony for tiny status answers.
+
 ## Next Agile Task
 
-Phase 2 is complete for the first adoption pass. The next GCS implementation
-candidate should be chosen after the parallel item 4 session lands:
+Phase 2 is complete for the first adoption pass. The next Agentic-SE direction
+is evidence-bearing operation:
 
 1. Rerun I003/I004 on live rendered visual evidence before promotion.
 2. Review the parallel item 4 output before claiming the next solver step.
@@ -735,6 +769,8 @@ candidate should be chosen after the parallel item 4 session lands:
    show manual include pathspecs are too costly.
 4. Keep completed-report validation and closure score as closeout opt-in
    checks.
+5. Use E001 and E002 only when their evidence shows better resume quality,
+   reviewability, or commit hygiene.
 
 ## Next PDCA Queue
 
@@ -744,3 +780,5 @@ candidate should be chosen after the parallel item 4 session lands:
 | 2 | Parallel item 4 integration review | Another session owns item 4; this roadmap should not overwrite it. | Review and merge that session's artifacts when available. |
 | 3 | Current-task declaration spike | S2-05 deferred default task-card gating until intent can be declared explicitly. | Proposal or tool change only if manual include pathspecs become costly. |
 | 4 | E001 score calibration follow-up | Closure score remains advisory and opt-in. | More examples comparing score, human review, and actual resume usefulness. |
+| 5 | E002 empirical pilot | Phase-step continuation is promoted but still needs operating evidence. | Two substantial task pilots with step summaries, plan updates, and scoped commits. |
+| 6 | Fuzzy role generator sample | Workstream E is still pending after the gate-policy pass. | One accepted and one rejected role-generation example. |

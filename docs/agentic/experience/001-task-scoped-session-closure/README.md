@@ -154,6 +154,9 @@ with the rubric; it should guide review, not replace it.
 
 - `calibration/2026-05-24-s1-05-first-archive-review.md`: first comparison of
   E001 machine closure scores with human review notes across C001 and Step 47.
+- `calibration/2026-05-25-agentic-se-post-push-closeout.md`: reusable
+  post-push closeout sequence for updating next-task plans, archives, and
+  experience records after a completed Agentic-SE push.
 
 ## Eval Records
 
