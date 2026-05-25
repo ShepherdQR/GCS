@@ -29,6 +29,8 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `trace-schema.md` | Minimal trace schema for agent work and tool calls. |
 | `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
+| `pr-audit-governance.md` | PR-class, risk, evidence, exploratory-PR, and automated-audit governance. |
+| `nightly-immune-diagnostics.md` | Scheduled worktree diagnostic workflow for scene exploration, defect triage, repair recommendations, and run summaries. |
 | `lifecycle-runbook.md` | Action guide for moving from request to push. |
 | `task-to-archive-checklist.md` | Compact closure checklist with a checked Step 47 example. |
 | `quality-gate-opt-in-policy.md` | S2-01 policy for opt-in task-card and completed-report quality gates. |
