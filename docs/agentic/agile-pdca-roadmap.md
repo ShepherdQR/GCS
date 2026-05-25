@@ -1,6 +1,6 @@
 # Agentic SE Agile PDCA Roadmap
 
-Snapshot: 2026-05-24.
+Snapshot: 2026-05-25.
 
 ## Purpose
 
@@ -23,21 +23,22 @@ Current task counts:
 | Phase | Done | Next | Pending | Main remaining question |
 | --- | ---: | ---: | ---: | --- |
 | Phase 1: Lifecycle Closure | 6 | 0 | 0 | How often should escaped chat-only work be audited for drift? |
-| Phase 2: Quality-Gate Adoption | 0 | 0 | 5 | Which checks become opt-in gates before any default enforcement? |
+| Phase 2: Quality-Gate Adoption | 0 | 1 | 4 | Which checks become opt-in gates before any default enforcement? |
 | Phase 3: E001 Closure Experience Validation | 3 | 1 | 0 | Should E001 remain an experience or become an installed project skill? |
 | Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
 
 Priority order:
 
-1. Use Step 49's saved report artifact in Step 50 before adding GUI or
-   diagnostics integration.
-2. Add Phase 2 opt-in checks now that negative eval and chat-only boundary
+1. Add Phase 2 opt-in checks now that negative eval and chat-only boundary
    evidence exist.
-3. Decide S3-04 after at least one more closure sample confirms E001's
+2. Decide S3-04 after the Step 50 closure sample confirms E001's
    promotion value.
+3. Reassess institutional agents now that `Bladesmith` and `Tailor` each have
+   real examples.
 4. Add Phase 2 implementation tests only after S2-01 keeps legacy archives
    exempt.
-5. Keep new institutional-agent examples tied to real requested work.
+5. Keep Step 51 fixture-library gating separate from Agentic SE gates until
+   promoted fixture expectations are explicit.
 
 ## Phase Analysis Snapshot
 
@@ -60,10 +61,10 @@ Stage conclusion:
 
 ### Phase 2 Analysis
 
-Phase 2 should remain opt-in. The repository already has validation commands,
-but automatic enforcement can become ceremony or break legacy records if it is
-enabled too early. The right next move is design and tests for optional gates,
-not default enforcement.
+Phase 2 should now start with opt-in design. The repository already has
+validation commands, but automatic enforcement can become ceremony or break
+legacy records if it is enabled too early. The right next move is S2-01 gate
+policy design, not default enforcement.
 
 Stage conclusion:
 
@@ -73,17 +74,20 @@ Stage conclusion:
 
 ### Phase 3 Analysis
 
-E001 is promising and now has a real high-risk engineering sample plus a first
-calibration note. C001 scored 38/40 and Step 47 scored 37/40 under S1-05. The
-next risk is not whether E001 can score a good archive, but whether it can
-catch weak closure evidence and guide human review.
+E001 is promising and now has multiple real closure samples plus a first
+calibration note. C001 scored 38/40 and Step 47 scored 37/40 under S1-05; S3-02
+added a negative eval, and Step 50 added another compact workflow-decision
+closure sample. The next risk is promotion timing: E001 should become a skill
+only if the boundary remains useful without forcing tiny work into archive
+pollution.
 
 Stage conclusion:
 
 - Use the S1-05 calibration note as the first human-review comparison sample.
 - Treat S3-02 as complete: E001 now has a seed negative eval for false
   completion and archive pollution.
-- Defer S3-04 promotion until S1-04 defines the low-risk chat-only boundary.
+- S3-04 is ready after S2-01 frames how promotion would interact with optional
+  gates and the low-risk chat-only boundary.
 
 ### Phase 4 Analysis
 
@@ -167,7 +171,7 @@ Backlog:
 
 | ID | Task | Status | Evidence |
 | --- | --- | --- | --- |
-| S2-01 | Design `--include-task-cards` and `--include-completed-reports` quality-gate policy. | pending | Tooling plan and docs update. |
+| S2-01 | Design `--include-task-cards` and `--include-completed-reports` quality-gate policy. | next | Tooling plan and docs update. |
 | S2-02 | Add task-card validation tests for valid, missing-field, high-risk-without-gate, and placeholder cases. | pending | `tests/tools/test_agentic_toolkit.py`. |
 | S2-03 | Add completed-report validation tests for new reports only. | pending | Tool tests and migration note. |
 | S2-04 | Define legacy archive migration or exemption policy. | pending | `docs/completed-tasks/README.md` update. |
@@ -442,9 +446,9 @@ Act:
 - S1-05 is complete.
 - S1-04 is now the remaining Phase 1 lifecycle-boundary task.
 - S3-02 is now the next E001 hardening task.
-- Step 50 is the next engineering task: decide whether saved replay evidence
-  reports should feed GUI review, diagnostics packaging, or remain CLI/report
-  artifacts.
+- At C005 close, Step 50 became the engineering task for deciding whether
+  saved replay evidence reports should feed GUI review, diagnostics packaging,
+  or remain CLI/report artifacts. C008 below supersedes this queue position.
 
 ### C006: S3-02 Negative E001 Eval
 
@@ -502,27 +506,61 @@ Check:
 Act:
 
 - Phase 1 is complete for the initial Agentic SE lifecycle loop.
-- Step 50 is the next engineering task.
+- At C007 close, Step 50 became the next engineering task. C008 below
+  completes it and moves the queue forward.
 - S2-01 is now unblocked for opt-in gate design because S3-02 and S1-04 define
   both the reject cases and the low-risk escape hatch.
 
+### C008: Step 50 Replay Evidence Workflow Review
+
+Plan:
+
+- inspect the saved replay evidence report artifact in a real review workflow;
+- decide whether the report should feed GUI review, diagnostics packaging, or
+  remain a CLI/report artifact;
+- update architecture and Agentic SE roadmaps, then close the cycle with a
+  task card, archive, and Bladesmith note.
+
+Do:
+
+- generated a saved report from `fixtures/scene/basic/g1.txt`;
+- confirmed the report schema, runtime transaction artifact kind,
+  report-evidence flag, scene-history exclusion, ordered stages, and commit
+  version transition;
+- chose report-only consumption for now;
+- registered Step 51 for promoted fixture-library gating.
+
+Check:
+
+- CLI saved-report review smoke passed;
+- task-card validation passed;
+- completed-task validation passed;
+- closure score passed;
+- docs validation passed.
+
+Act:
+
+- Step 50 is complete.
+- S2-01 becomes the next Agentic SE tooling design task.
+- Step 51 becomes the next GCS implementation candidate after promoted scene
+  fixture expectations are made explicit.
+
 ## Next Agile Task
 
-Step 50 is the next engineering consumer-review task, with S2-01 as the next
-Agentic SE tooling design task:
+S2-01 is the next Agentic SE tooling design task, with Step 51 as the next GCS
+implementation candidate:
 
-1. Use Step 49's saved report artifact in Step 50 before adding GUI or
-   diagnostics integration.
-2. Design Phase 2 quality gates as opt-in now that negative eval evidence
+1. Design Phase 2 quality gates as opt-in now that negative eval evidence
    exists.
-3. Decide S3-04 after at least one more closure sample.
-4. Reassess institutional agents after the next real closure.
+2. Decide S3-04 after S2-01 clarifies optional gate boundaries.
+3. Reassess institutional agents after the latest real closure samples.
+4. Execute Step 51 only after promoted fixture expected outcomes are explicit.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | Step 50 replay evidence report workflow review | Uses the saved report artifact before adding another consumer surface. | GUI, diagnostics, or report-only direction selected. |
-| 2 | S2-01 opt-in gate design | Negative eval and chat-only boundary now clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
-| 3 | S3-04 E001 promotion decision | E001 now has positive and negative samples; one more closure sample would improve confidence. | Keep as experience, promote to skill, or keep provisional. |
-| 4 | S4-05 institutional-agent reassessment | `刀匠` and `裁缝` now each have multiple real examples. | Candidate table update after additional real closures. |
+| 1 | S2-01 opt-in gate design | Negative eval, chat-only boundary, and Step 50 closure sample now clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
+| 2 | S3-04 E001 promotion decision | E001 now has positive, negative, and compact workflow-decision samples. | Keep as experience, promote to skill, or keep provisional. |
+| 3 | S4-05 institutional-agent reassessment | Bladesmith and Tailor now each have multiple real examples. | Candidate table update after additional real closures. |
+| 4 | Step 51 promoted fixture-library gate | Promoted scene fixtures need repeatable expected-outcome evidence. | Focused fixture gate selected or implemented without broad default expansion. |

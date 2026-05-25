@@ -1300,8 +1300,9 @@ Reassessment after Step 49:
 
 Goal:
 
-- Decide whether saved replay evidence reports should feed GUI review,
-  diagnostics packaging, or remain CLI/report artifacts only.
+- Review the saved replay evidence report artifact in a real workflow and
+  decide whether it should feed GUI review, diagnostics packaging, or remain a
+  CLI/report artifact only.
 
 Expected shape:
 
@@ -1323,6 +1324,54 @@ Exit criteria:
 - Any added consumer preserves runtime report semantics.
 - JSON scene construction history remains separate.
 
+Completed outcome:
+
+- Generated and inspected a saved replay evidence report from
+  `fixtures/scene/basic/g1.txt`.
+- Confirmed the report carries schema `gcs.replay_evidence_report.v1`,
+  artifact kind `runtime_transaction_trace`, `report_evidence = true`, and
+  `scene_construction_history_entry = false`.
+- Confirmed the ordered stage list is sufficient for human and CI review of
+  command validation, solve stages, warnings, gluing, and commit.
+- Chose to keep saved replay evidence as a CLI/report artifact for now.
+- Deferred GUI integration until there is a concrete reviewer workflow needing
+  interactive replay affordances.
+- Deferred diagnostics packaging so runtime transaction audit traces do not
+  become diagnostic facts by convenience.
+
+### Step 51: Promoted Fixture Library Gate
+
+Goal:
+
+- Turn promoted milestone and counterexample scene fixtures into repeatable
+  fixture-library quality evidence.
+
+Expected shape:
+
+- A focused gate that validates canonical JSON loading and expected CLI
+  outcomes for promoted accepted, warning, and negative scenes.
+- Explicit expected statuses for promoted scenes, including accepted-with-
+  warnings and numerically singular counterexamples.
+- No broad default-gate expansion until the focused gate proves stable.
+
+Detailed plan:
+
+- Inventory `fixtures/scene/milestone/` and
+  `fixtures/scene/counterexamples/`.
+- Record expected CLI outcome for each promoted scene.
+- Add a focused validation command or quality-gate target for the promoted
+  fixture library.
+- Keep generated scratch stores ignored and fixture promotion explicit.
+- Update fixture docs, quality-gate docs, and completed-task evidence.
+
+Exit criteria:
+
+- Promoted scenes have deterministic expected outcomes.
+- The focused gate can be run locally and in CI selection without relying on
+  raw chat memory.
+- Negative promoted scenes fail with expected status and report evidence.
+- No runtime replay evidence boundary changes are introduced.
+
 ## Reassessment Protocol
 
 After each step:
@@ -1341,14 +1390,13 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 49 update:
+As of the Step 50 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 49 have completed-step summaries in the roadmap and current
+- Steps 1 through 50 have completed-step summaries in the roadmap and current
   progress documents.
-- Steps 31 through 50 are detailed in this forward plan with goal, expected
+- Steps 31 through 51 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
-- Step 50 is registered as the next runtime replay evidence report workflow
-  review step.
+- Step 51 is registered as the next fixture-library quality evidence step.
 

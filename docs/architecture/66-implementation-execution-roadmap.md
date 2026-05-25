@@ -224,14 +224,17 @@ Status legend: `done`, `in_progress`, `pending`.
     consumer path while preserving the runtime-report and scene-history split.
 49. `done` - extend replay evidence consumption toward GUI or saved report
     workflows after the CLI/report adapter boundary has proven stable.
-50. `pending` - decide whether saved replay evidence reports should feed a GUI
-    review surface, diagnostics package, or remain a CLI/report artifact only.
+50. `done` - review the saved replay evidence report workflow and decide that
+    the report remains a CLI/report artifact until a concrete GUI or
+    diagnostics consumer is justified.
+51. `pending` - turn promoted milestone and counterexample scene fixtures into
+    a repeatable fixture-library gate with explicit expected CLI outcomes.
 
 Next registered candidate:
 
-- Complete Step 50 by reviewing the saved replay evidence report artifact in a
-  real review workflow and deciding whether GUI or diagnostics integration is
-  justified without changing JSON scene history.
+- Complete Step 51 by validating the promoted milestone and counterexample
+  scene fixtures through a focused gate before expanding default quality-gate
+  coverage.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1736,6 +1739,33 @@ Reassessment after Step 49:
 - The artifact remains a report surface, not a scene serialization format.
 - Step 50 should decide whether the saved report should feed GUI review,
   diagnostics packaging, or stay as a CLI/report artifact.
+
+## Replay Evidence Workflow Review Step
+
+Implemented decision scope:
+
+- Produced a saved replay evidence report from `fixtures/scene/basic/g1.txt`
+  using `GCS.exe --save-replay-evidence`.
+- Reviewed the report as a deterministic artifact containing schema
+  `gcs.replay_evidence_report.v1`, `artifact_kind =
+  runtime_transaction_trace`, `report_evidence = true`, and
+  `scene_construction_history_entry = false`.
+- Confirmed the report preserves ordered runtime stages and state-version
+  transition evidence without changing JSON scene `history`.
+- Decided to keep saved replay evidence as a CLI/report artifact for now.
+- Deferred GUI replay review until a concrete reviewer workflow needs
+  interactive overlays or selection affordances.
+- Deferred diagnostics packaging because runtime transaction traces are audit
+  evidence, not diagnostic facts.
+
+Reassessment after Step 50:
+
+- The Step 46 replay boundary remains stable through saved-report workflow
+  review.
+- The next highest-leverage implementation work is fixture-library gating for
+  newly promoted milestone and counterexample scene assets.
+- Step 51 should make accepted, warning, and negative promoted scenes
+  repeatable quality evidence before any broader default-gate expansion.
 
 ## Damped Numeric Local Solve Step Plan
 

@@ -633,17 +633,37 @@ Delivered:
 - Added the saved replay report artifact test to the public evidence-chain
   selection and a CLI saved-report smoke to `run-quality-gates`.
 
-## Next Step 50
+## Completed Step 50
 
-The next step should use the saved replay evidence report in a real review
-workflow and decide whether the report should feed a GUI-facing projection, a
-diagnostics package, or remain a CLI/report artifact only. `io_adapters` and
-JSON scene `history` should remain out of scope unless a future migration
-explicitly converts runtime traces into stable scene construction actions.
+Step 50 used the saved replay evidence report in a real review workflow and
+selected the next consumer direction. The saved report remains a CLI/report
+artifact for now.
+
+Delivered:
+
+- Generated a saved replay evidence report from `fixtures/scene/basic/g1.txt`
+  with `GCS.exe --save-replay-evidence`.
+- Confirmed the report is deterministic review evidence with schema
+  `gcs.replay_evidence_report.v1`, artifact kind
+  `runtime_transaction_trace`, `report_evidence = true`, and
+  `scene_construction_history_entry = false`.
+- Confirmed the report preserves ordered runtime stages, report codes, and the
+  state-version transition from base version `0` to final version `1`.
+- Deferred GUI replay review because no concrete reviewer workflow currently
+  needs an overlay, filtering, or selection surface.
+- Deferred diagnostics packaging because runtime transaction traces are audit
+  evidence and should not be absorbed into diagnostic report ownership.
+
+## Next Step 51
+
+The next implementation step should turn promoted milestone and
+counterexample scene fixtures into a focused fixture-library gate. The gate
+should validate canonical JSON loading and expected CLI outcomes for accepted,
+warning, and negative promoted scenes before any default quality-gate expansion.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-49 are registered in the implementation roadmap; Steps 31 through 50 are
-expanded with detailed goal, expected shape, detailed plan, and exit criteria
-in the forward plan. Step 50 is registered as the next replay evidence
-consumer review decision.
+50 are registered as completed in the implementation roadmap; Steps 31 through
+51 are expanded with detailed goal, expected shape, detailed plan, and exit
+criteria in the forward plan. Step 51 is registered as the next fixture-library
+quality evidence candidate.

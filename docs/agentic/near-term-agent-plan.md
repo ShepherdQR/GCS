@@ -1,6 +1,6 @@
 # Near-Term Agent Execution Plan
 
-Snapshot: 2026-05-24.
+Snapshot: 2026-05-25.
 
 ## Purpose
 
@@ -31,8 +31,10 @@ auditable, and useful in real project work.
 - Step 48 has now completed the paired engineering/process lifecycle:
   runtime replay evidence is exposed through a viewer/report adapter and CLI
   `--replay-evidence`, while S1-03 produced the task-to-archive checklist.
-- S1-05 has reviewed the first two lifecycle archives with E001, and Step 49
-  has chosen the next replay evidence consumer as a saved report artifact.
+- S1-05 has reviewed the first two lifecycle archives with E001, Step 49 chose
+  the saved replay evidence report artifact, S3-02 added a negative E001 eval,
+  S1-04 defined the low-risk chat-only boundary, and Step 50 kept saved replay
+  evidence as a CLI/report artifact for now.
 
 ## Execution Principle
 
@@ -55,6 +57,7 @@ Goal: keep agentic roadmaps aligned with implementation reality.
 | A4 | Record Step 47 lifecycle completion and move the queue to S1-03. | done in this plan | Roadmap C003 update and this plan. |
 | A5 | Record Step 48 and S1-03 completion, then move the queue to S1-05 and Step 49. | done in this plan | Roadmap C004 update and Step 48 archive. |
 | A6 | Record S1-05 and Step 49 completion, then move the queue to S3-02, S1-04, and Step 50. | done in this plan | S1-05 calibration note and Step 49 archive. |
+| A7 | Record S3-02, S1-04, and Step 50 completion, then move the queue to S2-01, S3-04, S4-05, and Step 51. | done in this plan | Negative eval, low-risk boundary, Step 50 archive, and roadmap C008 update. |
 
 Decision rule: do not fabricate lifecycle evidence. If no task card or archive
 exists, mark it as an escaped lifecycle sample and use the next high-risk task
@@ -90,8 +93,8 @@ the templates exist.
 | --- | --- | --- | --- |
 | C1 | Identify two completed archives to score with E001. | done in this plan | C001 and Step 47 are the first candidate pair. |
 | C2 | Score the archives and compare with human review notes. | done in this plan | `experience/001-task-scoped-session-closure/calibration/2026-05-24-s1-05-first-archive-review.md` |
-| C3 | Add one negative eval for archive pollution or false completion. | next | `docs/agentic/evals/` or E001 eval note. |
-| C4 | Decide whether to promote E001 into an installed project skill. | pending | Promotion decision. |
+| C3 | Add one negative eval for archive pollution or false completion. | done in this plan | `experience/001-task-scoped-session-closure/evals/2026-05-25-false-completion-archive-pollution.md`. |
+| C4 | Decide whether to promote E001 into an installed project skill. | next | Promotion decision. |
 
 ## Workstream D: Opt-In Agentic Quality Gates
 
@@ -100,7 +103,7 @@ task.
 
 | ID | Task | Status | Output |
 | --- | --- | --- | --- |
-| D1 | Design `--include-task-cards` and `--include-completed-reports`. | pending | Tooling design note. |
+| D1 | Design `--include-task-cards` and `--include-completed-reports`. | next | Tooling design note. |
 | D2 | Add task-card validator tests for missing fields and high-risk gates. | pending | `tests/tools/test_agentic_toolkit.py` cases. |
 | D3 | Add completed-report validator tests for new reports only. | pending | Tool tests and migration note. |
 | D4 | Define legacy archive exemption or migration policy. | pending | `docs/completed-tasks/README.md` update. |
@@ -118,16 +121,18 @@ the generator protocol.
 
 ## Immediate Next Task
 
-Start with S3-02 or S1-04, paired with Step 50 if engineering work continues
-in the same session:
+Start with S2-01, then use the resulting gate policy to decide S3-04 and
+S4-05. Keep Step 51 as the next GCS implementation candidate, separate from
+Agentic SE quality-gate adoption:
 
-1. Add a negative E001 eval for false completion or archive pollution.
-2. Define which low-risk tasks may stay chat-only without a completed-task
-   archive.
-3. Use the Step 49 saved report artifact in one review workflow before adding
-   GUI or diagnostics integration.
-4. Keep Phase 2 quality-gate work opt-in until the negative eval clarifies
-   which checks catch real closure failures.
+1. Design `--include-task-cards` and `--include-completed-reports` as opt-in
+   gates.
+2. Decide whether E001 should remain an experience, become a project skill, or
+   stay provisional.
+3. Reassess institutional agents using the latest Bladesmith and Tailor
+   examples.
+4. Execute Step 51 fixture-library gating after promoted scene expected
+   outcomes are explicit.
 
 ## Superseded Immediate Task Note
 

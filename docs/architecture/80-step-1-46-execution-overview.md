@@ -1,11 +1,11 @@
-# Step 1-49 Execution Overview
+# Step 1-50 Execution Overview
 
-Snapshot date: 2026-05-24.
+Snapshot date: 2026-05-25.
 
 This overview combines the earlier Step 1-40 report, the Step 41-46 report,
 the Step 47 runtime replay evidence export closure, the Step 48 consumer path,
-and the Step 49 saved report artifact. It is a briefing map, not the source of
-truth. The authoritative
+the Step 49 saved report artifact, and the Step 50 workflow review decision.
+It is a briefing map, not the source of truth. The authoritative
 execution records remain:
 
 - `66-implementation-execution-roadmap.md`;
@@ -16,13 +16,13 @@ execution records remain:
 
 ## Main Claim
 
-Steps 1 through 49 form one evidence program:
+Steps 1 through 50 form one evidence program:
 
 ```text
 contracts -> executable solver -> promotion gates -> viewer diagnostics
   -> integrated showcase -> scene compatibility -> replay-domain separation
   -> deterministic runtime replay evidence export -> public replay report
-  -> saved replay evidence artifact
+  -> saved replay evidence artifact -> report-only workflow review
 ```
 
 ## Overview Diagram
@@ -39,8 +39,9 @@ flowchart LR
     s48["Step 48<br/>consumer path"]
     s49["Step 49<br/>saved report artifact"]
     s50["Step 50<br/>workflow review"]
+    s51["Step 51<br/>fixture gate"]
 
-    s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s47 --> s48 --> s49 --> s50
+    s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s47 --> s48 --> s49 --> s50 --> s51
 
     s1 -. "stable IDs / snapshots / reports" .-> evidence["public evidence chain"]
     s2 -. "residuals / rank / fixture corpus" .-> evidence
@@ -51,6 +52,7 @@ flowchart LR
     s47 -. "deterministic transaction report export" .-> evidence
     s48 -. "viewer adapter + CLI replay report" .-> evidence
     s49 -. "saved replay evidence artifact" .-> evidence
+    s50 -. "report-only consumer decision" .-> evidence
 
     evidence -. "CTest sentinel, CLI smoke, Python tools" .-> gates["quality gates"]
 
@@ -61,8 +63,8 @@ flowchart LR
     classDef next fill:#f3ddd7,stroke:#a94c43,color:#450a0a;
     class s1 domain;
     class s2,s3,s4 solve;
-    class s5,s6,s47,s48,s49,evidence,gates evidence;
-    class s50 next;
+    class s5,s6,s47,s48,s49,s50,evidence,gates evidence;
+    class s51 next;
 ```
 
 ## Figure Asset
@@ -96,16 +98,18 @@ python -B tools\architecture_visualization\figure_qa.py --figure figure73
 | 47 | Runtime replay evidence export | Structured runtime report export for command traces, ordered stages, state versions, report codes, and missing-command evidence without JSON scene `history` writes. |
 | 48 | Runtime replay evidence consumer | Viewer/report adapter summary plus CLI `--replay-evidence` smoke without JSON scene `history` writes. |
 | 49 | Runtime replay evidence saved report | Deterministic `ReplayEvidenceReportArtifact` plus CLI `--save-replay-evidence <path>` smoke without JSON scene `history` writes. |
+| 50 | Runtime replay evidence workflow review | Saved report artifact reviewed as sufficient CLI/report evidence for now; GUI and diagnostics consumers deferred until concrete workflows justify them. |
 
 ## Current State
 
-- Steps 1 through 49 are documented as complete.
+- Steps 1 through 50 are documented as complete.
 - Step 41-46 details are now separately reportable in
   `79-step-41-46-execution-report.md`.
 - Figure 73 still covers all steps 1 through 46 from structured source reports
   and has QA coverage for expected step coverage and text-flow constraints.
-- Step 49 is recorded in the roadmap and current-progress documents as a
-  completed runtime replay evidence saved report artifact path.
-- Step 50 is the next registered implementation step: decide whether saved
-  replay evidence reports should feed GUI review, diagnostics packaging, or
-  remain CLI/report artifacts.
+- Step 50 is recorded in the roadmap and current-progress documents as a
+  completed workflow review that keeps saved replay evidence report-only for
+  now.
+- Step 51 is the next registered implementation step: turn promoted milestone
+  and counterexample scene fixtures into repeatable fixture-library quality
+  evidence.

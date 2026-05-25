@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-25 | [Step 50 replay evidence workflow review](2026-05-25-step-50-replay-evidence-workflow-review/README.md) | done |
 | 2026-05-25 | [S1-04 low-risk chat-only boundary](2026-05-25-s1-04-low-risk-chat-only-boundary/README.md) | done |
 | 2026-05-25 | [S3-02 negative E001 eval](2026-05-25-s3-02-negative-e001-eval/README.md) | done |
 | 2026-05-25 | [Repository cleanup and scene fixture hygiene](2026-05-25-repository-cleanup-scene-fixture-hygiene/README.md) | done |
