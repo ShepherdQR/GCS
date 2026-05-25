@@ -1,0 +1,149 @@
+{
+  "catalog_alignment": {
+    "catalog": "gcs.constraint_catalog builtin-0.1",
+    "note": "The generated candidate was normalized to current public-scene conventions while preserving all geometry and constraint kinds."
+  },
+  "constraint_type_histogram": {
+    "Angle": 2,
+    "Coincident": 1,
+    "Distance": 13,
+    "Parallel": 1,
+    "Perpendicular": 1
+  },
+  "description": "Generated all-types GCS scene: all geometry kinds and all constraint kinds, with at least 10 geometries and 10 constraints.",
+  "digests": {
+    "milestone_scene_digest": "sha256:38c4ba4fdfcff799390ac9a1aba788d730c2d4b682d0e40ba0dd26a918f80aa9",
+    "source_generator_json_digest": "sha256:53024d2bde4ffac5741ebcc5a05ad68776d8249dd98e4ad72c5d191819217d95",
+    "source_public_scene_digest_before_catalog_alignment": "sha256:8e87ecfc9e95c56e9e9a9949efb784ce2fe974410dfb467b37fe4575c0535568"
+  },
+  "endpoint_signature_histogram": {
+    "Line-Plane": 4,
+    "Line-Point": 6,
+    "Plane-Point": 3,
+    "Point-Point": 5
+  },
+  "fixture_id": "all_types_10g18c_20260524",
+  "generation_policy": {
+    "gcs_policy": {
+      "constraint_types": [
+        "Coincident",
+        "Parallel",
+        "Perpendicular",
+        "Distance",
+        "Angle"
+      ],
+      "geometry_types": [
+        "Point",
+        "Line",
+        "Plane"
+      ],
+      "require_cross_rigid_set_constraints": true,
+      "rigid_set_counts": [
+        4,
+        5
+      ]
+    },
+    "parameter_policy": {
+      "layout": "grid"
+    },
+    "topology": {
+      "extra_edges": 8,
+      "layout": "grid",
+      "method": "cycle_plus_chords",
+      "num_rigid_sets": 5,
+      "num_vertices": 10
+    }
+  },
+  "generator_validation": {
+    "articulation_points": [],
+    "geometry_primal_biconnected": true,
+    "num_connected_components": 1,
+    "projection_statistics": {
+      "num_edges": 18,
+      "num_vertices": 10,
+      "projection": "geometry_primal"
+    },
+    "rigid_set_invariant_valid": true,
+    "schema_valid": true,
+    "schema_violations": []
+  },
+  "geometry_type_histogram": {
+    "Line": 2,
+    "Plane": 2,
+    "Point": 6
+  },
+  "model_path": "fixtures/scene/milestone/all_types_10g18c_20260524.gcs.json",
+  "replay_history": {
+    "action_histogram": {
+      "AddConstraint": 18,
+      "AddGeometry": 10,
+      "AddRigidSet": 5,
+      "Solve": 1,
+      "UpdateConstraint": 15
+    },
+    "construction_order": [
+      "AddRigidSet",
+      "AddGeometry",
+      "AddConstraint",
+      "UpdateConstraint",
+      "Solve"
+    ],
+    "history_steps": 49,
+    "solve_marker_included": true
+  },
+  "schema": "gcs-milestone-fixture-metadata-v1",
+  "seed": 2026052410,
+  "seed_path": {
+    "exploration_seed": 2026052410,
+    "lift_seed": 532030076,
+    "parameter_seed": 532030077,
+    "topology_seed": 532030075
+  },
+  "solver_smoke": {
+    "accepted": false,
+    "command": [
+      "out/build/clang-ninja/GCS.exe",
+      "fixtures/scene/milestone/all_types_10g18c_20260524.gcs.json"
+    ],
+    "exit_code": 2,
+    "obstruction": "runtime.numeric_failure",
+    "status": "Failed",
+    "stderr_lines": [
+      "Obstruction: runtime.numeric_failure - Numeric solve reached the iteration limit before convergence."
+    ],
+    "stdout_lines": [
+      "GCS C++23 canonical kernel solver skeleton",
+      "Input: C:\\Codes\\Trae\\s002_GCS\\GCS\\fixtures\\scene\\milestone\\all_types_10g18c_20260524.gcs.json",
+      "StateVersion=0 RigidSets=5 Entities=10 Constraints=18",
+      "Status: Failed",
+      "Accepted: false",
+      "New state version: 0",
+      "Cover contexts: 1",
+      "Local numeric reports: 1",
+      "  runtime.numeric_rank_condition_report: rank 21, variables 42, free 36, frozen 6, residuals 21, nullity 15",
+      "  runtime.obstruction_report: runtime.numeric_failure",
+      "  session_runtime.validate_command: Ok",
+      "  kernel.validate_model: Ok",
+      "  constraint_catalog.validate_model: Ok",
+      "  incidence_graph.build_indices: Ok",
+      "  decomposition_planner.plan: Ok",
+      "  session_runtime.pre_solve_diagnostics: Ok",
+      "  runtime.pre_solve_diagnostics: Pre-solve diagnostics completed.",
+      "  numeric_engine.solve_local: Error",
+      "  numeric.local_section.failed: Numeric solve reached the iteration limit before convergence.",
+      "  session_runtime.rollback: Ok",
+      "  runtime.rollback: Numeric engine failed.",
+      "  runtime.numeric_failure: Numeric solve reached the iteration limit before convergence."
+    ]
+  },
+  "source_candidate_id": "milestone_all_types_10g_20260524_c0000",
+  "source_exploration_id": "milestone_all_types_10g_20260524",
+  "source_promotion_id": "milestone_all_types_10g_20260524_c0000_promotion",
+  "source_store": ".codex_scene_generation_store",
+  "source_tool": "tools/scene_generation/tools.py explore_scene_space + promote_candidate",
+  "summary": {
+    "num_constraints": 18,
+    "num_geometries": 10,
+    "num_rigid_sets": 5
+  }
+}

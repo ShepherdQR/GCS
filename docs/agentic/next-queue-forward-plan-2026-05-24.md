@@ -11,6 +11,15 @@ place so a future session can resume without mining the chat transcript.
 
 ## Current Baseline
 
+- 2026-05-25 repository hygiene update:
+  - `master` has been pushed to `origin/master` through `ec096f8`;
+  - stale child branches `codex-ui-design-plan-archive` and
+    `codex/2026-05-24-git-worktree-protocol` were deleted locally and
+    remotely after Tailor review;
+  - `.codex_scene_generation_store/` is now ignored for new scratch outputs;
+  - promoted scene assets under `fixtures/scene/milestone/` and
+    `fixtures/scene/counterexamples/` are treated as durable fixture inputs for
+    a future fixture-library gate.
 - Step 47 completed the first full lifecycle sample for runtime replay evidence
   export.
 - Step 48 completed the replay evidence consumer path and S1-03
@@ -157,8 +166,9 @@ Evidence:
   task explicitly approves it.
 - Do not make lifecycle gates default until S3-02 proves the negative eval.
 - Do not create new institutional-agent directories without fit-check evidence.
-- Do not include `.codex_scene_generation_store/` or
-  `fixtures/scene/milestone/` in agentic plan/archive commits until those
-  generated artifacts are promoted by a scene-generation task.
+- Do not include `.codex_scene_generation_store/` in agentic plan/archive
+  commits. Generated artifacts under `fixtures/scene/milestone/` or
+  `fixtures/scene/counterexamples/` may be committed only when a
+  scene-generation task records manifest, metadata, and expected solver status.
 - Use a dedicated worktree for parallel writing sessions. The shared Local
   checkout is acceptable only for one active scoped writer or integration work.

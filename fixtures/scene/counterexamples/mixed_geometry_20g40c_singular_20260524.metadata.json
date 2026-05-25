@@ -1,0 +1,210 @@
+{
+  "catalog_alignment": {
+    "catalog": "gcs.constraint_catalog builtin-0.1",
+    "rules": [
+      "Coincident only on Point-Point",
+      "Distance only on current Point-Point, Point-Line, and Point-Plane evaluator pairs",
+      "Angle values stored in radians",
+      "Parallel and Perpendicular only on oriented Line/Plane pairs"
+    ],
+    "showcase_constraint_ids": {
+      "angle": 3,
+      "coincident": 9,
+      "parallel": 0,
+      "perpendicular": 18
+    }
+  },
+  "classification": {
+    "expected_current_accepted": false,
+    "expected_current_exit_code": 2,
+    "expected_current_solver_status": "NumericallySingular",
+    "expected_obstruction": "runtime.post_local_diagnostics_blocked",
+    "fixture_class": "singular_regression_counterexample",
+    "not_a_ci_failure": true,
+    "promotion_condition": "When solver improvements accept this scene, move or copy it to a positive regression fixture and update this metadata."
+  },
+  "constraint_type_histogram": {
+    "Angle": 10,
+    "Coincident": 1,
+    "Distance": 27,
+    "Parallel": 1,
+    "Perpendicular": 1
+  },
+  "description": "Mixed-geometry 20-geometry/40-constraint graph that passes catalog validation and reaches zero residuals, but is currently blocked by post-local singular diagnostics.",
+  "digests": {
+    "counterexample_scene_digest": "sha256:4a71c27d7af13cd243f24023979bef027b6d604dab58425c25c115cd80989a3e",
+    "source_generator_json_digest": "sha256:6e8a1b56b5aef1b712ec80fc72900fe91ac51461e3be0ef3d4ca8a26eafbe2db",
+    "source_public_scene_digest_before_catalog_alignment": "sha256:6b7db04b5fc10d5314b6849c50b3015424e3eaa40d1a77c184a0177d19b93393"
+  },
+  "endpoint_signature_histogram": {
+    "Line-Line": 1,
+    "Line-Plane": 5,
+    "Line-Point": 5,
+    "Plane-Plane": 6,
+    "Plane-Point": 15,
+    "Point-Point": 8
+  },
+  "fixture_id": "mixed_geometry_20g40c_singular_20260524",
+  "generator_validation": {
+    "articulation_points": [],
+    "geometry_primal_biconnected": true,
+    "num_connected_components": 1,
+    "projection_statistics": {
+      "num_edges": 40,
+      "num_vertices": 20,
+      "projection": "geometry_primal"
+    },
+    "rigid_set_invariant_valid": true,
+    "schema_valid": true,
+    "schema_violations": []
+  },
+  "geometry_type_histogram": {
+    "Line": 3,
+    "Plane": 8,
+    "Point": 9
+  },
+  "model_path": "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json",
+  "replay_history": {
+    "action_histogram": {
+      "AddConstraint": 40,
+      "AddGeometry": 20,
+      "AddRigidSet": 7,
+      "Solve": 1,
+      "UpdateConstraint": 37
+    },
+    "construction_order": [
+      "AddRigidSet",
+      "AddGeometry",
+      "AddConstraint",
+      "UpdateConstraint",
+      "Solve"
+    ],
+    "history_steps": 105,
+    "solve_marker_included": true
+  },
+  "rigidset_summary": [
+    {
+      "geometry_ids": [
+        12,
+        14,
+        18
+      ],
+      "id": 0,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        1,
+        5,
+        11
+      ],
+      "id": 1,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        2,
+        4,
+        6
+      ],
+      "id": 2,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        8,
+        10,
+        17
+      ],
+      "id": 3,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        0,
+        3,
+        9
+      ],
+      "id": 4,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        13,
+        16,
+        19
+      ],
+      "id": 5,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        7,
+        15
+      ],
+      "id": 6,
+      "num_geometries": 2
+    }
+  ],
+  "schema": "gcs-counterexample-metadata-v1",
+  "seed": 20260524,
+  "seed_path": {
+    "exploration_seed": 20260524,
+    "lift_seed": 1036102453,
+    "parameter_seed": 1036102454,
+    "topology_seed": 1036102452
+  },
+  "solver_evidence": {
+    "accepted": false,
+    "command": [
+      "out/build/clang-ninja/GCS.exe",
+      "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json"
+    ],
+    "exit_code": 2,
+    "obstruction": "runtime.post_local_diagnostics_blocked",
+    "rank_report_line": "runtime.post_local_diagnostics.rank_report: rank 42, variables 93, free 87, frozen 6, residuals 43, nullity 45",
+    "residual_report_line": "runtime.post_local_diagnostics.residual_report: residuals 43, norm 0.000000, max 0.000000",
+    "status": "NumericallySingular",
+    "stderr_lines": [
+      "Obstruction: runtime.post_local_diagnostics_blocked - Post-local-solve diagnostics blocked commit."
+    ],
+    "stdout_lines": [
+      "GCS C++23 canonical kernel solver skeleton",
+      "Input: C:\\Codes\\Trae\\s002_GCS\\GCS\\fixtures\\scene\\counterexamples\\mixed_geometry_20g40c_singular_20260524.gcs.json",
+      "StateVersion=0 RigidSets=7 Entities=20 Constraints=40",
+      "Status: NumericallySingular",
+      "Accepted: false",
+      "New state version: 0",
+      "Cover contexts: 1",
+      "Local numeric reports: 1",
+      "  runtime.post_local_diagnostics.rank_report: rank 42, variables 93, free 87, frozen 6, residuals 43, nullity 45",
+      "  runtime.post_local_diagnostics.residual_report: residuals 43, norm 0.000000, max 0.000000",
+      "  runtime.obstruction_report: runtime.post_local_diagnostics_blocked",
+      "  session_runtime.validate_command: Ok",
+      "  kernel.validate_model: Ok",
+      "  constraint_catalog.validate_model: Ok",
+      "  incidence_graph.build_indices: Ok",
+      "  decomposition_planner.plan: Ok",
+      "  session_runtime.pre_solve_diagnostics: Ok",
+      "  runtime.pre_solve_diagnostics: Pre-solve diagnostics completed.",
+      "  numeric_engine.solve_local: Ok",
+      "  numeric.local_section.converged: Damped Gauss-Newton numeric engine produced a converged local section.",
+      "  session_runtime.post_local_diagnostics: Error",
+      "  runtime.post_local_diagnostics_blocked: Post-local-solve diagnostics completed.",
+      "  session_runtime.rollback: Ok",
+      "  runtime.rollback: Post-local-solve diagnostics blocked commit.",
+      "  runtime.post_local_diagnostics_blocked: Post-local-solve diagnostics blocked commit."
+    ]
+  },
+  "solver_log_path": "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.solver.txt",
+  "source_candidate_id": "milestone_20g40c_20260524_c0000",
+  "source_exploration_id": "milestone_20g40c_20260524",
+  "source_promotion_id": "milestone_20g40c_20260524_c0000_promotion",
+  "source_store": ".codex_scene_generation_store",
+  "source_tool": "tools/scene_generation/tools.py explore_scene_space + promote_candidate",
+  "summary": {
+    "num_constraints": 40,
+    "num_geometries": 20,
+    "num_rigid_sets": 7
+  }
+}

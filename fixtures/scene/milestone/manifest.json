@@ -1,0 +1,31 @@
+{
+  "entries": [
+    {
+      "digest": "sha256:38c4ba4fdfcff799390ac9a1aba788d730c2d4b682d0e40ba0dd26a918f80aa9",
+      "fixture_id": "all_types_10g18c_20260524",
+      "history_steps": 49,
+      "metadata_path": "fixtures/scene/milestone/all_types_10g18c_20260524.metadata.json",
+      "model_path": "fixtures/scene/milestone/all_types_10g18c_20260524.gcs.json",
+      "num_constraints": 18,
+      "num_geometries": 10,
+      "num_rigid_sets": 5,
+      "solver_accepted": false,
+      "solver_status": "Failed"
+    },
+    {
+      "digest": "sha256:1d01c2c3f2f93e89182099f046d67f4b36c4884176e440d26f29ad89afd064db",
+      "fixture_id": "milestone_20g40c_20260524",
+      "history_steps": 108,
+      "metadata_path": "fixtures/scene/milestone/milestone_20g40c_20260524.metadata.json",
+      "model_path": "fixtures/scene/milestone/milestone_20g40c_20260524.gcs.json",
+      "num_constraints": 40,
+      "num_geometries": 20,
+      "num_rigid_sets": 7,
+      "solver_accepted": true,
+      "solver_status": "AcceptedWithWarnings"
+    }
+  ],
+  "entry_count": 2,
+  "library_id": "milestone_scenes",
+  "schema": "gcs-milestone-manifest-v1"
+}

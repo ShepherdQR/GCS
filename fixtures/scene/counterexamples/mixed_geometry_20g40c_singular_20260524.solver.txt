@@ -1,0 +1,26 @@
+GCS C++23 canonical kernel solver skeleton
+Input: C:\Codes\Trae\s002_GCS\GCS\fixtures\scene\counterexamples\mixed_geometry_20g40c_singular_20260524.gcs.json
+StateVersion=0 RigidSets=7 Entities=20 Constraints=40
+Status: NumericallySingular
+Accepted: false
+New state version: 0
+Cover contexts: 1
+Local numeric reports: 1
+  runtime.post_local_diagnostics.rank_report: rank 42, variables 93, free 87, frozen 6, residuals 43, nullity 45
+  runtime.post_local_diagnostics.residual_report: residuals 43, norm 0.000000, max 0.000000
+  runtime.obstruction_report: runtime.post_local_diagnostics_blocked
+  session_runtime.validate_command: Ok
+  kernel.validate_model: Ok
+  constraint_catalog.validate_model: Ok
+  incidence_graph.build_indices: Ok
+  decomposition_planner.plan: Ok
+  session_runtime.pre_solve_diagnostics: Ok
+  runtime.pre_solve_diagnostics: Pre-solve diagnostics completed.
+  numeric_engine.solve_local: Ok
+  numeric.local_section.converged: Damped Gauss-Newton numeric engine produced a converged local section.
+  session_runtime.post_local_diagnostics: Error
+  runtime.post_local_diagnostics_blocked: Post-local-solve diagnostics completed.
+  session_runtime.rollback: Ok
+  runtime.rollback: Post-local-solve diagnostics blocked commit.
+  runtime.post_local_diagnostics_blocked: Post-local-solve diagnostics blocked commit.
+Obstruction: runtime.post_local_diagnostics_blocked - Post-local-solve diagnostics blocked commit.

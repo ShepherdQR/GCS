@@ -1,0 +1,253 @@
+{
+  "constraint_type_histogram": {
+    "Distance": 40
+  },
+  "description": "Deterministic milestone scene generated to showcase current solver support over a complex 20-geometry, 40-constraint graph.",
+  "digests": {
+    "generator_json_digest": "sha256:21c82e5e0c0777528438b01c982dbe06d0fd8a0052221818be5d860cf55953dc",
+    "generator_text_digest": "sha256:f90fc2db86ba9252fef86728ab61dd936742c30a12ed8c6c861ca31ba90b5fd8",
+    "milestone_scene_digest": "sha256:1d01c2c3f2f93e89182099f046d67f4b36c4884176e440d26f29ad89afd064db",
+    "public_scene_digest_before_history": "sha256:329e55ca9aab857f69eb0c7dc97bf622eaa8433b425fab55a7ea60b6efc24c63"
+  },
+  "endpoint_signature_histogram": {
+    "Point-Point": 40
+  },
+  "fixture_id": "milestone_20g40c_20260524",
+  "gate_reports": [
+    {
+      "artifact_ids": [
+        "milestone_20g40c_solver_20260524_c0000_gcs"
+      ],
+      "duration_ms": 0,
+      "evidence": {
+        "violations": []
+      },
+      "gate_id": "local_schema_validation",
+      "reason_code": null,
+      "status": "passed"
+    },
+    {
+      "artifact_ids": [
+        "milestone_20g40c_solver_20260524_c0000_promotion_geom_primal"
+      ],
+      "duration_ms": 0,
+      "evidence": {
+        "num_edges": 40,
+        "num_vertices": 20
+      },
+      "gate_id": "geometry_primal_projection",
+      "reason_code": null,
+      "status": "passed"
+    },
+    {
+      "artifact_ids": [
+        "milestone_20g40c_solver_20260524_c0000_promotion_geom_primal"
+      ],
+      "duration_ms": 0,
+      "evidence": {
+        "articulation_points": [],
+        "num_connected_components": 1
+      },
+      "gate_id": "geometry_primal_biconnectivity",
+      "reason_code": null,
+      "status": "passed"
+    },
+    {
+      "artifact_ids": [
+        "milestone_20g40c_solver_20260524_c0000_gcs"
+      ],
+      "duration_ms": 0,
+      "evidence": {
+        "checksum": "21c82e5e0c077752",
+        "format": "json"
+      },
+      "gate_id": "canonical_serialization",
+      "reason_code": null,
+      "status": "passed"
+    }
+  ],
+  "generation_policy": {
+    "gcs_policy": {
+      "constraint_types": [
+        "Distance"
+      ],
+      "geometry_types": [
+        "Point"
+      ],
+      "require_cross_rigid_set_constraints": true,
+      "rigid_set_counts": [
+        7
+      ]
+    },
+    "parameter_policy": {
+      "layout": "random"
+    },
+    "topology": {
+      "extra_edges": 20,
+      "layout": "random",
+      "method": "cycle_plus_chords",
+      "num_rigid_sets": 7,
+      "num_vertices": 20
+    }
+  },
+  "generator_validation": {
+    "articulation_points": [],
+    "geometry_primal_biconnected": true,
+    "num_connected_components": 1,
+    "projection_statistics": {
+      "num_edges": 40,
+      "num_vertices": 20,
+      "projection": "geometry_primal"
+    },
+    "rigid_set_invariant_valid": true,
+    "schema_valid": true,
+    "schema_violations": []
+  },
+  "geometry_type_histogram": {
+    "Point": 20
+  },
+  "model_path": "fixtures/scene/milestone/milestone_20g40c_20260524.gcs.json",
+  "replay_history": {
+    "action_histogram": {
+      "AddConstraint": 40,
+      "AddGeometry": 20,
+      "AddRigidSet": 7,
+      "Solve": 1,
+      "UpdateConstraint": 40
+    },
+    "construction_order": [
+      "AddRigidSet",
+      "AddGeometry",
+      "AddConstraint",
+      "UpdateConstraint",
+      "Solve"
+    ],
+    "history_steps": 108,
+    "solve_marker_included": true
+  },
+  "rigidset_summary": [
+    {
+      "geometry_ids": [
+        1,
+        5,
+        17
+      ],
+      "id": 0,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        9,
+        13,
+        15
+      ],
+      "id": 1,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        10,
+        12,
+        16
+      ],
+      "id": 2,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        4,
+        11,
+        18
+      ],
+      "id": 3,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        3,
+        7,
+        19
+      ],
+      "id": 4,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        2,
+        6,
+        8
+      ],
+      "id": 5,
+      "num_geometries": 3
+    },
+    {
+      "geometry_ids": [
+        0,
+        14
+      ],
+      "id": 6,
+      "num_geometries": 2
+    }
+  ],
+  "schema": "gcs-milestone-fixture-metadata-v1",
+  "seed": 2026052401,
+  "seed_path": {
+    "exploration_seed": 2026052401,
+    "lift_seed": 531130049,
+    "parameter_seed": 531130050,
+    "topology_seed": 531130048
+  },
+  "solver_capability_profile": {
+    "catalog": "gcs.constraint_catalog builtin-0.1",
+    "intent": "accepted current-solver milestone",
+    "note": "A mixed-geometry 20/40 candidate from the same generator run reached catalog validation and zero residuals but was blocked by current singular diagnostics; this fixture keeps the durable milestone on the accepted path.",
+    "realization": "Point geometries with Distance constraints over generated biconnected topology"
+  },
+  "solver_smoke": {
+    "accepted": true,
+    "command": [
+      "out/build/clang-ninja/GCS.exe",
+      "fixtures/scene/milestone/milestone_20g40c_20260524.gcs.json"
+    ],
+    "exit_code": 0,
+    "status": "AcceptedWithWarnings",
+    "stderr_lines": [],
+    "stdout_lines": [
+      "GCS C++23 canonical kernel solver skeleton",
+      "Input: C:\\Codes\\Trae\\s002_GCS\\GCS\\fixtures\\scene\\milestone\\milestone_20g40c_20260524.gcs.json",
+      "StateVersion=1 RigidSets=7 Entities=20 Constraints=40",
+      "Status: AcceptedWithWarnings",
+      "Accepted: true",
+      "New state version: 1",
+      "Cover contexts: 1",
+      "Local numeric reports: 1",
+      "  runtime.post_local_diagnostics.rank_report: rank 40, variables 60, free 57, frozen 3, residuals 40, nullity 17",
+      "  runtime.post_local_diagnostics.residual_report: residuals 40, norm 0.000000, max 0.000000",
+      "  session_runtime.validate_command: Ok",
+      "  kernel.validate_model: Ok",
+      "  constraint_catalog.validate_model: Ok",
+      "  incidence_graph.build_indices: Ok",
+      "  decomposition_planner.plan: Ok",
+      "  session_runtime.pre_solve_diagnostics: Ok",
+      "  runtime.pre_solve_diagnostics: Pre-solve diagnostics completed.",
+      "  numeric_engine.solve_local: Ok",
+      "  numeric.local_section.converged: Damped Gauss-Newton numeric engine produced a converged local section.",
+      "  session_runtime.post_local_diagnostics: Warning",
+      "  runtime.post_local_diagnostics_warning: Post-local-solve diagnostics completed.",
+      "  diagnostics.glue_local_sections: Ok",
+      "  gluing.accepted: All local sections are compatible within boundary tolerance.",
+      "  session_runtime.commit: Ok",
+      "  runtime.commit: Runtime committed the verified proposed state."
+    ]
+  },
+  "source_candidate_id": "milestone_20g40c_solver_20260524_c0000",
+  "source_exploration_id": "milestone_20g40c_solver_20260524",
+  "source_promotion_id": "milestone_20g40c_solver_20260524_c0000_promotion",
+  "source_store": ".codex_scene_generation_store",
+  "source_tool": "tools/scene_generation/tools.py explore_scene_space + promote_candidate",
+  "summary": {
+    "num_constraints": 40,
+    "num_geometries": 20,
+    "num_rigid_sets": 7
+  }
+}

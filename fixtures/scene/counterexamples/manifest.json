@@ -1,0 +1,22 @@
+{
+  "entries": [
+    {
+      "digest": "sha256:4a71c27d7af13cd243f24023979bef027b6d604dab58425c25c115cd80989a3e",
+      "expected_current_accepted": false,
+      "expected_current_exit_code": 2,
+      "expected_current_solver_status": "NumericallySingular",
+      "fixture_class": "singular_regression_counterexample",
+      "fixture_id": "mixed_geometry_20g40c_singular_20260524",
+      "history_steps": 105,
+      "metadata_path": "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.metadata.json",
+      "model_path": "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json",
+      "num_constraints": 40,
+      "num_geometries": 20,
+      "num_rigid_sets": 7,
+      "solver_log_path": "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.solver.txt"
+    }
+  ],
+  "entry_count": 1,
+  "library_id": "scene_counterexamples",
+  "schema": "gcs-counterexample-manifest-v1"
+}

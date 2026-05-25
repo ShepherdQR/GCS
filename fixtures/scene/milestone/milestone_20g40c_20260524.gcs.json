@@ -1,0 +1,1827 @@
+{
+  "behavior": {
+    "driven_geometry_ids": [],
+    "fixed_geometry_ids": [
+      0
+    ],
+    "mode": 0,
+    "target_constraint_ids": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "constraints": [
+    {
+      "geometry_ids": [
+        0,
+        1
+      ],
+      "id": 0,
+      "type": 3,
+      "value": 2.010662
+    },
+    {
+      "geometry_ids": [
+        0,
+        19
+      ],
+      "id": 1,
+      "type": 3,
+      "value": 4.01839
+    },
+    {
+      "geometry_ids": [
+        0,
+        6
+      ],
+      "id": 2,
+      "type": 3,
+      "value": 5.857664
+    },
+    {
+      "geometry_ids": [
+        1,
+        2
+      ],
+      "id": 3,
+      "type": 3,
+      "value": 4.418518
+    },
+    {
+      "geometry_ids": [
+        1,
+        9
+      ],
+      "id": 4,
+      "type": 3,
+      "value": 3.71137
+    },
+    {
+      "geometry_ids": [
+        10,
+        11
+      ],
+      "id": 5,
+      "type": 3,
+      "value": 3.221123
+    },
+    {
+      "geometry_ids": [
+        10,
+        18
+      ],
+      "id": 6,
+      "type": 3,
+      "value": 7.521296
+    },
+    {
+      "geometry_ids": [
+        10,
+        19
+      ],
+      "id": 7,
+      "type": 3,
+      "value": 5.35668
+    },
+    {
+      "geometry_ids": [
+        10,
+        8
+      ],
+      "id": 8,
+      "type": 3,
+      "value": 1.616456
+    },
+    {
+      "geometry_ids": [
+        10,
+        9
+      ],
+      "id": 9,
+      "type": 3,
+      "value": 5.617128
+    },
+    {
+      "geometry_ids": [
+        11,
+        12
+      ],
+      "id": 10,
+      "type": 3,
+      "value": 3.637948
+    },
+    {
+      "geometry_ids": [
+        11,
+        3
+      ],
+      "id": 11,
+      "type": 3,
+      "value": 1.638446
+    },
+    {
+      "geometry_ids": [
+        11,
+        9
+      ],
+      "id": 12,
+      "type": 3,
+      "value": 5.756704
+    },
+    {
+      "geometry_ids": [
+        12,
+        13
+      ],
+      "id": 13,
+      "type": 3,
+      "value": 0.953974
+    },
+    {
+      "geometry_ids": [
+        13,
+        14
+      ],
+      "id": 14,
+      "type": 3,
+      "value": 2.725228
+    },
+    {
+      "geometry_ids": [
+        13,
+        17
+      ],
+      "id": 15,
+      "type": 3,
+      "value": 3.378084
+    },
+    {
+      "geometry_ids": [
+        14,
+        15
+      ],
+      "id": 16,
+      "type": 3,
+      "value": 4.02107
+    },
+    {
+      "geometry_ids": [
+        14,
+        18
+      ],
+      "id": 17,
+      "type": 3,
+      "value": 4.632496
+    },
+    {
+      "geometry_ids": [
+        14,
+        5
+      ],
+      "id": 18,
+      "type": 3,
+      "value": 3.54472
+    },
+    {
+      "geometry_ids": [
+        14,
+        8
+      ],
+      "id": 19,
+      "type": 3,
+      "value": 3.049933
+    },
+    {
+      "geometry_ids": [
+        15,
+        16
+      ],
+      "id": 20,
+      "type": 3,
+      "value": 1.798877
+    },
+    {
+      "geometry_ids": [
+        15,
+        5
+      ],
+      "id": 21,
+      "type": 3,
+      "value": 3.015156
+    },
+    {
+      "geometry_ids": [
+        15,
+        8
+      ],
+      "id": 22,
+      "type": 3,
+      "value": 5.192268
+    },
+    {
+      "geometry_ids": [
+        16,
+        17
+      ],
+      "id": 23,
+      "type": 3,
+      "value": 5.609413
+    },
+    {
+      "geometry_ids": [
+        16,
+        19
+      ],
+      "id": 24,
+      "type": 3,
+      "value": 5.043088
+    },
+    {
+      "geometry_ids": [
+        16,
+        7
+      ],
+      "id": 25,
+      "type": 3,
+      "value": 4.04754
+    },
+    {
+      "geometry_ids": [
+        17,
+        18
+      ],
+      "id": 26,
+      "type": 3,
+      "value": 1.62071
+    },
+    {
+      "geometry_ids": [
+        17,
+        19
+      ],
+      "id": 27,
+      "type": 3,
+      "value": 1.404997
+    },
+    {
+      "geometry_ids": [
+        17,
+        4
+      ],
+      "id": 28,
+      "type": 3,
+      "value": 3.942265
+    },
+    {
+      "geometry_ids": [
+        17,
+        9
+      ],
+      "id": 29,
+      "type": 3,
+      "value": 3.931931
+    },
+    {
+      "geometry_ids": [
+        18,
+        19
+      ],
+      "id": 30,
+      "type": 3,
+      "value": 2.500555
+    },
+    {
+      "geometry_ids": [
+        18,
+        3
+      ],
+      "id": 31,
+      "type": 3,
+      "value": 5.180095
+    },
+    {
+      "geometry_ids": [
+        2,
+        3
+      ],
+      "id": 32,
+      "type": 3,
+      "value": 3.317759
+    },
+    {
+      "geometry_ids": [
+        3,
+        4
+      ],
+      "id": 33,
+      "type": 3,
+      "value": 2.361267
+    },
+    {
+      "geometry_ids": [
+        4,
+        5
+      ],
+      "id": 34,
+      "type": 3,
+      "value": 4.528451
+    },
+    {
+      "geometry_ids": [
+        5,
+        6
+      ],
+      "id": 35,
+      "type": 3,
+      "value": 5.116886
+    },
+    {
+      "geometry_ids": [
+        5,
+        9
+      ],
+      "id": 36,
+      "type": 3,
+      "value": 1.899689
+    },
+    {
+      "geometry_ids": [
+        6,
+        7
+      ],
+      "id": 37,
+      "type": 3,
+      "value": 2.898239
+    },
+    {
+      "geometry_ids": [
+        7,
+        8
+      ],
+      "id": 38,
+      "type": 3,
+      "value": 1.551452
+    },
+    {
+      "geometry_ids": [
+        8,
+        9
+      ],
+      "id": 39,
+      "type": 3,
+      "value": 5.786107
+    }
+  ],
+  "format_version": "gcs-0.3",
+  "geometries": [
+    {
+      "id": 0,
+      "rigid_set_id": 6,
+      "type": 0,
+      "v": [
+        2.841438673960403,
+        -2.4233352577583895,
+        2.579102573651565,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 1,
+      "rigid_set_id": 0,
+      "type": 0,
+      "v": [
+        1.7061975737862083,
+        -1.7170757948639985,
+        1.0773744269171583,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 2,
+      "rigid_set_id": 5,
+      "type": 0,
+      "v": [
+        -2.6497253765276954,
+        -2.430166939675827,
+        1.2792005698749174,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 3,
+      "rigid_set_id": 4,
+      "type": 0,
+      "v": [
+        -2.9096893106852075,
+        0.8069496634762068,
+        0.6002181267792701,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 4,
+      "rigid_set_id": 3,
+      "type": 0,
+      "v": [
+        -1.515269180149564,
+        0.32071447269403297,
+        2.442703118155908,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 5,
+      "rigid_set_id": 0,
+      "type": 0,
+      "v": [
+        1.037503424524032,
+        -1.1232495786217496,
+        -1.0076868402619823,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 6,
+      "rigid_set_id": 5,
+      "type": 0,
+      "v": [
+        -1.575961969508599,
+        1.4235848296236364,
+        2.579227838476503,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 7,
+      "rigid_set_id": 4,
+      "type": 0,
+      "v": [
+        -2.116165203167169,
+        0.9010818497369648,
+        -0.21987236501830765,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 8,
+      "rigid_set_id": 5,
+      "type": 0,
+      "v": [
+        -2.918951533590001,
+        1.5011996868712334,
+        -1.4041002777802833,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 9,
+      "rigid_set_id": 1,
+      "type": 0,
+      "v": [
+        2.150094563380062,
+        -1.0445982360802952,
+        -2.5454688091529163,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 10,
+      "rigid_set_id": 2,
+      "type": 0,
+      "v": [
+        -2.0967703161086173,
+        2.6186111434285113,
+        -2.233762307100126,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 11,
+      "rigid_set_id": 3,
+      "type": 0,
+      "v": [
+        -1.5879761725480648,
+        1.7486329579007815,
+        0.8256326761224715,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 12,
+      "rigid_set_id": 2,
+      "type": 0,
+      "v": [
+        1.588501953675534,
+        0.18390669819574512,
+        -0.008803450391640766,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 13,
+      "rigid_set_id": 1,
+      "type": 0,
+      "v": [
+        1.8854788383821743,
+        0.6875241824044167,
+        0.7450133364103948,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 14,
+      "rigid_set_id": 6,
+      "type": 0,
+      "v": [
+        -0.7455551895255987,
+        1.3977255616485476,
+        0.7331253957374715,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 15,
+      "rigid_set_id": 1,
+      "type": 0,
+      "v": [
+        2.2439201571608756,
+        1.4725493899296875,
+        -1.955078545399066,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 16,
+      "rigid_set_id": 2,
+      "type": 0,
+      "v": [
+        1.3826055212851767,
+        2.7620333987111927,
+        -1.043307734947658,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 17,
+      "rigid_set_id": 0,
+      "type": 0,
+      "v": [
+        0.7317747857003432,
+        -2.4863988703639426,
+        0.8264235949627539,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 18,
+      "rigid_set_id": 3,
+      "type": 0,
+      "v": [
+        0.37045044811427585,
+        -2.7868335209911246,
+        2.3775155089234357,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": 19,
+      "rigid_set_id": 4,
+      "type": 0,
+      "v": [
+        -0.32327534241314915,
+        -1.8243798216414722,
+        0.1763337147329973,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "history": [
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 0
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 1
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 2
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 3
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 4
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 5
+      }
+    },
+    {
+      "action": "AddRigidSet",
+      "payload": {
+        "id": 6
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 0,
+        "rigid_set_id": 6,
+        "type": 0,
+        "v": [
+          2.841438673960403,
+          -2.4233352577583895,
+          2.579102573651565,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 1,
+        "rigid_set_id": 0,
+        "type": 0,
+        "v": [
+          1.7061975737862083,
+          -1.7170757948639985,
+          1.0773744269171583,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 2,
+        "rigid_set_id": 5,
+        "type": 0,
+        "v": [
+          -2.6497253765276954,
+          -2.430166939675827,
+          1.2792005698749174,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 3,
+        "rigid_set_id": 4,
+        "type": 0,
+        "v": [
+          -2.9096893106852075,
+          0.8069496634762068,
+          0.6002181267792701,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 4,
+        "rigid_set_id": 3,
+        "type": 0,
+        "v": [
+          -1.515269180149564,
+          0.32071447269403297,
+          2.442703118155908,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 5,
+        "rigid_set_id": 0,
+        "type": 0,
+        "v": [
+          1.037503424524032,
+          -1.1232495786217496,
+          -1.0076868402619823,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 6,
+        "rigid_set_id": 5,
+        "type": 0,
+        "v": [
+          -1.575961969508599,
+          1.4235848296236364,
+          2.579227838476503,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 7,
+        "rigid_set_id": 4,
+        "type": 0,
+        "v": [
+          -2.116165203167169,
+          0.9010818497369648,
+          -0.21987236501830765,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 8,
+        "rigid_set_id": 5,
+        "type": 0,
+        "v": [
+          -2.918951533590001,
+          1.5011996868712334,
+          -1.4041002777802833,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 9,
+        "rigid_set_id": 1,
+        "type": 0,
+        "v": [
+          2.150094563380062,
+          -1.0445982360802952,
+          -2.5454688091529163,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 10,
+        "rigid_set_id": 2,
+        "type": 0,
+        "v": [
+          -2.0967703161086173,
+          2.6186111434285113,
+          -2.233762307100126,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 11,
+        "rigid_set_id": 3,
+        "type": 0,
+        "v": [
+          -1.5879761725480648,
+          1.7486329579007815,
+          0.8256326761224715,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 12,
+        "rigid_set_id": 2,
+        "type": 0,
+        "v": [
+          1.588501953675534,
+          0.18390669819574512,
+          -0.008803450391640766,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 13,
+        "rigid_set_id": 1,
+        "type": 0,
+        "v": [
+          1.8854788383821743,
+          0.6875241824044167,
+          0.7450133364103948,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 14,
+        "rigid_set_id": 6,
+        "type": 0,
+        "v": [
+          -0.7455551895255987,
+          1.3977255616485476,
+          0.7331253957374715,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 15,
+        "rigid_set_id": 1,
+        "type": 0,
+        "v": [
+          2.2439201571608756,
+          1.4725493899296875,
+          -1.955078545399066,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 16,
+        "rigid_set_id": 2,
+        "type": 0,
+        "v": [
+          1.3826055212851767,
+          2.7620333987111927,
+          -1.043307734947658,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 17,
+        "rigid_set_id": 0,
+        "type": 0,
+        "v": [
+          0.7317747857003432,
+          -2.4863988703639426,
+          0.8264235949627539,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 18,
+        "rigid_set_id": 3,
+        "type": 0,
+        "v": [
+          0.37045044811427585,
+          -2.7868335209911246,
+          2.3775155089234357,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddGeometry",
+      "payload": {
+        "id": 19,
+        "rigid_set_id": 4,
+        "type": 0,
+        "v": [
+          -0.32327534241314915,
+          -1.8243798216414722,
+          0.1763337147329973,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          0,
+          1
+        ],
+        "id": 0,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          0,
+          19
+        ],
+        "id": 1,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          0,
+          6
+        ],
+        "id": 2,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          1,
+          2
+        ],
+        "id": 3,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          1,
+          9
+        ],
+        "id": 4,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          10,
+          11
+        ],
+        "id": 5,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          10,
+          18
+        ],
+        "id": 6,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          10,
+          19
+        ],
+        "id": 7,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          10,
+          8
+        ],
+        "id": 8,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          10,
+          9
+        ],
+        "id": 9,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          11,
+          12
+        ],
+        "id": 10,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          11,
+          3
+        ],
+        "id": 11,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          11,
+          9
+        ],
+        "id": 12,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          12,
+          13
+        ],
+        "id": 13,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          13,
+          14
+        ],
+        "id": 14,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          13,
+          17
+        ],
+        "id": 15,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          14,
+          15
+        ],
+        "id": 16,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          14,
+          18
+        ],
+        "id": 17,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          14,
+          5
+        ],
+        "id": 18,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          14,
+          8
+        ],
+        "id": 19,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          15,
+          16
+        ],
+        "id": 20,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          15,
+          5
+        ],
+        "id": 21,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          15,
+          8
+        ],
+        "id": 22,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          16,
+          17
+        ],
+        "id": 23,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          16,
+          19
+        ],
+        "id": 24,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          16,
+          7
+        ],
+        "id": 25,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          17,
+          18
+        ],
+        "id": 26,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          17,
+          19
+        ],
+        "id": 27,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          17,
+          4
+        ],
+        "id": 28,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          17,
+          9
+        ],
+        "id": 29,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          18,
+          19
+        ],
+        "id": 30,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          18,
+          3
+        ],
+        "id": 31,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          2,
+          3
+        ],
+        "id": 32,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          3,
+          4
+        ],
+        "id": 33,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          4,
+          5
+        ],
+        "id": 34,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          5,
+          6
+        ],
+        "id": 35,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          5,
+          9
+        ],
+        "id": 36,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          6,
+          7
+        ],
+        "id": 37,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          7,
+          8
+        ],
+        "id": 38,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "AddConstraint",
+      "payload": {
+        "geometry_ids": [
+          8,
+          9
+        ],
+        "id": 39,
+        "type": 3,
+        "value": 0.0
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 0,
+        "value": 2.010662
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 1,
+        "value": 4.01839
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 2,
+        "value": 5.857664
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 3,
+        "value": 4.418518
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 4,
+        "value": 3.71137
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 5,
+        "value": 3.221123
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 6,
+        "value": 7.521296
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 7,
+        "value": 5.35668
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 8,
+        "value": 1.616456
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 9,
+        "value": 5.617128
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 10,
+        "value": 3.637948
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 11,
+        "value": 1.638446
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 12,
+        "value": 5.756704
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 13,
+        "value": 0.953974
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 14,
+        "value": 2.725228
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 15,
+        "value": 3.378084
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 16,
+        "value": 4.02107
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 17,
+        "value": 4.632496
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 18,
+        "value": 3.54472
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 19,
+        "value": 3.049933
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 20,
+        "value": 1.798877
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 21,
+        "value": 3.015156
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 22,
+        "value": 5.192268
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 23,
+        "value": 5.609413
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 24,
+        "value": 5.043088
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 25,
+        "value": 4.04754
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 26,
+        "value": 1.62071
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 27,
+        "value": 1.404997
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 28,
+        "value": 3.942265
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 29,
+        "value": 3.931931
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 30,
+        "value": 2.500555
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 31,
+        "value": 5.180095
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 32,
+        "value": 3.317759
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 33,
+        "value": 2.361267
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 34,
+        "value": 4.528451
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 35,
+        "value": 5.116886
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 36,
+        "value": 1.899689
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 37,
+        "value": 2.898239
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 38,
+        "value": 1.551452
+      }
+    },
+    {
+      "action": "UpdateConstraint",
+      "payload": {
+        "id": 39,
+        "value": 5.786107
+      }
+    },
+    {
+      "action": "Solve",
+      "payload": {}
+    }
+  ],
+  "rigid_sets": [
+    {
+      "geometry_ids": [
+        1,
+        5,
+        17
+      ],
+      "id": 0
+    },
+    {
+      "geometry_ids": [
+        9,
+        13,
+        15
+      ],
+      "id": 1
+    },
+    {
+      "geometry_ids": [
+        10,
+        12,
+        16
+      ],
+      "id": 2
+    },
+    {
+      "geometry_ids": [
+        4,
+        11,
+        18
+      ],
+      "id": 3
+    },
+    {
+      "geometry_ids": [
+        3,
+        7,
+        19
+      ],
+      "id": 4
+    },
+    {
+      "geometry_ids": [
+        2,
+        6,
+        8
+      ],
+      "id": 5
+    },
+    {
+      "geometry_ids": [
+        0,
+        14
+      ],
+      "id": 6
+    }
+  ],
+  "state_version": 0
+}
