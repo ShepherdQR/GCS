@@ -23,16 +23,16 @@ Current task counts:
 | Phase | Done | Next | Pending | Main remaining question |
 | --- | ---: | ---: | ---: | --- |
 | Phase 1: Lifecycle Closure | 6 | 0 | 0 | How often should escaped chat-only work be audited for drift? |
-| Phase 2: Quality-Gate Adoption | 3 | 1 | 1 | What legacy archive migration or exemption policy is acceptable? |
+| Phase 2: Quality-Gate Adoption | 5 | 0 | 0 | What future current-task declaration would be worth implementing? |
 | Phase 3: E001 Closure Experience Validation | 4 | 0 | 0 | How soon should E001 checks move from skill guidance into optional or default gates? |
 | Phase 4: Institutional Agents Become Verifiable | 6 | 0 | 0 | When should I003/I004 be rerun on live rendered artifacts before promotion? |
 
 Priority order:
 
-1. Define S2-04 legacy archive migration or exemption policy before any
-   default artifact validation.
-2. Run at least two clean opt-in artifact-gate cycles before S2-05 considers
-   default enforcement.
+1. Keep broad default Agentic artifact validation off until a current-task
+   artifact declaration exists.
+2. Treat completed-report validation and closure score as closeout opt-in
+   evidence, not default pre-build gates.
 3. Choose the next implementation candidate after the parallel item 4 session
    lands.
 4. Rerun I003/I004 on a live rendered UI or figure artifact before promoting
@@ -59,21 +59,23 @@ Stage conclusion:
 
 ### Phase 2 Analysis
 
-Phase 2 has moved from opt-in design into executable gates. S2-01 kept
-default enforcement deferred; S2-02 implemented task-card include behavior and
-tests; S2-03 implemented completed-report include behavior for explicitly
-selected new reports. Default `run-quality-gates` still does not bulk-scan
-legacy Agentic artifacts.
+Phase 2 is complete for the first adoption pass. S2-01 kept default
+enforcement deferred; S2-02 implemented task-card include behavior and tests;
+S2-03 implemented completed-report include behavior for explicitly selected
+new reports; S2-04 defined legacy artifact migration and exemption policy; and
+S2-05 decided not to bulk-promote Agentic artifact validation into default
+`run-quality-gates`.
 
 Stage conclusion:
 
-- S2-01 through S2-03 are complete.
+- S2-01 through S2-05 are complete.
 - `--include-task-cards` and `--include-completed-reports` are opt-in and
   path-scoped.
-- S2-04 is now the next Phase 2 task: define legacy archive migration or
-  exemption policy.
-- Keep E001 closure scoring out of the completed-report gate until S2-05
-  decides whether that promotion is justified.
+- `docs/agentic/legacy-artifact-policy.md` controls archive migration and
+  exemption.
+- `docs/agentic/default-agentic-gate-decision.md` keeps broad default
+  validation off until a current-task artifact declaration exists.
+- Keep E001 closure scoring advisory and opt-in.
 
 ### Phase 3 Analysis
 
@@ -177,8 +179,8 @@ Backlog:
 | S2-01 | Design `--include-task-cards` and `--include-completed-reports` quality-gate policy. | done | `quality-gate-opt-in-policy.md` and CI gate docs update. |
 | S2-02 | Add task-card validation tests for valid, missing-field, high-risk-without-gate, and placeholder cases. | done | `tests/tools/test_agentic_toolkit.py`, `agentic.task-cards`. |
 | S2-03 | Add completed-report validation tests for new reports only. | done | `tests/tools/test_agentic_toolkit.py`, `agentic.completed-task-reports`. |
-| S2-04 | Define legacy archive migration or exemption policy. | next | `docs/completed-tasks/README.md` update. |
-| S2-05 | Promote opt-in checks into default gate only after two clean task cycles. | pending | PDCA evidence from Phase 1. |
+| S2-04 | Define legacy archive migration or exemption policy. | done | `legacy-artifact-policy.md`, `docs/completed-tasks/README.md`. |
+| S2-05 | Promote opt-in checks into default gate only after two clean task cycles. | done | `default-agentic-gate-decision.md`; broad default promotion rejected for now. |
 
 ## Phase 3: E001 Closure Experience Validation
 
@@ -678,26 +680,67 @@ Act:
 - Step 51 is complete and remains opt-in.
 - S4-06 is complete, but I003/I004 stay seed until a live rendered visual
   artifact is reviewed.
-- S2-04 is the next Agentic SE task.
+- At this checkpoint, S2-04 became the next Agentic SE task; C013 completes it
+  below.
 - The next solver implementation candidate should be chosen after the
   parallel item 4 session lands.
 
+### C013: S2-04/S2-05 Legacy Policy And Default Gate Decision
+
+Plan:
+
+- define legacy archive migration and exemption policy;
+- run two clean post-policy opt-in artifact-gate cycles;
+- decide whether task-card validation, completed-report validation, or closure
+  score should become default quality-gate behavior;
+- keep unrelated UI/item4 work out of this worktree.
+
+Do:
+
+- added `docs/agentic/legacy-artifact-policy.md`;
+- added `docs/agentic/default-agentic-gate-decision.md`;
+- updated completed-task index guidance with `validator-clean`, `migrated`,
+  `legacy-exempt`, `low-risk-no-archive`, and `parallel-session-pending`
+  labels;
+- updated the opt-in gate policy, near-term plan, and completed-task archives;
+- added a Bladesmith note for the reusable default-gate governance lesson.
+
+Check:
+
+- S2-04 task card and completed-task archive validated and scored 38/40;
+- S2-04 opt-in artifact gate cycle passed;
+- S2-05 task card and completed-task archive validated and scored 38/40;
+- S2-05 opt-in artifact gate cycle passed;
+- docs validation passed.
+
+Act:
+
+- S2-04 and S2-05 are complete.
+- Broad default Agentic artifact validation stays off.
+- A future current-task default gate should wait for an explicit current
+  artifact declaration mechanism.
+- Completed-report validation and closure score remain closeout opt-in checks.
+- The next Agentic-SE work should focus on rendered-artifact evidence for
+  I003/I004 or a future current-task declaration only if the workflow demands
+  less manual include syntax.
+
 ## Next Agile Task
 
-S2-04 is now the next Agentic SE implementation task. The next GCS
-implementation candidate should be chosen after the parallel item 4 session
-lands:
+Phase 2 is complete for the first adoption pass. The next GCS implementation
+candidate should be chosen after the parallel item 4 session lands:
 
-1. Define legacy archive migration or exemption policy.
-2. Run two clean opt-in artifact-gate cycles before considering S2-05.
-3. Keep E001 closure scoring out of default gates until S2-05.
-4. Rerun I003/I004 on live rendered visual evidence before promotion.
+1. Rerun I003/I004 on live rendered visual evidence before promotion.
+2. Review the parallel item 4 output before claiming the next solver step.
+3. Consider a current-task artifact declaration only after repeated workflows
+   show manual include pathspecs are too costly.
+4. Keep completed-report validation and closure score as closeout opt-in
+   checks.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S2-04 legacy archive policy | S2-02/S2-03 are executable, but default enforcement needs an exemption story. | Completed-task index or policy note defines legacy migration/exemption. |
-| 2 | Two opt-in gate cycles | S2-05 needs evidence before any default promotion. | Two completed task archives cite successful include-gate evidence. |
-| 3 | Parallel item 4 integration review | Another session owns item 4; this roadmap should not overwrite it. | Review and merge that session's artifacts when available. |
-| 4 | I003/I004 rendered-artifact review | Seed packages exist, but live visual evidence is still needed. | Atelier and Art Director reports against rendered HTML/PNG/PDF. |
+| 1 | I003/I004 rendered-artifact review | Seed packages exist, but live visual evidence is still needed. | Atelier and Art Director reports against rendered HTML/PNG/PDF. |
+| 2 | Parallel item 4 integration review | Another session owns item 4; this roadmap should not overwrite it. | Review and merge that session's artifacts when available. |
+| 3 | Current-task declaration spike | S2-05 deferred default task-card gating until intent can be declared explicitly. | Proposal or tool change only if manual include pathspecs become costly. |
+| 4 | E001 score calibration follow-up | Closure score remains advisory and opt-in. | More examples comparing score, human review, and actual resume usefulness. |

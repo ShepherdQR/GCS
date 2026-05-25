@@ -1,13 +1,13 @@
 # Agentic Artifact Opt-In Gate Policy
 
-Status: S2-02 and S2-03 implemented.
+Status: S2-05 default-enforcement decision complete.
 
 ## Purpose
 
 Agentic SE artifacts should be checkable by the same quality-gate entry point
 as code, but they should not become default ceremony for every small edit. This
-policy designs opt-in gates for task cards and completed-task reports before
-any default enforcement.
+policy defines opt-in gates for task cards and completed-task reports and
+records the S2-05 decision to avoid broad default enforcement for now.
 
 ## Implemented Flags
 
@@ -33,14 +33,14 @@ Pathspec rules:
 ## Default Behavior
 
 The default `run-quality-gates` command must not validate all historical task
-cards or completed-task archives yet.
+cards or completed-task archives.
 
 Rationale:
 
 - legacy records predate the current frontmatter and closure-score rules;
 - S1-04 allows tiny low-risk work to stay chat-only or commit-note-only;
 - forcing all archives into the default gate would create noisy migration work
-  before S2-04 defines exemptions;
+  that S2-04 explicitly rejects;
 - high-risk tasks can still opt in by naming their own active artifacts.
 
 ## Intended Usage
@@ -81,9 +81,9 @@ Completed-report gate:
 
 - runs `validate-completed-task-report` on expanded completed-task reports;
 - does not score by default;
-- may add optional scoring in S2-05 after scorer thresholds are calibrated;
-- validates only explicitly included reports until S2-04 defines legacy
-  migration or exemption policy.
+- closure scoring remains advisory and opt-in after S2-05;
+- validates only explicitly included reports under the S2-04 legacy migration
+  or exemption policy.
 
 Current implementation note:
 
@@ -93,14 +93,19 @@ Current implementation note:
 
 ## Legacy Policy
 
-Legacy task cards and completed-task archives stay exempt from default
-`run-quality-gates` until S2-04.
+Legacy task cards and completed-task archives follow
+`docs/agentic/legacy-artifact-policy.md`.
 
-Allowed legacy states:
+Allowed non-default states:
 
-- records with older frontmatter conventions;
-- records that are useful as narrative archives but not validator-clean;
-- low-risk commit-note-only tasks that intentionally have no archive.
+- `legacy-exempt`: useful historical records that predate the current
+  validator shape;
+- `migratable-legacy`: old records that must be migrated before a new task uses
+  them as active evidence;
+- `low-risk-no-archive`: chat-only or commit-note-only tasks allowed by the
+  lifecycle runbook;
+- `parallel-session-pending`: artifacts owned by another active branch,
+  worktree, or conversation.
 
 Not allowed:
 
@@ -114,9 +119,11 @@ Not allowed:
    `2026-05-25-agentic-se-roadmap-items-1-2-3-5`.
 2. S2-03: implement and test `--include-completed-reports` for new reports
    only. Done in `2026-05-25-agentic-se-roadmap-items-1-2-3-5`.
-3. S2-04: define legacy archive migration or exemption policy.
+3. S2-04: define legacy archive migration or exemption policy. Done in
+   `docs/agentic/legacy-artifact-policy.md`.
 4. S2-05: consider default enforcement only after two clean opt-in task
-   cycles.
+   cycles. Done in `docs/agentic/default-agentic-gate-decision.md`; default
+   behavior remains broad-scan-free.
 
 ## Quality Report
 
@@ -142,13 +149,16 @@ Assertions:
 
 Missing-test risk:
 
-- S2-01 is design-only, so command-line behavior is not implemented yet.
-- S2-02 and S2-03 must add unit tests before any workflow relies on these
-  flags.
+- A future current-task default gate still needs an explicit current artifact
+  declaration mechanism.
+- Completed-report validation and closure scoring remain opt-in closeout
+  checks rather than default pre-build gates.
 
 Handoffs:
 
-- `gcs-quality-steward`: implement gate-command construction and tests.
-- `gcs-architecture-steward`: keep lifecycle and roadmap policy aligned.
-- E001 closure experience: decide later whether closure scoring becomes an
-  optional gate.
+- `gcs-quality-steward`: keep future current-task default validation scoped to
+  explicitly declared active artifacts.
+- `gcs-architecture-steward`: keep lifecycle and roadmap policy aligned as
+  implementation tasks land.
+- E001 closure experience: keep closure scoring advisory unless a future PDCA
+  cycle proves it belongs in a stronger gate.

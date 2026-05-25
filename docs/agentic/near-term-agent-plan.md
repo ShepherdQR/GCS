@@ -38,6 +38,9 @@ auditable, and useful in real project work.
 - S2-02 and S2-03 have implemented opt-in task-card and completed-report
   include gates. Step 51 has implemented a focused promoted fixture-library
   gate. I003/I004 now have conservative seed packages and remain seed roles.
+- S2-04 has defined the legacy artifact migration/exemption policy. S2-05 has
+  decided that broad historical Agentic artifact validation should stay out of
+  the default quality gate until a current-task declaration mechanism exists.
 
 ## Execution Principle
 
@@ -63,6 +66,7 @@ Goal: keep agentic roadmaps aligned with implementation reality.
 | A7 | Record S3-02, S1-04, and Step 50 completion, then move the queue to S2-01, S3-04, S4-05, and Step 51. | done in this plan | Negative eval, low-risk boundary, Step 50 archive, and roadmap C008 update. |
 | A8 | Record S2-01 opt-in gate policy completion, then move Phase 2 to S2-02. | done in this plan | `quality-gate-opt-in-policy.md` and roadmap C009 update. |
 | A9 | Record S2-02, S2-03, Step 51, and I003/I004 seed-package integration. | done in this plan | `agile-pdca-roadmap.md` C012 update. |
+| A10 | Record S2-04/S2-05 legacy policy and default-gate decision. | done in this plan | Legacy policy, default-gate decision, and roadmap C013 update. |
 
 Decision rule: do not fabricate lifecycle evidence. If no task card or archive
 exists, mark it as an escaped lifecycle sample and use the next high-risk task
@@ -111,7 +115,8 @@ task.
 | D1 | Design `--include-task-cards` and `--include-completed-reports`. | done in this plan | `docs/agentic/quality-gate-opt-in-policy.md`. |
 | D2 | Add task-card validator tests for missing fields and high-risk gates. | done in this plan | `tests/tools/test_agentic_toolkit.py` cases and `agentic.task-cards`. |
 | D3 | Add completed-report validator tests for new reports only. | done in this plan | `tests/tools/test_agentic_toolkit.py` cases and `agentic.completed-task-reports`. |
-| D4 | Define legacy archive exemption or migration policy. | next | `docs/completed-tasks/README.md` update. |
+| D4 | Define legacy archive exemption or migration policy. | done in this plan | `docs/agentic/legacy-artifact-policy.md` and `docs/completed-tasks/README.md`. |
+| D5 | Decide whether Agentic artifact gates should become default. | done in this plan | `docs/agentic/default-agentic-gate-decision.md`; broad default enforcement remains deferred. |
 
 ## Workstream E: Fuzzy Description To Agent Package
 
@@ -126,13 +131,15 @@ the generator protocol.
 
 ## Immediate Next Task
 
-Start with S2-04 for Agentic SE tooling. Choose the next GCS implementation
-candidate after the parallel item 4 session lands:
+Phase 2 Agentic gate adoption is complete for now. Choose the next GCS
+implementation candidate after the parallel item 4 session lands:
 
-1. Define legacy archive exemption or migration policy.
-2. Keep E001 out of default quality gates until S2-05.
-3. Rerun I003/I004 only on rendered visual artifacts before promotion.
-4. Review the parallel item 4 output before claiming the next solver step.
+1. Rerun I003/I004 only on rendered visual artifacts before promotion.
+2. Review the parallel item 4 output before claiming the next solver step.
+3. Prototype a current-task artifact declaration only if default validation is
+   needed for active work.
+4. Keep completed-report validation and closure scoring as opt-in closeout
+   checks unless a future PDCA cycle proves they should move earlier.
 
 ## Superseded Immediate Task Note
 
@@ -156,5 +163,6 @@ This near-term plan is working when:
 - S1-03's task-to-archive checklist exists and has been used on a real
   engineering/process closure;
 - E001 has at least two scored archives;
+- S2-04/S2-05 have clean opt-in evidence before any default gate promotion;
 - no new institutional-agent directory is created without generator fit-check
   evidence.

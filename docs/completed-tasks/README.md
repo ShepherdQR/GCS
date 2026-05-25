@@ -27,10 +27,31 @@ The task `README.md` should answer:
 Do not store raw chat logs here. Preserve decisions, outputs, acceptance
 evidence, and links to project files.
 
+## Legacy Validation Policy
+
+Completed-task reports use the S2-04 policy in
+`docs/agentic/legacy-artifact-policy.md`.
+
+Use these labels when deciding whether an archive belongs in an opt-in gate:
+
+| Label | Meaning | Gate treatment |
+| --- | --- | --- |
+| `validator-clean` | Current or migrated report that passes the active completed-task validator. | Safe to include explicitly. |
+| `migrated` | Older report updated because a new task depends on it as active evidence. | Include only after the migration is committed and recorded. |
+| `legacy-exempt` | Useful historical report that predates the current validator shape. | Do not select by default. |
+| `low-risk-no-archive` | Task intentionally allowed by the lifecycle runbook to remain chat-only or commit-note-only. | Missing archive is not a failure. |
+| `parallel-session-pending` | Artifact owned by another active branch, worktree, or conversation. | Exclude from the current task's gate evidence. |
+
+Do not migrate historical reports only to make the whole tree pass. Migrate an
+older archive only when a new roadmap decision, E001 calibration,
+institutional-agent promotion, or quality-gate decision depends on that record.
+
 ## Index
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-25 | [S2-05 Agentic default gate decision](2026-05-25-s2-05-agentic-default-gate-decision/README.md) | done |
+| 2026-05-25 | [S2-04 legacy artifact policy](2026-05-25-s2-04-legacy-artifact-policy/README.md) | done |
 | 2026-05-25 | [Agentic SE roadmap items 1, 2, 3, and 5](2026-05-25-agentic-se-roadmap-items-1-2-3-5/README.md) | done |
 | 2026-05-25 | [LGS spanning-tree method research](2026-05-25-lgs-spanning-tree-method-research/README.md) | done |
 | 2026-05-25 | [S4-05 institutional-agent reassessment](2026-05-25-s4-05-institutional-agent-reassessment/README.md) | done |
