@@ -1,0 +1,69 @@
+{
+  "affected_contracts": [
+    "Agentic operating layer",
+    "Documentation",
+    "Agentic and support-tool tests",
+    "Agentic toolkit command surface"
+  ],
+  "affected_paths": [
+    "docs/agentic/README.md",
+    "docs/agentic/nightly-immune-diagnostics.md",
+    "docs/agentic/pr-audit-governance.md",
+    "docs/completed-tasks/README.md",
+    "tests/tools/test_agentic_toolkit.py",
+    "tools/agentic_design/agentic_toolkit.py",
+    "docs/agentic/ai-governance-next-actions.md",
+    "docs/agentic/nightly-runs/README.md",
+    "docs/agentic/pr-audits/2026-05-25-agentic-governance-execution.json",
+    "docs/agentic/schemas/pr-audit.schema.json",
+    "docs/agentic/tasks/2026-05-25-agentic-governance-execution.md",
+    "docs/completed-tasks/2026-05-25-agentic-governance-execution/README.md"
+  ],
+  "base": "codex/agentic-pr-governance-nightly",
+  "completed_archive": "docs/completed-tasks/2026-05-25-agentic-governance-execution",
+  "decision": "ready_for_human_review",
+  "evidence": {
+    "failed": [],
+    "passed": [
+      "validate-task-card docs/agentic/tasks/2026-05-25-agentic-governance-execution.md",
+      "python -m unittest tests.tools.test_agentic_toolkit",
+      "update-nightly-index --force",
+      "validate-docs",
+      "validate-completed-task-report docs/completed-tasks/2026-05-25-agentic-governance-execution/README.md",
+      "score-closure-report docs/completed-tasks/2026-05-25-agentic-governance-execution/README.md --min-score 30",
+      "run-quality-gates --skip-build --skip-ctest --skip-cli with task/archive includes"
+    ],
+    "skipped": []
+  },
+  "findings": [],
+  "forbidden_action_check": {
+    "approve": "not_performed",
+    "branch_delete": "not_performed",
+    "fixture_promotion": "not_performed",
+    "force_push": "not_performed",
+    "merge": "not_performed"
+  },
+  "generated_at": "2026-05-25T23:46:29+08:00",
+  "head": "HEAD",
+  "next_action": "human_review",
+  "pr_class": "quality-gate",
+  "review_focus": [
+    "Agentic operating layer",
+    "Documentation",
+    "Agentic and support-tool tests",
+    "Agentic toolkit command surface",
+    "docs/agentic/README.md",
+    "docs/agentic/nightly-immune-diagnostics.md",
+    "docs/agentic/pr-audit-governance.md",
+    "docs/completed-tasks/README.md",
+    "tests/tools/test_agentic_toolkit.py",
+    "tools/agentic_design/agentic_toolkit.py",
+    "docs/agentic/ai-governance-next-actions.md",
+    "docs/agentic/nightly-runs/README.md",
+    "docs/agentic/pr-audits/2026-05-25-agentic-governance-execution.json",
+    "docs/agentic/schemas/pr-audit.schema.json"
+  ],
+  "risk_tier": "medium",
+  "schema_version": "gcs.pr-audit.v1",
+  "task_card": "docs/agentic/tasks/2026-05-25-agentic-governance-execution.md"
+}
