@@ -238,6 +238,7 @@ Known unrelated dirty worktree entries at closeout:
 - `tests/tools/test_agentic_toolkit.py`
 - `tools/agentic_design/agentic_toolkit.py`
 - `docs/agentic/tasks/2026-05-25-gcs-solver-ui-requirements-architecture.md`
+- `tools/scene_generation/fixture_library_gate.py`
 
 These were not part of the spanning-tree task and were intentionally left
 untouched.
