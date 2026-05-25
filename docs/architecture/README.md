@@ -75,6 +75,8 @@ order, not by historical source order. Background research notes live under
    - `76-ui-design-system-execution-plan.md`: phased execution plan and
      step-by-step commit/replanning protocol for implementing the GCS UI design
      system.
+   - `92-gcs-ui-architecture-adjustment-record.md`: 2026-05-25 adjustment that
+     reframes the local viewer target as a GCS Solver Evidence Workbench.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

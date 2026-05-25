@@ -27,6 +27,108 @@ def graph_summary(graph: GCSGraph) -> dict:
     }
 
 
+def _coerce_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _append_int(focus: dict, key: str, value):
+    int_value = _coerce_int(value)
+    if int_value is not None:
+        focus[key].append(int_value)
+
+
+def _normalized_focus(mode: str, focus: dict) -> Optional[dict]:
+    normalized = {"mode": mode}
+    has_targets = False
+    for key in ("rigid_set_ids", "geometry_ids", "constraint_ids"):
+        values = sorted(set(focus.get(key, [])))
+        normalized[key] = values
+        has_targets = has_targets or bool(values)
+    return normalized if has_targets else None
+
+
+def selection_focus(
+    graph: GCSGraph,
+    rigid_set_ids: Optional[Iterable] = None,
+    geometry_ids: Optional[Iterable] = None,
+    constraint_ids: Optional[Iterable] = None,
+) -> Optional[dict]:
+    focus = {
+        "rigid_set_ids": [],
+        "geometry_ids": [],
+        "constraint_ids": [],
+    }
+
+    for rs_id in rigid_set_ids or []:
+        int_rs_id = _coerce_int(rs_id)
+        rigid_set = graph.find_rigid_set(int_rs_id) if int_rs_id is not None else None
+        if rigid_set is None:
+            continue
+        _append_int(focus, "rigid_set_ids", rigid_set.id)
+        for gid in rigid_set.geometry_ids:
+            _append_int(focus, "geometry_ids", gid)
+
+    for gid in geometry_ids or []:
+        int_gid = _coerce_int(gid)
+        geometry = graph.find_geometry(int_gid) if int_gid is not None else None
+        if geometry is None:
+            continue
+        _append_int(focus, "geometry_ids", geometry.id)
+        _append_int(focus, "rigid_set_ids", geometry.rigid_set_id)
+
+    for cid in constraint_ids or []:
+        int_cid = _coerce_int(cid)
+        constraint = graph.find_constraint(int_cid) if int_cid is not None else None
+        if constraint is None:
+            continue
+        _append_int(focus, "constraint_ids", constraint.id)
+        for gid in constraint.geometry_ids:
+            _append_int(focus, "geometry_ids", gid)
+            geometry = graph.find_geometry(_coerce_int(gid))
+            if geometry is not None:
+                _append_int(focus, "rigid_set_ids", geometry.rigid_set_id)
+
+    return _normalized_focus("selection", focus)
+
+
+def history_focus_from_entry(entry: Mapping, graph: GCSGraph) -> Optional[dict]:
+    action = entry.get("action")
+    payload = entry.get("payload") or {}
+    focus = {
+        "rigid_set_ids": [],
+        "geometry_ids": [],
+        "constraint_ids": [],
+    }
+
+    if action in ("AddRigidSet", "RemoveRigidSet"):
+        _append_int(focus, "rigid_set_ids", payload.get("id"))
+    elif action in ("AddGeometry", "RemoveGeometry"):
+        geometry_id = _coerce_int(payload.get("id"))
+        _append_int(focus, "geometry_ids", geometry_id)
+        _append_int(focus, "rigid_set_ids", payload.get("rigid_set_id"))
+        geometry = graph.find_geometry(geometry_id) if geometry_id is not None else None
+        if geometry is not None:
+            _append_int(focus, "rigid_set_ids", geometry.rigid_set_id)
+    elif action in ("AddConstraint", "RemoveConstraint", "UpdateConstraint"):
+        constraint_id = _coerce_int(payload.get("id"))
+        _append_int(focus, "constraint_ids", constraint_id)
+        geometry_ids = payload.get("geometry_ids")
+        if geometry_ids is None and constraint_id is not None:
+            constraint = graph.find_constraint(constraint_id)
+            geometry_ids = constraint.geometry_ids if constraint is not None else []
+        for gid in geometry_ids or []:
+            geometry_id = _coerce_int(gid)
+            _append_int(focus, "geometry_ids", geometry_id)
+            geometry = graph.find_geometry(geometry_id) if geometry_id is not None else None
+            if geometry is not None:
+                _append_int(focus, "rigid_set_ids", geometry.rigid_set_id)
+
+    return _normalized_focus("replay", focus)
+
+
 def render_graph_view(
     graph: GCSGraph,
     fig,

@@ -25,7 +25,14 @@ from gcs_viz.algebra import (
 from gcs_viz.color_scheme import GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME, STATE_COLORS
 from gcs_viz.event_store import EventStore
 from gcs_viz.engine_bridge import EngineBridge
-from gcs_viz.viewer_bridge import build_history_graph, graph_summary, render_graph_view, render_message
+from gcs_viz.viewer_bridge import (
+    build_history_graph,
+    graph_summary,
+    history_focus_from_entry,
+    render_graph_view,
+    render_message,
+    selection_focus,
+)
 from gcs_viz.screens.dialogs_tk import AddRigidSetDialog, AddGeometryDialog, AddConstraintDialog, DeleteConfirmDialog, EditConstraintDialog
 
 
@@ -41,6 +48,8 @@ class GCSPlatformGUI:
         self._history_replay_history = []
         self._history_replay_index = -1
         self._history_replay_view = None
+        self._selection_focus = None
+        self._refreshing_tables = False
 
         self.root = tk.Tk()
         self.root.title("GCS Platform — Geometric Constraint Solver")
@@ -121,6 +130,7 @@ class GCSPlatformGUI:
         self.rs_tree.column("id", width=42, stretch=False)
         self.rs_tree.column("geoms", width=210)
         self.rs_tree.pack(fill=tk.BOTH, expand=True, padx=4, pady=(4, 2))
+        self.rs_tree.bind("<<TreeviewSelect>>", lambda _event: self._on_object_selection("rigid_set"))
         rs_tools = ttk.Frame(rs_frame)
         rs_tools.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(rs_tools, text="Add RS", style="Action.TButton", command=self._add_rigid_set).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
@@ -138,6 +148,7 @@ class GCSPlatformGUI:
         self.geom_tree.column("rs", width=34, stretch=False)
         self.geom_tree.column("pos", width=150)
         self.geom_tree.pack(fill=tk.BOTH, expand=True, padx=4, pady=(4, 2))
+        self.geom_tree.bind("<<TreeviewSelect>>", lambda _event: self._on_object_selection("geometry"))
         geom_tools = ttk.Frame(geom_frame)
         geom_tools.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(geom_tools, text="Add Geometry", style="Action.TButton", command=self._add_geometry).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=1)
@@ -155,6 +166,7 @@ class GCSPlatformGUI:
         self.const_tree.column("geoms", width=62, stretch=False)
         self.const_tree.column("val", width=62, stretch=False)
         self.const_tree.pack(fill=tk.BOTH, expand=True, padx=4, pady=(4, 2))
+        self.const_tree.bind("<<TreeviewSelect>>", lambda _event: self._on_object_selection("constraint"))
         self.const_tree.bind("<Double-1>", self._on_const_double_click)
         const_tools = ttk.Frame(const_frame)
         const_tools.pack(fill=tk.X, padx=4, pady=(0, 4))
@@ -467,6 +479,8 @@ class GCSPlatformGUI:
         self.canvas_widget.draw()
 
     def _refresh_tables(self):
+        self._refreshing_tables = True
+        self._selection_focus = None
         for item in self.rs_tree.get_children():
             self.rs_tree.delete(item)
         for rs in self.graph.rigid_sets:
@@ -495,6 +509,7 @@ class GCSPlatformGUI:
 
         self._update_dof()
         self._update_status_info()
+        self._refreshing_tables = False
 
     def _update_dof(self):
         dof = self.graph.compute_dof()
@@ -527,7 +542,49 @@ class GCSPlatformGUI:
 
     def _refresh_canvas(self):
         self._cancel_history_replay()
-        self._draw_graph_on_canvas(self.graph, self.view_var.get(), use_welcome=True)
+        self._draw_graph_on_canvas(
+            self.graph,
+            self.view_var.get(),
+            use_welcome=True,
+            focus=self._selection_focus,
+        )
+
+    def _selected_tree_ids(self, tree):
+        ids = []
+        for item_id in tree.selection():
+            values = tree.item(item_id).get("values") or []
+            if not values:
+                continue
+            try:
+                ids.append(int(values[0]))
+            except (TypeError, ValueError):
+                pass
+        return ids
+
+    def _selection_focus_for_kind(self, kind: str):
+        if kind == "rigid_set":
+            return selection_focus(self.graph, rigid_set_ids=self._selected_tree_ids(self.rs_tree))
+        if kind == "geometry":
+            return selection_focus(self.graph, geometry_ids=self._selected_tree_ids(self.geom_tree))
+        if kind == "constraint":
+            return selection_focus(self.graph, constraint_ids=self._selected_tree_ids(self.const_tree))
+        return None
+
+    def _is_history_replay_active(self):
+        return self._history_replay_job is not None or bool(self._history_replay_history)
+
+    def _on_object_selection(self, kind: str):
+        if self._refreshing_tables:
+            return
+        self._selection_focus = self._selection_focus_for_kind(kind)
+        if self._is_history_replay_active():
+            return
+        self._draw_graph_on_canvas(
+            self.graph,
+            self.view_var.get(),
+            use_welcome=True,
+            focus=self._selection_focus,
+        )
 
     def _set_current_model(self, filepath):
         self.current_model_name = os.path.basename(filepath) if filepath else "Untitled"
@@ -884,7 +941,7 @@ class GCSPlatformGUI:
         restore_view = self._history_replay_view or self.view_var.get()
         self._cancel_history_replay()
         self.view_var.set(restore_view)
-        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True)
+        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True, focus=self._selection_focus)
         self._log_info("Replay stopped; restored current view")
 
     def _replay_history(self):
@@ -919,7 +976,7 @@ class GCSPlatformGUI:
         entry = history[next_index]
         action = str(entry.get("action", "Unknown"))
         replay_graph = build_history_graph(history, next_index)
-        focus = self._history_focus_from_entry(entry, replay_graph)
+        focus = history_focus_from_entry(entry, replay_graph)
         title = f"Replay History - Step {next_index + 1}/{len(history)}: {action}"
         progress = ((next_index + 1) / len(history)) * 100.0
         self._set_replay_state(
@@ -948,59 +1005,6 @@ class GCSPlatformGUI:
 
         self._history_replay_job = self.root.after(self._history_replay_delay_ms(650), self._advance_history_replay)
 
-    def _history_focus_from_entry(self, entry: dict, graph: GCSGraph):
-        action = entry.get("action")
-        payload = entry.get("payload") or {}
-        focus = {
-            "mode": "replay",
-            "rigid_set_ids": [],
-            "geometry_ids": [],
-            "constraint_ids": [],
-        }
-
-        def add_int(key, value):
-            try:
-                focus[key].append(int(value))
-            except (TypeError, ValueError):
-                pass
-
-        if action in ("AddRigidSet", "RemoveRigidSet"):
-            add_int("rigid_set_ids", payload.get("id"))
-        elif action in ("AddGeometry", "RemoveGeometry"):
-            add_int("geometry_ids", payload.get("id"))
-            add_int("rigid_set_ids", payload.get("rigid_set_id"))
-            try:
-                geometry_id = int(payload.get("id"))
-            except (TypeError, ValueError):
-                geometry_id = None
-            geometry = graph.find_geometry(geometry_id) if geometry_id is not None else None
-            if geometry is not None:
-                add_int("rigid_set_ids", geometry.rigid_set_id)
-        elif action in ("AddConstraint", "RemoveConstraint", "UpdateConstraint"):
-            constraint_id = payload.get("id")
-            add_int("constraint_ids", constraint_id)
-            geometry_ids = payload.get("geometry_ids")
-            if geometry_ids is None and constraint_id is not None:
-                try:
-                    constraint = graph.find_constraint(int(constraint_id))
-                except (TypeError, ValueError):
-                    constraint = None
-                geometry_ids = constraint.geometry_ids if constraint is not None else []
-            for gid in geometry_ids or []:
-                add_int("geometry_ids", gid)
-                try:
-                    geometry = graph.find_geometry(int(gid))
-                except (TypeError, ValueError):
-                    geometry = None
-                if geometry is not None:
-                    add_int("rigid_set_ids", geometry.rigid_set_id)
-
-        for key, values in list(focus.items()):
-            if key == "mode":
-                continue
-            focus[key] = sorted(set(values))
-        return focus
-
     def _finish_history_replay(self):
         restore_view = self._history_replay_view or self.view_var.get()
         self._history_replay_job = None
@@ -1009,7 +1013,7 @@ class GCSPlatformGUI:
         self._history_replay_view = None
         self.view_var.set(restore_view)
         self._set_replay_state("Replay complete", "Step 0 / 0", "Current model restored", 100.0)
-        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True)
+        self._draw_graph_on_canvas(self.graph, restore_view, use_welcome=True, focus=self._selection_focus)
         self._log_success("Replay complete: current model restored")
 
     def _cancel_history_replay(self):

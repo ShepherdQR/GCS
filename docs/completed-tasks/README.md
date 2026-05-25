@@ -31,7 +31,9 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-25 | [UI Phase 6 focus projection](2026-05-25-ui-phase6-focus-projection/README.md) | done |
 | 2026-05-25 | [Agentic SE roadmap items 1, 2, 3, and 5](2026-05-25-agentic-se-roadmap-items-1-2-3-5/README.md) | done |
+| 2026-05-25 | [GCS solver UI requirements architecture](2026-05-25-gcs-solver-ui-requirements-architecture/README.md) | done |
 | 2026-05-25 | [LGS spanning-tree method research](2026-05-25-lgs-spanning-tree-method-research/README.md) | done |
 | 2026-05-25 | [S4-05 institutional-agent reassessment](2026-05-25-s4-05-institutional-agent-reassessment/README.md) | done |
 | 2026-05-25 | [S3-04 E001 skill promotion decision](2026-05-25-s3-04-e001-skill-promotion-decision/README.md) | done |
