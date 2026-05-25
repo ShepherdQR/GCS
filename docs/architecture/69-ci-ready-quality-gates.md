@@ -1,6 +1,6 @@
 # CI-Ready Quality Gates
 
-Status: P6.3 showcase HTML figure gate integrated.
+Status: S2/Step 51 opt-in gates integrated.
 
 ## Purpose
 
@@ -103,17 +103,22 @@ Supported flags:
 - `--skip-build`: skip CMake configure/build.
 - `--skip-ctest`: skip CTest gates.
 - `--skip-cli`: skip representative CLI smoke.
+- `--include-task-cards <pathspec>`: validate explicitly selected Agentic
+  task cards through `agentic.task-cards`.
+- `--include-completed-reports <pathspec>`: validate explicitly selected
+  completed-task reports through `agentic.completed-task-reports`.
+- `--include-fixture-library`: run the focused Step 51 promoted
+  fixture-library gate without adding it to the default sequence.
 - `--continue-on-failure`: collect all failures before returning.
 
 CI jobs should prefer the default command. Narrow skips are intended for
 debugging or staged jobs, not for final merge gates.
 
-## Planned Agentic Artifact Opt-In Gates
+## Opt-In Agentic Artifact Gates
 
-S2-01 designs, but does not yet implement, two opt-in Agentic SE artifact
-gates:
+S2-02 and S2-03 implement two opt-in Agentic SE artifact gates:
 
-| Planned flag | Planned gate ID | Purpose |
+| Flag | Gate ID | Purpose |
 | --- | --- | --- |
 | `--include-task-cards <pathspec>` | `agentic.task-cards` | Validate explicitly named task cards. |
 | `--include-completed-reports <pathspec>` | `agentic.completed-task-reports` | Validate explicitly named completed-task reports. |
@@ -124,6 +129,21 @@ task cards or completed-task reports yet.
 
 Design source:
 `docs/agentic/quality-gate-opt-in-policy.md`.
+
+## Step 51 Fixture-Library Gate
+
+Step 51 adds a focused promoted fixture-library gate:
+
+```bat
+python tools\scene_generation\fixture_library_gate.py --gcs-exe out\build\clang-ninja\GCS.exe
+python tools\agentic_design\agentic_toolkit.py run-quality-gates --include-fixture-library
+```
+
+The gate reads `fixtures/scene/milestone/manifest.json` and
+`fixtures/scene/counterexamples/manifest.json`, verifies canonical scene
+digests, runs each promoted scene through the CLI, and checks expected exit
+code, status, accepted flag, and obstruction evidence. It remains opt-in until
+the fixture library proves stable enough for default quality-gate coverage.
 
 ## Acceptance Contract
 
@@ -150,4 +170,8 @@ A change is Step 18 complete when:
   report CLI fixtures are part of the default gate;
 - the implementation roadmap records the latest quality-gate extension step;
 - runtime replay-boundary and replay-consumer tests remain in the public
-  evidence-chain sentinel.
+  evidence-chain sentinel;
+- Agentic artifact gates remain explicit pathspec includes until legacy policy
+  exists;
+- the promoted fixture-library gate can be selected without broadening the
+  default gate.

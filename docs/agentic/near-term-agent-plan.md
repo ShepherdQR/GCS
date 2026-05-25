@@ -35,6 +35,9 @@ auditable, and useful in real project work.
   the saved replay evidence report artifact, S3-02 added a negative E001 eval,
   S1-04 defined the low-risk chat-only boundary, and Step 50 kept saved replay
   evidence as a CLI/report artifact for now.
+- S2-02 and S2-03 have implemented opt-in task-card and completed-report
+  include gates. Step 51 has implemented a focused promoted fixture-library
+  gate. I003/I004 now have conservative seed packages and remain seed roles.
 
 ## Execution Principle
 
@@ -59,6 +62,7 @@ Goal: keep agentic roadmaps aligned with implementation reality.
 | A6 | Record S1-05 and Step 49 completion, then move the queue to S3-02, S1-04, and Step 50. | done in this plan | S1-05 calibration note and Step 49 archive. |
 | A7 | Record S3-02, S1-04, and Step 50 completion, then move the queue to S2-01, S3-04, S4-05, and Step 51. | done in this plan | Negative eval, low-risk boundary, Step 50 archive, and roadmap C008 update. |
 | A8 | Record S2-01 opt-in gate policy completion, then move Phase 2 to S2-02. | done in this plan | `quality-gate-opt-in-policy.md` and roadmap C009 update. |
+| A9 | Record S2-02, S2-03, Step 51, and I003/I004 seed-package integration. | done in this plan | `agile-pdca-roadmap.md` C012 update. |
 
 Decision rule: do not fabricate lifecycle evidence. If no task card or archive
 exists, mark it as an escaped lifecycle sample and use the next high-risk task
@@ -79,7 +83,7 @@ at least one eval that can fail.
 | B6 | Add invented-causality eval for `裁缝`. | done in this plan | `002-tailor-stitch-timeline/evals/refuse-invented-causality.md` |
 | B7 | Add a real filled example for `刀匠`. | done in this plan | Step 47 lifecycle forging note. |
 | B8 | Add a real filled example for `裁缝`. | done in local stitch | `002-tailor-stitch-timeline/examples/2026-05-24-local-repo-stitch-timeline.md` |
-| B9 | Add similar prompt/template/eval packages for I003 and I004 if a real visual task invokes them. | pending | Visual-system institutional-agent packages. |
+| B9 | Add similar prompt/template/eval packages for I003 and I004 if a real visual task invokes them. | done in this plan | I003/I004 prompts, templates, evals, and Figure 72 seed examples. |
 
 Definition of done for B: each core seed agent can be invoked by reading its
 README plus `prompts/invoke.md`, can emit a structured artifact using its
@@ -105,9 +109,9 @@ task.
 | ID | Task | Status | Output |
 | --- | --- | --- | --- |
 | D1 | Design `--include-task-cards` and `--include-completed-reports`. | done in this plan | `docs/agentic/quality-gate-opt-in-policy.md`. |
-| D2 | Add task-card validator tests for missing fields and high-risk gates. | next | `tests/tools/test_agentic_toolkit.py` cases. |
-| D3 | Add completed-report validator tests for new reports only. | pending | Tool tests and migration note. |
-| D4 | Define legacy archive exemption or migration policy. | pending | `docs/completed-tasks/README.md` update. |
+| D2 | Add task-card validator tests for missing fields and high-risk gates. | done in this plan | `tests/tools/test_agentic_toolkit.py` cases and `agentic.task-cards`. |
+| D3 | Add completed-report validator tests for new reports only. | done in this plan | `tests/tools/test_agentic_toolkit.py` cases and `agentic.completed-task-reports`. |
+| D4 | Define legacy archive exemption or migration policy. | next | `docs/completed-tasks/README.md` update. |
 
 ## Workstream E: Fuzzy Description To Agent Package
 
@@ -122,16 +126,13 @@ the generator protocol.
 
 ## Immediate Next Task
 
-Start with S2-02 for Agentic SE tooling, or Step 51 for the next GCS
-implementation candidate. Visual institutional agents should receive more
-artifacts only when a real UI or figure task invokes them:
+Start with S2-04 for Agentic SE tooling. Choose the next GCS implementation
+candidate after the parallel item 4 session lands:
 
-1. Add task-card include tests and then implement `--include-task-cards`.
+1. Define legacy archive exemption or migration policy.
 2. Keep E001 out of default quality gates until S2-05.
-3. Add I003/I004 prompt/template/eval/example packages only from real visual
-   review work.
-4. Execute Step 51 fixture-library gating after promoted scene expected
-   outcomes are explicit.
+3. Rerun I003/I004 only on rendered visual artifacts before promotion.
+4. Review the parallel item 4 output before claiming the next solver step.
 
 ## Superseded Immediate Task Note
 

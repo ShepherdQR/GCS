@@ -57,6 +57,21 @@ Invoke this role when:
 - Do not approve a dense figure only because its XML or structural QA passes.
 - Do not require decorative polish that weakens solver evidence.
 
+## Seed Artifact Package
+
+This role now has a conservative seed package created from the first explicit
+visual-review artifact request on 2026-05-25:
+
+- `prompts/invoke.md` for scoped art-direction invocation;
+- `templates/visual-review-report.md` for severity-ordered review output;
+- `evals/refuse-final-approval-without-rendered-artifact.md` for refusal
+  behavior;
+- `examples/2026-05-25-figure72-seed-art-direction-review.md` as one real
+  Figure 72 based seed example.
+
+Status remains `seed institutional agent`. The package is useful enough to
+reuse, but one real example does not make the role practiced.
+
 ## Seed Prompt
 
 ```text

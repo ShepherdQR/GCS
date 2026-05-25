@@ -1,6 +1,6 @@
 # Agentic Artifact Opt-In Gate Policy
 
-Status: S2-01 design complete.
+Status: S2-02 and S2-03 implemented.
 
 ## Purpose
 
@@ -9,15 +9,15 @@ as code, but they should not become default ceremony for every small edit. This
 policy designs opt-in gates for task cards and completed-task reports before
 any default enforcement.
 
-## Proposed Flags
+## Implemented Flags
 
-Add these flags to `python tools\agentic_design\agentic_toolkit.py
-run-quality-gates` in later S2 implementation work:
+These flags are implemented in `python tools\agentic_design\agentic_toolkit.py
+run-quality-gates`:
 
-| Flag | Gate ID | Validator | Scope |
+| Flag | Gate ID | Validator command | Scope |
 | --- | --- | --- | --- |
-| `--include-task-cards <pathspec>` | `agentic.task-cards` | `validate-task-card` | Explicit task-card files or globs. |
-| `--include-completed-reports <pathspec>` | `agentic.completed-task-reports` | `validate-completed-task-report` | Explicit completed-task `README.md` files or globs. |
+| `--include-task-cards <pathspec>` | `agentic.task-cards` | `validate-task-card-includes` | Explicit task-card files, directories, or globs. |
+| `--include-completed-reports <pathspec>` | `agentic.completed-task-reports` | `validate-completed-report-includes` | Explicit completed-task `README.md` files, directories, or globs. |
 
 Pathspec rules:
 
@@ -62,6 +62,8 @@ Direct validators remain valid for focused checks:
 ```bat
 python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\<task>.md
 python tools\agentic_design\agentic_toolkit.py validate-completed-task-report docs\completed-tasks\<task>\README.md
+python tools\agentic_design\agentic_toolkit.py validate-task-card-includes docs\agentic\tasks\<task>.md
+python tools\agentic_design\agentic_toolkit.py validate-completed-report-includes docs\completed-tasks\<task>
 ```
 
 ## Gate Semantics
@@ -78,11 +80,16 @@ Task-card gate:
 Completed-report gate:
 
 - runs `validate-completed-task-report` on expanded completed-task reports;
-- does not score by default in S2-01 design;
-- may add optional scoring in S2-03 or S2-05 after scorer thresholds are
-  calibrated;
+- does not score by default;
+- may add optional scoring in S2-05 after scorer thresholds are calibrated;
 - validates only explicitly included reports until S2-04 defines legacy
   migration or exemption policy.
+
+Current implementation note:
+
+- `--skip-agentic` skips the default Agentic docs/inventory/skill/dependency
+  checks, but explicitly included task cards and completed reports still run.
+  The include flags are user-selected gates, not a default Agentic sweep.
 
 ## Legacy Policy
 
@@ -103,9 +110,10 @@ Not allowed:
 
 ## Implementation Order
 
-1. S2-02: implement and test `--include-task-cards`.
+1. S2-02: implement and test `--include-task-cards`. Done in
+   `2026-05-25-agentic-se-roadmap-items-1-2-3-5`.
 2. S2-03: implement and test `--include-completed-reports` for new reports
-   only.
+   only. Done in `2026-05-25-agentic-se-roadmap-items-1-2-3-5`.
 3. S2-04: define legacy archive migration or exemption policy.
 4. S2-05: consider default enforcement only after two clean opt-in task
    cycles.

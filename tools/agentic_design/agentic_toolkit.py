@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _datetime
+import glob
 import json
 import os
 import re
@@ -87,6 +88,20 @@ def resolve_repo_or_absolute(path: str | Path) -> Path:
     if candidate.is_absolute():
         return candidate
     return ROOT / candidate
+
+
+def has_glob_syntax(pathspec: str) -> bool:
+    return any(char in pathspec for char in "*?[")
+
+
+def normalize_include_pathspecs(pathspecs: list[str] | tuple[str, ...] | None) -> list[str]:
+    values: list[str] = []
+    for raw in pathspecs or []:
+        for item in str(raw).split(","):
+            item = item.strip()
+            if item:
+                values.append(item)
+    return values
 
 
 def quote_for_powershell(value: str | Path) -> str:
@@ -511,7 +526,77 @@ def validate_task_card_file(path: Path) -> list[CheckResult]:
             results.append(CheckResult(False, f"{path}: missing section {section}"))
 
     if not results:
-        results.append(CheckResult(True, f"task-card: {path.relative_to(ROOT)} passed"))
+        results.append(CheckResult(True, f"task-card: {display_path(path)} passed"))
+    return results
+
+
+def expanded_task_card_candidates(path: Path) -> list[Path]:
+    if path.is_dir():
+        return sorted((candidate for candidate in path.glob("*.md") if candidate.is_file()), key=display_path)
+    if path.is_file():
+        return [path]
+    return []
+
+
+def expanded_completed_report_candidates(path: Path) -> list[Path]:
+    if path.is_dir():
+        readme = path / "README.md"
+        if readme.is_file():
+            return [readme]
+        return sorted((candidate for candidate in path.glob("*/README.md") if candidate.is_file()), key=display_path)
+    if path.is_file():
+        return [path]
+    return []
+
+
+def expand_include_pathspecs(pathspecs: list[str] | tuple[str, ...] | None,
+                             artifact_name: str,
+                             candidate_expander) -> tuple[list[Path], list[CheckResult]]:
+    paths: list[Path] = []
+    errors: list[CheckResult] = []
+    seen: set[str] = set()
+
+    for pathspec in normalize_include_pathspecs(pathspecs):
+        base = resolve_repo_or_absolute(pathspec)
+        raw_matches = [Path(match) for match in sorted(glob.glob(str(base), recursive=True))] if has_glob_syntax(pathspec) else [base]
+        expanded: list[Path] = []
+        for raw_match in raw_matches:
+            expanded.extend(candidate_expander(raw_match))
+
+        if not expanded:
+            errors.append(CheckResult(False, f"{artifact_name}: unmatched include pathspec {pathspec}"))
+            continue
+
+        for path in expanded:
+            key = str(path.resolve())
+            if key in seen:
+                continue
+            seen.add(key)
+            paths.append(path)
+
+    return paths, errors
+
+
+def validate_task_card_includes(pathspecs: list[str] | tuple[str, ...] | None) -> list[CheckResult]:
+    paths, results = expand_include_pathspecs(
+        pathspecs,
+        "task-card-includes",
+        expanded_task_card_candidates,
+    )
+    for path in paths:
+        results.extend(validate_task_card_file(path))
+    return results
+
+
+def validate_completed_report_includes(pathspecs: list[str] | tuple[str, ...] | None,
+                                       require_index: bool = True) -> list[CheckResult]:
+    paths, results = expand_include_pathspecs(
+        pathspecs,
+        "completed-report-includes",
+        expanded_completed_report_candidates,
+    )
+    for path in paths:
+        results.extend(validate_completed_task_report_file(path, require_index=require_index))
     return results
 
 
@@ -887,6 +972,10 @@ def validate_task_card_command(args: argparse.Namespace) -> int:
     return run_checks(results)
 
 
+def validate_task_card_includes_command(args: argparse.Namespace) -> int:
+    return run_checks(validate_task_card_includes(args.pathspecs))
+
+
 COMPLETED_TASK_REQUIRED_SECTIONS = [
     "## Task Objective",
     "## Scope And Non-Goals",
@@ -1095,6 +1184,13 @@ def validate_completed_task_report_command(args: argparse.Namespace) -> int:
     for path in paths:
         results.extend(validate_completed_task_report_file(path, require_index=not args.skip_index_check))
     return run_checks(results)
+
+
+def validate_completed_report_includes_command(args: argparse.Namespace) -> int:
+    return run_checks(validate_completed_report_includes(
+        args.pathspecs,
+        require_index=not args.skip_index_check,
+    ))
 
 
 def score_from_body(body: str, score_if_good: int = 3) -> int:
@@ -1589,6 +1685,20 @@ def build_quality_gate_commands(args: argparse.Namespace,
         ]:
             commands.append(GateCommand(f"agentic.{command}", [python, script, command]))
 
+    task_card_includes = normalize_include_pathspecs(getattr(args, "include_task_cards", []))
+    if task_card_includes:
+        commands.append(GateCommand(
+            "agentic.task-cards",
+            [python, script, "validate-task-card-includes", *task_card_includes],
+        ))
+
+    completed_report_includes = normalize_include_pathspecs(getattr(args, "include_completed_reports", []))
+    if completed_report_includes:
+        commands.append(GateCommand(
+            "agentic.completed-task-reports",
+            [python, script, "validate-completed-report-includes", *completed_report_includes],
+        ))
+
     if not args.skip_python_tools:
         commands.append(GateCommand(
             "python.scene_generation_explorer",
@@ -1666,6 +1776,17 @@ def build_quality_gate_commands(args: argparse.Namespace,
     if not args.skip_build:
         commands.append(GateCommand("cmake.configure", ["cmake", "--preset", args.preset]))
         commands.append(GateCommand("cmake.build", ["cmake", "--build", "--preset", args.preset]))
+
+    if getattr(args, "include_fixture_library", False):
+        commands.append(GateCommand(
+            "python.fixture_library_gate",
+            [
+                python,
+                repo_path("tools/scene_generation/fixture_library_gate.py"),
+                "--gcs-exe",
+                cli_exe,
+            ],
+        ))
 
     if not args.skip_ctest:
         commands.append(GateCommand(
@@ -1758,6 +1879,12 @@ def build_parser() -> argparse.ArgumentParser:
     validate_task = subparsers.add_parser("validate-task-card", help="Validate agentic task-card frontmatter and sections")
     validate_task.add_argument("paths", nargs="+")
 
+    validate_task_includes = subparsers.add_parser(
+        "validate-task-card-includes",
+        help="Validate task cards selected by explicit file, directory, or glob pathspecs",
+    )
+    validate_task_includes.add_argument("pathspecs", nargs="+")
+
     new_task = subparsers.add_parser("new-task-card", help="Create a task-card skeleton")
     new_task.add_argument("--slug", required=True)
     new_task.add_argument("--request", required=True)
@@ -1818,6 +1945,13 @@ def build_parser() -> argparse.ArgumentParser:
     validate_completed.add_argument("paths", nargs="+")
     validate_completed.add_argument("--skip-index-check", action="store_true")
 
+    validate_completed_includes = subparsers.add_parser(
+        "validate-completed-report-includes",
+        help="Validate completed-task reports selected by explicit file, directory, or glob pathspecs",
+    )
+    validate_completed_includes.add_argument("pathspecs", nargs="+")
+    validate_completed_includes.add_argument("--skip-index-check", action="store_true")
+
     score_closure = subparsers.add_parser(
         "score-closure-report",
         help="Emit a heuristic E001 closure-quality score for a completed-task report",
@@ -1866,6 +2000,9 @@ def build_parser() -> argparse.ArgumentParser:
     gates.add_argument("--skip-build", action="store_true")
     gates.add_argument("--skip-ctest", action="store_true")
     gates.add_argument("--skip-cli", action="store_true")
+    gates.add_argument("--include-task-cards", action="append", default=[])
+    gates.add_argument("--include-completed-reports", action="append", default=[])
+    gates.add_argument("--include-fixture-library", action="store_true")
     gates.add_argument("--continue-on-failure", action="store_true")
 
     card = subparsers.add_parser("emit-design-card", help="Emit JSON design card for a module")
@@ -1899,6 +2036,8 @@ def main(argv: list[str]) -> int:
         return run_checks(check_dependencies(inventory))
     if args.command == "validate-task-card":
         return validate_task_card_command(args)
+    if args.command == "validate-task-card-includes":
+        return validate_task_card_includes_command(args)
     if args.command == "new-task-card":
         return new_task_card(args)
     if args.command == "new-worktree-task":
@@ -1907,6 +2046,8 @@ def main(argv: list[str]) -> int:
         return new_completed_task_report(args)
     if args.command == "validate-completed-task-report":
         return validate_completed_task_report_command(args)
+    if args.command == "validate-completed-report-includes":
+        return validate_completed_report_includes_command(args)
     if args.command == "score-closure-report":
         return score_closure_report(args)
     if args.command == "new-phase-step-plan":

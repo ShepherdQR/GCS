@@ -29,9 +29,143 @@ def default_args(**overrides):
         "skip_build": False,
         "skip_ctest": False,
         "skip_cli": False,
+        "include_task_cards": [],
+        "include_completed_reports": [],
+        "include_fixture_library": False,
     }
     args.update(overrides)
     return SimpleNamespace(**args)
+
+
+def task_card_text(**overrides):
+    values = {
+        "task_id": "2026-05-25-valid-agentic-gate",
+        "status": "complete",
+        "request": "Validate one active task card through opt-in quality gates.",
+        "scope": "tool",
+        "risk": "medium",
+        "human_gate_required": "false",
+        "human_gate_reason": "",
+    }
+    values.update(overrides)
+    return f"""---
+task_id: {values["task_id"]}
+status: {values["status"]}
+request: "{values["request"]}"
+scope: {values["scope"]}
+risk: {values["risk"]}
+owning_agent: gcs-quality-steward
+specialist_agents:
+  - none
+affected_contracts:
+  - none
+affected_paths:
+  - tools/agentic_design/agentic_toolkit.py
+required_evidence:
+  - python -m unittest tests.tools.test_agentic_toolkit
+human_gate_required: {values["human_gate_required"]}
+human_gate_reason: "{values["human_gate_reason"]}"
+---
+
+# {values["task_id"]}
+
+## Scope
+
+Validate only explicitly selected active task cards.
+
+## Non-Goals
+
+- Do not validate all historical task cards.
+
+## Context To Read
+
+- `docs/agentic/quality-gate-opt-in-policy.md`
+
+## Acceptance Gates
+
+- Included task cards pass or fail with named evidence.
+
+## Verification Plan
+
+```bat
+python -m unittest tests.tools.test_agentic_toolkit
+```
+
+## Evidence Bundle
+
+- Unit test evidence is recorded by the caller.
+
+## Residual Risks
+
+- Default enforcement remains deferred.
+"""
+
+
+def completed_report_text(task_id="2026-05-25-valid-completed-report-gate"):
+    archive_target = f"docs/completed-tasks/{task_id}/"
+    return f"""---
+task_id: {task_id}
+status: complete
+session_goal: "Validate one active completed-task report through opt-in quality gates."
+archive_target: {archive_target}
+experience_links:
+  - none
+---
+
+# {task_id}
+
+## Task Objective
+
+Validate completed-task include behavior for new reports without selecting the legacy archive tree.
+
+## Scope And Non-Goals
+
+In scope:
+
+- Validate the named report.
+
+Out of scope:
+
+- Do not migrate historical archives.
+
+## Interaction Summary
+
+The test constructs a focused report fixture and validates it through the include helper.
+
+## Work Completed
+
+- Added structural validation coverage for opt-in completed reports.
+
+## Files And Artifacts
+
+- `tools/agentic_design/agentic_toolkit.py`: include gate implementation surface.
+
+## Evidence
+
+```text
+python -m unittest tests.tools.test_agentic_toolkit
+Passed for the focused include report fixture.
+```
+
+## Decisions
+
+- Keep completed-report validation path-scoped until legacy policy exists.
+
+## Skipped Checks And Risks
+
+- Full build is not relevant for this structural report fixture.
+
+## Follow-Up
+
+- Decide later whether closure scoring becomes an optional gate.
+
+## Archive Handoff
+
+- Archive path: `{archive_target}`
+- Related experience:
+  - none
+- Skill, eval, fixture, or tool update needed: none for this fixture.
+"""
 
 
 class AgenticToolkitTests(unittest.TestCase):
@@ -148,6 +282,143 @@ class AgenticToolkitTests(unittest.TestCase):
         self.assertNotIn("cli.replay_evidence_report_artifact", gate_ids)
         self.assertIn("agentic.check-dependencies", gate_ids)
         self.assertIn("cmake.build", gate_ids)
+
+    def test_quality_gate_artifact_includes_are_explicit(self):
+        toolkit = load_toolkit()
+        build_dir = Path("out/build/clang-ninja")
+
+        default_commands = toolkit.build_quality_gate_commands(
+            default_args(),
+            Path("tools/agentic_design/agentic_toolkit.py"),
+            "python",
+            build_dir,
+            build_dir / "GCS.exe",
+        )
+        default_gate_ids = [gate.gate_id for gate in default_commands]
+        self.assertNotIn("agentic.task-cards", default_gate_ids)
+        self.assertNotIn("agentic.completed-task-reports", default_gate_ids)
+
+        commands = toolkit.build_quality_gate_commands(
+            default_args(
+                include_task_cards=["docs/agentic/tasks/current.md"],
+                include_completed_reports=["docs/completed-tasks/current"],
+            ),
+            Path("tools/agentic_design/agentic_toolkit.py"),
+            "python",
+            build_dir,
+            build_dir / "GCS.exe",
+        )
+
+        gate_by_id = {gate.gate_id: gate.command for gate in commands}
+        self.assertIn("agentic.task-cards", gate_by_id)
+        self.assertIn("validate-task-card-includes", gate_by_id["agentic.task-cards"])
+        self.assertIn("docs/agentic/tasks/current.md", gate_by_id["agentic.task-cards"])
+        self.assertIn("agentic.completed-task-reports", gate_by_id)
+        self.assertIn("validate-completed-report-includes", gate_by_id["agentic.completed-task-reports"])
+        self.assertIn("docs/completed-tasks/current", gate_by_id["agentic.completed-task-reports"])
+
+    def test_fixture_library_gate_is_focused_opt_in(self):
+        toolkit = load_toolkit()
+        build_dir = Path("out/build/clang-ninja")
+
+        default_gate_ids = [
+            gate.gate_id
+            for gate in toolkit.build_quality_gate_commands(
+                default_args(),
+                Path("tools/agentic_design/agentic_toolkit.py"),
+                "python",
+                build_dir,
+                build_dir / "GCS.exe",
+            )
+        ]
+        self.assertNotIn("python.fixture_library_gate", default_gate_ids)
+
+        commands = toolkit.build_quality_gate_commands(
+            default_args(include_fixture_library=True),
+            Path("tools/agentic_design/agentic_toolkit.py"),
+            "python",
+            build_dir,
+            build_dir / "GCS.exe",
+        )
+
+        gate_ids = [gate.gate_id for gate in commands]
+        self.assertIn("python.fixture_library_gate", gate_ids)
+        fixture_gate = next(gate for gate in commands if gate.gate_id == "python.fixture_library_gate")
+        command_parts = [str(part).replace("\\", "/") for part in fixture_gate.command]
+        self.assertTrue(any(part.endswith("tools/scene_generation/fixture_library_gate.py") for part in command_parts))
+        self.assertIn("--gcs-exe", fixture_gate.command)
+
+    def test_task_card_include_pathspecs_validate_active_records(self):
+        toolkit = load_toolkit()
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as temp_dir:
+            root = Path(temp_dir)
+            cards = root / "cards"
+            cards.mkdir()
+            valid = cards / "valid.md"
+            valid.write_text(task_card_text(), encoding="utf-8")
+            missing_request = cards / "missing-request.md"
+            missing_request.write_text(
+                task_card_text().replace('request: "Validate one active task card through opt-in quality gates."\n', ""),
+                encoding="utf-8",
+            )
+            high_risk = cards / "high-risk.md"
+            high_risk.write_text(task_card_text(risk="high"), encoding="utf-8")
+            placeholder = cards / "placeholder.md"
+            placeholder.write_text(
+                task_card_text().replace("Unit test evidence is recorded by the caller.", "Record commands run."),
+                encoding="utf-8",
+            )
+
+            results = toolkit.validate_task_card_includes([str(cards)])
+
+        messages = [item.message for item in results]
+        self.assertTrue(any(item.ok and "valid.md passed" in item.message for item in results))
+        self.assertTrue(any("missing frontmatter field request" in message for message in messages))
+        self.assertTrue(any("high-risk tasks require human_gate_required: true" in message for message in messages))
+        self.assertTrue(any("placeholder text remains: Record commands run" in message for message in messages))
+
+    def test_task_card_include_unmatched_pathspec_fails(self):
+        toolkit = load_toolkit()
+
+        results = toolkit.validate_task_card_includes(["docs/agentic/tasks/no-such-card-*.md"])
+
+        self.assertEqual(len(results), 1)
+        self.assertFalse(results[0].ok)
+        self.assertIn("unmatched include pathspec", results[0].message)
+
+    def test_completed_report_include_pathspecs_validate_new_reports(self):
+        toolkit = load_toolkit()
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as temp_dir:
+            root = Path(temp_dir)
+            valid_dir = root / "2026-05-25-valid-completed-report-gate"
+            valid_dir.mkdir()
+            valid_report = valid_dir / "README.md"
+            valid_report.write_text(completed_report_text(), encoding="utf-8")
+            invalid_dir = root / "2026-05-25-invalid-completed-report-gate"
+            invalid_dir.mkdir()
+            invalid_report = invalid_dir / "README.md"
+            invalid_report.write_text(
+                completed_report_text("2026-05-25-invalid-completed-report-gate").replace(
+                    "## Decisions\n\n- Keep completed-report validation path-scoped until legacy policy exists.\n\n",
+                    "",
+                ),
+                encoding="utf-8",
+            )
+
+            results = toolkit.validate_completed_report_includes([str(root)], require_index=True)
+
+        messages = [item.message for item in results]
+        self.assertTrue(any(item.ok and "valid-completed-report-gate/README.md passed" in item.message for item in results))
+        self.assertTrue(any("missing or empty section ## Decisions" in message for message in messages))
+
+    def test_completed_report_include_unmatched_pathspec_fails(self):
+        toolkit = load_toolkit()
+
+        results = toolkit.validate_completed_report_includes(["docs/completed-tasks/no-such-report-*"])
+
+        self.assertEqual(len(results), 1)
+        self.assertFalse(results[0].ok)
+        self.assertIn("unmatched include pathspec", results[0].message)
 
     def test_phase_step_plan_template_contains_e002_frontmatter(self):
         toolkit = load_toolkit()

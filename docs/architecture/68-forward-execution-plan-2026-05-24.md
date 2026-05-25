@@ -1341,6 +1341,8 @@ Completed outcome:
 
 ### Step 51: Promoted Fixture Library Gate
 
+Status: complete as of 2026-05-25.
+
 Goal:
 
 - Turn promoted milestone and counterexample scene fixtures into repeatable
@@ -1372,6 +1374,16 @@ Exit criteria:
 - Negative promoted scenes fail with expected status and report evidence.
 - No runtime replay evidence boundary changes are introduced.
 
+Delivered:
+
+- Added `tools/scene_generation/fixture_library_gate.py`.
+- Added `tests/tools/test_fixture_library_gate.py`.
+- Added `run-quality-gates --include-fixture-library` as an explicit focused
+  selection.
+- Verified the gate with the current `GCS.exe`; it passed for 3 promoted
+  milestone/counterexample scenes.
+- Kept the default quality gate unchanged.
+
 ## Reassessment Protocol
 
 After each step:
@@ -1390,13 +1402,14 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 50 update:
+As of the Step 51 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 50 have completed-step summaries in the roadmap and current
+- Steps 1 through 51 have completed-step summaries in the roadmap and current
   progress documents.
 - Steps 31 through 51 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
-- Step 51 is registered as the next fixture-library quality evidence step.
+- The next implementation candidate should be chosen after the parallel item 4
+  session lands, so this document does not claim a new solver step yet.
 

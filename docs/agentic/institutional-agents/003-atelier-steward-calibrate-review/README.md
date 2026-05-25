@@ -55,6 +55,20 @@ Invoke this role when:
 - Do not accept dense figure work without a spec, generated artifact, and QA
   result unless it is explicitly labeled as a prototype.
 
+## Seed Artifact Package
+
+This role now has a conservative seed package created from the first explicit
+visual-governance artifact request on 2026-05-25:
+
+- `prompts/invoke.md` for scoped convention-fit invocation;
+- `templates/convention-fit-report.md` for the review output;
+- `evals/refuse-vibe-only-governance.md` for refusal behavior;
+- `examples/2026-05-25-figure72-convention-fit-seed-review.md` as one real
+  Figure 72 based seed example.
+
+Status remains `seed institutional agent`. The package is useful enough to
+reuse, but one real example does not make the role practiced.
+
 ## Seed Prompt
 
 ```text

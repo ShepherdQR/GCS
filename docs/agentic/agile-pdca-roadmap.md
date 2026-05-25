@@ -23,19 +23,20 @@ Current task counts:
 | Phase | Done | Next | Pending | Main remaining question |
 | --- | ---: | ---: | ---: | --- |
 | Phase 1: Lifecycle Closure | 6 | 0 | 0 | How often should escaped chat-only work be audited for drift? |
-| Phase 2: Quality-Gate Adoption | 1 | 1 | 3 | Which opt-in artifact gate should be implemented first? |
+| Phase 2: Quality-Gate Adoption | 3 | 1 | 1 | What legacy archive migration or exemption policy is acceptable? |
 | Phase 3: E001 Closure Experience Validation | 4 | 0 | 0 | How soon should E001 checks move from skill guidance into optional or default gates? |
-| Phase 4: Institutional Agents Become Verifiable | 5 | 0 | 0 | Which visual seed agent should get real artifacts first? |
+| Phase 4: Institutional Agents Become Verifiable | 6 | 0 | 0 | When should I003/I004 be rerun on live rendered artifacts before promotion? |
 
 Priority order:
 
-1. Implement S2-02 task-card include tests before wiring default behavior.
-2. Use the next real UI or figure task to produce I003/I004 artifacts instead
-   of promoting visual seed roles speculatively.
-3. Implement S2-03 completed-report include design only after task-card include
-   tests are stable.
-4. Keep Step 51 fixture-library gating separate from Agentic SE gates until
-   promoted fixture expectations are explicit.
+1. Define S2-04 legacy archive migration or exemption policy before any
+   default artifact validation.
+2. Run at least two clean opt-in artifact-gate cycles before S2-05 considers
+   default enforcement.
+3. Choose the next implementation candidate after the parallel item 4 session
+   lands.
+4. Rerun I003/I004 on a live rendered UI or figure artifact before promoting
+   either visual role beyond seed.
 
 ## Phase Analysis Snapshot
 
@@ -58,17 +59,21 @@ Stage conclusion:
 
 ### Phase 2 Analysis
 
-Phase 2 has started with opt-in design. S2-01 kept default enforcement
-deferred, defined path-scoped include flags, and preserved legacy archive
-exemptions. The right next move is S2-02: implement task-card include tests
-before completed-report gate behavior.
+Phase 2 has moved from opt-in design into executable gates. S2-01 kept
+default enforcement deferred; S2-02 implemented task-card include behavior and
+tests; S2-03 implemented completed-report include behavior for explicitly
+selected new reports. Default `run-quality-gates` still does not bulk-scan
+legacy Agentic artifacts.
 
 Stage conclusion:
 
-- S2-01 design is complete.
-- Implement `--include-task-cards` first with unit tests and no default
-  enforcement.
-- Keep legacy archives exempt until a migration decision exists.
+- S2-01 through S2-03 are complete.
+- `--include-task-cards` and `--include-completed-reports` are opt-in and
+  path-scoped.
+- S2-04 is now the next Phase 2 task: define legacy archive migration or
+  exemption policy.
+- Keep E001 closure scoring out of the completed-report gate until S2-05
+  decides whether that promotion is justified.
 
 ### Phase 3 Analysis
 
@@ -91,15 +96,16 @@ Stage conclusion:
 Institutional agents completed their first reassessment. `刀匠` and `裁缝`
 now have invoke prompts, templates, refusal evals, and multiple real examples,
 so S4-05 upgrades them to practiced promoted seed roles. Atelier Steward and
-Art Director remain seed roles until a real UI or figure task creates
-prompt/template/eval/example artifacts.
+Art Director now have conservative seed prompt/template/eval/example packages
+from a real Figure 72 visual-governance artifact request, but they remain seed
+roles.
 
 Stage conclusion:
 
 - Freeze new institutional-agent creation for now.
 - Treat Bladesmith and Tailor as practiced promoted seed roles.
-- Keep Atelier Steward and Art Director at seed until real visual review
-  evidence exists.
+- Keep Atelier Steward and Art Director at seed until a live rendered visual
+  review produces stronger evidence.
 
 ## Operating Adjustments
 
@@ -169,9 +175,9 @@ Backlog:
 | ID | Task | Status | Evidence |
 | --- | --- | --- | --- |
 | S2-01 | Design `--include-task-cards` and `--include-completed-reports` quality-gate policy. | done | `quality-gate-opt-in-policy.md` and CI gate docs update. |
-| S2-02 | Add task-card validation tests for valid, missing-field, high-risk-without-gate, and placeholder cases. | next | `tests/tools/test_agentic_toolkit.py`. |
-| S2-03 | Add completed-report validation tests for new reports only. | pending | Tool tests and migration note. |
-| S2-04 | Define legacy archive migration or exemption policy. | pending | `docs/completed-tasks/README.md` update. |
+| S2-02 | Add task-card validation tests for valid, missing-field, high-risk-without-gate, and placeholder cases. | done | `tests/tools/test_agentic_toolkit.py`, `agentic.task-cards`. |
+| S2-03 | Add completed-report validation tests for new reports only. | done | `tests/tools/test_agentic_toolkit.py`, `agentic.completed-task-reports`. |
+| S2-04 | Define legacy archive migration or exemption policy. | next | `docs/completed-tasks/README.md` update. |
 | S2-05 | Promote opt-in checks into default gate only after two clean task cycles. | pending | PDCA evidence from Phase 1. |
 
 ## Phase 3: E001 Closure Experience Validation
@@ -218,6 +224,7 @@ Backlog:
 | S4-03 | Add eval for refusing unsupported generalization. | done | Eval seed. |
 | S4-04 | Add eval for refusing invented timeline causality. | done | Eval seed. |
 | S4-05 | Reassess candidate institutional agents after three real closures. | done | `institutional-agents/2026-05-25-s4-05-reassessment.md`. |
+| S4-06 | Add I003/I004 visual seed packages from a real visual-governance artifact request. | done | I003/I004 prompts, templates, evals, and Figure 72 seed examples. |
 
 ## Current PDCA Cycle
 
@@ -636,21 +643,61 @@ Act:
 - S2-02 is now the next Agentic SE implementation task.
 - Step 51 remains the next GCS implementation candidate.
 
+### C012: Agentic SE Roadmap Items 1, 2, 3, And 5
+
+Plan:
+
+- execute S2-02, S2-03, Step 51, and I003/I004 seed-package integration;
+- leave roadmap item 4 to the parallel conversation;
+- keep default quality gates stable while adding explicit opt-in selections;
+- close with task card, completed-task archive, roadmap update, and
+  Bladesmith lesson.
+
+Do:
+
+- added `--include-task-cards` and `validate-task-card-includes`;
+- added `--include-completed-reports` and
+  `validate-completed-report-includes`;
+- added `tools/scene_generation/fixture_library_gate.py`;
+- added `run-quality-gates --include-fixture-library`;
+- integrated I003/I004 prompt, template, eval, and Figure 72 seed examples
+  from the parallel agent while preserving seed status.
+
+Check:
+
+- `python -m unittest tests.tools.test_agentic_toolkit` passed 12 tests;
+- `python -m unittest tests.tools.test_fixture_library_gate` passed 3 tests;
+- `python tools\scene_generation\fixture_library_gate.py --gcs-exe out\build\clang-ninja\GCS.exe`
+  passed for 3 promoted scenes;
+- opt-in task-card and completed-report gates passed on this task's artifacts;
+- completed-task validation, closure score, and docs validation passed.
+
+Act:
+
+- S2-02 and S2-03 are complete.
+- Step 51 is complete and remains opt-in.
+- S4-06 is complete, but I003/I004 stay seed until a live rendered visual
+  artifact is reviewed.
+- S2-04 is the next Agentic SE task.
+- The next solver implementation candidate should be chosen after the
+  parallel item 4 session lands.
+
 ## Next Agile Task
 
-S2-02 is now the next Agentic SE implementation task, while Step 51 remains the
-next GCS implementation candidate:
+S2-04 is now the next Agentic SE implementation task. The next GCS
+implementation candidate should be chosen after the parallel item 4 session
+lands:
 
-1. Add task-card include tests before implementing completed-report includes.
-2. Keep E001 out of default gates until S2-05.
-3. Add I003/I004 artifacts only when a real visual task invokes them.
-4. Execute Step 51 only after promoted fixture expected outcomes are explicit.
+1. Define legacy archive migration or exemption policy.
+2. Run two clean opt-in artifact-gate cycles before considering S2-05.
+3. Keep E001 closure scoring out of default gates until S2-05.
+4. Rerun I003/I004 on live rendered visual evidence before promotion.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S2-02 task-card include tests | S2-01 defined pathspec policy; implementation should start with task cards. | Unit tests for valid, missing-field, high-risk-without-gate, and unmatched include cases. |
-| 2 | S2-03 completed-report include tests | E001 is active, but completed-report gates still need new-report-only implementation. | Unit tests for explicit completed-report includes without legacy tree validation. |
-| 3 | Step 51 promoted fixture-library gate | Promoted scene fixtures need repeatable expected-outcome evidence. | Focused fixture gate selected or implemented without broad default expansion. |
-| 4 | I003/I004 first real artifact | Visual institutional agents remain seed until used on a real UI or figure task. | Prompt/template/eval/example package for the invoked role only. |
+| 1 | S2-04 legacy archive policy | S2-02/S2-03 are executable, but default enforcement needs an exemption story. | Completed-task index or policy note defines legacy migration/exemption. |
+| 2 | Two opt-in gate cycles | S2-05 needs evidence before any default promotion. | Two completed task archives cite successful include-gate evidence. |
+| 3 | Parallel item 4 integration review | Another session owns item 4; this roadmap should not overwrite it. | Review and merge that session's artifacts when available. |
+| 4 | I003/I004 rendered-artifact review | Seed packages exist, but live visual evidence is still needed. | Atelier and Art Director reports against rendered HTML/PNG/PDF. |

@@ -654,16 +654,29 @@ Delivered:
 - Deferred diagnostics packaging because runtime transaction traces are audit
   evidence and should not be absorbed into diagnostic report ownership.
 
-## Next Step 51
+## Completed Step 51
 
-The next implementation step should turn promoted milestone and
-counterexample scene fixtures into a focused fixture-library gate. The gate
-should validate canonical JSON loading and expected CLI outcomes for accepted,
-warning, and negative promoted scenes before any default quality-gate expansion.
+Step 51 turned promoted milestone and counterexample scene fixtures into a
+focused fixture-library gate.
+
+Delivered:
+
+- `tools/scene_generation/fixture_library_gate.py` validates the promoted
+  milestone and counterexample manifests.
+- The gate checks canonical scene digests and expected CLI exit code, status,
+  accepted flag, and obstruction evidence.
+- `tests/tools/test_fixture_library_gate.py` covers passing fixture outcomes,
+  digest drift, and CLI status drift.
+- `run-quality-gates --include-fixture-library` selects the focused gate
+  without adding it to the default sequence.
 
 The registered forward plan is persisted in
 `docs/architecture/68-forward-execution-plan-2026-05-24.md`. Steps 1 through
-50 are registered as completed in the implementation roadmap; Steps 31 through
+51 are registered as completed in the implementation roadmap; Steps 31 through
 51 are expanded with detailed goal, expected shape, detailed plan, and exit
-criteria in the forward plan. Step 51 is registered as the next fixture-library
-quality evidence candidate.
+criteria in the forward plan.
+
+## Next Candidate
+
+Choose the next implementation candidate after the parallel item 4 session
+lands. This current-status document intentionally does not claim that work.

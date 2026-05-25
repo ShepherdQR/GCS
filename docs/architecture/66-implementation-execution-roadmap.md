@@ -227,14 +227,13 @@ Status legend: `done`, `in_progress`, `pending`.
 50. `done` - review the saved replay evidence report workflow and decide that
     the report remains a CLI/report artifact until a concrete GUI or
     diagnostics consumer is justified.
-51. `pending` - turn promoted milestone and counterexample scene fixtures into
+51. `done` - turn promoted milestone and counterexample scene fixtures into
     a repeatable fixture-library gate with explicit expected CLI outcomes.
 
 Next registered candidate:
 
-- Complete Step 51 by validating the promoted milestone and counterexample
-  scene fixtures through a focused gate before expanding default quality-gate
-  coverage.
+- Choose the next implementation candidate after the parallel item 4 session
+  lands; do not overwrite that session's work from this roadmap update.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
@@ -1766,6 +1765,29 @@ Reassessment after Step 50:
   newly promoted milestone and counterexample scene assets.
 - Step 51 should make accepted, warning, and negative promoted scenes
   repeatable quality evidence before any broader default-gate expansion.
+
+## Promoted Fixture Library Gate Step
+
+Implemented scope:
+
+- Added `tools/scene_generation/fixture_library_gate.py`.
+- Added `tests/tools/test_fixture_library_gate.py`.
+- Added `run-quality-gates --include-fixture-library` as an explicit focused
+  gate selection.
+- Validated `fixtures/scene/milestone/manifest.json` and
+  `fixtures/scene/counterexamples/manifest.json`.
+- Checked canonical `gcs-0.3` JSON digests and expected CLI exit code, status,
+  accepted flag, and obstruction evidence for 3 promoted scenes.
+- Kept the default quality-gate sequence unchanged.
+
+Reassessment after Step 51:
+
+- Promoted milestone and counterexample scenes now have repeatable gate
+  evidence without being forced into every default run.
+- Step 51 did not change runtime replay, IO schema, viewer projection, or
+  solver semantics.
+- The next implementation candidate should be chosen after the parallel item 4
+  session lands so this session does not claim or overwrite that work.
 
 ## Damped Numeric Local Solve Step Plan
 
