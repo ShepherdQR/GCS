@@ -231,7 +231,7 @@ Result: master was aligned with origin/master before this final closeout edit;
 unrelated institutional-agent/tooling changes remained in the worktree.
 ```
 
-Known unrelated dirty worktree entries at closeout:
+Known unrelated dirty worktree entries observed at closeout included:
 
 - `docs/agentic/institutional-agents/003-atelier-steward-calibrate-review/`
 - `docs/agentic/institutional-agents/004-art-director-frame-judge/`
@@ -240,5 +240,6 @@ Known unrelated dirty worktree entries at closeout:
 - `docs/agentic/tasks/2026-05-25-gcs-solver-ui-requirements-architecture.md`
 - `tools/scene_generation/fixture_library_gate.py`
 
-These were not part of the spanning-tree task and were intentionally left
-untouched.
+Additional unrelated entries may appear if another local session or background
+workflow is active. These were not part of the spanning-tree task and were
+intentionally left untouched.
