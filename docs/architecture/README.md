@@ -77,6 +77,9 @@ order, not by historical source order. Background research notes live under
      system.
    - `92-gcs-ui-architecture-adjustment-record.md`: 2026-05-25 adjustment that
      reframes the local viewer target as a GCS Solver Evidence Workbench.
+   - `94-repository-audit-statistics-architecture.md`: 2026-05-25 repository
+     audit/statistics architecture for reproducible file, LOC, module,
+     fixture, documentation, and evidence-growth reporting.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

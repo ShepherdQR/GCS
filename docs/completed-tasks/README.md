@@ -31,6 +31,7 @@ evidence, and links to project files.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-25 | [Repository audit statistics architecture](2026-05-25-repository-audit-statistics-architecture/README.md) | done |
 | 2026-05-25 | [UI workbench session closeout](2026-05-25-ui-workbench-session-closeout/README.md) | done |
 | 2026-05-25 | [UI Phase 7 diagnostics overlay](2026-05-25-ui-phase7-diagnostics-overlay/README.md) | done |
 | 2026-05-25 | [GCS commercial architecture and behavior model update](2026-05-25-gcs-commercial-architecture-behavior-model/README.md) | done |
