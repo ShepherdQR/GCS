@@ -108,6 +108,23 @@ Supported flags:
 CI jobs should prefer the default command. Narrow skips are intended for
 debugging or staged jobs, not for final merge gates.
 
+## Planned Agentic Artifact Opt-In Gates
+
+S2-01 designs, but does not yet implement, two opt-in Agentic SE artifact
+gates:
+
+| Planned flag | Planned gate ID | Purpose |
+| --- | --- | --- |
+| `--include-task-cards <pathspec>` | `agentic.task-cards` | Validate explicitly named task cards. |
+| `--include-completed-reports <pathspec>` | `agentic.completed-task-reports` | Validate explicitly named completed-task reports. |
+
+These gates must stay opt-in until S2-04 defines legacy archive migration or
+exemption policy. The default quality gate should not bulk-validate historical
+task cards or completed-task reports yet.
+
+Design source:
+`docs/agentic/quality-gate-opt-in-policy.md`.
+
 ## Acceptance Contract
 
 A change is Step 18 complete when:

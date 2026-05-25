@@ -23,20 +23,19 @@ Current task counts:
 | Phase | Done | Next | Pending | Main remaining question |
 | --- | ---: | ---: | ---: | --- |
 | Phase 1: Lifecycle Closure | 6 | 0 | 0 | How often should escaped chat-only work be audited for drift? |
-| Phase 2: Quality-Gate Adoption | 0 | 1 | 4 | Which checks become opt-in gates before any default enforcement? |
+| Phase 2: Quality-Gate Adoption | 1 | 1 | 3 | Which opt-in artifact gate should be implemented first? |
 | Phase 3: E001 Closure Experience Validation | 3 | 1 | 0 | Should E001 remain an experience or become an installed project skill? |
 | Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
 
 Priority order:
 
-1. Add Phase 2 opt-in checks now that negative eval and chat-only boundary
-   evidence exist.
-2. Decide S3-04 after the Step 50 closure sample confirms E001's
+1. Implement S2-02 task-card include tests before wiring default behavior.
+2. Decide S3-04 after the Step 50 and S2-01 closure samples confirm E001's
    promotion value.
 3. Reassess institutional agents now that `Bladesmith` and `Tailor` each have
    real examples.
-4. Add Phase 2 implementation tests only after S2-01 keeps legacy archives
-   exempt.
+4. Keep completed-report include behavior behind S2-03 until task-card include
+   pathspecs are proven.
 5. Keep Step 51 fixture-library gating separate from Agentic SE gates until
    promoted fixture expectations are explicit.
 
@@ -61,15 +60,16 @@ Stage conclusion:
 
 ### Phase 2 Analysis
 
-Phase 2 should now start with opt-in design. The repository already has
-validation commands, but automatic enforcement can become ceremony or break
-legacy records if it is enabled too early. The right next move is S2-01 gate
-policy design, not default enforcement.
+Phase 2 has started with opt-in design. S2-01 kept default enforcement
+deferred, defined path-scoped include flags, and preserved legacy archive
+exemptions. The right next move is S2-02: implement task-card include tests
+before completed-report gate behavior.
 
 Stage conclusion:
 
-- Start with `--include-task-cards` and `--include-completed-reports` design.
-- Test only new-format artifacts first.
+- S2-01 design is complete.
+- Implement `--include-task-cards` first with unit tests and no default
+  enforcement.
 - Keep legacy archives exempt until a migration decision exists.
 
 ### Phase 3 Analysis
@@ -171,8 +171,8 @@ Backlog:
 
 | ID | Task | Status | Evidence |
 | --- | --- | --- | --- |
-| S2-01 | Design `--include-task-cards` and `--include-completed-reports` quality-gate policy. | next | Tooling plan and docs update. |
-| S2-02 | Add task-card validation tests for valid, missing-field, high-risk-without-gate, and placeholder cases. | pending | `tests/tools/test_agentic_toolkit.py`. |
+| S2-01 | Design `--include-task-cards` and `--include-completed-reports` quality-gate policy. | done | `quality-gate-opt-in-policy.md` and CI gate docs update. |
+| S2-02 | Add task-card validation tests for valid, missing-field, high-risk-without-gate, and placeholder cases. | next | `tests/tools/test_agentic_toolkit.py`. |
 | S2-03 | Add completed-report validation tests for new reports only. | pending | Tool tests and migration note. |
 | S2-04 | Define legacy archive migration or exemption policy. | pending | `docs/completed-tasks/README.md` update. |
 | S2-05 | Promote opt-in checks into default gate only after two clean task cycles. | pending | PDCA evidence from Phase 1. |
@@ -541,18 +541,47 @@ Check:
 Act:
 
 - Step 50 is complete.
-- S2-01 becomes the next Agentic SE tooling design task.
+- At C008 close, S2-01 became the next Agentic SE tooling design task. C009
+  below completes it and moves Phase 2 forward.
 - Step 51 becomes the next GCS implementation candidate after promoted scene
   fixture expectations are made explicit.
 
+### C009: S2-01 Opt-In Gate Policy
+
+Plan:
+
+- design but do not implement `--include-task-cards` and
+  `--include-completed-reports`;
+- keep default quality gates free of bulk legacy archive validation;
+- update quality-gate docs, roadmap, archive, and Bladesmith note.
+
+Do:
+
+- added `docs/agentic/quality-gate-opt-in-policy.md`;
+- proposed pathspec-based flags and future gate IDs;
+- defined unmatched pathspec failure and legacy exemption behavior;
+- recorded S2-02 through S2-05 implementation order.
+
+Check:
+
+- task-card validation passed;
+- completed-task validation passed;
+- closure score passed;
+- docs validation passed.
+
+Act:
+
+- S2-01 is complete.
+- S2-02 is the next Phase 2 implementation task.
+- S3-04 can now use the opt-in policy boundary when deciding E001 promotion.
+
 ## Next Agile Task
 
-S2-01 is the next Agentic SE tooling design task, with Step 51 as the next GCS
-implementation candidate:
+S2-02 is the next Phase 2 implementation task, while S3-04 and S4-05 are the
+next Agentic SE decision tasks:
 
-1. Design Phase 2 quality gates as opt-in now that negative eval evidence
-   exists.
-2. Decide S3-04 after S2-01 clarifies optional gate boundaries.
+1. Add task-card include tests before implementing completed-report includes.
+2. Decide S3-04 using the S2-01 opt-in boundary.
 3. Reassess institutional agents after the latest real closure samples.
 4. Execute Step 51 only after promoted fixture expected outcomes are explicit.
 
@@ -560,7 +589,7 @@ implementation candidate:
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S2-01 opt-in gate design | Negative eval, chat-only boundary, and Step 50 closure sample now clarify useful enforcement. | Gate policy proposal, no default enforcement yet. |
-| 2 | S3-04 E001 promotion decision | E001 now has positive, negative, and compact workflow-decision samples. | Keep as experience, promote to skill, or keep provisional. |
+| 1 | S2-02 task-card include tests | S2-01 defined pathspec policy; implementation should start with task cards. | Unit tests for valid, missing-field, high-risk-without-gate, and unmatched include cases. |
+| 2 | S3-04 E001 promotion decision | E001 now has positive, negative, and compact workflow-decision samples plus an opt-in gate boundary. | Keep as experience, promote to skill, or keep provisional. |
 | 3 | S4-05 institutional-agent reassessment | Bladesmith and Tailor now each have multiple real examples. | Candidate table update after additional real closures. |
 | 4 | Step 51 promoted fixture-library gate | Promoted scene fixtures need repeatable expected-outcome evidence. | Focused fixture gate selected or implemented without broad default expansion. |

@@ -31,6 +31,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
 | `lifecycle-runbook.md` | Action guide for moving from request to push. |
 | `task-to-archive-checklist.md` | Compact closure checklist with a checked Step 47 example. |
+| `quality-gate-opt-in-policy.md` | S2-01 policy for opt-in task-card and completed-report quality gates. |
 | `../research/20260524/ai-agent-git-worktree-workflow-for-gcs.md` | Research-backed policy for multi-session Codex worktree isolation. |
 | `next-queue-forward-plan-2026-05-24.md` | Durable handoff for the immediate queue and later agentic-SE plan after Step 49. |
 | `experience/001-task-scoped-session-closure/calibration/` | E001 closure-score calibration notes comparing machine scores with human review. |

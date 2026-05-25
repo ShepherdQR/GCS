@@ -58,6 +58,7 @@ Goal: keep agentic roadmaps aligned with implementation reality.
 | A5 | Record Step 48 and S1-03 completion, then move the queue to S1-05 and Step 49. | done in this plan | Roadmap C004 update and Step 48 archive. |
 | A6 | Record S1-05 and Step 49 completion, then move the queue to S3-02, S1-04, and Step 50. | done in this plan | S1-05 calibration note and Step 49 archive. |
 | A7 | Record S3-02, S1-04, and Step 50 completion, then move the queue to S2-01, S3-04, S4-05, and Step 51. | done in this plan | Negative eval, low-risk boundary, Step 50 archive, and roadmap C008 update. |
+| A8 | Record S2-01 opt-in gate policy completion, then move Phase 2 to S2-02. | done in this plan | `quality-gate-opt-in-policy.md` and roadmap C009 update. |
 
 Decision rule: do not fabricate lifecycle evidence. If no task card or archive
 exists, mark it as an escaped lifecycle sample and use the next high-risk task
@@ -103,8 +104,8 @@ task.
 
 | ID | Task | Status | Output |
 | --- | --- | --- | --- |
-| D1 | Design `--include-task-cards` and `--include-completed-reports`. | next | Tooling design note. |
-| D2 | Add task-card validator tests for missing fields and high-risk gates. | pending | `tests/tools/test_agentic_toolkit.py` cases. |
+| D1 | Design `--include-task-cards` and `--include-completed-reports`. | done in this plan | `docs/agentic/quality-gate-opt-in-policy.md`. |
+| D2 | Add task-card validator tests for missing fields and high-risk gates. | next | `tests/tools/test_agentic_toolkit.py` cases. |
 | D3 | Add completed-report validator tests for new reports only. | pending | Tool tests and migration note. |
 | D4 | Define legacy archive exemption or migration policy. | pending | `docs/completed-tasks/README.md` update. |
 
@@ -121,12 +122,11 @@ the generator protocol.
 
 ## Immediate Next Task
 
-Start with S2-01, then use the resulting gate policy to decide S3-04 and
-S4-05. Keep Step 51 as the next GCS implementation candidate, separate from
-Agentic SE quality-gate adoption:
+Start with S2-02 or S3-04 depending on whether the next turn should implement
+tooling or make a promotion decision. Keep Step 51 as the next GCS
+implementation candidate, separate from Agentic SE quality-gate adoption:
 
-1. Design `--include-task-cards` and `--include-completed-reports` as opt-in
-   gates.
+1. Add task-card include tests and then implement `--include-task-cards`.
 2. Decide whether E001 should remain an experience, become a project skill, or
    stay provisional.
 3. Reassess institutional agents using the latest Bladesmith and Tailor
