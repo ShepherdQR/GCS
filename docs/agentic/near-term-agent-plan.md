@@ -95,7 +95,7 @@ the templates exist.
 | C1 | Identify two completed archives to score with E001. | done in this plan | C001 and Step 47 are the first candidate pair. |
 | C2 | Score the archives and compare with human review notes. | done in this plan | `experience/001-task-scoped-session-closure/calibration/2026-05-24-s1-05-first-archive-review.md` |
 | C3 | Add one negative eval for archive pollution or false completion. | done in this plan | `experience/001-task-scoped-session-closure/evals/2026-05-25-false-completion-archive-pollution.md`. |
-| C4 | Decide whether to promote E001 into an installed project skill. | next | Promotion decision. |
+| C4 | Decide whether to promote E001 into an installed project skill. | done in this plan | `.codex/skills/task-scoped-session-closer` and E001 promotion decision. |
 
 ## Workstream D: Opt-In Agentic Quality Gates
 
@@ -122,15 +122,14 @@ the generator protocol.
 
 ## Immediate Next Task
 
-Start with S2-02 or S3-04 depending on whether the next turn should implement
-tooling or make a promotion decision. Keep Step 51 as the next GCS
+Start with S4-05 or S2-02 depending on whether the next turn should make an
+institutional-agent decision or implement tooling. Keep Step 51 as the next GCS
 implementation candidate, separate from Agentic SE quality-gate adoption:
 
 1. Add task-card include tests and then implement `--include-task-cards`.
-2. Decide whether E001 should remain an experience, become a project skill, or
-   stay provisional.
-3. Reassess institutional agents using the latest Bladesmith and Tailor
-   examples.
+2. Reassess institutional agents using the active E001 skill plus the latest
+   Bladesmith and Tailor examples.
+3. Keep E001 out of default quality gates until S2-05.
 4. Execute Step 51 fixture-library gating after promoted scene expected
    outcomes are explicit.
 

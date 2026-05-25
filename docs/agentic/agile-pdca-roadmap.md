@@ -24,19 +24,17 @@ Current task counts:
 | --- | ---: | ---: | ---: | --- |
 | Phase 1: Lifecycle Closure | 6 | 0 | 0 | How often should escaped chat-only work be audited for drift? |
 | Phase 2: Quality-Gate Adoption | 1 | 1 | 3 | Which opt-in artifact gate should be implemented first? |
-| Phase 3: E001 Closure Experience Validation | 3 | 1 | 0 | Should E001 remain an experience or become an installed project skill? |
+| Phase 3: E001 Closure Experience Validation | 4 | 0 | 0 | How soon should E001 checks move from skill guidance into optional or default gates? |
 | Phase 4: Institutional Agents Become Verifiable | 4 | 1 | 0 | Can the seed examples stay evidence-bound as more lifecycle samples arrive? |
 
 Priority order:
 
-1. Implement S2-02 task-card include tests before wiring default behavior.
-2. Decide S3-04 after the Step 50 and S2-01 closure samples confirm E001's
-   promotion value.
-3. Reassess institutional agents now that `Bladesmith` and `Tailor` each have
-   real examples.
-4. Keep completed-report include behavior behind S2-03 until task-card include
-   pathspecs are proven.
-5. Keep Step 51 fixture-library gating separate from Agentic SE gates until
+1. Reassess institutional agents now that E001 is an active skill and
+   `Bladesmith` plus `Tailor` each have real examples.
+2. Implement S2-02 task-card include tests before wiring default behavior.
+3. Implement S2-03 completed-report include design only after task-card include
+   tests are stable.
+4. Keep Step 51 fixture-library gating separate from Agentic SE gates until
    promoted fixture expectations are explicit.
 
 ## Phase Analysis Snapshot
@@ -74,20 +72,19 @@ Stage conclusion:
 
 ### Phase 3 Analysis
 
-E001 is promising and now has multiple real closure samples plus a first
-calibration note. C001 scored 38/40 and Step 47 scored 37/40 under S1-05; S3-02
-added a negative eval, and Step 50 added another compact workflow-decision
-closure sample. The next risk is promotion timing: E001 should become a skill
-only if the boundary remains useful without forcing tiny work into archive
-pollution.
+E001 has completed its first validation pass. C001 scored 38/40 and Step 47
+scored 37/40 under S1-05; S3-02 added a negative eval; S1-04 added the
+low-risk escape hatch; S2-01 kept gates opt-in; and S3-04 promoted E001 into
+the active project skill `.codex/skills/task-scoped-session-closer`.
 
 Stage conclusion:
 
 - Use the S1-05 calibration note as the first human-review comparison sample.
 - Treat S3-02 as complete: E001 now has a seed negative eval for false
   completion and archive pollution.
-- S3-04 is ready after S2-01 frames how promotion would interact with optional
-  gates and the low-risk chat-only boundary.
+- Keep E001 as an active skill, not a default quality gate.
+- Let S2-02 through S2-05 decide if any E001 checks become opt-in or default
+  gates.
 
 ### Phase 4 Analysis
 
@@ -197,7 +194,7 @@ Backlog:
 | S3-01 | Use E001 on Step 47 or the next high-risk engineering closure. | done | Step 47 completed-task report and 37/40 closure score. |
 | S3-02 | Add one negative eval for archive pollution or false completion. | done | `experience/001-task-scoped-session-closure/evals/2026-05-25-false-completion-archive-pollution.md`. |
 | S3-03 | Compare scorer output with human review on two archives. | done | S1-05 calibration note. |
-| S3-04 | Decide whether to install a project skill for session closure. | next | Promotion decision record after S1-04. |
+| S3-04 | Decide whether to install a project skill for session closure. | done | `.codex/skills/task-scoped-session-closer` and E001 promotion decision record. |
 
 ## Phase 4: Institutional Agents Become Verifiable
 
@@ -477,7 +474,8 @@ Act:
 - S3-02 is complete.
 - S1-04 is now the next Agentic SE lifecycle task because the negative eval
   must not over-reject tiny low-risk work.
-- S3-04 should wait until S1-04 clarifies the chat-only boundary.
+- At C006 close, S3-04 still needed the S1-04 chat-only boundary before a
+  promotion decision. C010 below completes that decision.
 
 ### C007: S1-04 Low-Risk Chat-Only Boundary
 
@@ -575,21 +573,53 @@ Act:
 - S2-02 is the next Phase 2 implementation task.
 - S3-04 can now use the opt-in policy boundary when deciding E001 promotion.
 
+### C010: S3-04 E001 Skill Promotion Decision
+
+Plan:
+
+- decide whether E001 should remain an experience, become an active project
+  skill, or stay provisional;
+- keep default quality-gate enforcement out of scope;
+- record promotion evidence, boundaries, and follow-up.
+
+Do:
+
+- promoted E001 into `.codex/skills/task-scoped-session-closer`;
+- added an active skill UI metadata file;
+- added a promotion decision record under E001;
+- updated the experience index, roadmap, near-term plan, task card, archive,
+  and completed-task index.
+
+Check:
+
+- skill quick validation was blocked by missing PyYAML in local Python
+  runtimes, and a standard-library skill structure check passed;
+- task-card validation passed;
+- completed-task validation passed;
+- closure score passed;
+- docs validation passed.
+
+Act:
+
+- S3-04 is complete.
+- S4-05 is the next institutional-agent decision task.
+- S2-02 remains the next Phase 2 implementation task.
+
 ## Next Agile Task
 
-S2-02 is the next Phase 2 implementation task, while S3-04 and S4-05 are the
-next Agentic SE decision tasks:
+S4-05 is the next institutional-agent decision task, while S2-02 remains the
+next Phase 2 implementation task:
 
 1. Add task-card include tests before implementing completed-report includes.
-2. Decide S3-04 using the S2-01 opt-in boundary.
-3. Reassess institutional agents after the latest real closure samples.
+2. Reassess institutional agents after E001 active-skill promotion.
+3. Keep E001 out of default gates until S2-05.
 4. Execute Step 51 only after promoted fixture expected outcomes are explicit.
 
 ## Next PDCA Queue
 
 | Order | Task | Why now | Exit condition |
 | --- | --- | --- | --- |
-| 1 | S2-02 task-card include tests | S2-01 defined pathspec policy; implementation should start with task cards. | Unit tests for valid, missing-field, high-risk-without-gate, and unmatched include cases. |
-| 2 | S3-04 E001 promotion decision | E001 now has positive, negative, and compact workflow-decision samples plus an opt-in gate boundary. | Keep as experience, promote to skill, or keep provisional. |
-| 3 | S4-05 institutional-agent reassessment | Bladesmith and Tailor now each have multiple real examples. | Candidate table update after additional real closures. |
+| 1 | S4-05 institutional-agent reassessment | E001 is active and Bladesmith/Tailor now each have multiple real examples. | Candidate table update after additional real closures. |
+| 2 | S2-02 task-card include tests | S2-01 defined pathspec policy; implementation should start with task cards. | Unit tests for valid, missing-field, high-risk-without-gate, and unmatched include cases. |
+| 3 | S2-03 completed-report include tests | E001 is active, but completed-report gates still need new-report-only implementation. | Unit tests for explicit completed-report includes without legacy tree validation. |
 | 4 | Step 51 promoted fixture-library gate | Promoted scene fixtures need repeatable expected-outcome evidence. | Focused fixture gate selected or implemented without broad default expansion. |

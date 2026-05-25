@@ -40,5 +40,5 @@ templates, and agent-facing instructions.
 
 | ID | Experience | Status |
 | --- | --- | --- |
-| E001 | [Task-scoped session closure](001-task-scoped-session-closure/README.md) | promoted |
+| E001 | [Task-scoped session closure](001-task-scoped-session-closure/README.md) | active skill |
 | E002 | [Phase-step summary-update-commit-continue](002-phase-step-summary-update-commit-continue/README.md) | promoted |

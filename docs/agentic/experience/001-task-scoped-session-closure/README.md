@@ -1,11 +1,11 @@
 ---
 experience_id: E001-task-scoped-session-closure
 source: project-practice
-status: promoted
+status: active-skill
 root_cause: ambiguous_task
 affected_modules:
   - agentic_lifecycle
-promotion_target: lifecycle_runbook
+promotion_target: .codex/skills/task-scoped-session-closer
 ---
 
 # E001: Task-Scoped Session Closure
@@ -117,7 +117,8 @@ A session is complete when the following are true:
 
 ## Materials
 
-- Candidate skill: `skills/task-scoped-session-closer/SKILL.md`
+- Active project skill: `.codex/skills/task-scoped-session-closer/SKILL.md`
+- Candidate skill provenance: `skills/task-scoped-session-closer/SKILL.md`
 - Agent role card: `agents/session-closure-agent.md`
 - Report template: `templates/task-execution-report.md`
 - Archive checklist: `templates/archive-checklist.md`
@@ -159,11 +160,18 @@ with the rubric; it should guide review, not replace it.
 - `evals/2026-05-25-false-completion-archive-pollution.md`: seed negative eval
   requiring reviewers to reject false completion and archive pollution.
 
+## Promotion Decisions
+
+- `promotion/2026-05-25-s3-04-skill-promotion-decision.md`: promoted E001 into
+  the active project skill `.codex/skills/task-scoped-session-closer` while
+  keeping default gate enforcement deferred to S2-05.
+
 ## Promotion Path
 
-This experience starts as a promoted process lesson. Future hardening can add:
+This experience is now an active project skill for non-trivial task closure.
+Future hardening can add:
 
 - a task-card field requiring planned archive target for larger tasks;
-- a session-close checklist in module-specific GCS skills;
+- a session-close checklist in module-specific GCS skills where needed;
 - an eval where an agent must identify missing closure evidence before marking
   a task complete.
