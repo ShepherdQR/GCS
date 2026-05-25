@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gcs.local/schemas/pr-audit.schema.json",
+  "title": "GCS PR Audit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "base",
+    "head",
+    "pr_class",
+    "risk_tier",
+    "decision",
+    "task_card",
+    "completed_archive",
+    "affected_contracts",
+    "affected_paths",
+    "evidence",
+    "review_focus",
+    "forbidden_action_check",
+    "findings",
+    "next_action"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "gcs.pr-audit.v1"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO-8601 timestamp in the local runtime timezone."
+    },
+    "base": {
+      "type": "string"
+    },
+    "head": {
+      "type": "string"
+    },
+    "pr_class": {
+      "enum": [
+        "architecture",
+        "solver-contract",
+        "quality-gate",
+        "agentic-process",
+        "scene-exploration",
+        "exploratory",
+        "repair",
+        "docs-only"
+      ]
+    },
+    "risk_tier": {
+      "enum": ["low", "medium", "high"]
+    },
+    "decision": {
+      "enum": [
+        "ready_for_human_review",
+        "needs_author_revision",
+        "needs_human_gate",
+        "exploratory_only",
+        "blocked"
+      ]
+    },
+    "task_card": {
+      "type": ["string", "null"]
+    },
+    "completed_archive": {
+      "type": ["string", "null"]
+    },
+    "affected_contracts": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "affected_paths": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "failed", "skipped"],
+      "properties": {
+        "passed": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "failed": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "skipped": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/skipped_check"}
+        }
+      }
+    },
+    "review_focus": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "forbidden_action_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "merge",
+        "approve",
+        "force_push",
+        "branch_delete",
+        "fixture_promotion"
+      ],
+      "properties": {
+        "merge": {"enum": ["not_performed", "performed", "unknown"]},
+        "approve": {"enum": ["not_performed", "performed", "unknown"]},
+        "force_push": {"enum": ["not_performed", "performed", "unknown"]},
+        "branch_delete": {"enum": ["not_performed", "performed", "unknown"]},
+        "fixture_promotion": {
+          "enum": [
+            "not_performed",
+            "explicitly_authorized",
+            "performed_without_gate",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/finding"}
+    },
+    "next_action": {
+      "enum": [
+        "human_review",
+        "revise",
+        "create_task_card",
+        "run_gate",
+        "split_pr",
+        "close_exploratory"
+      ]
+    }
+  },
+  "$defs": {
+    "skipped_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "reason", "risk"],
+      "properties": {
+        "check": {"type": "string"},
+        "reason": {"type": "string"},
+        "risk": {"type": "string"}
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "category", "subject", "summary"],
+      "properties": {
+        "severity": {"enum": ["P0", "P1", "P2", "P3"]},
+        "category": {
+          "enum": [
+            "boundary",
+            "evidence",
+            "correctness",
+            "security",
+            "maintainability",
+            "docs",
+            "process"
+          ]
+        },
+        "subject": {"type": "string"},
+        "summary": {"type": "string"}
+      }
+    }
+  }
+}

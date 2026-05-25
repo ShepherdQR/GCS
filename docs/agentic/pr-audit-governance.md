@@ -87,6 +87,29 @@ findings:
 next_action: human_review | revise | create_task_card | run_gate | split_pr | close_exploratory
 ```
 
+The machine-readable v1 form is defined at
+`docs/agentic/schemas/pr-audit.schema.json`.
+
+## Toolkit Prototype
+
+Use the first executable audit pass as an advisory reviewer aid:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py audit-pr --base origin/master --head HEAD
+```
+
+The command:
+
+- reads changed paths from Git;
+- infers PR class, risk tier, affected contracts, and review focus;
+- records recommended evidence as skipped unless the caller supplies
+  `--evidence-passed`, `--evidence-failed`, or `--evidence-skipped`;
+- marks forbidden unattended actions as `not_performed`;
+- emits JSON matching `gcs.pr-audit.v1`.
+
+It does not run tests, approve PRs, merge, push, delete branches, promote
+fixtures, or replace human review.
+
 ## Review Rubric
 
 ### Intent Fit

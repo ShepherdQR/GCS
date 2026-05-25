@@ -1,3 +1,4 @@
+import json
 import importlib.util
 import sys
 import tempfile
@@ -347,6 +348,74 @@ class AgenticToolkitTests(unittest.TestCase):
         command_parts = [str(part).replace("\\", "/") for part in fixture_gate.command]
         self.assertTrue(any(part.endswith("tools/scene_generation/fixture_library_gate.py") for part in command_parts))
         self.assertIn("--gcs-exe", fixture_gate.command)
+
+    def test_pr_audit_classifies_agentic_tooling_diff(self):
+        toolkit = load_toolkit()
+
+        audit = toolkit.build_pr_audit(
+            base="origin/master",
+            head="HEAD",
+            changed_paths=[
+                "tools/agentic_design/agentic_toolkit.py",
+                "tests/tools/test_agentic_toolkit.py",
+                "docs/agentic/tasks/2026-05-25-agentic-governance-execution.md",
+                "docs/agentic/schemas/pr-audit.schema.json",
+            ],
+            evidence_passed=[
+                "python -m unittest tests.tools.test_agentic_toolkit",
+                "validate-docs",
+                "validate-task-card for changed task cards",
+            ],
+        )
+
+        self.assertEqual(audit["schema_version"], "gcs.pr-audit.v1")
+        self.assertEqual(audit["pr_class"], "quality-gate")
+        self.assertEqual(audit["risk_tier"], "medium")
+        self.assertEqual(audit["decision"], "ready_for_human_review")
+        self.assertEqual(audit["task_card"], "docs/agentic/tasks/2026-05-25-agentic-governance-execution.md")
+        self.assertEqual(audit["evidence"]["skipped"], [])
+        self.assertIn("Agentic toolkit command surface", audit["affected_contracts"])
+        self.assertEqual(audit["forbidden_action_check"]["merge"], "not_performed")
+
+    def test_pr_audit_flags_fixture_promotion_gate(self):
+        toolkit = load_toolkit()
+
+        audit = toolkit.build_pr_audit(
+            base="origin/master",
+            head="HEAD",
+            changed_paths=["fixtures/scene/generated/new-scene.gcs.json"],
+            task_card="docs/agentic/tasks/2026-05-25-fixture-promotion.md",
+        )
+
+        self.assertEqual(audit["pr_class"], "scene-exploration")
+        self.assertEqual(audit["risk_tier"], "high")
+        self.assertEqual(audit["decision"], "needs_author_revision")
+        self.assertTrue(any(finding["severity"] == "P1" for finding in audit["findings"]))
+        self.assertTrue(any(item["check"] == "focused contract tests or explicit skip risk" for item in audit["evidence"]["skipped"]))
+
+    def test_nightly_index_summarizes_findings_json(self):
+        toolkit = load_toolkit()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runs = Path(temp_dir)
+            run = runs / "2026-05-25"
+            run.mkdir()
+            (run / "findings.json").write_text(
+                json.dumps({
+                    "status": "findings",
+                    "findings": [
+                        {"severity": "P1", "category": "quality_gate"},
+                        {"severity": "P2", "category": "pr_audit"},
+                    ],
+                    "skipped_checks": [{"check": "ctest"}],
+                }),
+                encoding="utf-8",
+            )
+
+            markdown = toolkit.nightly_index_markdown(runs, generated_at="2026-05-25T02:30:00+08:00")
+
+        self.assertIn("| [2026-05-25](2026-05-25/README.md) | findings | 2 | 0 | 1 | 1 | 0 | 1 |", markdown)
+        self.assertIn("| `quality_gate` | 1 |", markdown)
+        self.assertIn("First-two-run calibration is still open", markdown)
 
     def test_task_card_include_pathspecs_validate_active_records(self):
         toolkit = load_toolkit()

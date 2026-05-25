@@ -16,6 +16,7 @@ import re
 import subprocess
 import sys
 import time
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,28 @@ DEFAULT_INVENTORY = ROOT / "tools" / "agentic_design" / "module_inventory.json"
 AGENTIC_TASK_DIR = ROOT / "docs" / "agentic" / "tasks"
 COMPLETED_TASK_DIR = ROOT / "docs" / "completed-tasks"
 E002_EXPERIENCE_DIR = ROOT / "docs" / "agentic" / "experience" / "002-phase-step-summary-update-commit-continue"
+PR_AUDIT_SCHEMA_VERSION = "gcs.pr-audit.v1"
+PR_AUDIT_SCHEMA_PATH = ROOT / "docs" / "agentic" / "schemas" / "pr-audit.schema.json"
+NIGHTLY_RUNS_DIR = ROOT / "docs" / "agentic" / "nightly-runs"
+
+
+PR_CLASS_PRIORITY = {
+    "docs-only": 10,
+    "exploratory": 20,
+    "agentic-process": 40,
+    "architecture": 50,
+    "quality-gate": 60,
+    "scene-exploration": 80,
+    "solver-contract": 90,
+    "repair": 100,
+}
+
+
+RISK_PRIORITY = {
+    "low": 10,
+    "medium": 20,
+    "high": 30,
+}
 
 
 @dataclass(frozen=True)
@@ -70,6 +93,25 @@ def display_path(path: Path) -> str:
         return str(path.relative_to(ROOT)).replace("\\", "/")
     except ValueError:
         return str(path)
+
+
+def normalize_repo_path(value: str | Path) -> str:
+    text = str(value).replace("\\", "/")
+    while text.startswith("./"):
+        text = text[2:]
+    return text.strip("/")
+
+
+def unique_preserve_order(values: list[str] | tuple[str, ...]) -> list[str]:
+    seen: set[str] = set()
+    unique: list[str] = []
+    for value in values:
+        normalized = str(value).strip()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        unique.append(normalized)
+    return unique
 
 
 def read_text(path: Path) -> str:
@@ -1193,6 +1235,401 @@ def validate_completed_report_includes_command(args: argparse.Namespace) -> int:
     ))
 
 
+def pr_path_metadata(path: str) -> tuple[str, str, str]:
+    normalized = normalize_repo_path(path)
+    if normalized.startswith("fixtures/scene/"):
+        return "scene-exploration", "high", "Scene fixture corpus"
+    if normalized.startswith("tools/scene_generation/"):
+        return "scene-exploration", "medium", "Scene generation tooling"
+    if normalized.startswith(("src/gcs/", "apps/gcs_cli/", "tests/gcs/")):
+        return "solver-contract", "high", "Solver public contract or contract tests"
+    if normalized.startswith("python/gcs_viz/"):
+        return "solver-contract", "high", "Viewer bridge and diagnostic projection contract"
+    if normalized in {"CMakeLists.txt", "CMakePresets.json"} or normalized.startswith("cmake/"):
+        return "quality-gate", "high", "Build and quality-gate configuration"
+    if normalized.startswith("tools/agentic_design/"):
+        return "quality-gate", "medium", "Agentic toolkit command surface"
+    if normalized.startswith("tests/tools/"):
+        return "quality-gate", "medium", "Agentic and support-tool tests"
+    if normalized.startswith("docs/architecture/"):
+        return "architecture", "medium", "Architecture design contract"
+    if normalized.startswith(("docs/agentic/", ".codex/skills/")):
+        return "agentic-process", "medium", "Agentic operating layer"
+    if normalized.startswith("docs/research/"):
+        return "exploratory", "low", "Research and exploratory evidence"
+    if normalized.startswith("docs/") or normalized.endswith(".md"):
+        return "docs-only", "low", "Documentation"
+    return "exploratory", "medium", "Unclassified repository path"
+
+
+def infer_pr_class(paths: list[str]) -> str:
+    if not paths:
+        return "exploratory"
+    classes = [pr_path_metadata(path)[0] for path in paths]
+    return max(classes, key=lambda item: PR_CLASS_PRIORITY.get(item, 0))
+
+
+def infer_pr_risk(paths: list[str]) -> str:
+    if not paths:
+        return "medium"
+    risks = [pr_path_metadata(path)[1] for path in paths]
+    return max(risks, key=lambda item: RISK_PRIORITY.get(item, 0))
+
+
+def infer_affected_contracts(paths: list[str]) -> list[str]:
+    contracts = [pr_path_metadata(path)[2] for path in paths]
+    return unique_preserve_order(contracts) or ["none"]
+
+
+def infer_task_card_from_paths(paths: list[str]) -> str | None:
+    for path in paths:
+        normalized = normalize_repo_path(path)
+        if normalized.startswith("docs/agentic/tasks/") and normalized.endswith(".md"):
+            return normalized
+    return None
+
+
+def infer_completed_archive_from_paths(paths: list[str]) -> str | None:
+    for path in paths:
+        normalized = normalize_repo_path(path)
+        match = re.match(r"^(docs/completed-tasks/[^/]+)/README\.md$", normalized)
+        if match:
+            return match.group(1)
+    return None
+
+
+def recommended_pr_evidence(paths: list[str]) -> list[str]:
+    evidence: list[str] = []
+    normalized_paths = [normalize_repo_path(path) for path in paths]
+    if any(path.startswith("docs/agentic/tasks/") for path in normalized_paths):
+        evidence.append("validate-task-card for changed task cards")
+    if any(re.match(r"^docs/completed-tasks/[^/]+/README\.md$", path) for path in normalized_paths):
+        evidence.append("validate-completed-task-report for changed archives")
+        evidence.append("score-closure-report for changed archives")
+    if any(path.startswith(("tools/agentic_design/", "tests/tools/")) for path in normalized_paths):
+        evidence.append("python -m unittest tests.tools.test_agentic_toolkit")
+    if any(path.startswith(("docs/agentic/", "docs/architecture/")) for path in normalized_paths):
+        evidence.append("validate-docs")
+    if any(path.startswith("tools/scene_generation/") for path in normalized_paths):
+        evidence.append("python -m unittest tests.tools.test_scene_generation_explorer")
+    if any(path.startswith(("src/gcs/", "apps/gcs_cli/", "fixtures/scene/", "python/gcs_viz/")) for path in normalized_paths):
+        evidence.append("focused contract tests or explicit skip risk")
+    return unique_preserve_order(evidence)
+
+
+def parse_skipped_evidence(value: str) -> dict[str, str]:
+    parts = value.split("::", 2)
+    if len(parts) != 3:
+        raise ValueError("--evidence-skipped values must use CHECK::REASON::RISK")
+    return {
+        "check": parts[0].strip(),
+        "reason": parts[1].strip(),
+        "risk": parts[2].strip(),
+    }
+
+
+def evidence_item_satisfied(item: str, passed: list[str], failed: list[str], skipped: list[dict[str, str]]) -> bool:
+    haystack = passed + failed + [entry.get("check", "") for entry in skipped]
+    item_lower = item.lower()
+    keys = unique_preserve_order([item_lower, item_lower.split(" for ", 1)[0]])
+    return any(
+        key and (key in candidate.lower() or candidate.lower() in key)
+        for key in keys
+        for candidate in haystack
+    )
+
+
+def build_pr_audit(base: str,
+                   head: str,
+                   changed_paths: list[str],
+                   task_card: str | None = None,
+                   completed_archive: str | None = None,
+                   evidence_passed: list[str] | None = None,
+                   evidence_failed: list[str] | None = None,
+                   evidence_skipped: list[dict[str, str]] | None = None) -> dict[str, Any]:
+    paths = unique_preserve_order([normalize_repo_path(path) for path in changed_paths])
+    pr_class = infer_pr_class(paths)
+    risk = infer_pr_risk(paths)
+    passed = unique_preserve_order(evidence_passed or [])
+    failed = unique_preserve_order(evidence_failed or [])
+    skipped = list(evidence_skipped or [])
+    recommendations = recommended_pr_evidence(paths)
+
+    for item in recommendations:
+        if not evidence_item_satisfied(item, passed, failed, skipped):
+            skipped.append({
+                "check": item,
+                "reason": "audit-pr records recommended evidence but does not execute it",
+                "risk": "review readiness depends on this evidence",
+            })
+
+    task_card = task_card or infer_task_card_from_paths(paths)
+    completed_archive = completed_archive or infer_completed_archive_from_paths(paths)
+    findings: list[dict[str, str]] = []
+
+    if not paths:
+        findings.append({
+            "severity": "P2",
+            "category": "process",
+            "subject": "diff",
+            "summary": "No changed paths were found for the requested base/head range.",
+        })
+    if risk != "low" and not task_card:
+        findings.append({
+            "severity": "P2",
+            "category": "evidence",
+            "subject": "task_card",
+            "summary": "Medium or high risk PR audit should link a task card or justify why one is absent.",
+        })
+    if failed:
+        findings.append({
+            "severity": "P1",
+            "category": "evidence",
+            "subject": "evidence.failed",
+            "summary": "One or more evidence checks are recorded as failed.",
+        })
+    if any(path.startswith("fixtures/scene/") for path in paths):
+        findings.append({
+            "severity": "P1",
+            "category": "process",
+            "subject": "fixtures/scene",
+            "summary": "Scene fixture changes require explicit promotion evidence and a human gate.",
+        })
+    if skipped:
+        findings.append({
+            "severity": "P2",
+            "category": "evidence",
+            "subject": "evidence.skipped",
+            "summary": "Recommended evidence is missing or explicitly skipped.",
+        })
+
+    if not paths:
+        decision = "blocked"
+        next_action = "revise"
+    elif any(item["severity"] in {"P0", "P1"} for item in findings):
+        decision = "needs_author_revision"
+        next_action = "revise"
+    elif risk == "high":
+        decision = "needs_human_gate"
+        next_action = "human_review"
+    elif skipped:
+        decision = "needs_author_revision"
+        next_action = "run_gate"
+    elif pr_class == "exploratory":
+        decision = "exploratory_only"
+        next_action = "close_exploratory"
+    else:
+        decision = "ready_for_human_review"
+        next_action = "human_review"
+
+    return {
+        "schema_version": PR_AUDIT_SCHEMA_VERSION,
+        "generated_at": _datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+        "base": base,
+        "head": head,
+        "pr_class": pr_class,
+        "risk_tier": risk,
+        "decision": decision,
+        "task_card": task_card,
+        "completed_archive": completed_archive,
+        "affected_contracts": infer_affected_contracts(paths),
+        "affected_paths": paths,
+        "evidence": {
+            "passed": passed,
+            "failed": failed,
+            "skipped": skipped,
+        },
+        "review_focus": infer_affected_contracts(paths)[:5] + paths[:10],
+        "forbidden_action_check": {
+            "merge": "not_performed",
+            "approve": "not_performed",
+            "force_push": "not_performed",
+            "branch_delete": "not_performed",
+            "fixture_promotion": "not_performed",
+        },
+        "findings": findings,
+        "next_action": next_action,
+    }
+
+
+def git_name_only(args: list[str]) -> list[str]:
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(completed.stderr.strip() or f"git {' '.join(args)} failed")
+    return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+
+
+def changed_paths_for_audit(base: str, head: str, include_worktree: bool = False) -> list[str]:
+    try:
+        paths = git_name_only(["diff", "--name-only", f"{base}...{head}"])
+    except RuntimeError:
+        paths = git_name_only(["diff", "--name-only", base, head])
+    if include_worktree:
+        paths.extend(git_name_only(["diff", "--name-only"]))
+        paths.extend(git_name_only(["diff", "--cached", "--name-only"]))
+        paths.extend(git_name_only(["ls-files", "--others", "--exclude-standard"]))
+    return unique_preserve_order([normalize_repo_path(path) for path in paths])
+
+
+def audit_pr_command(args: argparse.Namespace) -> int:
+    skipped = [parse_skipped_evidence(value) for value in args.evidence_skipped]
+    audit = build_pr_audit(
+        base=args.base,
+        head=args.head,
+        changed_paths=changed_paths_for_audit(args.base, args.head, args.include_worktree),
+        task_card=args.task_card or None,
+        completed_archive=args.completed_archive or None,
+        evidence_passed=args.evidence_passed,
+        evidence_failed=args.evidence_failed,
+        evidence_skipped=skipped,
+    )
+    text = json.dumps(audit, indent=2, sort_keys=True) + "\n"
+    if args.output:
+        target = resolve_repo_or_absolute(args.output)
+        write_text(target, text, args.force)
+        print(f"wrote {display_path(target)}")
+    else:
+        print(text, end="")
+    return 0
+
+
+def summarize_nightly_run(run_dir: Path) -> dict[str, Any]:
+    findings_path = run_dir / "findings.json"
+    summary: dict[str, Any] = {
+        "date": run_dir.name,
+        "path": display_path(run_dir),
+        "status": "missing_findings_json",
+        "findings_count": 0,
+        "severity_counts": {},
+        "category_counts": {},
+        "skipped_checks_count": 0,
+    }
+    if not findings_path.exists():
+        return summary
+
+    try:
+        data = json.loads(read_text(findings_path))
+    except json.JSONDecodeError as exc:
+        summary["status"] = "invalid_findings_json"
+        summary["error"] = str(exc)
+        return summary
+
+    findings = data.get("findings", [])
+    skipped_checks = data.get("skipped_checks", [])
+    severity_counts = Counter(str(item.get("severity", "unknown")) for item in findings if isinstance(item, dict))
+    category_counts = Counter(str(item.get("category", "unknown")) for item in findings if isinstance(item, dict))
+    summary.update({
+        "status": data.get("status", "unknown"),
+        "findings_count": len(findings) if isinstance(findings, list) else 0,
+        "severity_counts": dict(sorted(severity_counts.items())),
+        "category_counts": dict(sorted(category_counts.items())),
+        "skipped_checks_count": len(skipped_checks) if isinstance(skipped_checks, list) else 0,
+    })
+    return summary
+
+
+def nightly_index_markdown(runs_dir: Path, generated_at: str | None = None) -> str:
+    generated_at = generated_at or _datetime.datetime.now().astimezone().isoformat(timespec="seconds")
+    run_dirs = sorted(
+        [path for path in runs_dir.iterdir() if path.is_dir() and re.match(r"^\d{4}-\d{2}-\d{2}$", path.name)],
+        key=lambda path: path.name,
+        reverse=True,
+    ) if runs_dir.exists() else []
+    summaries = [summarize_nightly_run(path) for path in run_dirs]
+
+    lines = [
+        "# GCS Nightly Diagnostic Runs",
+        "",
+        "Status: calibration in progress.",
+        f"Generated: {generated_at}.",
+        "",
+        "This index is generated from dated `findings.json` files under this directory.",
+        "",
+    ]
+
+    if not summaries:
+        lines.extend([
+            "## Runs",
+            "",
+            "No dated nightly runs have been recorded yet.",
+            "",
+        ])
+    else:
+        lines.extend([
+            "## Runs",
+            "",
+            "| Date | Status | Findings | P0 | P1 | P2 | P3 | Skipped Checks |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ])
+        for summary in summaries:
+            counts = summary.get("severity_counts", {})
+            date = summary["date"]
+            link = f"[{date}]({date}/README.md)"
+            lines.append(
+                f"| {link} | {summary['status']} | {summary['findings_count']} | "
+                f"{counts.get('P0', 0)} | {counts.get('P1', 0)} | "
+                f"{counts.get('P2', 0)} | {counts.get('P3', 0)} | "
+                f"{summary['skipped_checks_count']} |"
+            )
+        lines.append("")
+
+    category_counts: Counter[str] = Counter()
+    for summary in summaries:
+        category_counts.update(summary.get("category_counts", {}))
+    lines.extend([
+        "## Category Totals",
+        "",
+    ])
+    if category_counts:
+        lines.extend([
+            "| Category | Count |",
+            "| --- | ---: |",
+        ])
+        for category, count in sorted(category_counts.items()):
+            lines.append(f"| `{category}` | {count} |")
+        lines.append("")
+    else:
+        lines.extend([
+            "No categories have been recorded yet.",
+            "",
+        ])
+
+    lines.extend([
+        "## Calibration Notes",
+        "",
+    ])
+    if len(summaries) < 2:
+        remaining = 2 - len(summaries)
+        lines.append(f"- First-two-run calibration is still open; {remaining} run(s) remain before tuning repair authority.")
+    else:
+        lines.append("- First-two-run calibration data is available; review true findings versus noise before expanding repair authority.")
+    if len(summaries) < 3:
+        lines.append("- Repeated-failure detection needs at least three runs.")
+    else:
+        lines.append("- Three or more runs are available; repeated categories should be checked for task-card promotion.")
+    lines.extend([
+        "- This index is informational and does not approve, merge, force-push, delete branches, or promote fixtures.",
+        "",
+    ])
+
+    return "\n".join(lines)
+
+
+def update_nightly_index_command(args: argparse.Namespace) -> int:
+    runs_dir = resolve_repo_or_absolute(args.runs_dir)
+    output = resolve_repo_or_absolute(args.output)
+    text = nightly_index_markdown(runs_dir) + "\n"
+    write_text(output, text, args.force)
+    print(f"wrote {display_path(output)}")
+    return 0
+
+
 def score_from_body(body: str, score_if_good: int = 3) -> int:
     if not body:
         return 0
@@ -1952,6 +2389,34 @@ def build_parser() -> argparse.ArgumentParser:
     validate_completed_includes.add_argument("pathspecs", nargs="+")
     validate_completed_includes.add_argument("--skip-index-check", action="store_true")
 
+    audit_pr = subparsers.add_parser(
+        "audit-pr",
+        help="Emit a heuristic machine-readable PR audit from a base/head diff",
+    )
+    audit_pr.add_argument("--base", default="origin/master")
+    audit_pr.add_argument("--head", default="HEAD")
+    audit_pr.add_argument("--include-worktree", action="store_true")
+    audit_pr.add_argument("--task-card", default="")
+    audit_pr.add_argument("--completed-archive", default="")
+    audit_pr.add_argument("--evidence-passed", action="append", default=[])
+    audit_pr.add_argument("--evidence-failed", action="append", default=[])
+    audit_pr.add_argument(
+        "--evidence-skipped",
+        action="append",
+        default=[],
+        help="Record a skipped check as CHECK::REASON::RISK",
+    )
+    audit_pr.add_argument("--output", default="")
+    audit_pr.add_argument("--force", action="store_true")
+
+    nightly_index = subparsers.add_parser(
+        "update-nightly-index",
+        help="Generate docs/agentic/nightly-runs/README.md from dated findings.json files",
+    )
+    nightly_index.add_argument("--runs-dir", default="docs/agentic/nightly-runs")
+    nightly_index.add_argument("--output", default="docs/agentic/nightly-runs/README.md")
+    nightly_index.add_argument("--force", action="store_true")
+
     score_closure = subparsers.add_parser(
         "score-closure-report",
         help="Emit a heuristic E001 closure-quality score for a completed-task report",
@@ -2048,6 +2513,10 @@ def main(argv: list[str]) -> int:
         return validate_completed_task_report_command(args)
     if args.command == "validate-completed-report-includes":
         return validate_completed_report_includes_command(args)
+    if args.command == "audit-pr":
+        return audit_pr_command(args)
+    if args.command == "update-nightly-index":
+        return update_nightly_index_command(args)
     if args.command == "score-closure-report":
         return score_closure_report(args)
     if args.command == "new-phase-step-plan":

@@ -58,6 +58,22 @@ docs/agentic/nightly-runs/YYYY-MM-DD/
   patch.diff                    # optional
 ```
 
+The directory root also keeps a generated index:
+
+```text
+docs/agentic/nightly-runs/README.md
+```
+
+Refresh it with:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py update-nightly-index --force
+```
+
+The index summarizes run status, finding counts, severity counts, skipped
+checks, category totals, and calibration notes. It is informational only and
+does not approve, merge, force-push, delete branches, or promote fixtures.
+
 If there are no findings, the run still writes `README.md` with:
 
 - run ID;

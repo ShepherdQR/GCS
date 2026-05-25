@@ -29,8 +29,12 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `trace-schema.md` | Minimal trace schema for agent work and tool calls. |
 | `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
+| `ai-governance-next-actions.md` | Active roadmap for executable AI governance work after the first PR audit and nightly-diagnostics design. |
 | `pr-audit-governance.md` | PR-class, risk, evidence, exploratory-PR, and automated-audit governance. |
+| `schemas/pr-audit.schema.json` | Machine-readable v1 PR audit artifact schema. |
+| `pr-audits/` | Saved PR audit JSON artifacts for opt-in calibration cycles. |
 | `nightly-immune-diagnostics.md` | Scheduled worktree diagnostic workflow for scene exploration, defect triage, repair recommendations, and run summaries. |
+| `nightly-runs/` | Dated nightly diagnostic outputs and generated run index. |
 | `lifecycle-runbook.md` | Action guide for moving from request to push. |
 | `task-to-archive-checklist.md` | Compact closure checklist with a checked Step 47 example. |
 | `quality-gate-opt-in-policy.md` | S2-01 policy for opt-in task-card and completed-report quality gates. |
