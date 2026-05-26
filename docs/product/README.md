@@ -10,3 +10,5 @@ Start with:
 - `demos/`
 - `gcs-demo-ladder.md`
 - `gcs-product-user-brief.md`
+- `release-readiness-checklist.md`
+- `researcher-audience-strategy.md`

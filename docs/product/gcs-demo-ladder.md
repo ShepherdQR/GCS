@@ -185,13 +185,13 @@ Acceptance:
 | Level | Current status | Next move |
 | --- | --- | --- |
 | D0 | Strong | Keep narrative map and product brief current. |
-| D1 | Present | Add a short command-level smoke note for first-time reviewers. |
-| D2 | Present but scattered | Bind diagnostic fixtures to one demo script or report. |
+| D1 | Active package | Keep `docs/product/demos/d1-cli-smoke/` current and add schema validation for replay evidence. |
+| D2 | Active package | Add a classification script and JSON summary for `docs/product/demos/d2-diagnostic-classification/`. |
 | D3 | Strong internally | Surface replay evidence as a demo step. |
 | D4 | Now defined | Use the corpus ladder for future fixture promotion tasks. |
 | D5 | Direction exists | Produce one evidence-first screenshot/replay demo when viewer work resumes. |
 | D6 | Partial | Turn showcase fixture evidence into one external reviewer story. |
-| D7 | Weak | Wait until benchmark candidates are classified. |
+| D7 | Seed plan | Use `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` and `98-benchmark-candidate-selection-criteria.md`. |
 
 ## Demo Package Contract
 
@@ -218,10 +218,9 @@ docs/product/demos/
 
 ## Next Actions
 
-1. Create a D1 smoke demo note.
-2. Create a D2 diagnostic classification demo using existing verification
-   fixtures.
-3. Attach one D3 replay evidence artifact to a product-facing demo package.
+1. Add a D2 classification script with JSON output.
+2. Attach one D3 replay evidence artifact to a product-facing demo package.
+3. Add expected-output files for B1 benchmark candidates.
 4. Promote a D5 Solver Evidence Workbench screenshot only after visual QA
    artifacts exist.
-5. Defer D7 external comparison until fixture benchmark candidates are stable.
+5. Decide which D7 external baselines can be run locally.

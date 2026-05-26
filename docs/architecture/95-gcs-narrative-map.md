@@ -30,6 +30,13 @@ advances:
 
 ## Current Development Level
 
+Baseline visual:
+`docs/architecture/70-visualization/assets/figure95-narrative-line-level-baseline-20260526.svg`.
+Baseline brief:
+`docs/architecture/70-visualization/narrative-line-level-baseline-20260526.md`.
+
+![GCS Narrative Line Level Baseline](70-visualization/assets/figure95-narrative-line-level-baseline-20260526.svg)
+
 | Narrative line | Level | Current state | Main gap | Next move |
 | --- | --- | --- | --- | --- |
 | Scientific solver thesis | Strong | Local-to-global semantics, reports, diagnostics, and obstruction vocabulary are clear. | The "why users should care" story is less visible than the internal math story. | Attach solver evidence to user-facing demo scenarios. |
@@ -42,10 +49,10 @@ advances:
 | UI/viewer/scientific figures | Strong but split | Viewer, visual QA, figure pipeline, and Solver Evidence Workbench direction exist. | Visual work can appear separate from solver evidence. | Frame UI as evidence-first interaction, not decoration. |
 | Institutional agents and learning | Developing | Standing agents, templates, examples, refusal evals, and a registry scorecard exist. | Seed agents need more examples before promotion. | Use `docs/agentic/institutional-agent-registry-and-scorecard.md` before status changes. |
 | Git/worktree/PR governance | Strong | Worktree, branch, PR audit, permissions, threat matrix, and repository-audit policies exist. | Governance evals are planned but not yet executable gates. | Execute the staged roadmap in `docs/agentic/governance-eval-roadmap.md`. |
-| Product/user/market story | Initial and strengthening | Product brief, demo ladder, contributor path, and first demo package exist. | The story still lacks behavior-rich demo transcripts and external positioning. | Convert D1 and D2 demos into concrete demo packages with command evidence. |
-| Release/packaging/onboarding | Partial | A 20-minute contributor path exists and build/test commands are documented elsewhere. | Release readiness, packaging, and support boundaries are not yet explicit. | Add a release-readiness checklist and package smoke path. |
-| External benchmark/comparison | Weak | Corpus maturity levels exist, but external solver comparison is still absent. | GCS is not yet placed against academic or commercial solvers. | Create a comparison and benchmark plan after corpus ladder. |
-| Business/open-source strategy | Weak | The repo has project identity and early user briefs, but no explicit distribution model. | Audience, adoption path, and contribution model are unresolved. | Decide primary audience before public README expansion. |
+| Product/user/market story | Developing | Researcher primary audience, product brief, demo ladder, D1 smoke demo, D2 diagnostic demo, and contributor path exist. | The story now needs D3 replay evidence and researcher-facing README routing. | Add D2 JSON classification script and D3 replay evidence package. |
+| Release/packaging/onboarding | Initial and strengthening | A 20-minute contributor path and release-readiness checklist exist. | Packaging, reproducible build transcript, and versioned release note are not yet consolidated. | Add package smoke automation and R1 researcher-preview release note. |
+| External benchmark/comparison | Initial and strengthening | External comparison plan and benchmark candidate criteria exist. | No executable external comparison run or frozen benchmark candidate set exists yet. | Add B1 expected-output files and decide executable vs documentation-only baselines. |
+| Business/open-source strategy | Partial | Primary audience is now researchers and adoption path is documented. | Public README, contribution model, and distribution route are not yet updated. | Draft researcher-facing README expansion and contribution boundary. |
 
 ## Narrative Arcs
 
@@ -131,19 +138,21 @@ Near-term plan:
 
 ## Relative Weakness Analysis
 
-The strongest internal narratives are solver architecture, agentic operating
-discipline, quality gates, and fixture evidence. The relatively weak lines are
-now concentrated around external legibility: product behavior demos, release
-readiness, external comparison, and distribution strategy.
+The strongest internal narratives remain solver architecture, agentic
+operating discipline, quality gates, and fixture evidence. The researcher
+audience decision and D1/D2 packages move product, release, comparison, and
+business strategy out of pure weakness, but the weak axis is still external
+legibility: automated demo summaries, replay packaging, benchmark execution,
+and public researcher routing.
 
 | Relative weak line | Current level | Why it is still weak | Strengthening task already in plan |
 | --- | --- | --- | --- |
-| Product/user/market story | Initial and strengthening | The project now has product docs, but the user still sees more architecture than live behavior. | Build D1 smoke demo and D2 diagnostic classification demo packages with command transcripts. |
-| Release/packaging/onboarding | Partial | New contributors have a first path, but release criteria and package smoke checks are not consolidated. | Add release-readiness checklist and package smoke path. |
-| External benchmark/comparison | Weak | Corpus maturity exists, but no comparison map explains how GCS differs from other solvers. | Add external solver comparison and benchmark plan, then benchmark-candidate criteria. |
-| Business/open-source strategy | Weak | The intended adoption model is not yet chosen. | Add audience, distribution, contribution, and positioning brief before public README expansion. |
-| Governance eval execution | Developing | Risks are mapped, but most evals are not executable or opt-in gates yet. | Add prompt-level evals for unrelated staging, audit overclaim, and institutional-agent promotion. |
-| Demo evidence packaging | Initial | Demo ladder exists, but most demo levels are not packaged as inspectable artifacts. | Use `docs/product/demos/` for D0 task closure, D1 smoke, D2 diagnostics, and later replay/workbench demos. |
+| Product/user/market story | Developing | The researcher-facing D1/D2 path exists, but replay and README routing are still thin. | Add D2 JSON classifier, D3 replay evidence package, and researcher-facing README expansion. |
+| Release/packaging/onboarding | Initial and strengthening | Release readiness is defined, but build/package automation is not. | Add package smoke automation and R1 researcher-preview release note. |
+| External benchmark/comparison | Initial and strengthening | Comparison plan and benchmark criteria exist, but benchmark runs are not frozen. | Add B1 expected-output files and classify executable vs documentation-only baselines. |
+| Business/open-source strategy | Partial | Primary audience is researchers, but public distribution and contribution model are not updated. | Draft researcher-facing README expansion and contribution boundary. |
+| Governance eval execution | Developing | Three prompt-level eval seeds exist, but no validator candidate is implemented. | Exercise E-GOV-001, E-GOV-002, and E-GOV-008 in real archives before validator design. |
+| Demo evidence packaging | Developing | D0, D1, and D2 are packaged, but D3 replay and D5 workbench demos remain future work. | Add D3 replay evidence package and later workbench screenshot package. |
 
 This means the next plan should not primarily add more internal architecture
 language. It should translate the existing architecture into evidence packages
@@ -160,8 +169,10 @@ that a new user, reviewer, or future contributor can run, compare, and trust.
 | Phase 4: Permission threat matrix | Complete in next-stage batch | `docs/agentic/permission-threat-matrix.md` | Governance maps private data, untrusted content, outbound channels, writes, branches, and network actions. |
 | Phase 5: Onboarding and release path | Partial in next-stage batch | `docs/product/20-minute-contributor-path.md`; release checklist remains later | A new contributor can build context, run light validators, and understand the thesis. |
 | Phase 6: AI organization operating narrative | Complete in this batch | `docs/agentic/agentic-organization-operating-map.md`, `docs/agentic/institutional-agent-registry-and-scorecard.md`, `docs/agentic/governance-eval-roadmap.md`, `docs/product/demos/agentic-task-closure-demo/README.md` | The agentic organization story has operating, role, eval, and demo artifacts. |
-| Phase 7: External positioning | Next weak-line batch | Solver comparison and benchmark plan | GCS can explain how it differs from academic and commercial solvers. |
-| Phase 8: Release and distribution strategy | Next weak-line batch | Release-readiness checklist and audience/distribution brief | GCS can explain who should adopt it, how to try it, and what readiness means. |
+| Phase 7: Researcher-facing demos | Complete in researcher-audience batch | `docs/product/demos/d1-cli-smoke/` and `docs/product/demos/d2-diagnostic-classification/` | Researchers can run command-level smoke and diagnostic classification paths. |
+| Phase 8: External positioning | Complete as seed | `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` and `98-benchmark-candidate-selection-criteria.md` | GCS can explain how it differs from academic, open-source, and commercial solver baselines without benchmark overclaiming. |
+| Phase 9: Release and researcher distribution strategy | Complete as seed | `docs/product/release-readiness-checklist.md` and `docs/product/researcher-audience-strategy.md` | GCS can explain who should adopt it first, how to try it, and what readiness means. |
+| Phase 10: Governance eval seeds | Complete as seed | `docs/agentic/evals/governance/` | The three highest-priority prompt-level governance evals are concrete. |
 
 ## Decision Rules
 
@@ -175,19 +186,15 @@ that a new user, reviewer, or future contributor can run, compare, and trust.
 
 ## Next Task Queue
 
-1. Add D1 smoke demo package with exact command transcript and expected
-   evidence.
-2. Add D2 diagnostic classification demo package for solved, underconstrained,
-   overconstrained, singular, and blocked scenes.
-3. Define release-readiness checklist with package smoke path and support
-   boundaries.
-4. Add external comparison and benchmark plan.
-5. Add benchmark-candidate selection criteria after fixture maturity
-   stabilizes.
-6. Add audience, distribution, contribution, and open-source strategy brief
-   before public README expansion.
-7. Add prompt-level governance eval files for E-GOV-001, E-GOV-002, and
-   E-GOV-008.
+1. Add a D2 diagnostic classification script that emits JSON summary evidence.
+2. Add expected-output files for the B1 benchmark candidate set.
+3. Add a D3 replay evidence package using the D1 replay report as seed input.
+4. Add package smoke automation and an R1 researcher-preview release note.
+5. Draft researcher-facing README expansion and contribution boundary.
+6. Decide which external baselines are executable locally and which remain
+   documentation-only comparisons.
+7. Exercise E-GOV-001, E-GOV-002, and E-GOV-008 in real task archives before
+   designing validator candidates.
 
 ## Review Triggers
 

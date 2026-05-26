@@ -23,9 +23,9 @@ workflow health, and narrative maturity.
 | Inventory validation | Strong | `validate-inventory` is part of the expected gate. | Run for scoped architecture/agentic batches. |
 | Skill validation | Strong | Project skills are the routing layer. | Run after skill or steward-related work. |
 | Dependency boundary | Strong | `check-dependencies` is part of the expected gate. | Keep mathematical layers free of UI/IO/agentic dependencies. |
-| Product/user narrative | Initial and strengthening | Product brief, demo ladder, contributor path, and first demo package exist. | Add behavior-rich D1 and D2 demo packages. |
+| Product/user narrative | Developing | Researcher primary audience, D1/D2 demo packages, release checklist, and benchmark plan exist. | Add D2 classification script and D3 replay evidence package. |
 | Metrics trend history | Initial | This dashboard is the first active baseline. | Add timestamped updates after important closures. |
-| Permission/governance telemetry | Developing | Permission policy, PR governance, threat matrix, and governance eval roadmap exist. | Add prompt-level evals before validator candidates. |
+| Permission/governance telemetry | Developing | Permission policy, PR governance, threat matrix, governance eval roadmap, and three prompt-level eval seeds exist. | Exercise eval seeds in real archives before validator candidates. |
 
 ## Metrics To Update
 
@@ -57,8 +57,15 @@ workflow health, and narrative maturity.
 | New institutional-agent scorecard | 1 | `docs/agentic/institutional-agent-registry-and-scorecard.md` |
 | New governance eval roadmap | 1 | `docs/agentic/governance-eval-roadmap.md` |
 | New product demo package directory | 1 | `docs/product/demos/` |
+| New D1 CLI smoke demo package | 1 | `docs/product/demos/d1-cli-smoke/` |
+| New D2 diagnostic classification demo package | 1 | `docs/product/demos/d2-diagnostic-classification/` |
+| Researcher primary-audience strategy | 1 | `docs/product/researcher-audience-strategy.md` |
+| Release-readiness checklist | 1 | `docs/product/release-readiness-checklist.md` |
+| External comparison and benchmark plan | 1 | `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` |
+| Benchmark candidate selection criteria | 1 | `docs/architecture/98-benchmark-candidate-selection-criteria.md` |
+| Governance prompt eval seeds | 3 | `docs/agentic/evals/governance/` |
 | Active metrics dashboard | 1 | This document |
-| Known unrelated dirty file in current session | 1 | `docs/research/OpusTime/OpusTime.md`; do not stage for narrative commits. |
+| Known unrelated dirty or untracked paths in current session | 2 | `docs/research/OpusTime/OpusTime.md` and `docs/reports/report_/`; do not stage for narrative commits. |
 
 ## Update Rule
 
@@ -98,5 +105,6 @@ Follow-up:
 | Add demo ladder | viewer bridge and architecture stewards | CLI, replay, report, and workbench demos are ordered. |
 | Add permission threat matrix | governance owner | Private data, untrusted content, outbound comms, writes, branch actions, and network/dependencies are mapped. |
 | Add onboarding path | architecture steward | New reviewer can build, run, inspect evidence, and read the thesis in one sitting. |
-| Add D1 and D2 demo packages | product and quality stewards | User-visible demos include command evidence and expected outcomes. |
-| Add external comparison plan | architecture and product stewards | GCS can explain its position against solver alternatives. |
+| Add D2 classification script | product and quality stewards | Demo emits JSON status, exit code, report code, and classification summary. |
+| Add D3 replay evidence package | product and session-runtime stewards | Replay report evidence becomes a researcher-facing demo. |
+| Add researcher-facing README expansion | architecture and product stewards | Public entry point routes researchers through D1, D2, corpus, and benchmark docs. |

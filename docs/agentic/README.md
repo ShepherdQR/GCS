@@ -29,6 +29,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `trace-schema.md` | Minimal trace schema for agent work and tool calls. |
 | `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
+| `evals/governance/` | Prompt-level governance eval seeds for staging scope, audit overclaim, and institutional-agent promotion. |
 | `metrics-dashboard.md` | Lightweight baseline and update rule for lifecycle, validation, governance, product narrative, and commit-scope metrics. |
 | `agentic-organization-operating-map.md` | Compact operating map for GCS as an evidence-rich agentic organization. |
 | `institutional-agent-registry-and-scorecard.md` | Registry, scorecard, promotion rule, and candidate backlog for institutional agents. |

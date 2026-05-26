@@ -86,6 +86,12 @@ order, not by historical source order. Background research notes live under
    - `96-fixture-corpus-maturity-ladder.md`: active fixture corpus maturity
      ladder for smoke, verification, generated, milestone, counterexample,
      showcase, and benchmark-candidate scenes.
+   - `97-external-solver-comparison-and-benchmark-plan.md`: researcher-facing
+     comparison plan for SolveSpace, FreeCAD Sketcher, Siemens D-Cubed, and
+     future GCS benchmark levels.
+   - `98-benchmark-candidate-selection-criteria.md`: promotion criteria for
+     moving scenes from observed examples to benchmark candidates and frozen
+     benchmark fixtures.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

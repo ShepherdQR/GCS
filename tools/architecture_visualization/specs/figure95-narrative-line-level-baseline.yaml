@@ -1,0 +1,66 @@
+schema: gcs.narrative_line_level_baseline.v1
+figure_id: figure95-narrative-line-level-baseline-20260526
+title: GCS Narrative Line Level Baseline
+snapshot_date: 2026-05-26
+source:
+  - docs/architecture/95-gcs-narrative-map.md
+exports:
+  svg: docs/architecture/70-visualization/assets/figure95-narrative-line-level-baseline-20260526.svg
+  review_png: docs/architecture/70-visualization/assets/figure95-narrative-line-level-baseline-20260526.review.png
+level_scale:
+  5.0: Very strong
+  4.0: Strong
+  3.5: Strong but split
+  3.0: Developing
+  2.5: Initial and strengthening
+  2.0: Partial
+  1.0: Weak
+narrative_lines:
+  - name: Module contract architecture
+    level: Very strong
+    score: 5.0
+  - name: Agentic-SE operating layer
+    level: Very strong
+    score: 5.0
+  - name: Scientific solver thesis
+    level: Strong
+    score: 4.0
+  - name: Implementation roadmap
+    level: Strong
+    score: 4.0
+  - name: Fixture and counterexample corpus
+    level: Strong
+    score: 4.0
+  - name: Runtime/history/replay evidence
+    level: Strong
+    score: 4.0
+  - name: Quality gates and evidence
+    level: Strong
+    score: 4.0
+  - name: Git/worktree/PR governance
+    level: Strong
+    score: 4.0
+  - name: UI/viewer/scientific figures
+    level: Strong but split
+    score: 3.5
+  - name: Institutional agents and learning
+    level: Developing
+    score: 3.0
+  - name: Product/user/market story
+    level: Developing
+    score: 3.0
+  - name: Release/packaging/onboarding
+    level: Initial and strengthening
+    score: 2.5
+  - name: External benchmark/comparison
+    level: Initial and strengthening
+    score: 2.5
+  - name: Business/open-source strategy
+    level: Partial
+    score: 2.0
+relative_weakness_queue:
+  - D2 JSON classification script
+  - D3 replay evidence package
+  - B1 benchmark expected-output files
+  - R1 researcher-preview release note and package smoke automation
+  - Researcher-facing README expansion and contribution boundary

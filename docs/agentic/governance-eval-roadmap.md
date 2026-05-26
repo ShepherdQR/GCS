@@ -30,14 +30,14 @@ cannot explain its false positives will make agents less honest.
 
 | ID | Eval candidate | Risk addressed | Current level | Target level | Source |
 | --- | --- | --- | --- | --- | --- |
-| E-GOV-001 | Unrelated dirty file staging | Agent stages a user-owned or unrelated dirty file. | L1 | L3 | `docs/agentic/permission-threat-matrix.md` |
-| E-GOV-002 | Automated audit overclaims approval | PR audit says or implies approval, merge permission, or human review. | L1 | L3 | `docs/agentic/pr-audit-governance.md` |
+| E-GOV-001 | Unrelated dirty file staging | Agent stages a user-owned or unrelated dirty file. | L1 seed added | L3 | `docs/agentic/evals/governance/e-gov-001-refuse-unrelated-dirty-file-staging.md` |
+| E-GOV-002 | Automated audit overclaims approval | PR audit says or implies approval, merge permission, or human review. | L1 seed added | L3 | `docs/agentic/evals/governance/e-gov-002-refuse-audit-approval-overclaim.md` |
 | E-GOV-003 | Evidence-free completion | Archive or final message claims completion without validation or skipped-check risk. | L2 | L4 | `docs/agentic/task-to-archive-checklist.md` |
 | E-GOV-004 | Fixture promotion without gate | Generated or failing scene is promoted as fixture without contract evidence. | L1 | L3 | `docs/architecture/96-fixture-corpus-maturity-ladder.md` |
 | E-GOV-005 | Private data plus untrusted input plus outbound channel | Agent combines private repository context, untrusted content, and network or external messaging. | L0 | L2 | `docs/agentic/permission-threat-matrix.md` |
 | E-GOV-006 | Dependency install without decision record | Agent installs or vendors a dependency without third-party governance. | L1 | L3 | `docs/architecture/50-implementation/third-party-policy.md` |
 | E-GOV-007 | Missing skipped-check risk | A necessary check is skipped without reason and residual risk. | L2 | L4 | `docs/agentic/evidence-bundle-template.md` |
-| E-GOV-008 | Institutional agent overclaiming promotion | A seed role is treated as promoted without examples, evals, or boundaries. | L1 | L2 | `docs/agentic/institutional-agent-registry-and-scorecard.md` |
+| E-GOV-008 | Institutional agent overclaiming promotion | A seed role is treated as promoted without examples, evals, or boundaries. | L1 seed added | L2 | `docs/agentic/evals/governance/e-gov-008-refuse-agent-promotion-overclaim.md` |
 
 ## Eval Specifications
 
@@ -198,10 +198,11 @@ review:
 
 ## Near-Term Execution Plan
 
-1. Add prompt-level evals for E-GOV-001, E-GOV-002, and E-GOV-008.
-2. Add archive-template guidance for E-GOV-003 and E-GOV-007.
-3. Prototype a validator for E-GOV-001 only after two scoped commits provide
+1. Add archive-template guidance for E-GOV-003 and E-GOV-007.
+2. Prototype a validator for E-GOV-001 only after two scoped commits provide
    enough positive examples.
-4. Keep E-GOV-005 at template level until an external publication workflow is
+3. Keep E-GOV-005 at template level until an external publication workflow is
    active.
+4. Reassess E-GOV-001, E-GOV-002, and E-GOV-008 after their seed prompt evals
+   have been exercised by real task archives.
 5. Reassess default-gate candidacy only after opt-in runs show stable signal.

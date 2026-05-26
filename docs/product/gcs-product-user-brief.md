@@ -18,17 +18,23 @@ scene.
 
 ## Primary Audiences
 
+Primary audience decision, 2026-05-26:
+
+```text
+solver and geometric-constraint researchers
+```
+
 | Audience | Need | GCS value |
 | --- | --- | --- |
-| Solver researcher | Explore constraint semantics, decomposition, rank, and diagnostic behavior. | Evidence-rich fixtures, reports, and counterexamples. |
+| Solver researcher | Explore constraint semantics, decomposition, rank, and diagnostic behavior. | Evidence-rich fixtures, reports, counterexamples, benchmark criteria, and command transcripts. |
 | CAD or geometry-tool developer | Understand how a constraint scene fails or succeeds. | Stable diagnostics, replay evidence, and scenario corpus. |
 | Agentic-SE practitioner | See how a serious technical repo governs AI work. | Task cards, quality gates, archives, institutional agents, and metrics. |
 | Local visualization user | Inspect geometry, constraints, solve history, and reports. | Solver Evidence Workbench direction. |
 | New contributor | Build, run, test, and understand the project quickly. | Onboarding path and narrative map. |
 
-The near-term primary audience is the technically strong local reviewer:
-someone who can build the project, inspect fixtures, run focused checks, and
-evaluate whether the solver evidence is meaningful.
+The near-term primary audience is now narrower than "technical reviewer":
+researchers who can judge whether the solver evidence, diagnostic taxonomy,
+fixtures, and counterexamples are meaningful.
 
 ## Jobs To Be Done
 
@@ -155,15 +161,21 @@ Longer term:
 
 ## Next Product Tasks
 
-1. Add D1 smoke demo note with command transcript.
-2. Add D2 diagnostic classification demo package.
-3. Add release-readiness checklist.
-4. Add external comparison and benchmark positioning.
-5. Decide whether the primary public identity is solver research, local
-   workbench, agentic-SE exemplar, or a staged combination.
+1. Add a D2 classification script with JSON summary output.
+2. Add a D3 replay evidence package for researcher review.
+3. Add expected-output files for B1 benchmark candidates.
+4. Draft a researcher-facing README expansion after release-readiness review.
+5. Decide which external baselines are executable locally and which remain
+   documentation-only comparisons.
 
 Completed first follow-ups:
 
 - `docs/product/20-minute-contributor-path.md`
 - `docs/product/gcs-demo-ladder.md`
 - `docs/architecture/96-fixture-corpus-maturity-ladder.md`
+- `docs/product/demos/d1-cli-smoke/`
+- `docs/product/demos/d2-diagnostic-classification/`
+- `docs/product/release-readiness-checklist.md`
+- `docs/product/researcher-audience-strategy.md`
+- `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md`
+- `docs/architecture/98-benchmark-candidate-selection-criteria.md`

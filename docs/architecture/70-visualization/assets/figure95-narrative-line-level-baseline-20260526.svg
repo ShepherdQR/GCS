@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1240" viewBox="0 0 1600 1240" role="img" aria-labelledby="title desc">
+  <title id="title">GCS Narrative Line Level Baseline, 2026-05-26</title>
+  <desc id="desc">Horizontal maturity bar chart for fourteen GCS narrative lines after the researcher-audience narrative batch.</desc>
+  <defs>
+    <style>
+      .paper { fill: #f7f4ec; }
+      .panel { fill: #fffefa; stroke: #d8d1c4; stroke-width: 1.4; }
+      .ink { fill: #181715; }
+      .muted { fill: #5f5b53; }
+      .quiet { fill: #7c756b; }
+      .rule { stroke: #d8d1c4; stroke-width: 1; }
+      .rule-soft { stroke: #ebe5da; stroke-width: 1; }
+      .axis { fill: none; stroke: #cfc6b8; stroke-width: 1.2; }
+      .title { font-family: Georgia, "Times New Roman", serif; font-size: 38px; font-weight: 650; }
+      .subtitle { font-family: "Segoe UI", Arial, sans-serif; font-size: 17px; }
+      .section { font-family: "Segoe UI", Arial, sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 0; }
+      .label { font-family: "Segoe UI", Arial, sans-serif; font-size: 17px; font-weight: 600; }
+      .small { font-family: "Segoe UI", Arial, sans-serif; font-size: 14px; }
+      .tiny { font-family: "Segoe UI", Arial, sans-serif; font-size: 12px; }
+      .level { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; font-weight: 700; }
+      .score { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; font-weight: 700; }
+      .bar-track { fill: #efe9dc; }
+      .very-strong { fill: #4d6f73; }
+      .strong { fill: #697d5e; }
+      .split { fill: #806c98; }
+      .developing { fill: #9a7a4f; }
+      .initial { fill: #bc7d4f; }
+      .partial { fill: #b86850; }
+      .weak { fill: #a94d43; }
+      .callout { fill: #fff7ed; stroke: #d6b89b; stroke-width: 1.2; }
+      .callout-rule { stroke: #c8643f; stroke-width: 3; stroke-linecap: round; }
+    </style>
+  </defs>
+
+  <rect class="paper" x="0" y="0" width="1600" height="1240"/>
+  <rect class="panel" x="44" y="40" width="1512" height="1160" rx="8"/>
+
+  <text class="title ink" x="76" y="96">GCS Narrative Line Level Baseline</text>
+  <text class="subtitle muted" x="78" y="128">Snapshot date: 2026-05-26. Source: docs/architecture/95-gcs-narrative-map.md.</text>
+  <text class="subtitle muted" x="78" y="154">Reading: researcher-facing demos, comparison, and release criteria now exist; automation, replay packaging, benchmarks, and public routing remain the weak axis.</text>
+
+  <g transform="translate(78 190)">
+    <text class="section ink" x="0" y="0">Narrative maturity by line</text>
+    <text class="small muted" x="472" y="0">0</text>
+    <text class="small muted" x="592" y="0">1</text>
+    <text class="small muted" x="712" y="0">2</text>
+    <text class="small muted" x="832" y="0">3</text>
+    <text class="small muted" x="952" y="0">4</text>
+    <text class="small muted" x="1072" y="0">5</text>
+    <line class="axis" x1="480" y1="14" x2="1080" y2="14"/>
+    <line class="rule-soft" x1="480" y1="20" x2="480" y2="780"/>
+    <line class="rule-soft" x1="600" y1="20" x2="600" y2="780"/>
+    <line class="rule-soft" x1="720" y1="20" x2="720" y2="780"/>
+    <line class="rule-soft" x1="840" y1="20" x2="840" y2="780"/>
+    <line class="rule-soft" x1="960" y1="20" x2="960" y2="780"/>
+    <line class="rule-soft" x1="1080" y1="20" x2="1080" y2="780"/>
+
+    <g transform="translate(0 42)">
+      <text class="label ink" x="0" y="19">Module contract architecture</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="very-strong" x="480" y="4" width="600" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">5.0</text>
+      <text class="level ink" x="1160" y="20">Very strong</text>
+    </g>
+
+    <g transform="translate(0 96)">
+      <text class="label ink" x="0" y="19">Agentic-SE operating layer</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="very-strong" x="480" y="4" width="600" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">5.0</text>
+      <text class="level ink" x="1160" y="20">Very strong</text>
+    </g>
+
+    <g transform="translate(0 150)">
+      <text class="label ink" x="0" y="19">Scientific solver thesis</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="strong" x="480" y="4" width="480" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">4.0</text>
+      <text class="level ink" x="1160" y="20">Strong</text>
+    </g>
+
+    <g transform="translate(0 204)">
+      <text class="label ink" x="0" y="19">Implementation roadmap</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="strong" x="480" y="4" width="480" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">4.0</text>
+      <text class="level ink" x="1160" y="20">Strong</text>
+    </g>
+
+    <g transform="translate(0 258)">
+      <text class="label ink" x="0" y="19">Fixture and counterexample corpus</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="strong" x="480" y="4" width="480" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">4.0</text>
+      <text class="level ink" x="1160" y="20">Strong</text>
+    </g>
+
+    <g transform="translate(0 312)">
+      <text class="label ink" x="0" y="19">Runtime/history/replay evidence</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="strong" x="480" y="4" width="480" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">4.0</text>
+      <text class="level ink" x="1160" y="20">Strong</text>
+    </g>
+
+    <g transform="translate(0 366)">
+      <text class="label ink" x="0" y="19">Quality gates and evidence</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="strong" x="480" y="4" width="480" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">4.0</text>
+      <text class="level ink" x="1160" y="20">Strong</text>
+    </g>
+
+    <g transform="translate(0 420)">
+      <text class="label ink" x="0" y="19">Git/worktree/PR governance</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="strong" x="480" y="4" width="480" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">4.0</text>
+      <text class="level ink" x="1160" y="20">Strong</text>
+    </g>
+
+    <g transform="translate(0 474)">
+      <text class="label ink" x="0" y="19">UI/viewer/scientific figures</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="split" x="480" y="4" width="420" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">3.5</text>
+      <text class="level ink" x="1160" y="20">Strong but split</text>
+    </g>
+
+    <g transform="translate(0 528)">
+      <text class="label ink" x="0" y="19">Institutional agents and learning</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="developing" x="480" y="4" width="360" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">3.0</text>
+      <text class="level ink" x="1160" y="20">Developing</text>
+    </g>
+
+    <g transform="translate(0 582)">
+      <text class="label ink" x="0" y="19">Product/user/market story</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="developing" x="480" y="4" width="360" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">3.0</text>
+      <text class="level ink" x="1160" y="20">Developing</text>
+    </g>
+
+    <g transform="translate(0 636)">
+      <text class="label ink" x="0" y="19">Release/packaging/onboarding</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="initial" x="480" y="4" width="300" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">2.5</text>
+      <text class="level ink" x="1160" y="20">Initial and strengthening</text>
+    </g>
+
+    <g transform="translate(0 690)">
+      <text class="label ink" x="0" y="19">External benchmark/comparison</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="initial" x="480" y="4" width="300" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">2.5</text>
+      <text class="level ink" x="1160" y="20">Initial and strengthening</text>
+    </g>
+
+    <g transform="translate(0 744)">
+      <text class="label ink" x="0" y="19">Business/open-source strategy</text>
+      <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
+      <rect class="partial" x="480" y="4" width="240" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">2.0</text>
+      <text class="level ink" x="1160" y="20">Partial</text>
+    </g>
+  </g>
+
+  <g transform="translate(78 1112)">
+    <rect class="callout" x="0" y="-70" width="1444" height="116" rx="8"/>
+    <line class="callout-rule" x1="24" y1="-48" x2="24" y2="24"/>
+    <text class="section ink" x="44" y="-38">Relative weakness queue</text>
+    <text class="small muted" x="44" y="-10">1. D2 JSON classification script</text>
+    <text class="small muted" x="44" y="14">2. D3 replay evidence package</text>
+    <text class="small muted" x="470" y="-10">3. B1 benchmark expected-output files</text>
+    <text class="small muted" x="470" y="14">4. R1 researcher-preview release note and package smoke automation</text>
+    <text class="small muted" x="984" y="-10">5. Researcher-facing README expansion and contribution boundary</text>
+    <text class="tiny quiet" x="984" y="18">Refresh after demo automation, replay package, B1 benchmark, or README routing closes.</text>
+  </g>
+</svg>

@@ -21,3 +21,7 @@ Start with:
 - `agentic-task-closure-demo/`: demonstrates the GCS agentic organization
   closing a non-trivial task from request to task card, validation, archive,
   commit, and push.
+- `d1-cli-smoke/`: demonstrates the current command-line smoke path for a
+  researcher-facing accepted-with-warnings scene.
+- `d2-diagnostic-classification/`: demonstrates accepted, under-constrained,
+  over-constrained, malformed, and singular blocked diagnostic classes.

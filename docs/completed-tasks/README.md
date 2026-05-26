@@ -50,6 +50,7 @@ institutional-agent promotion, or quality-gate decision depends on that record.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-26 | [Researcher-audience narrative stage](2026-05-26-researcher-audience-narrative-stage/README.md) | done |
 | 2026-05-26 | [Task-scoped session closer skill upgrade](2026-05-26-task-scoped-session-closer-skill-upgrade/README.md) | done |
 | 2026-05-26 | [Repository audit session closeout](2026-05-26-repository-audit-session-closeout/README.md) | done |
 | 2026-05-26 | [Repository audit plan execution](2026-05-26-repository-audit-plan-execution/README.md) | done |
