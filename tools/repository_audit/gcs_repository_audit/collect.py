@@ -46,6 +46,15 @@ def collect_tracked_paths(repo_root: Path) -> list[str]:
     return sorted(normalize_path(path) for path in paths if path)
 
 
+def collect_revision_paths(repo_root: Path, revision: str) -> list[str]:
+    output = git_output(
+        repo_root,
+        ["-c", "core.quotepath=false", "ls-tree", "-r", "-z", "--name-only", revision],
+    )
+    paths = output.decode("utf-8", errors="surrogateescape").split("\0")
+    return sorted(normalize_path(path) for path in paths if path)
+
+
 def collect_git_info(repo_root: Path, base: str | None = None) -> GitInfo:
     def text(args: list[str]) -> str | None:
         try:
@@ -57,6 +66,14 @@ def collect_git_info(repo_root: Path, base: str | None = None) -> GitInfo:
     branch = text(["branch", "--show-current"])
     dirty_output = text(["status", "--porcelain"]) or ""
     return GitInfo(head=head, branch=branch, dirty=bool(dirty_output), base=base)
+
+
+def collect_revision_git_info(repo_root: Path, revision: str, base: str | None = None) -> GitInfo:
+    try:
+        head = git_output(repo_root, ["rev-parse", revision]).decode("utf-8", errors="replace").strip()
+    except subprocess.CalledProcessError:
+        head = revision
+    return GitInfo(head=head or revision, branch=None, dirty=False, base=base)
 
 
 def load_inventory(repo_root: Path) -> dict:
@@ -91,19 +108,13 @@ def count_lines(data: bytes) -> int:
     return len(data.splitlines())
 
 
-def metric_for_path(repo_root: Path, path: str, inventory: dict, contract: CountingContract) -> FileMetric:
+def metric_for_data(path: str, data: bytes, inventory: dict, contract: CountingContract) -> FileMetric:
     normalized = normalize_path(path)
-    full_path = repo_root / Path(*normalized.split("/"))
     artifact_class = classify_path(normalized)
     extension = extension_for(normalized)
     is_text = is_text_extension(extension, contract)
-    byte_count = 0
-    physical_lines = 0
-    if full_path.exists() and full_path.is_file():
-        data = full_path.read_bytes()
-        byte_count = len(data)
-        if is_text:
-            physical_lines = count_lines(data)
+    byte_count = len(data)
+    physical_lines = count_lines(data) if is_text else 0
 
     return FileMetric(
         path=normalized,
@@ -126,6 +137,27 @@ def metric_for_path(repo_root: Path, path: str, inventory: dict, contract: Count
         },
         language_hint=language_hint_for(normalized),
     )
+
+
+def metric_for_path(repo_root: Path, path: str, inventory: dict, contract: CountingContract) -> FileMetric:
+    normalized = normalize_path(path)
+    full_path = repo_root / Path(*normalized.split("/"))
+    data = b""
+    if full_path.exists() and full_path.is_file():
+        data = full_path.read_bytes()
+    return metric_for_data(normalized, data, inventory, contract)
+
+
+def metric_for_revision_path(
+    repo_root: Path,
+    revision: str,
+    path: str,
+    inventory: dict,
+    contract: CountingContract,
+) -> FileMetric:
+    normalized = normalize_path(path)
+    data = git_output(repo_root, ["show", f"{revision}:{normalized}"])
+    return metric_for_data(normalized, data, inventory, contract)
 
 
 def group_metrics(files: Iterable[FileMetric], key_fn) -> list[GroupMetric]:
@@ -237,6 +269,42 @@ def collect_snapshot(
         generated_at=generated_at or _datetime.datetime.now(_datetime.UTC).isoformat(),
         repo_root=str(repo_root).replace("\\", "/"),
         git=git_info or collect_git_info(repo_root, base=base),
+        counting_contract=contract,
+        totals=totals,
+        groups=snapshot_groups(files),
+        files=files,
+        modules=module_metrics(files, inventory),
+        findings=[],
+    )
+    return replace(snapshot, findings=check_snapshot(snapshot))
+
+
+def collect_revision_snapshot(
+    repo_root: Path,
+    revision: str,
+    *,
+    generated_at: str | None = None,
+    base: str | None = None,
+    contract: CountingContract | None = None,
+) -> RepositoryAuditSnapshot:
+    repo_root = repo_root.resolve()
+    contract = contract or CountingContract()
+    paths = collect_revision_paths(repo_root, revision)
+    inventory = load_inventory(repo_root)
+    files = [metric_for_revision_path(repo_root, revision, path, inventory, contract) for path in paths]
+    totals = {
+        "files": len(files),
+        "bytes": sum(metric.bytes for metric in files),
+        "text_files": sum(1 for metric in files if metric.is_text),
+        "binary_files": sum(1 for metric in files if metric.is_binary),
+        "physical_lines": sum(metric.physical_lines for metric in files),
+    }
+    snapshot = RepositoryAuditSnapshot(
+        schema_version=SCHEMA_VERSION,
+        tool_version=TOOL_VERSION,
+        generated_at=generated_at or _datetime.datetime.now(_datetime.UTC).isoformat(),
+        repo_root=str(repo_root).replace("\\", "/"),
+        git=collect_revision_git_info(repo_root, revision, base=base),
         counting_contract=contract,
         totals=totals,
         groups=snapshot_groups(files),

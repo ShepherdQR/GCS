@@ -5,6 +5,7 @@ from typing import Any
 
 
 SCHEMA_VERSION = "gcs-repository-audit-0.1"
+DIFF_SCHEMA_VERSION = "gcs-repository-audit-diff-0.1"
 TOOL_VERSION = "0.1"
 
 
@@ -105,6 +106,69 @@ class RepositoryAuditSnapshot:
     files: list[FileMetric]
     modules: list[ModuleMetric] = field(default_factory=list)
     findings: list[AuditFinding] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class NumericDelta:
+    base: int = 0
+    head: int = 0
+    delta: int = 0
+
+
+@dataclass(frozen=True)
+class GroupMetricDelta:
+    key: str
+    base_files: int = 0
+    head_files: int = 0
+    delta_files: int = 0
+    base_bytes: int = 0
+    head_bytes: int = 0
+    delta_bytes: int = 0
+    base_physical_lines: int = 0
+    head_physical_lines: int = 0
+    delta_physical_lines: int = 0
+
+
+@dataclass(frozen=True)
+class FileMetricDelta:
+    path: str
+    change_type: str
+    base_artifact_class: str | None = None
+    head_artifact_class: str | None = None
+    base_gcs_module: str | None = None
+    head_gcs_module: str | None = None
+    base_bytes: int = 0
+    head_bytes: int = 0
+    delta_bytes: int = 0
+    base_physical_lines: int = 0
+    head_physical_lines: int = 0
+    delta_physical_lines: int = 0
+
+
+@dataclass(frozen=True)
+class FindingDelta:
+    change_type: str
+    id: str
+    severity: str
+    path: str | None
+    message: str
+
+
+@dataclass(frozen=True)
+class RepositoryAuditDiff:
+    schema_version: str
+    tool_version: str
+    generated_at: str
+    base_git: dict[str, Any]
+    head_git: dict[str, Any]
+    summary: dict[str, int]
+    totals: dict[str, NumericDelta]
+    groups: dict[str, list[GroupMetricDelta]]
+    files: list[FileMetricDelta]
+    findings: list[FindingDelta] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

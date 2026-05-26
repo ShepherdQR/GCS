@@ -8,8 +8,11 @@ from pathlib import Path
 
 from gcs_repository_audit import (
     check_snapshot,
+    collect_revision_snapshot,
     collect_snapshot,
+    compare_snapshots,
     read_snapshot,
+    write_diff,
     write_markdown_report,
     write_snapshot,
 )
@@ -34,6 +37,13 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--snapshot", type=Path, default=None)
     report.add_argument("--output", type=Path, required=True)
     report.add_argument("--base", default=None)
+
+    diff = subparsers.add_parser("diff", help="Compare two snapshots or Git revisions")
+    diff.add_argument("--base", default=None, help="Base Git revision when snapshots are not provided")
+    diff.add_argument("--head", default="HEAD", help="Head Git revision when snapshots are not provided")
+    diff.add_argument("--base-snapshot", type=Path, default=None)
+    diff.add_argument("--head-snapshot", type=Path, default=None)
+    diff.add_argument("--output", type=Path, required=True)
 
     return parser
 
@@ -84,6 +94,33 @@ def report_command(args: argparse.Namespace, argv: list[str]) -> int:
     return 0
 
 
+def diff_command(args: argparse.Namespace) -> int:
+    if args.base_snapshot or args.head_snapshot:
+        if not args.base_snapshot or not args.head_snapshot:
+            print("diff requires both --base-snapshot and --head-snapshot", file=sys.stderr)
+            return 2
+        base_snapshot = read_snapshot(args.base_snapshot)
+        head_snapshot = read_snapshot(args.head_snapshot)
+    else:
+        if not args.base:
+            print("diff requires --base when snapshots are not provided", file=sys.stderr)
+            return 2
+        base_snapshot = collect_revision_snapshot(args.repo_root, args.base, base=args.base)
+        head_snapshot = collect_revision_snapshot(args.repo_root, args.head, base=args.base)
+
+    diff = compare_snapshots(base_snapshot, head_snapshot)
+    write_diff(diff, args.output)
+    summary = diff.summary
+    print(
+        "Repository audit diff written: "
+        f"{args.output} ({summary['changed_files']} changed files, "
+        f"{summary['delta_physical_lines']} text-line delta, "
+        f"{summary['added_findings']} added findings, "
+        f"{summary['removed_findings']} removed findings)"
+    )
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -93,6 +130,8 @@ def main(argv: list[str]) -> int:
         return check_command(args)
     if args.command == "report":
         return report_command(args, argv)
+    if args.command == "diff":
+        return diff_command(args)
     parser.error(f"unknown command {args.command}")
     return 2
 

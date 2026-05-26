@@ -372,6 +372,13 @@ trend projections, and quality-gate integration remain later phases.
 - Integrate existing `check-dependencies` result.
 - Add `--include-repository-audit` quality-gate option.
 
+Implementation note, 2026-05-26: the first JSON diff projection exists in
+`tools/repository_audit/gcs_repository_audit/diff.py`. It compares saved
+snapshots or committed Git revisions and reports total deltas, changed files,
+artifact/lifecycle/top-level/module group deltas, and finding deltas. Rename
+detection, `check-dependencies` integration, trend storage, and quality-gate
+promotion remain later work.
+
 ### Phase 4: External Tool Adapters
 
 - Optional `cloc` or `tokei` adapter for cross-checking LOC categories.
