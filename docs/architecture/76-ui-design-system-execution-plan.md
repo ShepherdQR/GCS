@@ -688,3 +688,13 @@ P7 completion summary:
   first-class and the SVG is legacy secondary.
 - Figma MCP remains deferred because the repo-native review/export path now
   satisfies the current need.
+
+Post-P7 development handoff:
+
+- `docs/architecture/98-ui-viewer-figure-development-plan.md` is the active
+  next-stage roadmap for VE-002 hardening, structured report projection,
+  constraint-manager projection, local-to-global inspector evidence, future
+  figure production, and D5-to-D6 demo promotion.
+- Do not update the narrative map again from planning alone; reassess it after
+  a new proof point such as structured report projection, constraint-manager
+  evidence, or Figure 74 lands.

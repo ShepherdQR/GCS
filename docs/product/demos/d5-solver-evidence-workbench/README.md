@@ -79,5 +79,7 @@ See [evidence.md](evidence.md).
 
 ## Next Task
 
-Start Phase 11 only after diagnostic report projections are stable enough to
-make constraint-manager rows evidence-backed rather than UI-inferred.
+Follow `docs/architecture/98-ui-viewer-figure-development-plan.md`: harden
+VE-002, define structured report projection, and start Phase 11 only after
+diagnostic report projections are stable enough to make constraint-manager rows
+evidence-backed rather than UI-inferred.

@@ -81,3 +81,12 @@ trace it through:
 The UI/viewer/scientific-figure narrative should remain separate from solver
 ownership. The viewer may make evidence inspectable; it must not compute rank,
 residual, gluing, conflict, redundancy, or obstruction truth.
+
+## Forward Development
+
+The next-stage roadmap is maintained in
+`docs/architecture/98-ui-viewer-figure-development-plan.md`. This `97` plan is
+the integration contract; `98` is the staged development plan for VE-002
+hardening, structured report projection, constraint-manager projection,
+local-to-global inspector evidence, the next scientific figure, D5-to-D6 demo
+promotion, and the later narrative-map reassessment.

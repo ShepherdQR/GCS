@@ -84,6 +84,10 @@ order, not by historical source order. Background research notes live under
    - `97-ui-viewer-figure-integration-plan.md`: active plan that binds
      viewer projections, workbench overlays, visual QA, scientific figures,
      and product demos into one evidence chain.
+   - `98-ui-viewer-figure-development-plan.md`: next-stage development plan
+     for VE-002 hardening, structured report projection, constraint-manager
+     projection, local-to-global inspector evidence, future figures, D5-to-D6
+     demo promotion, and later narrative-map reassessment.
    - `94-repository-audit-statistics-architecture.md`: 2026-05-25 repository
      audit/statistics architecture for reproducible file, LOC, module,
      fixture, documentation, and evidence-growth reporting.
