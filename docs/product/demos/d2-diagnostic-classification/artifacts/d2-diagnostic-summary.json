@@ -1,0 +1,830 @@
+{
+  "schema": "gcs.product_demo.d2_diagnostic_summary.v1",
+  "audience": "solver and geometric-constraint researchers",
+  "gcs_exe": "out/build/clang-ninja/GCS.exe",
+  "expected_dir": "docs/architecture/benchmarks/b1-diagnostic-classification/expected",
+  "case_count": 5,
+  "passed_count": 5,
+  "all_passed": true,
+  "cases": [
+    {
+      "case_id": "b1-well-constrained",
+      "classification": "accepted_current_smoke",
+      "fixture": "fixtures/scene/verification/lgs/well_constrained.txt",
+      "expected_file": "docs/architecture/benchmarks/b1-diagnostic-classification/expected/b1-well-constrained.expected.json",
+      "command": [
+        "out/build/clang-ninja/GCS.exe",
+        "fixtures/scene/verification/lgs/well_constrained.txt"
+      ],
+      "exit_code": 0,
+      "status": "AcceptedWithWarnings",
+      "accepted": true,
+      "obstruction": null,
+      "load_failed": false,
+      "report_codes": [
+        "constraint_catalog.validate_model",
+        "decomposition_planner.plan",
+        "diagnostics.glue_local_sections",
+        "gluing.accepted",
+        "incidence_graph.build_indices",
+        "kernel.validate_model",
+        "numeric.local_section.converged",
+        "numeric_engine.solve_local",
+        "runtime.commit",
+        "runtime.post_local_diagnostics.rank_report",
+        "runtime.post_local_diagnostics.residual_report",
+        "runtime.post_local_diagnostics_warning",
+        "runtime.pre_solve_diagnostics",
+        "session_runtime.commit",
+        "session_runtime.post_local_diagnostics",
+        "session_runtime.pre_solve_diagnostics",
+        "session_runtime.validate_command"
+      ],
+      "rank_reports": [
+        {
+          "rank": 3,
+          "variables": 9,
+          "residuals": 3,
+          "nullity": 6
+        }
+      ],
+      "residual_reports": [
+        {
+          "residuals": 3,
+          "norm": 0.0,
+          "max": 0.0
+        }
+      ],
+      "checks": [
+        {
+          "name": "exit_code",
+          "ok": true,
+          "expected": 0,
+          "actual": 0
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "expected": "AcceptedWithWarnings",
+          "actual": "AcceptedWithWarnings"
+        },
+        {
+          "name": "accepted",
+          "ok": true,
+          "expected": true,
+          "actual": true
+        },
+        {
+          "name": "report_code:runtime.post_local_diagnostics.rank_report",
+          "ok": true,
+          "expected": "runtime.post_local_diagnostics.rank_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "diagnostics.glue_local_sections",
+            "gluing.accepted",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.commit",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_warning",
+            "runtime.pre_solve_diagnostics",
+            "session_runtime.commit",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.post_local_diagnostics.residual_report",
+          "ok": true,
+          "expected": "runtime.post_local_diagnostics.residual_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "diagnostics.glue_local_sections",
+            "gluing.accepted",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.commit",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_warning",
+            "runtime.pre_solve_diagnostics",
+            "session_runtime.commit",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:gluing.accepted",
+          "ok": true,
+          "expected": "gluing.accepted",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "diagnostics.glue_local_sections",
+            "gluing.accepted",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.commit",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_warning",
+            "runtime.pre_solve_diagnostics",
+            "session_runtime.commit",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.commit",
+          "ok": true,
+          "expected": "runtime.commit",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "diagnostics.glue_local_sections",
+            "gluing.accepted",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.commit",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_warning",
+            "runtime.pre_solve_diagnostics",
+            "session_runtime.commit",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "contains:rank 3",
+          "ok": true,
+          "expected": "rank 3",
+          "actual": "rank 3"
+        },
+        {
+          "name": "contains:nullity 6",
+          "ok": true,
+          "expected": "nullity 6",
+          "actual": "nullity 6"
+        },
+        {
+          "name": "minimum_rank_reports",
+          "ok": true,
+          "expected": 1,
+          "actual": 1
+        }
+      ],
+      "passed": true
+    },
+    {
+      "case_id": "b1-under-constrained",
+      "classification": "under_constrained_rank_nullity_evidence",
+      "fixture": "fixtures/scene/verification/lgs/under_constrained.txt",
+      "expected_file": "docs/architecture/benchmarks/b1-diagnostic-classification/expected/b1-under-constrained.expected.json",
+      "command": [
+        "out/build/clang-ninja/GCS.exe",
+        "fixtures/scene/verification/lgs/under_constrained.txt"
+      ],
+      "exit_code": 0,
+      "status": "AcceptedWithWarnings",
+      "accepted": true,
+      "obstruction": null,
+      "load_failed": false,
+      "report_codes": [
+        "constraint_catalog.validate_model",
+        "decomposition_planner.plan",
+        "diagnostics.glue_local_sections",
+        "gluing.accepted",
+        "incidence_graph.build_indices",
+        "kernel.validate_model",
+        "numeric.local_section.converged",
+        "numeric_engine.solve_local",
+        "runtime.commit",
+        "runtime.post_local_diagnostics.rank_report",
+        "runtime.post_local_diagnostics.residual_report",
+        "runtime.post_local_diagnostics_warning",
+        "runtime.pre_solve_diagnostics",
+        "session_runtime.commit",
+        "session_runtime.post_local_diagnostics",
+        "session_runtime.pre_solve_diagnostics",
+        "session_runtime.validate_command"
+      ],
+      "rank_reports": [
+        {
+          "rank": 1,
+          "variables": 6,
+          "residuals": 1,
+          "nullity": 5
+        },
+        {
+          "rank": 0,
+          "variables": 3,
+          "residuals": 0,
+          "nullity": 3
+        }
+      ],
+      "residual_reports": [
+        {
+          "residuals": 1,
+          "norm": 0.0,
+          "max": 0.0
+        },
+        {
+          "residuals": 0,
+          "norm": 0.0,
+          "max": 0.0
+        }
+      ],
+      "checks": [
+        {
+          "name": "exit_code",
+          "ok": true,
+          "expected": 0,
+          "actual": 0
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "expected": "AcceptedWithWarnings",
+          "actual": "AcceptedWithWarnings"
+        },
+        {
+          "name": "accepted",
+          "ok": true,
+          "expected": true,
+          "actual": true
+        },
+        {
+          "name": "report_code:runtime.post_local_diagnostics.rank_report",
+          "ok": true,
+          "expected": "runtime.post_local_diagnostics.rank_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "diagnostics.glue_local_sections",
+            "gluing.accepted",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.commit",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_warning",
+            "runtime.pre_solve_diagnostics",
+            "session_runtime.commit",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.post_local_diagnostics.residual_report",
+          "ok": true,
+          "expected": "runtime.post_local_diagnostics.residual_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "diagnostics.glue_local_sections",
+            "gluing.accepted",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.commit",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_warning",
+            "runtime.pre_solve_diagnostics",
+            "session_runtime.commit",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:gluing.accepted",
+          "ok": true,
+          "expected": "gluing.accepted",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "diagnostics.glue_local_sections",
+            "gluing.accepted",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.commit",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_warning",
+            "runtime.pre_solve_diagnostics",
+            "session_runtime.commit",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.commit",
+          "ok": true,
+          "expected": "runtime.commit",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "diagnostics.glue_local_sections",
+            "gluing.accepted",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.commit",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_warning",
+            "runtime.pre_solve_diagnostics",
+            "session_runtime.commit",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "contains:rank 1",
+          "ok": true,
+          "expected": "rank 1",
+          "actual": "rank 1"
+        },
+        {
+          "name": "contains:nullity 5",
+          "ok": true,
+          "expected": "nullity 5",
+          "actual": "nullity 5"
+        },
+        {
+          "name": "contains:rank 0",
+          "ok": true,
+          "expected": "rank 0",
+          "actual": "rank 0"
+        },
+        {
+          "name": "contains:nullity 3",
+          "ok": true,
+          "expected": "nullity 3",
+          "actual": "nullity 3"
+        },
+        {
+          "name": "minimum_rank_reports",
+          "ok": true,
+          "expected": 2,
+          "actual": 2
+        }
+      ],
+      "passed": true
+    },
+    {
+      "case_id": "b1-over-constrained",
+      "classification": "over_constrained_numeric_failure",
+      "fixture": "fixtures/scene/verification/lgs/over_constrained.txt",
+      "expected_file": "docs/architecture/benchmarks/b1-diagnostic-classification/expected/b1-over-constrained.expected.json",
+      "command": [
+        "out/build/clang-ninja/GCS.exe",
+        "fixtures/scene/verification/lgs/over_constrained.txt"
+      ],
+      "exit_code": 2,
+      "status": "Failed",
+      "accepted": false,
+      "obstruction": "runtime.numeric_failure",
+      "load_failed": false,
+      "report_codes": [
+        "constraint_catalog.validate_model",
+        "decomposition_planner.plan",
+        "incidence_graph.build_indices",
+        "kernel.validate_model",
+        "numeric.local_section.failed",
+        "numeric_engine.solve_local",
+        "runtime.numeric_failure",
+        "runtime.numeric_rank_condition_report",
+        "runtime.obstruction_report",
+        "runtime.pre_solve_diagnostics",
+        "runtime.rollback",
+        "session_runtime.pre_solve_diagnostics",
+        "session_runtime.rollback",
+        "session_runtime.validate_command"
+      ],
+      "rank_reports": [],
+      "residual_reports": [],
+      "checks": [
+        {
+          "name": "exit_code",
+          "ok": true,
+          "expected": 2,
+          "actual": 2
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "expected": "Failed",
+          "actual": "Failed"
+        },
+        {
+          "name": "accepted",
+          "ok": true,
+          "expected": false,
+          "actual": false
+        },
+        {
+          "name": "obstruction",
+          "ok": true,
+          "expected": "runtime.numeric_failure",
+          "actual": "runtime.numeric_failure"
+        },
+        {
+          "name": "report_code:runtime.numeric_rank_condition_report",
+          "ok": true,
+          "expected": "runtime.numeric_rank_condition_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.failed",
+            "numeric_engine.solve_local",
+            "runtime.numeric_failure",
+            "runtime.numeric_rank_condition_report",
+            "runtime.obstruction_report",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.obstruction_report",
+          "ok": true,
+          "expected": "runtime.obstruction_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.failed",
+            "numeric_engine.solve_local",
+            "runtime.numeric_failure",
+            "runtime.numeric_rank_condition_report",
+            "runtime.obstruction_report",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:numeric.local_section.failed",
+          "ok": true,
+          "expected": "numeric.local_section.failed",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.failed",
+            "numeric_engine.solve_local",
+            "runtime.numeric_failure",
+            "runtime.numeric_rank_condition_report",
+            "runtime.obstruction_report",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.numeric_failure",
+          "ok": true,
+          "expected": "runtime.numeric_failure",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.failed",
+            "numeric_engine.solve_local",
+            "runtime.numeric_failure",
+            "runtime.numeric_rank_condition_report",
+            "runtime.obstruction_report",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.rollback",
+          "ok": true,
+          "expected": "runtime.rollback",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.failed",
+            "numeric_engine.solve_local",
+            "runtime.numeric_failure",
+            "runtime.numeric_rank_condition_report",
+            "runtime.obstruction_report",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "contains:Damped Gauss-Newton step failed to reduce the residual",
+          "ok": true,
+          "expected": "Damped Gauss-Newton step failed to reduce the residual",
+          "actual": "Damped Gauss-Newton step failed to reduce the residual"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "case_id": "b1-malformed-input",
+      "classification": "malformed_input_parse_failure",
+      "fixture": "fixtures/scene/verification/io/malformed.txt",
+      "expected_file": "docs/architecture/benchmarks/b1-diagnostic-classification/expected/b1-malformed-input.expected.json",
+      "command": [
+        "out/build/clang-ninja/GCS.exe",
+        "fixtures/scene/verification/io/malformed.txt"
+      ],
+      "exit_code": 1,
+      "status": null,
+      "accepted": null,
+      "obstruction": null,
+      "load_failed": true,
+      "report_codes": [
+        "io.parse.entity_count"
+      ],
+      "rank_reports": [],
+      "residual_reports": [],
+      "checks": [
+        {
+          "name": "exit_code",
+          "ok": true,
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "name": "load_failure",
+          "ok": true,
+          "expected": true,
+          "actual": true
+        },
+        {
+          "name": "report_code:io.parse.entity_count",
+          "ok": true,
+          "expected": "io.parse.entity_count",
+          "actual": [
+            "io.parse.entity_count"
+          ]
+        },
+        {
+          "name": "contains:Failed to load scene",
+          "ok": true,
+          "expected": "Failed to load scene",
+          "actual": "Failed to load scene"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "case_id": "b1-singular-blocked-commit",
+      "classification": "singular_post_local_diagnostics_blocked",
+      "fixture": "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json",
+      "expected_file": "docs/architecture/benchmarks/b1-diagnostic-classification/expected/b1-singular-blocked-commit.expected.json",
+      "command": [
+        "out/build/clang-ninja/GCS.exe",
+        "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json"
+      ],
+      "exit_code": 2,
+      "status": "NumericallySingular",
+      "accepted": false,
+      "obstruction": "runtime.post_local_diagnostics_blocked",
+      "load_failed": false,
+      "report_codes": [
+        "constraint_catalog.validate_model",
+        "decomposition_planner.plan",
+        "incidence_graph.build_indices",
+        "kernel.validate_model",
+        "numeric.local_section.converged",
+        "numeric_engine.solve_local",
+        "runtime.obstruction_report",
+        "runtime.post_local_diagnostics.rank_report",
+        "runtime.post_local_diagnostics.residual_report",
+        "runtime.post_local_diagnostics_blocked",
+        "runtime.pre_solve_diagnostics",
+        "runtime.rollback",
+        "session_runtime.post_local_diagnostics",
+        "session_runtime.pre_solve_diagnostics",
+        "session_runtime.rollback",
+        "session_runtime.validate_command"
+      ],
+      "rank_reports": [
+        {
+          "rank": 42,
+          "variables": 93,
+          "residuals": 43,
+          "nullity": 45
+        }
+      ],
+      "residual_reports": [
+        {
+          "residuals": 43,
+          "norm": 0.0,
+          "max": 0.0
+        }
+      ],
+      "checks": [
+        {
+          "name": "exit_code",
+          "ok": true,
+          "expected": 2,
+          "actual": 2
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "expected": "NumericallySingular",
+          "actual": "NumericallySingular"
+        },
+        {
+          "name": "accepted",
+          "ok": true,
+          "expected": false,
+          "actual": false
+        },
+        {
+          "name": "obstruction",
+          "ok": true,
+          "expected": "runtime.post_local_diagnostics_blocked",
+          "actual": "runtime.post_local_diagnostics_blocked"
+        },
+        {
+          "name": "report_code:runtime.post_local_diagnostics.rank_report",
+          "ok": true,
+          "expected": "runtime.post_local_diagnostics.rank_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.obstruction_report",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_blocked",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.post_local_diagnostics.residual_report",
+          "ok": true,
+          "expected": "runtime.post_local_diagnostics.residual_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.obstruction_report",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_blocked",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.obstruction_report",
+          "ok": true,
+          "expected": "runtime.obstruction_report",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.obstruction_report",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_blocked",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.post_local_diagnostics_blocked",
+          "ok": true,
+          "expected": "runtime.post_local_diagnostics_blocked",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.obstruction_report",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_blocked",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "report_code:runtime.rollback",
+          "ok": true,
+          "expected": "runtime.rollback",
+          "actual": [
+            "constraint_catalog.validate_model",
+            "decomposition_planner.plan",
+            "incidence_graph.build_indices",
+            "kernel.validate_model",
+            "numeric.local_section.converged",
+            "numeric_engine.solve_local",
+            "runtime.obstruction_report",
+            "runtime.post_local_diagnostics.rank_report",
+            "runtime.post_local_diagnostics.residual_report",
+            "runtime.post_local_diagnostics_blocked",
+            "runtime.pre_solve_diagnostics",
+            "runtime.rollback",
+            "session_runtime.post_local_diagnostics",
+            "session_runtime.pre_solve_diagnostics",
+            "session_runtime.rollback",
+            "session_runtime.validate_command"
+          ]
+        },
+        {
+          "name": "contains:rank 42",
+          "ok": true,
+          "expected": "rank 42",
+          "actual": "rank 42"
+        },
+        {
+          "name": "contains:nullity 45",
+          "ok": true,
+          "expected": "nullity 45",
+          "actual": "nullity 45"
+        },
+        {
+          "name": "minimum_rank_reports",
+          "ok": true,
+          "expected": 1,
+          "actual": 1
+        }
+      ],
+      "passed": true
+    }
+  ]
+}

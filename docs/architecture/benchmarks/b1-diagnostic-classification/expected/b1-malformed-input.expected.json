@@ -1,0 +1,19 @@
+{
+  "schema": "gcs.benchmark_expected_output.v1",
+  "benchmark_level": "B1",
+  "order": 40,
+  "case_id": "b1-malformed-input",
+  "fixture": "fixtures/scene/verification/io/malformed.txt",
+  "classification": "malformed_input_parse_failure",
+  "expected_exit_code": 1,
+  "expected_load_failure": true,
+  "expected_report_codes": [
+    "io.parse.entity_count"
+  ],
+  "expected_contains": [
+    "Failed to load scene"
+  ],
+  "known_limitations": [
+    "Malformed input exits before runtime status and accepted fields exist."
+  ]
+}

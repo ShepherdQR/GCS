@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1240" viewBox="0 0 1600 1240" role="img" aria-labelledby="title desc">
   <title id="title">GCS Narrative Line Level Baseline, 2026-05-26</title>
-  <desc id="desc">Horizontal maturity bar chart for fourteen GCS narrative lines after the researcher-audience narrative batch.</desc>
+  <desc id="desc">Horizontal maturity bar chart for fourteen GCS narrative lines after the researcher evidence-route batch.</desc>
   <defs>
     <style>
       .paper { fill: #f7f4ec; }
@@ -37,7 +37,7 @@
 
   <text class="title ink" x="76" y="96">GCS Narrative Line Level Baseline</text>
   <text class="subtitle muted" x="78" y="128">Snapshot date: 2026-05-26. Source: docs/architecture/95-gcs-narrative-map.md.</text>
-  <text class="subtitle muted" x="78" y="154">Reading: researcher-facing demos, comparison, and release criteria now exist; automation, replay packaging, benchmarks, and public routing remain the weak axis.</text>
+  <text class="subtitle muted" x="78" y="154">Reading: researcher evidence routes are executable; schema checks, external feasibility, B2 candidates, D5 workbench evidence, and first review remain next.</text>
 
   <g transform="translate(78 190)">
     <text class="section ink" x="0" y="0">Narrative maturity by line</text>
@@ -138,33 +138,33 @@
     <g transform="translate(0 582)">
       <text class="label ink" x="0" y="19">Product/user/market story</text>
       <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
-      <rect class="developing" x="480" y="4" width="360" height="22" rx="5"/>
-      <text class="score ink" x="1094" y="20">3.0</text>
-      <text class="level ink" x="1160" y="20">Developing</text>
+      <rect class="split" x="480" y="4" width="420" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">3.5</text>
+      <text class="level ink" x="1160" y="20">Strong but split</text>
     </g>
 
     <g transform="translate(0 636)">
       <text class="label ink" x="0" y="19">Release/packaging/onboarding</text>
       <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
-      <rect class="initial" x="480" y="4" width="300" height="22" rx="5"/>
-      <text class="score ink" x="1094" y="20">2.5</text>
-      <text class="level ink" x="1160" y="20">Initial and strengthening</text>
+      <rect class="developing" x="480" y="4" width="360" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">3.0</text>
+      <text class="level ink" x="1160" y="20">Developing</text>
     </g>
 
     <g transform="translate(0 690)">
       <text class="label ink" x="0" y="19">External benchmark/comparison</text>
       <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
-      <rect class="initial" x="480" y="4" width="300" height="22" rx="5"/>
-      <text class="score ink" x="1094" y="20">2.5</text>
-      <text class="level ink" x="1160" y="20">Initial and strengthening</text>
+      <rect class="developing" x="480" y="4" width="360" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">3.0</text>
+      <text class="level ink" x="1160" y="20">Developing</text>
     </g>
 
     <g transform="translate(0 744)">
       <text class="label ink" x="0" y="19">Business/open-source strategy</text>
       <rect class="bar-track" x="480" y="4" width="600" height="22" rx="5"/>
-      <rect class="partial" x="480" y="4" width="240" height="22" rx="5"/>
-      <text class="score ink" x="1094" y="20">2.0</text>
-      <text class="level ink" x="1160" y="20">Partial</text>
+      <rect class="developing" x="480" y="4" width="360" height="22" rx="5"/>
+      <text class="score ink" x="1094" y="20">3.0</text>
+      <text class="level ink" x="1160" y="20">Developing</text>
     </g>
   </g>
 
@@ -172,11 +172,11 @@
     <rect class="callout" x="0" y="-70" width="1444" height="116" rx="8"/>
     <line class="callout-rule" x1="24" y1="-48" x2="24" y2="24"/>
     <text class="section ink" x="44" y="-38">Relative weakness queue</text>
-    <text class="small muted" x="44" y="-10">1. D2 JSON classification script</text>
-    <text class="small muted" x="44" y="14">2. D3 replay evidence package</text>
-    <text class="small muted" x="470" y="-10">3. B1 benchmark expected-output files</text>
-    <text class="small muted" x="470" y="14">4. R1 researcher-preview release note and package smoke automation</text>
-    <text class="small muted" x="984" y="-10">5. Researcher-facing README expansion and contribution boundary</text>
-    <text class="tiny quiet" x="984" y="18">Refresh after demo automation, replay package, B1 benchmark, or README routing closes.</text>
+    <text class="small muted" x="44" y="-10">1. Schema-aware replay evidence checker</text>
+    <text class="small muted" x="44" y="14">2. External-baseline feasibility matrix</text>
+    <text class="small muted" x="470" y="-10">3. B2 microbenchmark candidate review</text>
+    <text class="small muted" x="470" y="14">4. D5 Solver Evidence Workbench screenshot package</text>
+    <text class="small muted" x="984" y="-10">5. First external researcher review or contribution archive</text>
+    <text class="tiny quiet" x="984" y="18">Refresh after schema checks, B2 review, D5 evidence, or external review closes.</text>
   </g>
 </svg>

@@ -60,11 +60,15 @@ Reject or defer a candidate when:
 | Fixture | Candidate level | Decision |
 | --- | --- | --- |
 | `fixtures/scene/basic/g1.txt` | C1 | Keep as D1 smoke; not a benchmark yet. |
-| `fixtures/scene/verification/lgs/well_constrained.txt` | C1 | Keep as D2 accepted classification. |
-| `fixtures/scene/verification/lgs/under_constrained.txt` | C1 | Keep as D2 rank/nullity evidence. |
-| `fixtures/scene/verification/lgs/over_constrained.txt` | C1 | Keep as D2 expected failure. |
-| `fixtures/scene/verification/io/malformed.txt` | C1 | Keep as D2 malformed input. |
-| `fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json` | C1 | Keep as D2 singular blocked commit and counterexample. |
+| `fixtures/scene/verification/lgs/well_constrained.txt` | C2 seed | B1 expected output exists; keep as accepted classification. |
+| `fixtures/scene/verification/lgs/under_constrained.txt` | C2 seed | B1 expected output exists; keep as rank/nullity evidence. |
+| `fixtures/scene/verification/lgs/over_constrained.txt` | C2 seed | B1 expected output exists; keep as expected numeric failure. |
+| `fixtures/scene/verification/io/malformed.txt` | C2 seed | B1 expected output exists; keep as malformed input parse failure. |
+| `fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json` | C2 seed | B1 expected output exists; keep as singular blocked commit and counterexample. |
+
+The active B1 expected-output set lives under
+`docs/architecture/benchmarks/b1-diagnostic-classification/expected/` and is
+consumed by `tools/product_demo/diagnostic_classification.py`.
 
 ## Expected Output Contract
 
@@ -99,7 +103,6 @@ Benchmark candidates should support three comparison modes:
 
 ## Next Task
 
-Create `tools/product_demo/diagnostic_classification.py` or a similar
-repository-local script only after the D2 demo package has been reviewed. The
-script should read a manifest, run the CLI, and emit a JSON table with status,
-exit code, report codes, and expected/actual classification.
+Add a B2 candidate review only after B1 expected outputs survive a fresh build
+and the external-baseline feasibility matrix separates executable baselines
+from documentation-only comparisons.

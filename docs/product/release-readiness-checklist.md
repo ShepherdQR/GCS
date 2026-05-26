@@ -12,16 +12,16 @@ whether a researcher can build, run, inspect, reproduce, and cite evidence.
 
 ## Current Decision
 
-GCS is not yet release ready for broad public use. It is ready for curated
-researcher review when the D1 and D2 evidence packages are kept current and the
-known limitations are explicit.
+GCS is not yet release ready for broad public use. It is ready for local R1
+researcher preview when the D1, D2, D3, and package-smoke evidence artifacts
+are kept current and the known limitations are explicit.
 
 ## Release Modes
 
 | Mode | Audience | Meaning | Current status |
 | --- | --- | --- | --- |
 | R0 internal checkpoint | Maintainers and local agents | Commit-level state with task cards, archives, and validations. | Active |
-| R1 researcher preview | Solver researchers | Can run CLI demos, inspect fixtures, and read comparison plan. | Seed |
+| R1 researcher preview | Solver researchers | Can run CLI demos, inspect fixtures, inspect replay evidence, and read comparison plan. | Active local preview |
 | R2 reproducible research snapshot | Researchers and reviewers | Frozen fixtures, versioned outputs, benchmark candidate set, and cited comparison criteria. | Later |
 | R3 public tool release | Tool builders and users | Packaging, support boundaries, install path, and compatibility promises. | Later |
 
@@ -31,10 +31,13 @@ known limitations are explicit.
 | --- | --- | --- |
 | Build path | One documented local build path or pre-existing build assumption. | Partial; D1/D2 use `out/build/clang-ninja/GCS.exe`. |
 | D1 CLI smoke | Command, expected status, and replay artifact. | Present in `docs/product/demos/d1-cli-smoke/`. |
-| D2 diagnostics | Multi-case classification transcript. | Present in `docs/product/demos/d2-diagnostic-classification/`. |
+| D2 diagnostics | Multi-case classification transcript and JSON summary. | Present in `docs/product/demos/d2-diagnostic-classification/` and `tools/product_demo/diagnostic_classification.py`. |
+| D3 replay evidence | Saved replay evidence artifact and field guide. | Present in `docs/product/demos/d3-replay-evidence/`. |
 | Fixture corpus map | Corpus levels and promotion rules. | Present in `docs/architecture/96-fixture-corpus-maturity-ladder.md`. |
 | Benchmark plan | External comparison targets and candidate rules. | Present in `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md`. |
+| B1 expected outputs | Internal expected-output files for diagnostic classification. | Present in `docs/architecture/benchmarks/b1-diagnostic-classification/`. |
 | Known limitations | Unsupported or partial behavior stated in demo docs. | Present for D1/D2. |
+| Package smoke | One command that writes R1 JSON evidence. | Present in `tools/product_demo/r1_package_smoke.py`. |
 | Agentic closure | Task card, archive, validation evidence, scoped commit. | Required for each non-trivial release task. |
 
 ## Package Smoke Path
@@ -47,6 +50,8 @@ python tools\agentic_design\agentic_toolkit.py validate-docs
 python tools\agentic_design\agentic_toolkit.py validate-inventory
 python tools\agentic_design\agentic_toolkit.py validate-skills
 python tools\agentic_design\agentic_toolkit.py check-dependencies
+python tools\product_demo\diagnostic_classification.py --output docs\product\demos\d2-diagnostic-classification\artifacts\d2-diagnostic-summary.json
+python tools\product_demo\r1_package_smoke.py --output docs\product\releases\artifacts\r1-researcher-preview-smoke-20260526.json
 out\build\clang-ninja\GCS.exe fixtures\scene\basic\g1.txt
 out\build\clang-ninja\GCS.exe fixtures\scene\verification\lgs\over_constrained.txt
 out\build\clang-ninja\GCS.exe fixtures\scene\counterexamples\mixed_geometry_20g40c_singular_20260524.gcs.json
@@ -58,6 +63,7 @@ Expected interpretation:
 - `g1.txt` exits 0 and is accepted with warnings;
 - over-constrained and singular cases exit nonzero as expected and preserve
   obstruction evidence.
+- D2 and R1 JSON evidence report all checks passed.
 
 ## Support Boundaries
 
@@ -84,7 +90,7 @@ An R1 researcher may cite:
 
 - the architecture thesis;
 - the fixture and counterexample taxonomy;
-- the D1/D2 command evidence;
+- the D1/D2/D3 command and artifact evidence;
 - the benchmark selection criteria.
 
 They should not cite:
@@ -100,8 +106,8 @@ They should not cite:
 To reach R2:
 
 1. add a reproducible build transcript;
-2. add a D2 classification script with JSON output;
-3. freeze a small benchmark-candidate set;
-4. record expected status and report fields for each candidate;
+2. add a schema-aware replay evidence checker;
+3. freeze a small B2 benchmark-candidate set;
+4. record expected status and report fields for each B2 candidate;
 5. produce a versioned release note that includes skipped and unsupported
    checks.

@@ -25,3 +25,5 @@ Start with:
   researcher-facing accepted-with-warnings scene.
 - `d2-diagnostic-classification/`: demonstrates accepted, under-constrained,
   over-constrained, malformed, and singular blocked diagnostic classes.
+- `d3-replay-evidence/`: demonstrates saved replay evidence as an inspectable
+  researcher artifact.

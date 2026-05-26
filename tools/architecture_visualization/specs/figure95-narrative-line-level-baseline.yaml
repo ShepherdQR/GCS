@@ -47,20 +47,20 @@ narrative_lines:
     level: Developing
     score: 3.0
   - name: Product/user/market story
+    level: Strong but split
+    score: 3.5
+  - name: Release/packaging/onboarding
     level: Developing
     score: 3.0
-  - name: Release/packaging/onboarding
-    level: Initial and strengthening
-    score: 2.5
   - name: External benchmark/comparison
-    level: Initial and strengthening
-    score: 2.5
+    level: Developing
+    score: 3.0
   - name: Business/open-source strategy
-    level: Partial
-    score: 2.0
+    level: Developing
+    score: 3.0
 relative_weakness_queue:
-  - D2 JSON classification script
-  - D3 replay evidence package
-  - B1 benchmark expected-output files
-  - R1 researcher-preview release note and package smoke automation
-  - Researcher-facing README expansion and contribution boundary
+  - Schema-aware replay evidence checker
+  - External-baseline feasibility matrix
+  - B2 microbenchmark candidate review
+  - D5 Solver Evidence Workbench screenshot package
+  - First external researcher review or contribution archive

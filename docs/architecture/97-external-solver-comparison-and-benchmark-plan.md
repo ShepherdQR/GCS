@@ -46,7 +46,7 @@ GCS should not yet be evaluated on:
 | Level | Name | Purpose | Entry criteria |
 | --- | --- | --- | --- |
 | B0 | Smoke scenes | Prove the CLI and report path. | One accepted small scene and one expected failure. |
-| B1 | Diagnostic classification | Distinguish accepted, under-constrained evidence, over-constrained failure, malformed input, and singular blocked commit. | D2 demo package has command evidence. |
+| B1 | Diagnostic classification | Distinguish accepted, under-constrained evidence, over-constrained failure, malformed input, and singular blocked commit. | D2 demo package has command evidence, expected-output files, and JSON summary. |
 | B2 | Research microbenchmarks | Small fixed scenes designed to test one semantic claim. | Each scene has expected status, report fields, and source rationale. |
 | B3 | Corpus benchmarks | A frozen set covering fixture maturity levels. | Each fixture has provenance, category, expected output, and migration policy. |
 | B4 | External comparison benchmarks | Same claims compared against external solver behavior when reproducible. | Publicly reproducible setup and output interpretation. |
@@ -86,16 +86,23 @@ The first candidate set should come from existing GCS scenes:
    coordinates?
 5. Can GCS distinguish unsupported theory gaps from numeric failure?
 
+## Current B1 Evidence
+
+- Expected outputs:
+  `docs/architecture/benchmarks/b1-diagnostic-classification/expected/`
+- D2 classifier:
+  `tools/product_demo/diagnostic_classification.py`
+- Current D2 JSON artifact:
+  `docs/product/demos/d2-diagnostic-classification/artifacts/d2-diagnostic-summary.json`
+
 ## Near-Term Tasks
 
-1. Build a D2 classification script that emits a JSON summary for the candidate
-   set.
-2. Add expected-output files for the B1 candidates.
-3. Decide which external baselines can be run locally and which remain
+1. Decide which external baselines can be run locally and which remain
    literature or documentation comparison only.
-4. Add one comparison table for each baseline family.
-5. Promote no scene to B2 until it passes the benchmark candidate criteria in
+2. Add one comparison table for each baseline family.
+3. Promote no scene to B2 until it passes the benchmark candidate criteria in
    `docs/architecture/98-benchmark-candidate-selection-criteria.md`.
+4. Add schema-aware checks for replay evidence and B1 expected-output files.
 
 ## Source Links
 

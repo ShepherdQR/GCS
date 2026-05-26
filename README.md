@@ -3,6 +3,30 @@
 GCS is a geometric constraint solving workspace. The repository is now arranged
 around the target architecture vocabulary and a C++23 modules build.
 
+## Researcher Route
+
+The primary near-term audience is solver and geometric-constraint researchers.
+Start here if you want to inspect what GCS can currently prove:
+
+1. Read the active narrative map:
+   [`docs/architecture/95-gcs-narrative-map.md`](docs/architecture/95-gcs-narrative-map.md).
+2. Run the D1 CLI smoke demo:
+   [`docs/product/demos/d1-cli-smoke/`](docs/product/demos/d1-cli-smoke/).
+3. Run the D2 diagnostic classifier:
+   `python tools\product_demo\diagnostic_classification.py`.
+4. Inspect D3 replay evidence:
+   [`docs/product/demos/d3-replay-evidence/`](docs/product/demos/d3-replay-evidence/).
+5. Review B1 expected outputs:
+   [`docs/architecture/benchmarks/b1-diagnostic-classification/`](docs/architecture/benchmarks/b1-diagnostic-classification/).
+6. Check the R1 researcher preview:
+   [`docs/product/releases/r1-researcher-preview-20260526.md`](docs/product/releases/r1-researcher-preview-20260526.md).
+7. Use the contribution boundary before proposing changes:
+   [`docs/product/researcher-contribution-boundary.md`](docs/product/researcher-contribution-boundary.md).
+
+GCS is not claiming production CAD readiness or benchmark superiority. Its
+current public-facing value is inspectable solver evidence: fixtures,
+diagnostics, replay reports, expected outputs, and task archives.
+
 ## Architecture
 
 ![GCS Local-To-Global Constraint Solving](docs/architecture/70-visualization/assets/figure1-gcs-local-to-global.svg)

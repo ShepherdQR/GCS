@@ -10,5 +10,7 @@ Start with:
 - `demos/`
 - `gcs-demo-ladder.md`
 - `gcs-product-user-brief.md`
+- `releases/`
 - `release-readiness-checklist.md`
+- `researcher-contribution-boundary.md`
 - `researcher-audience-strategy.md`

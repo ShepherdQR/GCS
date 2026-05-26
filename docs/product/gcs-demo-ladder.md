@@ -186,12 +186,12 @@ Acceptance:
 | --- | --- | --- |
 | D0 | Strong | Keep narrative map and product brief current. |
 | D1 | Active package | Keep `docs/product/demos/d1-cli-smoke/` current and add schema validation for replay evidence. |
-| D2 | Active package | Add a classification script and JSON summary for `docs/product/demos/d2-diagnostic-classification/`. |
-| D3 | Strong internally | Surface replay evidence as a demo step. |
+| D2 | Automated package | Keep `tools/product_demo/diagnostic_classification.py` and the JSON summary current with B1 expected outputs. |
+| D3 | Active package | Keep `docs/product/demos/d3-replay-evidence/` and its saved replay artifact current. |
 | D4 | Now defined | Use the corpus ladder for future fixture promotion tasks. |
 | D5 | Direction exists | Produce one evidence-first screenshot/replay demo when viewer work resumes. |
 | D6 | Partial | Turn showcase fixture evidence into one external reviewer story. |
-| D7 | Seed plan | Use `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` and `98-benchmark-candidate-selection-criteria.md`. |
+| D7 | B1 internal baseline | Use B1 expected outputs before attempting external executable comparisons. |
 
 ## Demo Package Contract
 
@@ -218,9 +218,9 @@ docs/product/demos/
 
 ## Next Actions
 
-1. Add a D2 classification script with JSON output.
-2. Attach one D3 replay evidence artifact to a product-facing demo package.
-3. Add expected-output files for B1 benchmark candidates.
-4. Promote a D5 Solver Evidence Workbench screenshot only after visual QA
+1. Promote a D5 Solver Evidence Workbench screenshot only after visual QA
    artifacts exist.
-5. Decide which D7 external baselines can be run locally.
+2. Decide which D7 external baselines can be run locally.
+3. Add a schema-aware replay evidence checker for D3.
+4. Promote no B2 microbenchmark until B1 expected outputs stay stable across a
+   fresh build.

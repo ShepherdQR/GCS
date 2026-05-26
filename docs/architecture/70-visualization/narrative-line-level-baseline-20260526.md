@@ -8,11 +8,11 @@ Figure: `figure95-narrative-line-level-baseline-20260526`
 
 This baseline visualizes the `Level` column from
 `docs/architecture/95-gcs-narrative-map.md` as of 2026-05-26 after the
-researcher-audience narrative batch. It is meant to make the project imbalance
+researcher evidence-route batch. It is meant to make the project imbalance
 visible at a glance: internal solver, architecture, quality, and
-agentic-operation narratives are strong, while external legibility still needs
-automated demo summaries, replay packaging, benchmark execution, and public
-researcher routing.
+agentic-operation narratives are strong, while external legibility has moved
+from seed artifacts to executable evidence routes and now needs schema checks,
+external-baseline feasibility, and first external review evidence.
 
 ## Artifacts
 
@@ -45,17 +45,19 @@ textual narrative-map levels and the next strengthening tasks listed there.
   evidence, quality gates, and Git/PR governance.
 - Middle lines: UI/viewer/scientific figures and institutional-agent learning.
 - Strengthened weak-axis lines: product behavior evidence, release readiness,
-  external comparison, and researcher audience strategy now have seed artifacts.
-- Remaining weak-axis work: automate D2 summaries, package D3 replay evidence,
-  freeze benchmark candidates, and route public docs around researchers.
+  external comparison, and researcher audience strategy now have executable or
+  inspectable evidence artifacts.
+- Remaining weak-axis work: schema-aware replay checking, external-baseline
+  feasibility, B2 microbenchmark candidate review, D5 workbench evidence, and
+  first external researcher review.
 
 ## Refresh Rule
 
 Refresh this baseline when any of these close:
 
-- D2 classification script;
-- D3 replay evidence package;
-- B1 benchmark expected-output files;
-- R1 researcher-preview release note;
-- public README expansion;
+- schema-aware replay evidence checker;
+- external-baseline feasibility matrix;
+- B2 microbenchmark candidate review;
+- D5 Solver Evidence Workbench screenshot package;
+- first external researcher review or contribution archive;
 - governance eval promotion from prompt-level to validator candidate.

@@ -92,6 +92,8 @@ order, not by historical source order. Background research notes live under
    - `98-benchmark-candidate-selection-criteria.md`: promotion criteria for
      moving scenes from observed examples to benchmark candidates and frozen
      benchmark fixtures.
+   - `benchmarks/b1-diagnostic-classification/`: first B1 expected-output
+     files consumed by the D2 diagnostic classifier.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

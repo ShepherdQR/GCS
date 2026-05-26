@@ -1,0 +1,25 @@
+{
+  "schema": "gcs.benchmark_expected_output.v1",
+  "benchmark_level": "B1",
+  "order": 10,
+  "case_id": "b1-well-constrained",
+  "fixture": "fixtures/scene/verification/lgs/well_constrained.txt",
+  "classification": "accepted_current_smoke",
+  "expected_exit_code": 0,
+  "expected_status": "AcceptedWithWarnings",
+  "expected_accepted": true,
+  "expected_report_codes": [
+    "runtime.post_local_diagnostics.rank_report",
+    "runtime.post_local_diagnostics.residual_report",
+    "gluing.accepted",
+    "runtime.commit"
+  ],
+  "minimum_rank_reports": 1,
+  "expected_contains": [
+    "rank 3",
+    "nullity 6"
+  ],
+  "known_limitations": [
+    "AcceptedWithWarnings is expected in the current implementation because post-local diagnostics remain warning-level."
+  ]
+}

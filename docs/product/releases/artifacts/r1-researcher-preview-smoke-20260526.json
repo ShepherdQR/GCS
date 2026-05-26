@@ -1,0 +1,118 @@
+{
+  "schema": "gcs.product_release.r1_package_smoke.v1",
+  "release_mode": "R1 researcher preview",
+  "audience": "solver and geometric-constraint researchers",
+  "all_passed": true,
+  "checks": [
+    {
+      "id": "validate-docs",
+      "kind": "command",
+      "command": [
+        "C:\\Softwares\\miniconda3\\python.exe",
+        "tools/agentic_design/agentic_toolkit.py",
+        "validate-docs"
+      ],
+      "expected_exit_codes": [
+        0
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "output_excerpt": "[OK] docs: module design coverage passed"
+    },
+    {
+      "id": "validate-inventory",
+      "kind": "command",
+      "command": [
+        "C:\\Softwares\\miniconda3\\python.exe",
+        "tools/agentic_design/agentic_toolkit.py",
+        "validate-inventory"
+      ],
+      "expected_exit_codes": [
+        0
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "output_excerpt": "[OK] inventory: structured module inventory passed"
+    },
+    {
+      "id": "validate-skills",
+      "kind": "command",
+      "command": [
+        "C:\\Softwares\\miniconda3\\python.exe",
+        "tools/agentic_design/agentic_toolkit.py",
+        "validate-skills"
+      ],
+      "expected_exit_codes": [
+        0
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "output_excerpt": "[OK] skills: all module skills passed"
+    },
+    {
+      "id": "check-dependencies",
+      "kind": "command",
+      "command": [
+        "C:\\Softwares\\miniconda3\\python.exe",
+        "tools/agentic_design/agentic_toolkit.py",
+        "check-dependencies"
+      ],
+      "expected_exit_codes": [
+        0
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "output_excerpt": "[OK] dependencies: import boundaries passed"
+    },
+    {
+      "id": "d1-cli-smoke",
+      "kind": "command",
+      "command": [
+        "out/build/clang-ninja/GCS.exe",
+        "fixtures/scene/basic/g1.txt"
+      ],
+      "expected_exit_codes": [
+        0
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "output_excerpt": "GCS C++23 canonical kernel solver skeleton\nInput: fixtures/scene/basic/g1.txt\nStateVersion=1 RigidSets=3 Entities=5 Constraints=2\nStatus: AcceptedWithWarnings\nAccepted: true\nNew state version: 1\nCover contexts: 4\nLocal numeric reports: 3\n  runtime.post_local_diagnostics.rank_report: rank 3, variables 6, free 6, frozen 0, residuals 3, nullity 3\n  runtime.post_local_diagnostics.rank_report: rank 1, variables 9, free 9, frozen 0, residuals 1, nullity 8\n  runtime.post_local_diagnostics.rank_report: rank 0, variables 6, free 6, frozen 0, residuals 0, nullity 6\n  runtime.post_local_diagnostics.residual_report: residuals 3, norm 0.000000, max 0.000000\n  runtime.post_local_diagnostics.residual_report: residuals 1, norm 0.000000, max 0.000000\n  runtime.post_local_diagnostics.residual_report: residuals 0, norm 0.000000, max 0.000000\n  session_runtime.validate_command: Ok\n  kernel.validate_model: Ok\n  constraint_catalog.validate_model: Ok\n  incidence_graph.build_indices: Ok\n  decomposition_planner.plan: Ok\n  session_runtime.pre_solve_diagnostics: Ok\n  runtime.pre_solve_diagnostics: Pre-solve diagnostics completed.\n  numeric_engine.solve_local: Ok\n  numeric.local_section.converged: Damped Gaus"
+    },
+    {
+      "id": "d2-diagnostic-classification",
+      "kind": "command",
+      "command": [
+        "C:\\Softwares\\miniconda3\\python.exe",
+        "tools/product_demo/diagnostic_classification.py",
+        "--output",
+        "docs/product/demos/d2-diagnostic-classification/artifacts/d2-diagnostic-summary.json"
+      ],
+      "expected_exit_codes": [
+        0
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "output_excerpt": "[OK] D2 diagnostic classification: 5/5 cases passed -> docs/product/demos/d2-diagnostic-classification/artifacts/d2-diagnostic-summary.json"
+    },
+    {
+      "id": "d3-replay-evidence-artifact",
+      "kind": "json_file",
+      "path": "docs/product/demos/d3-replay-evidence/artifacts/g1-replay-evidence.report.json",
+      "required_fields": [
+        "schema",
+        "accepted",
+        "status",
+        "committed",
+        "rolled_back",
+        "report_codes",
+        "stages"
+      ],
+      "passed": true,
+      "missing_fields": [],
+      "schema": "gcs.replay_evidence_report.v1",
+      "status": "AcceptedWithWarnings",
+      "accepted": true,
+      "all_passed": null
+    }
+  ]
+}

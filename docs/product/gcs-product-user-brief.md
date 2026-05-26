@@ -156,15 +156,15 @@ Longer term:
 | Demo workflow count | Shows user-visible capability. | Initial demo candidates identified here. |
 | Fixture maturity coverage | Connects scenes to evidence. | Needs corpus maturity ladder. |
 | New contributor time-to-run | Tests onboarding quality. | Needs 20-minute path. |
-| Report evidence inspectability | Tests solver trust. | Strong internal base, needs product demo connection. |
+| Report evidence inspectability | Tests solver trust. | D1, D2, D3, and B1 expected outputs now connect internal evidence to product demos. |
 | Completed-task reconstructability | Tests agentic organization quality. | Strong and validated for recent tasks. |
 
 ## Next Product Tasks
 
-1. Add a D2 classification script with JSON summary output.
-2. Add a D3 replay evidence package for researcher review.
-3. Add expected-output files for B1 benchmark candidates.
-4. Draft a researcher-facing README expansion after release-readiness review.
+1. Add a schema-aware replay evidence checker.
+2. Add an external-baseline feasibility matrix.
+3. Identify the first B2 research microbenchmark candidates.
+4. Add a D5 Solver Evidence Workbench screenshot package after visual QA.
 5. Decide which external baselines are executable locally and which remain
    documentation-only comparisons.
 
@@ -175,6 +175,12 @@ Completed first follow-ups:
 - `docs/architecture/96-fixture-corpus-maturity-ladder.md`
 - `docs/product/demos/d1-cli-smoke/`
 - `docs/product/demos/d2-diagnostic-classification/`
+- `docs/product/demos/d3-replay-evidence/`
+- `tools/product_demo/diagnostic_classification.py`
+- `tools/product_demo/r1_package_smoke.py`
+- `docs/architecture/benchmarks/b1-diagnostic-classification/`
+- `docs/product/releases/r1-researcher-preview-20260526.md`
+- `docs/product/researcher-contribution-boundary.md`
 - `docs/product/release-readiness-checklist.md`
 - `docs/product/researcher-audience-strategy.md`
 - `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md`

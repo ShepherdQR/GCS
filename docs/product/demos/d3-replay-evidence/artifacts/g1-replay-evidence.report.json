@@ -1,0 +1,32 @@
+{
+  "schema": "gcs.replay_evidence_report.v1",
+  "content_type": "application/vnd.gcs.replay-evidence+json",
+  "found": true,
+  "command_id": 1,
+  "artifact_kind": "runtime_transaction_trace",
+  "report_evidence": true,
+  "scene_construction_history_entry": false,
+  "accepted": true,
+  "status": "AcceptedWithWarnings",
+  "base_version": 0,
+  "final_version": 1,
+  "committed": true,
+  "rolled_back": false,
+  "report_codes": ["runtime.pre_solve_diagnostics", "numeric.local_section.converged", "runtime.post_local_diagnostics_warning", "numeric.local_section.converged", "runtime.post_local_diagnostics_warning", "numeric.local_section.converged", "runtime.post_local_diagnostics_warning", "gluing.accepted", "runtime.commit"],
+  "stages": [
+    {"order": 0, "stage": "command_validation", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": ""},
+    {"order": 1, "stage": "model_validation", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": ""},
+    {"order": 2, "stage": "constraint_validation", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": ""},
+    {"order": 3, "stage": "incidence_index", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": ""},
+    {"order": 4, "stage": "planning", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": ""},
+    {"order": 5, "stage": "pre_solve_diagnostics", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": "runtime.pre_solve_diagnostics"},
+    {"order": 6, "stage": "numeric_solve", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": "numeric.local_section.converged"},
+    {"order": 7, "stage": "post_local_diagnostics", "stage_status": "Warning", "status": "AcceptedWithWarnings", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": "runtime.post_local_diagnostics_warning"},
+    {"order": 8, "stage": "numeric_solve", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": "numeric.local_section.converged"},
+    {"order": 9, "stage": "post_local_diagnostics", "stage_status": "Warning", "status": "AcceptedWithWarnings", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": "runtime.post_local_diagnostics_warning"},
+    {"order": 10, "stage": "numeric_solve", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": "numeric.local_section.converged"},
+    {"order": 11, "stage": "post_local_diagnostics", "stage_status": "Warning", "status": "AcceptedWithWarnings", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": "runtime.post_local_diagnostics_warning"},
+    {"order": 12, "stage": "gluing", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 0, "durable_mutation": false, "report_code": "gluing.accepted"},
+    {"order": 13, "stage": "commit", "stage_status": "Ok", "status": "Solved", "before_version": 0, "after_version": 1, "durable_mutation": true, "report_code": "runtime.commit"}
+  ]
+}

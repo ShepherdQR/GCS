@@ -23,7 +23,7 @@ workflow health, and narrative maturity.
 | Inventory validation | Strong | `validate-inventory` is part of the expected gate. | Run for scoped architecture/agentic batches. |
 | Skill validation | Strong | Project skills are the routing layer. | Run after skill or steward-related work. |
 | Dependency boundary | Strong | `check-dependencies` is part of the expected gate. | Keep mathematical layers free of UI/IO/agentic dependencies. |
-| Product/user narrative | Developing | Researcher primary audience, D1/D2 demo packages, release checklist, and benchmark plan exist. | Add D2 classification script and D3 replay evidence package. |
+| Product/user narrative | Strong but split | Researcher primary audience, D1/D2/D3 demo packages, D2 JSON classifier, R1 preview, B1 expected outputs, README route, and contribution boundary exist. | Add D5 workbench evidence and first external researcher review. |
 | Metrics trend history | Initial | This dashboard is the first active baseline. | Add timestamped updates after important closures. |
 | Permission/governance telemetry | Developing | Permission policy, PR governance, threat matrix, governance eval roadmap, and three prompt-level eval seeds exist. | Exercise eval seeds in real archives before validator candidates. |
 
@@ -59,13 +59,19 @@ workflow health, and narrative maturity.
 | New product demo package directory | 1 | `docs/product/demos/` |
 | New D1 CLI smoke demo package | 1 | `docs/product/demos/d1-cli-smoke/` |
 | New D2 diagnostic classification demo package | 1 | `docs/product/demos/d2-diagnostic-classification/` |
+| New D3 replay evidence demo package | 1 | `docs/product/demos/d3-replay-evidence/` |
+| Product demo tools | 2 | `tools/product_demo/diagnostic_classification.py` and `r1_package_smoke.py` |
+| B1 expected-output set | 1 | `docs/architecture/benchmarks/b1-diagnostic-classification/` |
+| R1 researcher-preview release note | 1 | `docs/product/releases/r1-researcher-preview-20260526.md` |
+| R1 package smoke artifact | 1 | `docs/product/releases/artifacts/r1-researcher-preview-smoke-20260526.json` |
 | Researcher primary-audience strategy | 1 | `docs/product/researcher-audience-strategy.md` |
+| Researcher contribution boundary | 1 | `docs/product/researcher-contribution-boundary.md` |
 | Release-readiness checklist | 1 | `docs/product/release-readiness-checklist.md` |
 | External comparison and benchmark plan | 1 | `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` |
 | Benchmark candidate selection criteria | 1 | `docs/architecture/98-benchmark-candidate-selection-criteria.md` |
 | Governance prompt eval seeds | 3 | `docs/agentic/evals/governance/` |
 | Active metrics dashboard | 1 | This document |
-| Known unrelated dirty or untracked paths in current session | 2 | `docs/research/OpusTime/OpusTime.md` and `docs/reports/report_/`; do not stage for narrative commits. |
+| Known unrelated dirty or untracked paths in current session | 3 | `docs/research/OpusTime/OpusTime.md`, `docs/reports/report_/`, and `docs/agentic/tasks/2026-05-26-institutional-process-ai-token-economics.md`; do not stage for narrative commits. |
 
 ## Update Rule
 
@@ -105,6 +111,6 @@ Follow-up:
 | Add demo ladder | viewer bridge and architecture stewards | CLI, replay, report, and workbench demos are ordered. |
 | Add permission threat matrix | governance owner | Private data, untrusted content, outbound comms, writes, branch actions, and network/dependencies are mapped. |
 | Add onboarding path | architecture steward | New reviewer can build, run, inspect evidence, and read the thesis in one sitting. |
-| Add D2 classification script | product and quality stewards | Demo emits JSON status, exit code, report code, and classification summary. |
-| Add D3 replay evidence package | product and session-runtime stewards | Replay report evidence becomes a researcher-facing demo. |
-| Add researcher-facing README expansion | architecture and product stewards | Public entry point routes researchers through D1, D2, corpus, and benchmark docs. |
+| Add schema-aware replay evidence checker | product and session-runtime stewards | D3 replay artifacts are validated beyond field presence. |
+| Add external-baseline feasibility matrix | architecture steward | External baselines are classified as executable or documentation-only. |
+| Add D5 workbench evidence package | viewer bridge and UI stewards | Screenshot package links visual state to report evidence and visual QA. |

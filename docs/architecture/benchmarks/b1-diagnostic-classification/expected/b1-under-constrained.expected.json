@@ -1,0 +1,27 @@
+{
+  "schema": "gcs.benchmark_expected_output.v1",
+  "benchmark_level": "B1",
+  "order": 20,
+  "case_id": "b1-under-constrained",
+  "fixture": "fixtures/scene/verification/lgs/under_constrained.txt",
+  "classification": "under_constrained_rank_nullity_evidence",
+  "expected_exit_code": 0,
+  "expected_status": "AcceptedWithWarnings",
+  "expected_accepted": true,
+  "expected_report_codes": [
+    "runtime.post_local_diagnostics.rank_report",
+    "runtime.post_local_diagnostics.residual_report",
+    "gluing.accepted",
+    "runtime.commit"
+  ],
+  "minimum_rank_reports": 2,
+  "expected_contains": [
+    "rank 1",
+    "nullity 5",
+    "rank 0",
+    "nullity 3"
+  ],
+  "known_limitations": [
+    "Under-constrained status is currently inferred from rank and nullity evidence rather than a distinct top-level status."
+  ]
+}

@@ -70,9 +70,11 @@ Avoid these claims:
 | 1 | Read the project thesis. | `docs/architecture/95-gcs-narrative-map.md` |
 | 2 | Run a smoke command. | `docs/product/demos/d1-cli-smoke/` |
 | 3 | Run diagnostic examples. | `docs/product/demos/d2-diagnostic-classification/` |
-| 4 | Inspect fixture maturity. | `docs/architecture/96-fixture-corpus-maturity-ladder.md` |
-| 5 | Compare with solver baselines. | `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` |
-| 6 | Propose a benchmark candidate. | `docs/architecture/98-benchmark-candidate-selection-criteria.md` |
+| 4 | Inspect replay evidence. | `docs/product/demos/d3-replay-evidence/` |
+| 5 | Inspect fixture maturity. | `docs/architecture/96-fixture-corpus-maturity-ladder.md` |
+| 6 | Compare with solver baselines. | `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` |
+| 7 | Propose a benchmark candidate. | `docs/architecture/98-benchmark-candidate-selection-criteria.md` |
+| 8 | Check contribution fit. | `docs/product/researcher-contribution-boundary.md` |
 
 ## Documentation Consequences
 
@@ -84,10 +86,10 @@ Avoid these claims:
 
 ## Next Decision
 
-After the D2 classification script and first benchmark candidates exist, decide
-whether the public README should present GCS as:
+After the D2 classification script and first B1 expected outputs, the public
+README should present GCS as a staged combination with researcher workbench as
+the front door:
 
-- a research workbench first;
-- a solver architecture reference implementation;
-- an agentic-SE case study around a real solver;
-- or a staged combination with researcher workbench as the front door.
+1. evidence-rich solver workbench;
+2. solver architecture reference implementation;
+3. agentic-SE case study around a real solver.

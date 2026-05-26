@@ -1,0 +1,28 @@
+{
+  "schema": "gcs.benchmark_expected_output.v1",
+  "benchmark_level": "B1",
+  "order": 50,
+  "case_id": "b1-singular-blocked-commit",
+  "fixture": "fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json",
+  "classification": "singular_post_local_diagnostics_blocked",
+  "expected_exit_code": 2,
+  "expected_status": "NumericallySingular",
+  "expected_accepted": false,
+  "expected_obstruction": "runtime.post_local_diagnostics_blocked",
+  "expected_report_codes": [
+    "runtime.post_local_diagnostics.rank_report",
+    "runtime.post_local_diagnostics.residual_report",
+    "runtime.obstruction_report",
+    "runtime.post_local_diagnostics_blocked",
+    "runtime.rollback"
+  ],
+  "minimum_rank_reports": 1,
+  "expected_contains": [
+    "rank 42",
+    "nullity 45"
+  ],
+  "known_limitations": [
+    "This is a preserved counterexample, not a passing benchmark claim.",
+    "The current CLI returns exit code 2 for runtime diagnostic block in this subprocess path."
+  ]
+}

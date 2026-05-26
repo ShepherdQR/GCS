@@ -1,0 +1,26 @@
+{
+  "schema": "gcs.benchmark_expected_output.v1",
+  "benchmark_level": "B1",
+  "order": 30,
+  "case_id": "b1-over-constrained",
+  "fixture": "fixtures/scene/verification/lgs/over_constrained.txt",
+  "classification": "over_constrained_numeric_failure",
+  "expected_exit_code": 2,
+  "expected_status": "Failed",
+  "expected_accepted": false,
+  "expected_obstruction": "runtime.numeric_failure",
+  "expected_report_codes": [
+    "runtime.numeric_rank_condition_report",
+    "runtime.obstruction_report",
+    "numeric.local_section.failed",
+    "runtime.numeric_failure",
+    "runtime.rollback"
+  ],
+  "expected_contains": [
+    "Damped Gauss-Newton step failed to reduce the residual"
+  ],
+  "known_limitations": [
+    "The current top-level class is numeric failure; future diagnostics may split over-constrained and inconsistent causes more precisely.",
+    "The current CLI returns exit code 2 for runtime solve failure in this subprocess path."
+  ]
+}

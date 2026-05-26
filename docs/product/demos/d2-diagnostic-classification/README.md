@@ -34,6 +34,20 @@ out\build\clang-ninja\GCS.exe fixtures\scene\verification\io\malformed.txt
 out\build\clang-ninja\GCS.exe fixtures\scene\counterexamples\mixed_geometry_20g40c_singular_20260524.gcs.json
 ```
 
+Automated JSON summary:
+
+```bat
+python tools\product_demo\diagnostic_classification.py --output docs\product\demos\d2-diagnostic-classification\artifacts\d2-diagnostic-summary.json
+```
+
+Current artifact:
+
+- `docs/product/demos/d2-diagnostic-classification/artifacts/d2-diagnostic-summary.json`
+
+Expected-output files:
+
+- `docs/architecture/benchmarks/b1-diagnostic-classification/expected/`
+
 ## Evidence Excerpts
 
 Accepted current smoke:
@@ -106,11 +120,5 @@ hidden GUI state or raw chat context.
 
 ## Next Upgrade
 
-Add a small classification script that emits a stable JSON summary:
-
-```text
-scene, exit_code, status, accepted, obstruction, rank_summary, residual_summary
-```
-
-That script should become the bridge from D2 demo package to future benchmark
-candidate runs.
+Promote this package when the D2 JSON summary is checked by release smoke and
+the B1 expected-output files survive a fresh build without changes.
