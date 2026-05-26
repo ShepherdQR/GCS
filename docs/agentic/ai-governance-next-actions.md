@@ -24,6 +24,10 @@ GCS already has:
 
 The next step is to make these policies executable and measurable.
 
+The detailed execution order is now persisted in
+`docs/agentic/ai-governance-execution-plan-2026-05-26.md`. Treat that file as
+the active queue when selecting the next AI governance or audit task.
+
 ## Priority 1: Machine-Readable PR Audit
 
 Goal: turn PR audit from a Markdown checklist into a reusable artifact.
@@ -172,5 +176,10 @@ Acceptance signal:
 2. Done: implement `nightly-runs/README.md` generation.
 3. Done: run both on the governance branch as a calibration sample.
 4. Done: add permission-policy-as-code and `validate-pr-audit`.
-5. Next: review the first two nightly diagnostic runs and label signal/noise.
-6. Next: build the AI review eval set from historical completed-task archives.
+5. Done: add repository-audit accepted snapshot registry and index.
+6. Current: persist the governance execution queue and session closeout.
+7. Next: review the first two nightly diagnostic runs and label signal/noise.
+8. Next: add PR audit include support to the shared quality-gate entry point.
+9. Next: implement Git session registry and `check-git-session`.
+10. Next: add permission action logs and threat matrix.
+11. Next: build the AI review eval set from historical completed-task archives.
