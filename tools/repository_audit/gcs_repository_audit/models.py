@@ -6,6 +6,7 @@ from typing import Any
 
 SCHEMA_VERSION = "gcs-repository-audit-0.1"
 DIFF_SCHEMA_VERSION = "gcs-repository-audit-diff-0.1"
+TREND_SCHEMA_VERSION = "gcs-repository-audit-trend-0.1"
 TOOL_VERSION = "0.1"
 
 

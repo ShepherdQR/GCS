@@ -11,9 +11,10 @@ sys.path.insert(0, str(REPOSITORY_AUDIT_ROOT))
 
 from gcs_repository_audit.classify import ARTIFACT_LAYERS, classify_path, normalize_path
 from gcs_repository_audit.collect import collect_snapshot, write_snapshot
-from gcs_repository_audit.diff import compare_snapshots, write_diff
+from gcs_repository_audit.diff import compare_snapshots, render_markdown_diff, write_diff
 from gcs_repository_audit.models import GitInfo
 from gcs_repository_audit.report import render_markdown_report
+from gcs_repository_audit.trend import build_trend, render_markdown_trend
 
 
 class RepositoryAuditTests(unittest.TestCase):
@@ -249,6 +250,61 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertEqual(data["schema_version"], "gcs-repository-audit-diff-0.1")
         self.assertEqual(data["summary"]["modified_files"], 1)
         self.assertEqual(data["files"][0]["path"], "README.md")
+
+    def test_render_markdown_diff_summarizes_deltas(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            readme = root / "README.md"
+            readme.write_text("# Demo\n", encoding="utf-8")
+            base_snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md"],
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="base", branch="test", dirty=False),
+            )
+            readme.write_text("# Demo\n\nExpanded.\n", encoding="utf-8")
+            head_snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md"],
+                generated_at="2026-05-26T00:00:01+00:00",
+                git_info=GitInfo(head="head", branch="test", dirty=False),
+            )
+
+        report = render_markdown_diff(compare_snapshots(base_snapshot, head_snapshot))
+
+        self.assertIn("# GCS Repository Audit Diff", report)
+        self.assertIn("## Total Deltas", report)
+        self.assertIn("| physical_lines | 1 | 3 | +2 |", report)
+        self.assertIn("| modified | README.md | repo_root_config | +2 |", report)
+
+    def test_render_markdown_trend_summarizes_snapshot_series(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            readme = root / "README.md"
+            readme.write_text("# Demo\n", encoding="utf-8")
+            base_snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md"],
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="base123456789", branch="test", dirty=False),
+            )
+            report_path = root / "docs" / "reports" / "repository-audit" / "demo.md"
+            report_path.parent.mkdir(parents=True)
+            report_path.write_text("# Report\nEvidence\n", encoding="utf-8")
+            head_snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md", "docs/reports/repository-audit/demo.md"],
+                generated_at="2026-05-26T00:00:01+00:00",
+                git_info=GitInfo(head="head123456789", branch="test", dirty=False),
+            )
+
+        trend = build_trend([base_snapshot, head_snapshot], generated_at="2026-05-26T00:00:02+00:00")
+        report = render_markdown_trend(trend)
+
+        self.assertEqual(trend["schema_version"], "gcs-repository-audit-trend-0.1")
+        self.assertIn("# GCS Repository Audit Trend", report)
+        self.assertIn("| files | 1 | 2 | +1 |", report)
+        self.assertIn("| project_report | +1 | +2 |", report)
 
 
 if __name__ == "__main__":

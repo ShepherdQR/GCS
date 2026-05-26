@@ -33,6 +33,7 @@ def default_args(**overrides):
         "include_task_cards": [],
         "include_completed_reports": [],
         "include_fixture_library": False,
+        "include_repository_audit": False,
     }
     args.update(overrides)
     return SimpleNamespace(**args)
@@ -348,6 +349,35 @@ class AgenticToolkitTests(unittest.TestCase):
         command_parts = [str(part).replace("\\", "/") for part in fixture_gate.command]
         self.assertTrue(any(part.endswith("tools/scene_generation/fixture_library_gate.py") for part in command_parts))
         self.assertIn("--gcs-exe", fixture_gate.command)
+
+    def test_repository_audit_gate_is_focused_opt_in(self):
+        toolkit = load_toolkit()
+        build_dir = Path("out/build/clang-ninja")
+
+        default_gate_ids = [
+            gate.gate_id
+            for gate in toolkit.build_quality_gate_commands(
+                default_args(),
+                Path("tools/agentic_design/agentic_toolkit.py"),
+                "python",
+                build_dir,
+                build_dir / "GCS.exe",
+            )
+        ]
+        self.assertNotIn("python.repository_audit_check", default_gate_ids)
+
+        commands = toolkit.build_quality_gate_commands(
+            default_args(include_repository_audit=True),
+            Path("tools/agentic_design/agentic_toolkit.py"),
+            "python",
+            build_dir,
+            build_dir / "GCS.exe",
+        )
+
+        gate = next(item for item in commands if item.gate_id == "python.repository_audit_check")
+        command_parts = [str(part).replace("\\", "/") for part in gate.command]
+        self.assertTrue(any(part.endswith("tools/repository_audit/repository_audit.py") for part in command_parts))
+        self.assertEqual(gate.command[-1], "check")
 
     def test_pr_audit_classifies_agentic_tooling_diff(self):
         toolkit = load_toolkit()

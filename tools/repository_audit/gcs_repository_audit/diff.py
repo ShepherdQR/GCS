@@ -17,6 +17,30 @@ from .models import (
 )
 
 
+def _fmt_int(value: Any) -> str:
+    try:
+        return f"{int(value):,}"
+    except (TypeError, ValueError):
+        return "0"
+
+
+def _fmt_delta(value: Any) -> str:
+    number = _as_int(value)
+    if number > 0:
+        return f"+{number:,}"
+    return f"{number:,}"
+
+
+def _table(headers: list[str], rows: list[list[Any]]) -> list[str]:
+    lines = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join("---" for _ in headers) + " |",
+    ]
+    for row in rows:
+        lines.append("| " + " | ".join(str(item) for item in row) + " |")
+    return lines
+
+
 def _to_dict(value: Any) -> dict[str, Any]:
     if hasattr(value, "to_dict"):
         return value.to_dict()
@@ -229,3 +253,162 @@ def write_diff(diff: RepositoryAuditDiff, output: Path) -> None:
         encoding="utf-8",
         newline="\n",
     )
+
+
+def read_diff(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _top_group_rows(diff: dict[str, Any], group_name: str, limit: int) -> list[dict[str, Any]]:
+    rows = [dict(group) for group in diff.get("groups", {}).get(group_name, [])]
+    return sorted(
+        rows,
+        key=lambda group: (
+            abs(_as_int(group.get("delta_physical_lines"))),
+            abs(_as_int(group.get("delta_files"))),
+            str(group.get("key", "")),
+        ),
+        reverse=True,
+    )[:limit]
+
+
+def _top_file_rows(diff: dict[str, Any], limit: int) -> list[dict[str, Any]]:
+    rows = [dict(file_delta) for file_delta in diff.get("files", [])]
+    return sorted(
+        rows,
+        key=lambda item: (
+            abs(_as_int(item.get("delta_physical_lines"))),
+            abs(_as_int(item.get("delta_bytes"))),
+            str(item.get("path", "")),
+        ),
+        reverse=True,
+    )[:limit]
+
+
+def render_markdown_diff(
+    diff: Any,
+    *,
+    command: str | None = None,
+    max_group_rows: int = 15,
+    max_file_rows: int = 20,
+) -> str:
+    data = _to_dict(diff)
+    summary = dict(data.get("summary", {}))
+    totals = dict(data.get("totals", {}))
+    base_git = dict(data.get("base_git", {}))
+    head_git = dict(data.get("head_git", {}))
+    findings = [dict(finding) for finding in data.get("findings", [])]
+
+    lines: list[str] = [
+        "# GCS Repository Audit Diff",
+        "",
+        f"Generated: `{data.get('generated_at', '<unknown>')}`",
+        f"Base: `{base_git.get('head') or '<unknown>'}`",
+        f"Head: `{head_git.get('head') or '<unknown>'}`",
+        f"Schema: `{data.get('schema_version', '<unknown>')}`",
+        f"Tool: `{data.get('tool_version', '<unknown>')}`",
+        "",
+        "## Executive Summary",
+        "",
+        (
+            f"- Changed {_fmt_int(summary.get('changed_files'))} files: "
+            f"{_fmt_int(summary.get('added_files'))} added, "
+            f"{_fmt_int(summary.get('removed_files'))} removed, "
+            f"{_fmt_int(summary.get('modified_files'))} modified."
+        ),
+        (
+            f"- Text-line delta: {_fmt_delta(summary.get('delta_physical_lines'))}; "
+            f"byte delta: {_fmt_delta(summary.get('delta_bytes'))}."
+        ),
+        (
+            f"- Finding delta: {_fmt_int(summary.get('added_findings'))} added, "
+            f"{_fmt_int(summary.get('removed_findings'))} removed."
+        ),
+        "",
+        "## Total Deltas",
+        "",
+    ]
+    lines.extend(
+        _table(
+            ["Metric", "Base", "Head", "Delta"],
+            [
+                [
+                    key,
+                    _fmt_int(value.get("base")),
+                    _fmt_int(value.get("head")),
+                    _fmt_delta(value.get("delta")),
+                ]
+                for key, value in sorted(totals.items())
+            ],
+        )
+    )
+
+    for title, group_name in [
+        ("Artifact Class Deltas", "by_artifact_class"),
+        ("Lifecycle Layer Deltas", "by_lifecycle_layer"),
+        ("Top-Level Deltas", "by_top_level"),
+        ("Module Deltas", "by_gcs_module"),
+    ]:
+        rows = [
+            [
+                group.get("key", ""),
+                _fmt_delta(group.get("delta_files")),
+                _fmt_delta(group.get("delta_physical_lines")),
+                _fmt_delta(group.get("delta_bytes")),
+            ]
+            for group in _top_group_rows(data, group_name, max_group_rows)
+        ]
+        lines.extend(["", f"## {title}", ""])
+        if rows:
+            lines.extend(_table(["Key", "Files", "Lines", "Bytes"], rows))
+        else:
+            lines.append("No deltas in this group.")
+
+    lines.extend(["", "## Largest File Deltas", ""])
+    file_rows = [
+        [
+            item.get("change_type", ""),
+            item.get("path", ""),
+            item.get("head_artifact_class") or item.get("base_artifact_class") or "",
+            _fmt_delta(item.get("delta_physical_lines")),
+            _fmt_delta(item.get("delta_bytes")),
+        ]
+        for item in _top_file_rows(data, max_file_rows)
+    ]
+    if file_rows:
+        lines.extend(_table(["Change", "Path", "Class", "Lines", "Bytes"], file_rows))
+    else:
+        lines.append("No file deltas.")
+
+    lines.extend(["", "## Finding Deltas", ""])
+    if findings:
+        lines.extend(
+            _table(
+                ["Change", "Severity", "ID", "Path", "Message"],
+                [
+                    [
+                        finding.get("change_type", ""),
+                        finding.get("severity", ""),
+                        finding.get("id", ""),
+                        finding.get("path") or "<repo>",
+                        finding.get("message", ""),
+                    ]
+                    for finding in findings
+                ],
+            )
+        )
+    else:
+        lines.append("No finding deltas.")
+
+    lines.extend(["", "## Reproduction", ""])
+    if command:
+        lines.extend(["```bat", command, "```"])
+    else:
+        lines.append("Generated from an existing diff artifact.")
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def write_markdown_diff(diff: Any, output: Path, *, command: str | None = None) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(render_markdown_diff(diff, command=command), encoding="utf-8", newline="\n")

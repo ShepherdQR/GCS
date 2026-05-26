@@ -2405,6 +2405,12 @@ def build_quality_gate_commands(args: argparse.Namespace,
             ],
         ))
 
+    if getattr(args, "include_repository_audit", False):
+        commands.append(GateCommand(
+            "python.repository_audit_check",
+            [python, repo_path("tools/repository_audit/repository_audit.py"), "check"],
+        ))
+
     if not args.skip_ctest:
         commands.append(GateCommand(
             "ctest.contracts",
@@ -2654,6 +2660,7 @@ def build_parser() -> argparse.ArgumentParser:
     gates.add_argument("--include-task-cards", action="append", default=[])
     gates.add_argument("--include-completed-reports", action="append", default=[])
     gates.add_argument("--include-fixture-library", action="store_true")
+    gates.add_argument("--include-repository-audit", action="store_true")
     gates.add_argument("--continue-on-failure", action="store_true")
 
     card = subparsers.add_parser("emit-design-card", help="Emit JSON design card for a module")

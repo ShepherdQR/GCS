@@ -42,6 +42,18 @@ Compare two committed Git revisions:
 python tools\repository_audit\repository_audit.py diff --base HEAD~1 --head HEAD --output var\repository-audit\diff.json
 ```
 
+Render a Markdown report from a saved diff:
+
+```bat
+python tools\repository_audit\repository_audit.py diff-report --diff var\repository-audit\diff.json --output var\repository-audit\diff.md
+```
+
+Render a Markdown trend report from two or more snapshots:
+
+```bat
+python tools\repository_audit\repository_audit.py trend --snapshot var\repository-audit\base.snapshot.json --snapshot var\repository-audit\head.snapshot.json --output var\repository-audit\trend.md
+```
+
 Run focused tests:
 
 ```bat
@@ -58,7 +70,9 @@ The MVP implements:
 - basic module inventory joins from `tools/agentic_design/module_inventory.json`;
 - Markdown overview report generation;
 - JSON diff output for saved snapshots or committed Git revisions;
+- Markdown diff report generation from saved JSON diffs;
+- Markdown trend report generation from snapshot series;
 - initial warning/error findings.
 
-It does not implement external adapters, historical trend charts, or default
+It does not implement external adapters, historical charts, or default
 quality-gate enforcement yet.

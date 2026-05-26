@@ -339,6 +339,12 @@ Default gate promotion requires:
 - no false-positive error findings on `origin/master`;
 - architecture README and quality-gate docs updated with the default behavior.
 
+Implementation note, 2026-05-26: repository audit is available as an opt-in
+quality gate through
+`python tools\agentic_design\agentic_toolkit.py run-quality-gates --include-repository-audit`.
+The gate runs `repository_audit.py check` and remains non-default while baseline
+history and exemptions are still being calibrated.
+
 ## Implementation Phases
 
 ### Phase 1: Contract And Collector
@@ -379,6 +385,11 @@ artifact/lifecycle/top-level/module group deltas, and finding deltas. Rename
 detection, `check-dependencies` integration, trend storage, and quality-gate
 promotion remain later work.
 
+Implementation note, 2026-05-26: diff Markdown projection is available through
+`repository_audit.py diff-report`. It reads the canonical diff JSON and renders
+human-facing summaries, total deltas, group deltas, largest file deltas,
+finding deltas, and reproduction commands.
+
 ### Phase 4: External Tool Adapters
 
 - Optional `cloc` or `tokei` adapter for cross-checking LOC categories.
@@ -393,6 +404,12 @@ promotion remain later work.
 - Add growth charts or tables for module source, fixtures, docs, tools, and
   generated evidence.
 - Use trend reports for roadmap reviews, not for punitive line-count targets.
+
+Implementation note, 2026-05-26: the first trend projection is available
+through `repository_audit.py trend`. It reads two or more saved snapshots and
+renders a Markdown series summary, total deltas, and artifact-class deltas.
+Long-lived snapshot registries, chart output, and recurring cadence policy
+remain future work.
 
 ## Acceptance Criteria For First Implementation Task
 

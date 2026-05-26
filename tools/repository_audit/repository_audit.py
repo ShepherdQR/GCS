@@ -7,13 +7,17 @@ import sys
 from pathlib import Path
 
 from gcs_repository_audit import (
+    build_trend,
     check_snapshot,
     collect_revision_snapshot,
     collect_snapshot,
     compare_snapshots,
+    read_diff,
     read_snapshot,
     write_diff,
+    write_markdown_diff,
     write_markdown_report,
+    write_markdown_trend,
     write_snapshot,
 )
 
@@ -44,6 +48,14 @@ def build_parser() -> argparse.ArgumentParser:
     diff.add_argument("--base-snapshot", type=Path, default=None)
     diff.add_argument("--head-snapshot", type=Path, default=None)
     diff.add_argument("--output", type=Path, required=True)
+
+    diff_report = subparsers.add_parser("diff-report", help="Render a Markdown repository audit diff report")
+    diff_report.add_argument("--diff", type=Path, required=True)
+    diff_report.add_argument("--output", type=Path, required=True)
+
+    trend = subparsers.add_parser("trend", help="Render a Markdown trend report from snapshots")
+    trend.add_argument("--snapshot", type=Path, action="append", required=True)
+    trend.add_argument("--output", type=Path, required=True)
 
     return parser
 
@@ -121,6 +133,27 @@ def diff_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def diff_report_command(args: argparse.Namespace, argv: list[str]) -> int:
+    diff = read_diff(args.diff)
+    command = "python tools\\repository_audit\\repository_audit.py " + " ".join(argv)
+    write_markdown_diff(diff, args.output, command=command)
+    print(f"Repository audit diff report written: {args.output}")
+    return 0
+
+
+def trend_command(args: argparse.Namespace, argv: list[str]) -> int:
+    snapshots = [read_snapshot(path) for path in args.snapshot]
+    try:
+        trend = build_trend(snapshots)
+    except ValueError as error:
+        print(str(error), file=sys.stderr)
+        return 2
+    command = "python tools\\repository_audit\\repository_audit.py " + " ".join(argv)
+    write_markdown_trend(trend, args.output, command=command)
+    print(f"Repository audit trend report written: {args.output}")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -132,6 +165,10 @@ def main(argv: list[str]) -> int:
         return report_command(args, argv)
     if args.command == "diff":
         return diff_command(args)
+    if args.command == "diff-report":
+        return diff_report_command(args, argv)
+    if args.command == "trend":
+        return trend_command(args, argv)
     parser.error(f"unknown command {args.command}")
     return 2
 
