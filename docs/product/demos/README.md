@@ -23,4 +23,5 @@ Start with:
   commit, and push.
 - `d5-solver-evidence-workbench/`: demonstrates the first Solver Evidence
   Workbench chain from showcase scene evidence to viewer projection contracts,
-  Figure 72 review artifacts, visual QA, and follow-up.
+  Figure 72 review artifacts, VE-002 viewer canvas evidence, visual QA, and
+  follow-up.

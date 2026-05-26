@@ -172,6 +172,34 @@ schema, or public evidence expectations change. The HTML compositor is the
 P6.3 production path, the browser review artifacts are the P7 review path, and
 the SVG remains useful as a deterministic legacy atlas view.
 
+## Viewer Evidence VE-002
+
+VE-002 is the Phase 10 viewer-canvas review artifact for the D5 Solver
+Evidence Workbench. It exercises `GCSPlatformGUI` against empty, triangle,
+mixed replay, and D5 diagnostic states without updating the narrative map.
+
+Production artifacts:
+
+- [`assets/ve002-d5-viewer-evidence-workbench.review.png`](assets/ve002-d5-viewer-evidence-workbench.review.png)
+- [`assets/ve002-d5-viewer-evidence-workbench.capture.json`](assets/ve002-d5-viewer-evidence-workbench.capture.json)
+
+Design controls:
+
+- `tools/ui_qa/capture_viewer_evidence.py`
+- `python/gcs_viz/platform_gui.py`
+- `python/gcs_viz/viewer_bridge.py`
+- `python/gcs_viz/visualizer.py`
+
+Rebuild command:
+
+```powershell
+python -B tools\ui_qa\capture_viewer_evidence.py
+```
+
+VE-002 should be regenerated when viewer focus projection, replay projection,
+diagnostic overlay color, the D5 showcase scene, or three-view canvas layout
+changes.
+
 ## Editorial Figure 73
 
 Figure 73 is the Step 1-46 evidence-closure map. It extends Figure 71 with the

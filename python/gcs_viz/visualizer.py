@@ -798,11 +798,11 @@ def build_three_view_on_figure(
     axes[1, 1].set_facecolor(GCS_THEME["bg_canvas"])
     axes[1, 1].text(
         0.5,
-        0.58 if _has_constraint_states(focus) else 0.5,
+        0.92 if _has_constraint_states(focus) else 0.5,
         info,
         ha="center",
-        va="center",
-        fontsize=14,
+        va="top" if _has_constraint_states(focus) else "center",
+        fontsize=10 if _has_constraint_states(focus) else 14,
         transform=axes[1, 1].transAxes,
         color=GCS_THEME["text_secondary"],
     )
@@ -811,7 +811,8 @@ def build_three_view_on_figure(
             axes[1, 1].legend(
                 handles=_legend_elements(graph, focus),
                 loc="lower center",
-                fontsize=7,
+                bbox_to_anchor=(0.5, 0.00),
+                fontsize=6,
             )
         )
     axes[1, 1].set_title("Summary")

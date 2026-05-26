@@ -1,0 +1,212 @@
+{
+  "schema_version": "gcs.viewer_visual_evidence.v1",
+  "evidence_id": "VE-002",
+  "title": "D5 Solver Evidence Workbench viewer visual QA capture",
+  "generated_by": "tools/ui_qa/capture_viewer_evidence.py",
+  "artifact": {
+    "path": "docs/architecture/70-visualization/assets/ve002-d5-viewer-evidence-workbench.review.png",
+    "bytes": 346548,
+    "sha256": "63f5796299a2ca5c233c2d2c21029ac1e32d9f147573023a33609828578bc3ed"
+  },
+  "environment": {
+    "python": "3.13.5",
+    "python_executable": "python.exe",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "scope": {
+    "desktop_launcher": "GCSPlatformGUI",
+    "capture_surface": "TkAgg Matplotlib canvas exported from platform_gui.py",
+    "full_window_screen_grab": "not captured in this shell; rail state is recorded in JSON",
+    "narrative_map_updated": false
+  },
+  "scenarios": [
+    {
+      "id": "empty_model",
+      "title": "Empty model / welcome",
+      "scene_path": null,
+      "view": "3d",
+      "root_geometry": "1280x820+40+40",
+      "notes": "Exercises the empty workbench state and welcome renderer.",
+      "canvas_png_bytes": 61830,
+      "details": {
+        "rail_state": {
+          "solve": "Solve idle: No model loaded",
+          "replay": "Replay ready",
+          "log": "  INFO Phase 10 empty-model visual QA state"
+        },
+        "focus": null
+      }
+    },
+    {
+      "id": "triangle_003_graph_focus",
+      "title": "triangle_003 / graph focus",
+      "scene_path": "fixtures/scene/saved/triangle_003.json",
+      "view": "graph",
+      "root_geometry": "1280x820+40+40",
+      "notes": "Exercises object focus and graph-node label contrast.",
+      "canvas_png_bytes": 53302,
+      "details": {
+        "scene": "fixtures/scene/saved/triangle_003.json",
+        "graph_summary": {
+          "rigid_sets": 3,
+          "geometries": 3,
+          "constraints": 3,
+          "dof": 6,
+          "status": "UnderConstrained"
+        },
+        "focus": {
+          "mode": "selection",
+          "rigid_set_ids": [
+            0,
+            1
+          ],
+          "geometry_ids": [
+            0,
+            1
+          ],
+          "constraint_ids": [
+            0
+          ]
+        },
+        "rail_state": {
+          "solve": "Solve status: Reviewer focus on C0; solve not rerun in capture",
+          "replay": "Replay ready",
+          "log": "  INFO Triangle scene loaded for visual QA"
+        }
+      }
+    },
+    {
+      "id": "mixed_constraints_replay",
+      "title": "UI QA mixed constraints / replay frame",
+      "scene_path": "fixtures/scene/ui_qa/mixed_geometry_constraints.json",
+      "view": "graph",
+      "root_geometry": "1280x820+40+40",
+      "notes": "Exercises active replay rail projection plus diagnostic overlay states.",
+      "canvas_png_bytes": 64028,
+      "details": {
+        "scene": "fixtures/scene/ui_qa/mixed_geometry_constraints.json",
+        "graph_summary": {
+          "rigid_sets": 5,
+          "geometries": 5,
+          "constraints": 5,
+          "dof": 16,
+          "status": "UnderConstrained"
+        },
+        "history_frame": {
+          "mode": "history_frame",
+          "index": 14,
+          "step": 15,
+          "total": 15,
+          "action": "AddConstraint",
+          "action_label": "AddConstraint",
+          "progress": 100.0,
+          "title": "Replay History - Step 15/15: AddConstraint",
+          "focus": {
+            "mode": "replay",
+            "rigid_set_ids": [
+              2,
+              4
+            ],
+            "geometry_ids": [
+              2,
+              4
+            ],
+            "constraint_ids": [
+              4
+            ]
+          },
+          "deletion_hints": []
+        },
+        "constraint_states": {
+          "0": "satisfied",
+          "1": "satisfied",
+          "2": "unknown",
+          "3": "violated",
+          "4": "unknown"
+        },
+        "focus": {
+          "mode": "replay",
+          "rigid_set_ids": [
+            2,
+            4
+          ],
+          "geometry_ids": [
+            2,
+            4
+          ],
+          "constraint_ids": [
+            4
+          ],
+          "constraint_states": {
+            "0": "satisfied",
+            "1": "satisfied",
+            "2": "unknown",
+            "3": "violated",
+            "4": "unknown"
+          }
+        },
+        "rail_state": {
+          "solve": "Solve warning: Replay diagnostic overlay: C3 violated",
+          "replay": "Replay running",
+          "step": "Step 15 / 15",
+          "action": "AddConstraint",
+          "log": "  WARN Replay frame visual QA: diagnostic overlay is active"
+        }
+      }
+    },
+    {
+      "id": "d5_showcase_narrow_diagnostics",
+      "title": "D5 showcase / diagnostic focus",
+      "scene_path": "fixtures/scene/showcase/integrated_feature_showcase.gcs.json",
+      "view": "3view",
+      "root_geometry": "960x700+40+40",
+      "notes": "Exercises the Solver Evidence Workbench chain at narrow desktop width.",
+      "canvas_png_bytes": 70916,
+      "details": {
+        "scene": "fixtures/scene/showcase/integrated_feature_showcase.gcs.json",
+        "metadata": "fixtures/scene/showcase/integrated_feature_showcase.metadata.json",
+        "graph_summary": {
+          "rigid_sets": 6,
+          "geometries": 6,
+          "constraints": 4,
+          "dof": 20,
+          "status": "UnderConstrained"
+        },
+        "constraint_states": {
+          "0": "satisfied",
+          "1": "satisfied",
+          "2": "violated",
+          "3": "unknown"
+        },
+        "focus": {
+          "mode": "selection",
+          "rigid_set_ids": [
+            3,
+            4
+          ],
+          "geometry_ids": [
+            3,
+            4
+          ],
+          "constraint_ids": [
+            2
+          ],
+          "constraint_states": {
+            "0": "satisfied",
+            "1": "satisfied",
+            "2": "violated",
+            "3": "unknown"
+          }
+        },
+        "rail_state": {
+          "solve": "Solve warning: Accepted with warnings; C2 selected as diagnostic focus",
+          "replay": "Replay running",
+          "step": "Step 4 / 6",
+          "action": "Solve - report evidence only",
+          "log": "  WARN D5 capture: diagnostic focus C2 with narrow workbench width"
+        },
+        "narrow_width_px": 960
+      }
+    }
+  ]
+}

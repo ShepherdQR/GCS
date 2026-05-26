@@ -63,7 +63,8 @@ Every promoted visual evidence artifact should name these fields:
 | P7 Review Artifact Hardening | Figure 72 becomes a stable review/export surface for the showcase evidence chain. | Produce PNG/PDF review artifacts, baseline the PNG, and record art-direction review. |
 | Viewer Phase 8 | Accessibility work makes evidence state readable as text/state, not color alone. | Add contrast-safe status text colors and dynamic graph-node label text. |
 | Viewer Phase 9 | Replay rail becomes the visible provenance projection. | Add a pure history-frame projection and surface deletion hints in the rail. |
-| D5 Solver Evidence Workbench | Product demo proves the chain for one user-facing scenario. | Package the showcase workbench evidence under `docs/product/demos/`. |
+| Viewer Phase 10 | The workbench line gains a concrete viewer visual artifact. | Maintain VE-002 canvas capture and screenshot baseline until full-window capture is reliable. |
+| D5 Solver Evidence Workbench | Product demo proves the chain for one user-facing scenario. | Keep Figure 72 and VE-002 evidence linked from `docs/product/demos/d5-solver-evidence-workbench/`. |
 
 ## Acceptance
 

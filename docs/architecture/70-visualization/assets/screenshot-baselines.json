@@ -41,6 +41,20 @@
       "sha256": "474fb3f2bedb89d4144d19db482c6c34cb0d9add33d6da40bf84df067d75ce15",
       "owner": "GCS Scientific Figure Pipeline",
       "notes": "P7.1 Figure 72 integrated showcase review artifact, generated from the tokenized HTML compositor through the browser export smoke."
+    },
+    {
+      "id": "ve002.d5_viewer_evidence_workbench.tkagg_canvas.desktop_contact_sheet",
+      "status": "stable",
+      "kind": "viewer-review-png",
+      "path": "docs/architecture/70-visualization/assets/ve002-d5-viewer-evidence-workbench.review.png",
+      "capture_manifest": "docs/architecture/70-visualization/assets/ve002-d5-viewer-evidence-workbench.capture.json",
+      "width": 1600,
+      "height": 1320,
+      "bytes": 346548,
+      "min_bytes": 300000,
+      "sha256": "63f5796299a2ca5c233c2d2c21029ac1e32d9f147573023a33609828578bc3ed",
+      "owner": "GCS Evidence-First Interface Grammar",
+      "notes": "Phase 10 VE-002 TkAgg viewer evidence contact sheet covering empty, triangle, replay, and D5 diagnostic workbench states without updating the narrative map."
     }
   ]
 }

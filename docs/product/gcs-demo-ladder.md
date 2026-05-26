@@ -135,7 +135,8 @@ Candidate assets:
 - `docs/architecture/97-ui-viewer-figure-integration-plan.md`
 - `fixtures/scene/showcase/`
 - UI QA tools under `tools/ui_qa/`
-- Figure 72 review artifacts and visual evidence manifest
+- Figure 72 review artifacts, VE-002 viewer artifacts, and visual evidence
+  manifest
 
 Acceptance:
 
@@ -191,7 +192,7 @@ Acceptance:
 | D2 | Present but scattered | Bind diagnostic fixtures to one demo script or report. |
 | D3 | Strong internally | Surface replay evidence as a demo step. |
 | D4 | Now defined | Use the corpus ladder for future fixture promotion tasks. |
-| D5 | First package active | Keep the Solver Evidence Workbench demo tied to Figure 72 review artifacts, visual QA, and viewer projection evidence. |
+| D5 | Viewer evidence active | Keep the Solver Evidence Workbench demo tied to Figure 72, VE-002 viewer artifacts, visual QA, and viewer projection evidence. |
 | D6 | Partial | Turn showcase fixture evidence into one external reviewer story. |
 | D7 | Weak | Wait until benchmark candidates are classified. |
 

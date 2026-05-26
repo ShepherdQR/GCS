@@ -14,6 +14,8 @@ Date: 2026-05-26
 | Review PNG | `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.review.png` | Stable visual review artifact and screenshot baseline. |
 | Review PDF | `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.review.pdf` | Portable review/export artifact. |
 | Browser manifest | `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-browser-export.json` | Browser export and token-smoke evidence. |
+| Viewer review PNG | `docs/architecture/70-visualization/assets/ve002-d5-viewer-evidence-workbench.review.png` | Phase 10 viewer canvas review artifact. |
+| Viewer capture JSON | `docs/architecture/70-visualization/assets/ve002-d5-viewer-evidence-workbench.capture.json` | Rail-state, focus, graph-summary, and scope evidence for VE-002. |
 | Screenshot baseline | `docs/architecture/70-visualization/assets/screenshot-baselines.json` | Exact PNG hash gate. |
 | Art Director review | `docs/agentic/institutional-agents/004-art-director-frame-judge/examples/2026-05-26-figure72-p7-review-artifact-hardening.md` | Independent visual judgment. |
 | Shared manifest | `docs/architecture/70-visualization/visual-evidence-manifest.md` | Cross-surface visual evidence index. |
@@ -29,6 +31,9 @@ The D5 viewer side is represented by projection contracts and no-Tk tests:
   deletion hints.
 - `tests/tools/test_gcs_viz_history_replay.py` covers these projections without
   importing Tk.
+- `tools/ui_qa/capture_viewer_evidence.py` instantiates `GCSPlatformGUI` and
+  captures four TkAgg canvas states: empty model, triangle graph focus, mixed
+  replay diagnostics, and D5 diagnostic focus at narrow width.
 
 ## Current Validation Targets
 
@@ -36,12 +41,14 @@ The D5 viewer side is represented by projection contracts and no-Tk tests:
 python -m unittest tests.tools.test_gcs_viz_history_replay tests.tools.test_gcs_ui_qa tests.tools.test_browser_export tests.tools.test_gcs_screenshot_baseline
 python tools\architecture_visualization\showcase_fixture_evidence.py
 python tools\architecture_visualization\showcase_scene_html_compositor.py --check
+python tools\ui_qa\capture_viewer_evidence.py
 python tools\ui_qa\gcs_ui_qa.py
 python tools\ui_qa\gcs_screenshot_baseline.py
 ```
 
 ## Residual Risk
 
-The live GUI screenshot remains future Phase 10 evidence. Until then, this D5
-package proves the repo-native evidence chain and review artifacts, not a
-manual desktop inspection result.
+The VE-002 review PNG is a TkAgg viewer-canvas artifact, not a full
+operating-system window screenshot. The D5 package now proves the repo-native
+evidence chain plus a concrete viewer visual artifact, while structured C++
+report delivery into Python viewer projections remains future work.
