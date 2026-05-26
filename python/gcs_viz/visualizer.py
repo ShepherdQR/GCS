@@ -27,6 +27,47 @@ from gcs_viz.color_scheme import (
 )
 
 
+def _hex_rgb(color: str) -> tuple[float, float, float]:
+    value = str(color or "").strip().lstrip("#")
+    if len(value) != 6:
+        return (0.0, 0.0, 0.0)
+    try:
+        return tuple(int(value[index:index + 2], 16) / 255.0 for index in (0, 2, 4))
+    except ValueError:
+        return (0.0, 0.0, 0.0)
+
+
+def _linear_channel(channel: float) -> float:
+    if channel <= 0.03928:
+        return channel / 12.92
+    return ((channel + 0.055) / 1.055) ** 2.4
+
+
+def _relative_luminance(color: str) -> float:
+    red, green, blue = _hex_rgb(color)
+    return (
+        0.2126 * _linear_channel(red)
+        + 0.7152 * _linear_channel(green)
+        + 0.0722 * _linear_channel(blue)
+    )
+
+
+def _contrast_ratio(foreground: str, background: str) -> float:
+    fg = _relative_luminance(foreground)
+    bg = _relative_luminance(background)
+    lighter = max(fg, bg)
+    darker = min(fg, bg)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def _label_color_for_fill(fill_color: str) -> str:
+    light = GCS_THEME["text_node_light"]
+    dark = GCS_THEME["text_node_dark"]
+    if _contrast_ratio(light, fill_color) >= _contrast_ratio(dark, fill_color):
+        return light
+    return dark
+
+
 def _get_rs_color(graph: GCSGraph, rs_id: int) -> str:
     for i, rs in enumerate(graph.rigid_sets):
         if rs.id == rs_id:
@@ -650,7 +691,16 @@ def build_graph_on_figure(
             alpha=0.92,
         )
 
-    nx.draw_networkx_labels(network, pos, ax=ax, font_size=8, font_color=GCS_THEME["text_on_accent"])
+    for node, data in network.nodes(data=True):
+        fill_color = RIGID_SET_COLORS[data.get("rs_index", 0) % len(RIGID_SET_COLORS)]
+        nx.draw_networkx_labels(
+            network,
+            pos,
+            labels={node: node},
+            ax=ax,
+            font_size=8,
+            font_color=_label_color_for_fill(fill_color),
+        )
 
     constraint_focus_ids = _focus_ids(focus, "constraint_ids")
     for u, v, data in network.edges(data=True):

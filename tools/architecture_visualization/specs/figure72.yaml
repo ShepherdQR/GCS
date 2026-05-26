@@ -11,6 +11,9 @@
   "theme": "tools/architecture_visualization/figure1.theme.json",
   "exports": {
     "html": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.html",
+    "review_png": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.review.png",
+    "review_pdf": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.review.pdf",
+    "browser_manifest": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-browser-export.json",
     "legacy_svg": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.svg",
     "legacy_report": "docs/architecture/70-visualization/showcase-scene-report.md"
   },
@@ -18,6 +21,13 @@
     "min_font_px": 10,
     "require_no_absolute_positioning": true,
     "require_overflow_wrap": true,
+    "browser_required_html_tokens": [
+      "--gcs-paper",
+      "--gcs-panel",
+      "--gcs-ink",
+      "--gcs-domain",
+      "data-gcs-box-label=\"figure72-scene_contract\""
+    ],
     "default_visual_gates": [
       "python.showcase_fixture_evidence",
       "python.showcase_scene_html_compositor",

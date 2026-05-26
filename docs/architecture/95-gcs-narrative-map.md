@@ -39,7 +39,7 @@ advances:
 | Runtime/history/replay evidence | Strong | Replay evidence and saved-report workflow are becoming a differentiator. | The auditability story is not yet foregrounded. | Use replay evidence as the trust bridge between solver behavior and agentic governance. |
 | Agentic-SE operating layer | Very strong | Task cards, runbooks, archives, quality gates, PR audit, institutional agents, and an operating map exist. | The next risk is process sprawl rather than absence. | Keep `docs/agentic/agentic-organization-operating-map.md` as the compact entry point. |
 | Quality gates and evidence | Strong | Local validators, contract tests, tool tests, fixture gates, and quality scripts exist. | Trend visibility is still thin. | Maintain `docs/agentic/metrics-dashboard.md` after non-trivial tasks. |
-| UI/viewer/scientific figures | Strong but split | Viewer, visual QA, figure pipeline, and Solver Evidence Workbench direction exist. | Visual work can appear separate from solver evidence. | Frame UI as evidence-first interaction, not decoration. |
+| UI/viewer/scientific figures | Strong, integration in progress | Viewer, visual QA, figure pipeline, Solver Evidence Workbench direction, and an explicit UI/viewer/figure integration plan exist. | The next proof point must show one evidence chain from report to viewer to figure/demo artifact. | Promote one end-to-end evidence walkthrough using `docs/architecture/97-ui-viewer-figure-integration-plan.md`. |
 | Institutional agents and learning | Developing | Standing agents, templates, examples, refusal evals, and a registry scorecard exist. | Seed agents need more examples before promotion. | Use `docs/agentic/institutional-agent-registry-and-scorecard.md` before status changes. |
 | Git/worktree/PR governance | Strong | Worktree, branch, PR audit, permissions, threat matrix, and repository-audit policies exist. | Governance evals are planned but not yet executable gates. | Execute the staged roadmap in `docs/agentic/governance-eval-roadmap.md`. |
 | Product/user/market story | Initial and strengthening | Product brief, demo ladder, contributor path, and first demo package exist. | The story still lacks behavior-rich demo transcripts and external positioning. | Convert D1 and D2 demos into concrete demo packages with command evidence. |
@@ -84,8 +84,9 @@ Owns:
 Near-term plan:
 
 1. Treat UI as evidence-first interaction.
-2. Make replay evidence visible before adding broader UI surface area.
-3. Use screenshots and visual QA as acceptance evidence, not decoration.
+2. Bind viewer states and scientific figures to the same source evidence.
+3. Make replay evidence visible before adding broader UI surface area.
+4. Use screenshots and visual QA as acceptance evidence, not decoration.
 
 ### Arc 3: Agentic Organization
 
@@ -143,7 +144,7 @@ readiness, external comparison, and distribution strategy.
 | External benchmark/comparison | Weak | Corpus maturity exists, but no comparison map explains how GCS differs from other solvers. | Add external solver comparison and benchmark plan, then benchmark-candidate criteria. |
 | Business/open-source strategy | Weak | The intended adoption model is not yet chosen. | Add audience, distribution, contribution, and positioning brief before public README expansion. |
 | Governance eval execution | Developing | Risks are mapped, but most evals are not executable or opt-in gates yet. | Add prompt-level evals for unrelated staging, audit overclaim, and institutional-agent promotion. |
-| Demo evidence packaging | Initial | Demo ladder exists, but most demo levels are not packaged as inspectable artifacts. | Use `docs/product/demos/` for D0 task closure, D1 smoke, D2 diagnostics, and later replay/workbench demos. |
+| Demo evidence packaging | Initial and active | Demo ladder exists and D5 has a first workbench evidence package target. | Earlier levels still need D1/D2 command packages. | Use `docs/product/demos/` for D0 task closure, D1 smoke, D2 diagnostics, and later replay/workbench demos. |
 
 This means the next plan should not primarily add more internal architecture
 language. It should translate the existing architecture into evidence packages
@@ -179,14 +180,16 @@ that a new user, reviewer, or future contributor can run, compare, and trust.
    evidence.
 2. Add D2 diagnostic classification demo package for solved, underconstrained,
    overconstrained, singular, and blocked scenes.
-3. Define release-readiness checklist with package smoke path and support
+3. Keep the D5 Solver Evidence Workbench package current with viewer/figure
+   artifacts from `97-ui-viewer-figure-integration-plan.md`.
+4. Define release-readiness checklist with package smoke path and support
    boundaries.
-4. Add external comparison and benchmark plan.
-5. Add benchmark-candidate selection criteria after fixture maturity
+5. Add external comparison and benchmark plan.
+6. Add benchmark-candidate selection criteria after fixture maturity
    stabilizes.
-6. Add audience, distribution, contribution, and open-source strategy brief
+7. Add audience, distribution, contribution, and open-source strategy brief
    before public README expansion.
-7. Add prompt-level governance eval files for E-GOV-001, E-GOV-002, and
+8. Add prompt-level governance eval files for E-GOV-001, E-GOV-002, and
    E-GOV-008.
 
 ## Review Triggers

@@ -98,14 +98,25 @@ def ensure_html(spec: dict[str, object], html_path: Path, render_html: bool) -> 
     html_path.write_text(html, encoding="utf-8", newline="\n")
 
 
-def check_html_tokens(html_path: Path) -> list[dict[str, object]]:
+def required_html_tokens(spec: dict[str, object]) -> tuple[str, ...]:
+    quality = spec.get("quality", {})
+    if isinstance(quality, dict):
+        raw_tokens = quality.get("browser_required_html_tokens")
+        if isinstance(raw_tokens, list) and raw_tokens:
+            tokens = tuple(str(token) for token in raw_tokens if str(token).strip())
+            if tokens:
+                return tokens
+    return REQUIRED_HTML_TOKENS
+
+
+def check_html_tokens(html_path: Path, tokens: Iterable[str] = REQUIRED_HTML_TOKENS) -> list[dict[str, object]]:
     html = html_path.read_text(encoding="utf-8") if html_path.exists() else ""
     return [
         {
             "token": token,
             "passed": token in html,
         }
-        for token in REQUIRED_HTML_TOKENS
+        for token in tokens
     ]
 
 
@@ -376,7 +387,7 @@ def main() -> int:
     viewport = parse_viewport(args.viewport)
 
     ensure_html(spec, html_path, args.render_html)
-    token_checks = check_html_tokens(html_path)
+    token_checks = check_html_tokens(html_path, required_html_tokens(spec))
     browser = find_browser(args.browser_exe)
     outputs = {
         "png": spec_export_path(spec, "review_png", f"{figure_id}-review.png"),

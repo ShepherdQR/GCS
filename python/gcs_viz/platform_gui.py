@@ -22,7 +22,7 @@ from gcs_viz.algebra import (
     GCSGraph, GeometryType, ConstraintType,
     read_graph_file, write_graph_file,
 )
-from gcs_viz.color_scheme import GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME, STATE_COLORS
+from gcs_viz.color_scheme import GEOMETRY_NAMES, CONSTRAINT_NAMES, GCS_THEME, STATE_COLORS, STATE_TEXT_COLORS
 from gcs_viz.event_store import EventStore
 from gcs_viz.engine_bridge import EngineBridge
 from gcs_viz.viewer_bridge import (
@@ -30,7 +30,7 @@ from gcs_viz.viewer_bridge import (
     combine_focus_with_constraint_states,
     constraint_states_from_solve_text,
     graph_summary,
-    history_focus_from_entry,
+    project_history_frame,
     render_graph_view,
     render_message,
     selection_focus,
@@ -314,6 +314,15 @@ class GCSPlatformGUI:
         ttk.Label(replay_frame, textvariable=self.replay_step_var, style="Rail.TLabel").pack(side=tk.LEFT, padx=(0, 8))
         ttk.Label(replay_frame, textvariable=self.replay_action_var, style="Rail.TLabel").pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Progressbar(replay_frame, variable=self.replay_progress_var, maximum=100, length=140).pack(side=tk.LEFT, padx=8)
+        ttk.Label(replay_frame, textvariable=self.replay_speed_label_var, style="Rail.TLabel").pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Scale(
+            replay_frame,
+            from_=0.25,
+            to=4.0,
+            variable=self.replay_speed_var,
+            command=self._on_replay_speed_change,
+            length=92,
+        ).pack(side=tk.LEFT, padx=(0, 8))
         ttk.Button(replay_frame, text="Stop", command=self._stop_history_replay).pack(side=tk.LEFT, padx=(0, 4))
 
         solve_frame = ttk.Frame(parent)
@@ -349,16 +358,16 @@ class GCSPlatformGUI:
         self.log_label.pack(fill=tk.X)
 
     def _log_info(self, msg):
-        self.log_label.config(text=f"  INFO {msg}", fg=STATE_COLORS["info"])
+        self.log_label.config(text=f"  INFO {msg}", fg=STATE_TEXT_COLORS["info"])
 
     def _log_warning(self, msg):
-        self.log_label.config(text=f"  WARN {msg}", fg=STATE_COLORS["warning"])
+        self.log_label.config(text=f"  WARN {msg}", fg=STATE_TEXT_COLORS["warning"])
 
     def _log_error(self, msg):
-        self.log_label.config(text=f"  ERR  {msg}", fg=STATE_COLORS["error"])
+        self.log_label.config(text=f"  ERR  {msg}", fg=STATE_TEXT_COLORS["error"])
 
     def _log_success(self, msg):
-        self.log_label.config(text=f"  OK   {msg}", fg=STATE_COLORS["solved"])
+        self.log_label.config(text=f"  OK   {msg}", fg=STATE_TEXT_COLORS["solved"])
 
     def _configure_theme(self, style):
         try:
@@ -518,11 +527,11 @@ class GCSPlatformGUI:
         dof = self.graph.compute_dof()
         status = self.graph.classify_dof_status()
         if status == "WellConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Well-constrained) ✓  ", foreground=STATE_COLORS["solved"])
+            self.dof_label.config(text=f"  Net DOF: {dof} (Well-constrained) ✓  ", foreground=STATE_TEXT_COLORS["solved"])
         elif status == "UnderConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Under-constrained) ⚠  ", foreground=STATE_COLORS["warning"])
+            self.dof_label.config(text=f"  Net DOF: {dof} (Under-constrained) ⚠  ", foreground=STATE_TEXT_COLORS["warning"])
         elif status == "OverConstrained":
-            self.dof_label.config(text=f"  Net DOF: {dof} (Over-constrained) ✗  ", foreground=STATE_COLORS["error"])
+            self.dof_label.config(text=f"  Net DOF: {dof} (Over-constrained) ✗  ", foreground=STATE_TEXT_COLORS["error"])
         else:
             self.dof_label.config(text="  Net DOF: — (Empty)  ", foreground=GCS_THEME["text_muted"])
 
@@ -763,11 +772,11 @@ class GCSPlatformGUI:
             "idle": "Solve idle",
         }
         colors = {
-            "running": STATE_COLORS["info"],
-            "success": STATE_COLORS["solved"],
-            "warning": STATE_COLORS["warning"],
-            "error": STATE_COLORS["error"],
-            "unknown": STATE_COLORS["pending"],
+            "running": STATE_TEXT_COLORS["info"],
+            "success": STATE_TEXT_COLORS["solved"],
+            "warning": STATE_TEXT_COLORS["warning"],
+            "error": STATE_TEXT_COLORS["error"],
+            "unknown": STATE_TEXT_COLORS["pending"],
             "idle": GCS_THEME["text_secondary"],
         }
         label = labels.get(state, f"Solve {state}")
@@ -959,10 +968,10 @@ class GCSPlatformGUI:
         self.replay_action_var.set(action)
         self.replay_progress_var.set(max(0.0, min(100.0, progress)))
         colors = {
-            "Replay running": STATE_COLORS["replay_current"],
-            "Replay complete": STATE_COLORS["solved"],
-            "Replay error": STATE_COLORS["error"],
-            "Replay ready": STATE_COLORS["pending"],
+            "Replay running": STATE_TEXT_COLORS["replay_current"],
+            "Replay complete": STATE_TEXT_COLORS["solved"],
+            "Replay error": STATE_TEXT_COLORS["error"],
+            "Replay ready": STATE_TEXT_COLORS["pending"],
         }
         if hasattr(self, "replay_state_label"):
             self.replay_state_label.configure(foreground=colors.get(state, GCS_THEME["text_secondary"]))
@@ -1005,12 +1014,12 @@ class GCSPlatformGUI:
             return
 
         self._history_replay_index = next_index
-        entry = history[next_index]
-        action = str(entry.get("action", "Unknown"))
+        projection = project_history_frame(history, next_index)
+        action = projection["action_label"]
         replay_graph = build_history_graph(history, next_index)
-        focus = history_focus_from_entry(entry, replay_graph)
-        title = f"Replay History - Step {next_index + 1}/{len(history)}: {action}"
-        progress = ((next_index + 1) / len(history)) * 100.0
+        focus = projection.get("focus")
+        title = projection["title"]
+        progress = projection["progress"]
         self._set_replay_state(
             "Replay running",
             f"Step {next_index + 1} / {len(history)}",

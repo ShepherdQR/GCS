@@ -67,6 +67,27 @@ class BrowserExportTests(unittest.TestCase):
         self.assertEqual("existing-artifacts", manifest["browser"]["backend"])
         self.assertTrue(manifest["html_tokens_passed"])
 
+    def test_spec_can_override_required_html_tokens(self):
+        module = load_browser_export_module()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            html = Path(temp_dir) / "figure.html"
+            html.write_text("<style>:root { --gcs-paper: #fff; }</style><main data-gcs-box-label=\"figure72\"></main>")
+            checks = module.check_html_tokens(
+                html,
+                module.required_html_tokens(
+                    {
+                        "quality": {
+                            "browser_required_html_tokens": [
+                                "--gcs-paper",
+                                "data-gcs-box-label=\"figure72\"",
+                            ]
+                        }
+                    }
+                ),
+            )
+
+        self.assertTrue(all(check["passed"] for check in checks))
+
 
 if __name__ == "__main__":
     unittest.main()

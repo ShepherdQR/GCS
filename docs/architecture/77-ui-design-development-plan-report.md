@@ -58,8 +58,8 @@ Tk state and user actions; `visualizer.py` draws supplied states only.
 | 5 | Design QA And Accessibility | Complete | `tools/ui_qa/gcs_ui_qa.py`, UI QA fixture and unittest |
 | 6 | Interaction Semantics | Complete | `selection_focus`, replay focus projection, table-selection highlighting |
 | 7 | Solve Diagnostics Overlay | Complete | `constraint_states`, safe fallback, renderer overlays |
-| 8 | Accessibility And Contrast Refinement | Planned | Status text colors, node label strategy, stale UI cleanup |
-| 9 | Replay Rail Refinement | Planned | History frame projection, rail controls, deletion hints |
+| 8 | Accessibility And Contrast Refinement | Complete | `STATE_TEXT_COLORS`, dynamic graph-node label contrast, UI QA contrast checks |
+| 9 | Replay Rail Refinement | Complete | `project_history_frame`, viewport speed control, deletion hints |
 | 10 | Manual Visual QA Pass | Planned | Local GUI screenshot and taste calibration cycle |
 | 11 | Constraint Manager And Repair Drafts | Backlog | Constraint row projection, diagnostic filters, safe repair candidates |
 | 12 | Local-To-Global Evidence Inspector | Backlog | Context covers, boundary projections, gluing, obstruction paths |
@@ -341,7 +341,7 @@ Completion evidence:
 
 ## Phase 8: Accessibility And Contrast Refinement
 
-Status: planned.
+Status: complete.
 
 Goal:
 
@@ -377,9 +377,22 @@ Acceptance:
 - graph labels remain readable on all current rigid-set colors;
 - UI QA report distinguishes hard failures from advisory warnings.
 
+Completion evidence:
+
+- `python/gcs_viz/color_scheme.py` now splits graphic state accents from
+  contrast-safe `STATE_TEXT_COLORS`.
+- `python/gcs_viz/platform_gui.py` uses `STATE_TEXT_COLORS` for log, DOF,
+  solve-summary, and replay-state text.
+- `python/gcs_viz/visualizer.py` chooses graph-node label text dynamically by
+  contrast against each rigid-set fill.
+- `tools/ui_qa/gcs_ui_qa.py` checks state text contrast and graph-node label
+  contrast.
+- `docs/architecture/70-visualization/viewer-accessibility-contrast-refinement.md`
+  records the status-text versus graphic-accent token rule.
+
 ## Phase 9: Replay Rail Refinement
 
-Status: planned.
+Status: complete.
 
 Goal:
 
@@ -412,6 +425,19 @@ Acceptance:
 - replay is understandable without log text;
 - speed changes affect subsequent steps;
 - delete actions show what changed rather than disappearing silently.
+
+Completion evidence:
+
+- `python/gcs_viz/viewer_bridge.py` now exposes
+  `project_history_frame(history, index)`.
+- `python/gcs_viz/platform_gui.py` consumes the frame projection for rail
+  action text, progress, title, focus, and deletion hints.
+- The replay speed control is mirrored into the viewport rail while sharing
+  the existing speed variable.
+- `tests/tools/test_gcs_viz_history_replay.py` covers frame projection and
+  deletion hints without importing Tk.
+- `docs/architecture/70-visualization/viewer-history-frame-projection.md`
+  records the projection contract.
 
 ## Phase 10: Manual Visual QA Pass
 
@@ -532,19 +558,19 @@ Acceptance:
 
 ## Scheduling Recommendation
 
-The next standalone work item should be Phase 8.
+The next standalone work item should be Phase 10 or Phase 11, depending on
+whether manual visual QA or constraint-manager projection is more urgent.
 
 Reasoning:
 
 - Phase 6 turned the existing focus contract into a reusable interaction
   primitive.
 - Phase 7 built diagnostics overlays on top of the same projection path.
-- Phase 8 should now refine contrast and text/state strategy around the active
-  focus and diagnostic states.
-- Phase 9 should refine replay after selection and diagnostic state precedence
-  are clear.
-- Phase 10 should be run after Phase 8 or Phase 9, unless a manual GUI review
-  is needed sooner to unblock confidence.
+- Phase 8 refined contrast and text/state strategy around the active focus and
+  diagnostic states.
+- Phase 9 refined replay through a pure history-frame projection.
+- Phase 10 should run a real desktop visual QA pass once the local Python
+  environment has display and matplotlib support.
 - Phase 11 should follow once diagnostic projections are stable enough to make
   constraint filtering meaningful.
 - Phase 12 should wait until planner and diagnostics reports expose enough

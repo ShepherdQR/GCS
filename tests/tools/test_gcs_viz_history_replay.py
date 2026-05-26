@@ -19,6 +19,7 @@ from gcs_viz.viewer_bridge import (  # noqa: E402
     constraint_states_from_solve_text,
     graph_summary,
     history_focus_from_entry,
+    project_history_frame,
     selection_focus,
 )
 
@@ -205,6 +206,42 @@ class GcsVizHistoryReplayTests(unittest.TestCase):
                 "constraint_ids": [0],
                 "constraint_states": {0: "violated"},
             },
+        )
+
+    def test_project_history_frame_contains_replay_contract(self):
+        history = self.make_history()
+        frame = project_history_frame(history, 5)
+
+        self.assertEqual(frame["mode"], "history_frame")
+        self.assertEqual(frame["step"], 6)
+        self.assertEqual(frame["total"], 7)
+        self.assertEqual(frame["action"], "UpdateConstraint")
+        self.assertEqual(frame["progress"], (6 / 7) * 100.0)
+        self.assertEqual(
+            frame["focus"],
+            {
+                "mode": "replay",
+                "rigid_set_ids": [0, 1],
+                "geometry_ids": [0, 1],
+                "constraint_ids": [0],
+            },
+        )
+
+    def test_project_history_frame_defines_deletion_hints(self):
+        history = [
+            {"action": "AddRigidSet", "payload": {"id": 0}},
+            {
+                "action": "AddGeometry",
+                "payload": {"id": 0, "type": 0, "rigid_set_id": 0, "v": [0, 0, 0, 0, 0, 0]},
+            },
+            {"action": "RemoveGeometry", "payload": {"id": 0, "rigid_set_id": 0}},
+        ]
+        frame = project_history_frame(history, 2)
+
+        self.assertEqual(frame["action_label"], "RemoveGeometry - Removed geometry 0")
+        self.assertEqual(
+            frame["deletion_hints"],
+            [{"kind": "geometry", "id": 0, "label": "Removed geometry 0"}],
         )
 
 

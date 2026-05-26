@@ -132,8 +132,10 @@ Candidate assets:
 
 - `python/gcs_viz/`
 - `docs/architecture/92-gcs-ui-architecture-adjustment-record.md`
+- `docs/architecture/97-ui-viewer-figure-integration-plan.md`
 - `fixtures/scene/showcase/`
 - UI QA tools under `tools/ui_qa/`
+- Figure 72 review artifacts and visual evidence manifest
 
 Acceptance:
 
@@ -189,7 +191,7 @@ Acceptance:
 | D2 | Present but scattered | Bind diagnostic fixtures to one demo script or report. |
 | D3 | Strong internally | Surface replay evidence as a demo step. |
 | D4 | Now defined | Use the corpus ladder for future fixture promotion tasks. |
-| D5 | Direction exists | Produce one evidence-first screenshot/replay demo when viewer work resumes. |
+| D5 | First package active | Keep the Solver Evidence Workbench demo tied to Figure 72 review artifacts, visual QA, and viewer projection evidence. |
 | D6 | Partial | Turn showcase fixture evidence into one external reviewer story. |
 | D7 | Weak | Wait until benchmark candidates are classified. |
 
@@ -222,6 +224,6 @@ docs/product/demos/
 2. Create a D2 diagnostic classification demo using existing verification
    fixtures.
 3. Attach one D3 replay evidence artifact to a product-facing demo package.
-4. Promote a D5 Solver Evidence Workbench screenshot only after visual QA
-   artifacts exist.
+4. Keep the D5 Solver Evidence Workbench package current with visual evidence
+   manifest updates.
 5. Defer D7 external comparison until fixture benchmark candidates are stable.

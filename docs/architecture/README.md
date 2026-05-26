@@ -77,6 +77,9 @@ order, not by historical source order. Background research notes live under
      system.
    - `92-gcs-ui-architecture-adjustment-record.md`: 2026-05-25 adjustment that
      reframes the local viewer target as a GCS Solver Evidence Workbench.
+   - `97-ui-viewer-figure-integration-plan.md`: active plan that binds
+     viewer projections, workbench overlays, visual QA, scientific figures,
+     and product demos into one evidence chain.
    - `94-repository-audit-statistics-architecture.md`: 2026-05-25 repository
      audit/statistics architecture for reproducible file, LOC, module,
      fixture, documentation, and evidence-growth reporting.

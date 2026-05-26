@@ -48,7 +48,7 @@ commit message must name the step's purpose.
 | P4 | Scientific Figure Pipeline | Done | Replace coordinate-heavy dense figures with spec-driven, layout-aware production. |
 | P5 | Visual Integrity QA | Done | Add screenshot, contrast, overflow, and overlap checks as repeatable gates. |
 | P6 | Showcase And Editorial Polish | Done | Produce a top-tier integrated showcase and decide whether to add Figma MCP. |
-| P7 | Review Artifact Hardening | Next | Turn Figure 72 HTML into stable review artifacts and only reopen Figma MCP if a concrete gap remains. |
+| P7 | Review Artifact Hardening | Done | Figure 72 HTML now has browser-rendered review artifacts, screenshot baseline coverage, Art Director review, and first-class atlas links. |
 
 ## P0: Convention Foundation
 
@@ -657,10 +657,10 @@ external design-tool dependencies.
 
 | Step | Status | Output | Checks |
 | --- | --- | --- | --- |
-| P7.1 | Next | Browser-render Figure 72 HTML to PNG/PDF review artifacts and add the stable PNG to screenshot baselines if the export is reproducible. | browser export plus screenshot baseline |
-| P7.2 | Pending | Run `GCS Art Director Review` on Figure 72 HTML or browser output and record approval, conditional approval, or rejection. | review findings |
-| P7.3 | Pending | Update atlas/report links so Figure 72 review artifacts are first-class and the legacy SVG is clearly secondary. | docs plus visual gates |
-| P7.4 | Pending | Open a Figma MCP pilot request only if P7.2 or P7.3 identifies a concrete collaboration, editable-layout, or external-review gap. | third-party pilot request or explicit deferral |
+| P7.1 | Done | Browser-rendered Figure 72 HTML to PNG/PDF review artifacts and added the stable PNG to screenshot baselines. | browser export plus screenshot baseline |
+| P7.2 | Done | Ran `GCS Art Director Review` on the browser PNG and recorded conditional approval. | review findings |
+| P7.3 | Done | Updated atlas/report links so Figure 72 review artifacts are first-class and the legacy SVG is clearly secondary. | docs plus visual gates |
+| P7.4 | Done | Deferred Figma MCP because P7.2/P7.3 found no concrete collaboration, editable-layout, or external-review gap requiring it. | explicit deferral |
 
 P7 execution rule:
 
@@ -669,3 +669,22 @@ P7 execution rule:
   commit, then continue.
 - Keep default quality gates offline and repo-native.
 - Do not install or configure Figma MCP unless P7.4 accepts a scoped pilot.
+
+P7 completion summary:
+
+- Added Figure 72 review PNG/PDF exports:
+  `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.review.png`
+  and
+  `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.review.pdf`.
+- Added
+  `docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-browser-export.json`
+  with passing Figure 72 HTML token checks.
+- Added the Figure 72 PNG to
+  `docs/architecture/70-visualization/assets/screenshot-baselines.json`.
+- Recorded conditional Art Director approval at
+  `docs/agentic/institutional-agents/004-art-director-frame-judge/examples/2026-05-26-figure72-p7-review-artifact-hardening.md`.
+- Updated `70-visualization/gcs-architecture-atlas.md` and
+  `70-visualization/showcase-scene-report.md` so browser review artifacts are
+  first-class and the SVG is legacy secondary.
+- Figma MCP remains deferred because the repo-native review/export path now
+  satisfies the current need.

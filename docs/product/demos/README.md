@@ -21,3 +21,6 @@ Start with:
 - `agentic-task-closure-demo/`: demonstrates the GCS agentic organization
   closing a non-trivial task from request to task card, validation, archive,
   commit, and push.
+- `d5-solver-evidence-workbench/`: demonstrates the first Solver Evidence
+  Workbench chain from showcase scene evidence to viewer projection contracts,
+  Figure 72 review artifacts, visual QA, and follow-up.
