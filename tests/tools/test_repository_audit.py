@@ -12,6 +12,7 @@ sys.path.insert(0, str(REPOSITORY_AUDIT_ROOT))
 from gcs_repository_audit.classify import ARTIFACT_LAYERS, classify_path, normalize_path
 from gcs_repository_audit.collect import collect_snapshot, write_snapshot
 from gcs_repository_audit.models import GitInfo
+from gcs_repository_audit.report import render_markdown_report
 
 
 class RepositoryAuditTests(unittest.TestCase):
@@ -26,6 +27,7 @@ class RepositoryAuditTests(unittest.TestCase):
             "fixture": "fixtures/scene/basic/g1.txt",
             "architecture_doc": "docs/architecture/README.md",
             "research_doc": "docs/research/topic.md",
+            "project_report": "docs/reports/repository-audit/2026-05-26/README.md",
             "agentic_process_doc": "docs/agentic/README.md",
             "completed_task_archive": "docs/completed-tasks/demo/README.md",
             "codex_skill": ".codex/skills/gcs-kernel-contract-steward/SKILL.md",
@@ -38,6 +40,8 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertEqual(set(examples), set(ARTIFACT_LAYERS))
         for artifact_class, path in examples.items():
             self.assertEqual(classify_path(path), artifact_class)
+        self.assertEqual(classify_path("docs/current-model.md"), "architecture_doc")
+        self.assertEqual(classify_path("python/requirements.txt"), "repo_root_config")
 
     def test_normalize_path_preserves_non_ascii_and_windows_separators(self):
         self.assertEqual(normalize_path(r".\docs\research\几何\约束.md"), "docs/research/几何/约束.md")
@@ -132,6 +136,38 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertEqual(data["schema_version"], "gcs-repository-audit-0.1")
         self.assertEqual(data["totals"]["files"], 1)
         self.assertEqual(data["files"][0]["artifact_class"], "repo_root_config")
+
+    def test_render_markdown_report_summarizes_agentic_surface(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            files = {
+                ".codex/skills/gcs-kernel-contract-steward/SKILL.md": "---\nname: gcs-kernel-contract-steward\n---\n",
+                ".codex/skills/gcs-kernel-contract-steward/agents/openai.yaml": "model: test\n",
+                "docs/agentic/institutional-agents/001-demo-role/README.md": "# Demo\n",
+                "docs/agentic/tasks/2026-05-26-demo.md": "---\ntask_id: demo\n---\n",
+                "docs/completed-tasks/2026-05-26-demo/README.md": "# Demo\n",
+                "docs/agentic/pr-audits/2026-05-26-demo.json": "{}\n",
+                "docs/reports/repository-audit/2026-05-26/README.md": "# Report\n",
+            }
+            for relative, content in files.items():
+                path = root / Path(*relative.split("/"))
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding="utf-8")
+
+            snapshot = collect_snapshot(
+                root,
+                tracked_paths=list(files),
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="abc", branch="test", dirty=False),
+            )
+
+        report = render_markdown_report(snapshot, command="repository_audit.py report --output README.md")
+
+        self.assertIn("## Agentic Governance Surface", report)
+        self.assertIn("| project_local_skills | 1 |", report)
+        self.assertIn("| skill_agent_configs | 1 |", report)
+        self.assertIn("| institutional_agents | 1 |", report)
+        self.assertIn("| project_report |", report)
 
 
 if __name__ == "__main__":

@@ -121,6 +121,7 @@ def metric_for_path(repo_root: Path, path: str, inventory: dict, contract: Count
             "agentic_process_doc",
             "architecture_doc",
             "completed_task_archive",
+            "project_report",
             "research_doc",
         },
         language_hint=language_hint_for(normalized),

@@ -50,6 +50,8 @@ institutional-agent promotion, or quality-gate decision depends on that record.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-26 | [AI organization frontier research](2026-05-26-ai-organization-frontier-research/README.md) | done |
+| 2026-05-26 | [Repository audit overview and session efficiency](2026-05-26-repository-audit-overview-and-session-efficiency/README.md) | done |
 | 2026-05-26 | [Repository audit collector MVP](2026-05-26-repository-audit-collector-mvp/README.md) | done |
 | 2026-05-26 | [Git stitch and PR audit permission policy](2026-05-26-git-stitch-pr-audit-permission-policy/README.md) | done |
 | 2026-05-26 | [Git session branch session summary](2026-05-26-git-session-branch-session-summary/README.md) | done |

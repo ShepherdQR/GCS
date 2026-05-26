@@ -6,7 +6,13 @@ import json
 import sys
 from pathlib import Path
 
-from gcs_repository_audit import check_snapshot, collect_snapshot, write_snapshot
+from gcs_repository_audit import (
+    check_snapshot,
+    collect_snapshot,
+    read_snapshot,
+    write_markdown_report,
+    write_snapshot,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -23,6 +29,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     check = subparsers.add_parser("check", help="Check a snapshot or the current repository")
     check.add_argument("--snapshot", type=Path, default=None)
+
+    report = subparsers.add_parser("report", help="Render a Markdown repository audit report")
+    report.add_argument("--snapshot", type=Path, default=None)
+    report.add_argument("--output", type=Path, required=True)
+    report.add_argument("--base", default=None)
 
     return parser
 
@@ -61,6 +72,18 @@ def check_command(args: argparse.Namespace) -> int:
     return 1 if errors else 0
 
 
+def report_command(args: argparse.Namespace, argv: list[str]) -> int:
+    if args.snapshot:
+        snapshot = read_snapshot(args.snapshot)
+    else:
+        snapshot = collect_snapshot(args.repo_root, base=args.base)
+
+    command = "python tools\\repository_audit\\repository_audit.py " + " ".join(argv)
+    write_markdown_report(snapshot, args.output, command=command)
+    print(f"Repository audit report written: {args.output}")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -68,6 +91,8 @@ def main(argv: list[str]) -> int:
         return collect_command(args)
     if args.command == "check":
         return check_command(args)
+    if args.command == "report":
+        return report_command(args, argv)
     parser.error(f"unknown command {args.command}")
     return 2
 

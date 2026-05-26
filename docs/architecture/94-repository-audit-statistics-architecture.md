@@ -213,6 +213,7 @@ The classifier should emit exactly one primary `artifact_class` per file:
 | `research_doc` | `docs/research/**` | background research |
 | `agentic_process_doc` | `docs/agentic/**` | workflow and lifecycle |
 | `completed_task_archive` | `docs/completed-tasks/**` | historical memory |
+| `project_report` | `docs/reports/**` | durable generated or curated project reports |
 | `codex_skill` | `.codex/skills/**` | agent skill surface |
 | `generated_store` | `.codex_scene_generation_store/**` | generated scene evidence store |
 | `visual_asset` | `.png`, `.jpg`, `.svg`, `.pdf`, `.pptx`, `.webp` | counted by bytes and file count |
@@ -357,6 +358,12 @@ Default gate promotion requires:
 - Report source/test/skill/doc coverage per module.
 - Add top-file and top-directory summaries.
 - Add task-card evidence examples.
+
+Implementation note, 2026-05-26: the first Markdown report projection exists in
+`tools/repository_audit/gcs_repository_audit/report.py`. It renders headline
+totals, artifact/lifecycle/top-level breakdowns, module coverage, largest
+tracked files, findings, and agentic governance counts. Diff mode, historical
+trend projections, and quality-gate integration remain later phases.
 
 ### Phase 3: Diff And Policy Checks
 

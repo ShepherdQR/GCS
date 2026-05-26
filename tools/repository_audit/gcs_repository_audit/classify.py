@@ -45,6 +45,7 @@ ARTIFACT_LAYERS = {
     "contract_test": "test",
     "fixture": "evidence",
     "generated_store": "generated_evidence",
+    "project_report": "report",
     "repo_root_config": "configuration",
     "research_doc": "research",
     "solver_source": "product",
@@ -108,12 +109,18 @@ def classify_path(path: str) -> str:
         return "completed_task_archive"
     if path.startswith("docs/architecture/"):
         return "architecture_doc"
+    if path == "docs/current-model.md":
+        return "architecture_doc"
+    if path.startswith("docs/reports/"):
+        return "project_report"
     if path.startswith("docs/research/"):
         return "research_doc"
     if path.startswith("docs/agentic/"):
         return "agentic_process_doc"
     if path.startswith("tools/") or path.startswith("scripts/"):
         return "tooling"
+    if path == "python/requirements.txt":
+        return "repo_root_config"
     if "/" not in path and (name in ROOT_CONFIG_FILES or ext in {".json", ".md", ".txt"}):
         return "repo_root_config"
     return "unknown"
