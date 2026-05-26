@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">GCS Narrative Line Level Trend</title>
+  <desc id="desc">Weak-axis narrative maturity trend after the researcher evidence route and after the third-stage evidence package.</desc>
+  <rect width="1600" height="980" fill="#f7f5ef"/>
+  <rect x="48" y="42" width="1504" height="896" rx="8" fill="#fffdf7" stroke="#cfc7b7" stroke-width="2"/>
+  <text x="86" y="105" font-family="Segoe UI, Arial, sans-serif" font-size="38" fill="#243036" font-weight="700">GCS Narrative Line Level Trend</text>
+  <text x="86" y="143" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#5d6468">Snapshot: 2026-05-26. Scores are maturity aids; the narrative map remains the source of truth.</text>
+
+  <line x1="610" y1="188" x2="610" y2="855" stroke="#d8d0c2" stroke-width="2"/>
+  <line x1="1228" y1="188" x2="1228" y2="855" stroke="#d8d0c2" stroke-width="2"/>
+  <text x="540" y="174" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#4d575c" font-weight="700">Researcher evidence route</text>
+  <text x="1160" y="174" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#4d575c" font-weight="700">Third-stage package</text>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#6a6f73">
+    <text x="402" y="875">3.0</text>
+    <text x="532" y="875">3.5</text>
+    <text x="662" y="875">4.0</text>
+    <text x="1022" y="875">3.0</text>
+    <text x="1152" y="875">3.5</text>
+    <text x="1282" y="875">4.0</text>
+  </g>
+
+  <g stroke="#e5ddcf" stroke-width="1">
+    <line x1="424" y1="190" x2="424" y2="848"/>
+    <line x1="554" y1="190" x2="554" y2="848"/>
+    <line x1="684" y1="190" x2="684" y2="848"/>
+    <line x1="1044" y1="190" x2="1044" y2="848"/>
+    <line x1="1174" y1="190" x2="1174" y2="848"/>
+    <line x1="1304" y1="190" x2="1304" y2="848"/>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="19" fill="#253138">
+    <text x="86" y="244">Product/user/market story</text>
+    <text x="86" y="346">Release/packaging/onboarding</text>
+    <text x="86" y="448">External benchmark/comparison</text>
+    <text x="86" y="550">Business/open-source strategy</text>
+    <text x="86" y="652">UI/viewer/scientific figures</text>
+    <text x="86" y="754">Governance eval execution</text>
+  </g>
+
+  <g stroke-linecap="round" stroke-width="18" fill="none">
+    <line x1="424" y1="238" x2="554" y2="238" stroke="#d9ecf0"/>
+    <line x1="1044" y1="238" x2="1174" y2="238" stroke="#2d9bb3"/>
+
+    <line x1="424" y1="340" x2="424" y2="340" stroke="#f3d7ab"/>
+    <line x1="1044" y1="340" x2="1174" y2="340" stroke="#d98c2b"/>
+
+    <line x1="424" y1="442" x2="424" y2="442" stroke="#d7e4c6"/>
+    <line x1="1044" y1="442" x2="1174" y2="442" stroke="#789d3e"/>
+
+    <line x1="424" y1="544" x2="424" y2="544" stroke="#e6d9ee"/>
+    <line x1="1044" y1="544" x2="1044" y2="544" stroke="#8f6aa8"/>
+
+    <line x1="424" y1="646" x2="554" y2="646" stroke="#dce7ff"/>
+    <line x1="1044" y1="646" x2="1174" y2="646" stroke="#4f79c7"/>
+
+    <line x1="424" y1="748" x2="424" y2="748" stroke="#ead6cd"/>
+    <line x1="1044" y1="748" x2="1044" y2="748" stroke="#b56f53"/>
+  </g>
+
+  <g fill="#fffdf7" stroke-width="3">
+    <circle cx="554" cy="238" r="12" stroke="#2d9bb3"/>
+    <circle cx="1174" cy="238" r="12" stroke="#2d9bb3"/>
+    <circle cx="424" cy="340" r="12" stroke="#d98c2b"/>
+    <circle cx="1174" cy="340" r="12" stroke="#d98c2b"/>
+    <circle cx="424" cy="442" r="12" stroke="#789d3e"/>
+    <circle cx="1174" cy="442" r="12" stroke="#789d3e"/>
+    <circle cx="424" cy="544" r="12" stroke="#8f6aa8"/>
+    <circle cx="1044" cy="544" r="12" stroke="#8f6aa8"/>
+    <circle cx="554" cy="646" r="12" stroke="#4f79c7"/>
+    <circle cx="1174" cy="646" r="12" stroke="#4f79c7"/>
+    <circle cx="424" cy="748" r="12" stroke="#b56f53"/>
+    <circle cx="1044" cy="748" r="12" stroke="#b56f53"/>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#253138" font-weight="700">
+    <text x="584" y="244">3.5</text>
+    <text x="1204" y="244">3.5</text>
+    <text x="454" y="346">3.0</text>
+    <text x="1204" y="346">3.5</text>
+    <text x="454" y="448">3.0</text>
+    <text x="1204" y="448">3.5</text>
+    <text x="454" y="550">3.0</text>
+    <text x="1074" y="550">3.0</text>
+    <text x="584" y="652">3.5</text>
+    <text x="1204" y="652">3.5</text>
+    <text x="454" y="754">3.0</text>
+    <text x="1074" y="754">3.0</text>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="16">
+    <rect x="1346" y="324" width="154" height="30" rx="6" fill="#d98c2b"/>
+    <text x="1423" y="345" text-anchor="middle" fill="#fffdf7" font-weight="700">+0.5</text>
+    <rect x="1346" y="426" width="154" height="30" rx="6" fill="#789d3e"/>
+    <text x="1423" y="447" text-anchor="middle" fill="#fffdf7" font-weight="700">+0.5</text>
+    <text x="1338" y="244" fill="#566065">steady: needs real external feedback</text>
+    <text x="1338" y="550" fill="#566065">steady: packet ready, no review yet</text>
+    <text x="1338" y="652" fill="#566065">steady: static package, not live GUI</text>
+    <text x="1338" y="754" fill="#566065">steady: exercised, no validator yet</text>
+  </g>
+
+  <rect x="86" y="812" width="1340" height="64" rx="8" fill="#eef3ed" stroke="#c6d1c4"/>
+  <text x="112" y="839" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#263238" font-weight="700">Current reading</text>
+  <text x="112" y="862" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#465056">Release and external comparison moved up. Business adoption, real external review, live workbench, and governance validator work remain the weak side.</text>
+</svg>

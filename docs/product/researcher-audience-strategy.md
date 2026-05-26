@@ -70,11 +70,13 @@ Avoid these claims:
 | 1 | Read the project thesis. | `docs/architecture/95-gcs-narrative-map.md` |
 | 2 | Run a smoke command. | `docs/product/demos/d1-cli-smoke/` |
 | 3 | Run diagnostic examples. | `docs/product/demos/d2-diagnostic-classification/` |
-| 4 | Inspect replay evidence. | `docs/product/demos/d3-replay-evidence/` |
-| 5 | Inspect fixture maturity. | `docs/architecture/96-fixture-corpus-maturity-ladder.md` |
-| 6 | Compare with solver baselines. | `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` |
-| 7 | Propose a benchmark candidate. | `docs/architecture/98-benchmark-candidate-selection-criteria.md` |
-| 8 | Check contribution fit. | `docs/product/researcher-contribution-boundary.md` |
+| 4 | Inspect and check replay evidence. | `docs/product/demos/d3-replay-evidence/` and `tools/product_demo/replay_evidence_check.py` |
+| 5 | Inspect the static workbench target. | `docs/product/demos/d5-solver-evidence-workbench/` |
+| 6 | Inspect fixture maturity. | `docs/architecture/96-fixture-corpus-maturity-ladder.md` |
+| 7 | Compare with solver baselines. | `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` and `benchmarks/external-baseline-feasibility-matrix.md` |
+| 8 | Propose a benchmark candidate. | `docs/architecture/98-benchmark-candidate-selection-criteria.md` and `benchmarks/b2-microbenchmark-candidate-review.md` |
+| 9 | Check contribution fit. | `docs/product/researcher-contribution-boundary.md` |
+| 10 | Give structured feedback. | `docs/product/reviews/first-external-researcher-review-packet-20260526.md` |
 
 ## Documentation Consequences
 
@@ -86,9 +88,9 @@ Avoid these claims:
 
 ## Next Decision
 
-After the D2 classification script and first B1 expected outputs, the public
-README should present GCS as a staged combination with researcher workbench as
-the front door:
+After the D3 checker, D5 static package, external-baseline matrix, and B2
+candidate review, the next decision is whether to seek a real external
+researcher review before adding an optional external adapter:
 
 1. evidence-rich solver workbench;
 2. solver architecture reference implementation;

@@ -23,9 +23,9 @@ workflow health, and narrative maturity.
 | Inventory validation | Strong | `validate-inventory` is part of the expected gate. | Run for scoped architecture/agentic batches. |
 | Skill validation | Strong | Project skills are the routing layer. | Run after skill or steward-related work. |
 | Dependency boundary | Strong | `check-dependencies` is part of the expected gate. | Keep mathematical layers free of UI/IO/agentic dependencies. |
-| Product/user narrative | Strong but split | Researcher primary audience, D1/D2/D3 demo packages, D2 JSON classifier, R1 preview, B1 expected outputs, README route, and contribution boundary exist. | Add D5 workbench evidence and first external researcher review. |
-| Metrics trend history | Initial | This dashboard is the first active baseline. | Add timestamped updates after important closures. |
-| Permission/governance telemetry | Developing | Permission policy, PR governance, threat matrix, governance eval roadmap, and three prompt-level eval seeds exist. | Exercise eval seeds in real archives before validator candidates. |
+| Product/user narrative | Strong but split | Researcher primary audience, D1/D2/D3 demo packages, D3 replay checker, D5 static package, R1 preview, B1 expected outputs, B2 review, README route, and contribution boundary exist. | Convert review packet into actual external review and add live D5 evidence later. |
+| Metrics trend history | Active | Baseline and Figure 95 trend artifacts exist. | Add timestamped updates after important closures. |
+| Permission/governance telemetry | Developing | Permission policy, PR governance, threat matrix, governance eval roadmap, three prompt-level eval seeds, and exercised evidence note exist. | Build E-GOV-001 validator candidate before any default gate. |
 
 ## Metrics To Update
 
@@ -60,16 +60,22 @@ workflow health, and narrative maturity.
 | New D1 CLI smoke demo package | 1 | `docs/product/demos/d1-cli-smoke/` |
 | New D2 diagnostic classification demo package | 1 | `docs/product/demos/d2-diagnostic-classification/` |
 | New D3 replay evidence demo package | 1 | `docs/product/demos/d3-replay-evidence/` |
-| Product demo tools | 2 | `tools/product_demo/diagnostic_classification.py` and `r1_package_smoke.py` |
+| New D5 static Solver Evidence Workbench package | 1 | `docs/product/demos/d5-solver-evidence-workbench/` |
+| Product demo tools | 4 | `tools/product_demo/diagnostic_classification.py`, `r1_package_smoke.py`, `replay_evidence_check.py`, and `d5_workbench_package.py` |
 | B1 expected-output set | 1 | `docs/architecture/benchmarks/b1-diagnostic-classification/` |
+| B2 candidate review | 1 | `docs/architecture/benchmarks/b2-microbenchmark-candidate-review.md` |
+| External-baseline feasibility matrix | 1 | `docs/architecture/benchmarks/external-baseline-feasibility-matrix.md` |
 | R1 researcher-preview release note | 1 | `docs/product/releases/r1-researcher-preview-20260526.md` |
 | R1 package smoke artifact | 1 | `docs/product/releases/artifacts/r1-researcher-preview-smoke-20260526.json` |
+| First external researcher review packet | 1 | `docs/product/reviews/first-external-researcher-review-packet-20260526.md` |
 | Researcher primary-audience strategy | 1 | `docs/product/researcher-audience-strategy.md` |
 | Researcher contribution boundary | 1 | `docs/product/researcher-contribution-boundary.md` |
 | Release-readiness checklist | 1 | `docs/product/release-readiness-checklist.md` |
 | External comparison and benchmark plan | 1 | `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md` |
 | Benchmark candidate selection criteria | 1 | `docs/architecture/98-benchmark-candidate-selection-criteria.md` |
 | Governance prompt eval seeds | 3 | `docs/agentic/evals/governance/` |
+| Governance exercised evidence note | 1 | `docs/agentic/evals/governance/exercised-evidence-20260526.md` |
+| Figure 95 trend artifact | 1 | `docs/architecture/70-visualization/narrative-line-level-trend-20260526.md` |
 | Active metrics dashboard | 1 | This document |
 | Known unrelated dirty or untracked paths in current session | 3 | `docs/research/OpusTime/OpusTime.md`, `docs/reports/report_/`, and `docs/agentic/tasks/2026-05-26-institutional-process-ai-token-economics.md`; do not stage for narrative commits. |
 
@@ -111,6 +117,6 @@ Follow-up:
 | Add demo ladder | viewer bridge and architecture stewards | CLI, replay, report, and workbench demos are ordered. |
 | Add permission threat matrix | governance owner | Private data, untrusted content, outbound comms, writes, branch actions, and network/dependencies are mapped. |
 | Add onboarding path | architecture steward | New reviewer can build, run, inspect evidence, and read the thesis in one sitting. |
-| Add schema-aware replay evidence checker | product and session-runtime stewards | D3 replay artifacts are validated beyond field presence. |
-| Add external-baseline feasibility matrix | architecture steward | External baselines are classified as executable or documentation-only. |
-| Add D5 workbench evidence package | viewer bridge and UI stewards | Screenshot package links visual state to report evidence and visual QA. |
+| Add R2 reproducible build transcript | release owner | Build/run evidence is recorded without overclaiming broad platform support. |
+| Build E-GOV-001 validator candidate | governance owner | Staged files are compared against task-card scope and allowlist. |
+| Convert review packet into actual archive | product owner | Real external feedback is recorded with accepted and deferred follow-up. |

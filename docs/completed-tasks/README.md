@@ -50,6 +50,7 @@ institutional-agent promotion, or quality-gate decision depends on that record.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-26 | [Narrative map third-stage execution](2026-05-26-narrative-map-third-stage-execution/README.md) | done |
 | 2026-05-26 | [Researcher evidence roadmap execution](2026-05-26-researcher-evidence-roadmap-execution/README.md) | done |
 | 2026-05-26 | [Researcher-audience narrative stage](2026-05-26-researcher-audience-narrative-stage/README.md) | done |
 | 2026-05-26 | [Task-scoped session closer skill upgrade](2026-05-26-task-scoped-session-closer-skill-upgrade/README.md) | done |

@@ -70,6 +70,9 @@ The active B1 expected-output set lives under
 `docs/architecture/benchmarks/b1-diagnostic-classification/expected/` and is
 consumed by `tools/product_demo/diagnostic_classification.py`.
 
+The active B2 candidate review lives at
+`docs/architecture/benchmarks/b2-microbenchmark-candidate-review.md`.
+
 ## Expected Output Contract
 
 Future C2 candidate files should define:
@@ -103,6 +106,6 @@ Benchmark candidates should support three comparison modes:
 
 ## Next Task
 
-Add a B2 candidate review only after B1 expected outputs survive a fresh build
-and the external-baseline feasibility matrix separates executable baselines
-from documentation-only comparisons.
+Add B2 expected-output files for B2-01 and B2-02. Keep over-constrained,
+malformed-input, and singular cases out of C3 benchmark status until their
+missing evidence in the B2 review is resolved.

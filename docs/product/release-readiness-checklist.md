@@ -32,7 +32,7 @@ are kept current and the known limitations are explicit.
 | Build path | One documented local build path or pre-existing build assumption. | Partial; D1/D2 use `out/build/clang-ninja/GCS.exe`. |
 | D1 CLI smoke | Command, expected status, and replay artifact. | Present in `docs/product/demos/d1-cli-smoke/`. |
 | D2 diagnostics | Multi-case classification transcript and JSON summary. | Present in `docs/product/demos/d2-diagnostic-classification/` and `tools/product_demo/diagnostic_classification.py`. |
-| D3 replay evidence | Saved replay evidence artifact and field guide. | Present in `docs/product/demos/d3-replay-evidence/`. |
+| D3 replay evidence | Saved replay evidence artifact, field guide, and schema-aware checker. | Present in `docs/product/demos/d3-replay-evidence/` and `tools/product_demo/replay_evidence_check.py`. |
 | Fixture corpus map | Corpus levels and promotion rules. | Present in `docs/architecture/96-fixture-corpus-maturity-ladder.md`. |
 | Benchmark plan | External comparison targets and candidate rules. | Present in `docs/architecture/97-external-solver-comparison-and-benchmark-plan.md`. |
 | B1 expected outputs | Internal expected-output files for diagnostic classification. | Present in `docs/architecture/benchmarks/b1-diagnostic-classification/`. |
@@ -51,6 +51,7 @@ python tools\agentic_design\agentic_toolkit.py validate-inventory
 python tools\agentic_design\agentic_toolkit.py validate-skills
 python tools\agentic_design\agentic_toolkit.py check-dependencies
 python tools\product_demo\diagnostic_classification.py --output docs\product\demos\d2-diagnostic-classification\artifacts\d2-diagnostic-summary.json
+python tools\product_demo\replay_evidence_check.py --input docs\product\demos\d3-replay-evidence\artifacts\g1-replay-evidence.report.json --output docs\product\demos\d3-replay-evidence\artifacts\g1-replay-evidence.check.json
 python tools\product_demo\r1_package_smoke.py --output docs\product\releases\artifacts\r1-researcher-preview-smoke-20260526.json
 out\build\clang-ninja\GCS.exe fixtures\scene\basic\g1.txt
 out\build\clang-ninja\GCS.exe fixtures\scene\verification\lgs\over_constrained.txt
@@ -63,7 +64,7 @@ Expected interpretation:
 - `g1.txt` exits 0 and is accepted with warnings;
 - over-constrained and singular cases exit nonzero as expected and preserve
   obstruction evidence.
-- D2 and R1 JSON evidence report all checks passed.
+- D2, D3 checker, and R1 JSON evidence report all checks passed.
 
 ## Support Boundaries
 
@@ -106,7 +107,7 @@ They should not cite:
 To reach R2:
 
 1. add a reproducible build transcript;
-2. add a schema-aware replay evidence checker;
+2. wire the replay checker into a release gate;
 3. freeze a small B2 benchmark-candidate set;
 4. record expected status and report fields for each B2 candidate;
 5. produce a versioned release note that includes skipped and unsupported

@@ -34,6 +34,8 @@ Baseline visual:
 `docs/architecture/70-visualization/assets/figure95-narrative-line-level-baseline-20260526.svg`.
 Baseline brief:
 `docs/architecture/70-visualization/narrative-line-level-baseline-20260526.md`.
+Trend brief:
+`docs/architecture/70-visualization/narrative-line-level-trend-20260526.md`.
 
 ![GCS Narrative Line Level Baseline](70-visualization/assets/figure95-narrative-line-level-baseline-20260526.svg)
 
@@ -43,16 +45,16 @@ Baseline brief:
 | Module contract architecture | Very strong | Target modules, dependency direction, and contract-test posture are explicit. | Prototype names and detailed implementation may still lag target vocabulary. | Keep every new change mapped to target module, report surface, and contract evidence. |
 | Implementation roadmap | Strong | Step history and upcoming solver work are recorded in depth. | New readers need a compressed view of roadmap arcs. | Maintain this map as the one-page entry point and keep details in the roadmap. |
 | Fixture and counterexample corpus | Strong | Verification, generated, milestone, showcase, and counterexample assets exist. | The corpus is not yet narrated as a maturity ladder. | Define corpus levels and acceptance evidence per level. |
-| Runtime/history/replay evidence | Strong | Replay evidence and saved-report workflow are becoming a differentiator. | The auditability story is not yet foregrounded. | Use replay evidence as the trust bridge between solver behavior and agentic governance. |
+| Runtime/history/replay evidence | Strong | Replay evidence, saved-report workflow, and D3 schema-aware checker are now concrete differentiators. | The checker is not yet wired into an R2 release gate. | Use replay evidence as the trust bridge between solver behavior and agentic governance. |
 | Agentic-SE operating layer | Very strong | Task cards, runbooks, archives, quality gates, PR audit, institutional agents, and an operating map exist. | The next risk is process sprawl rather than absence. | Keep `docs/agentic/agentic-organization-operating-map.md` as the compact entry point. |
 | Quality gates and evidence | Strong | Local validators, contract tests, tool tests, fixture gates, and quality scripts exist. | Trend visibility is still thin. | Maintain `docs/agentic/metrics-dashboard.md` after non-trivial tasks. |
 | UI/viewer/scientific figures | Strong but split | Viewer, visual QA, figure pipeline, and Solver Evidence Workbench direction exist. | Visual work can appear separate from solver evidence. | Frame UI as evidence-first interaction, not decoration. |
 | Institutional agents and learning | Developing | Standing agents, templates, examples, refusal evals, and a registry scorecard exist. | Seed agents need more examples before promotion. | Use `docs/agentic/institutional-agent-registry-and-scorecard.md` before status changes. |
-| Git/worktree/PR governance | Strong | Worktree, branch, PR audit, permissions, threat matrix, and repository-audit policies exist. | Governance evals are planned but not yet executable gates. | Execute the staged roadmap in `docs/agentic/governance-eval-roadmap.md`. |
-| Product/user/market story | Strong but split | Researcher primary audience, product brief, demo ladder, D1/D2/D3 demos, JSON classification, README route, and contributor boundary exist. | UI/workbench and external reviewer story are still thinner than CLI evidence. | Add D5 workbench screenshot package after visual QA. |
-| Release/packaging/onboarding | Developing | A 20-minute contributor path, release-readiness checklist, R1 researcher-preview note, and package smoke automation exist. | Reproducible build transcript and R2 release criteria are not yet consolidated. | Add reproducible build transcript and schema-aware replay checker. |
-| External benchmark/comparison | Developing | External comparison plan, benchmark criteria, B1 expected outputs, and D2 JSON summary exist. | No executable external baseline run or B2 microbenchmark set exists yet. | Add external-baseline feasibility matrix and B2 candidate review. |
-| Business/open-source strategy | Developing | Primary audience, README route, contribution boundary, and R1 preview route are documented. | Public distribution and contribution workflow are still researcher-preview only. | Add contribution workflow examples after first external review. |
+| Git/worktree/PR governance | Strong | Worktree, branch, PR audit, permissions, threat matrix, repository-audit policies, and exercised governance eval evidence exist. | E-GOV-001 is ready for validator-candidate design, but no validator is implemented yet. | Convert E-GOV-001 into a scoped validator candidate. |
+| Product/user/market story | Strong but split | Researcher primary audience, product brief, demo ladder, D1/D2/D3 demos, D5 static workbench package, README route, and contributor boundary exist. | Actual external reviewer feedback and live workbench walkthrough are still missing. | Convert the first researcher review packet into a real review archive. |
+| Release/packaging/onboarding | Strong but split | A 20-minute contributor path, release-readiness checklist, R1 researcher-preview note, package smoke automation, and D3 replay checker exist. | Reproducible build transcript and R2 release criteria are not yet consolidated. | Add R2 reproducible build transcript and wire replay checker into the release gate. |
+| External benchmark/comparison | Strong but split | External comparison plan, benchmark criteria, feasibility matrix, B1 expected outputs, D2 JSON summary, and B2 candidate review exist. | No executable external baseline run exists yet. | Decide and document the first optional SolveSpace or FreeCAD external adapter. |
+| Business/open-source strategy | Developing | Primary audience, README route, contribution boundary, R1 preview route, and first external researcher review packet are documented. | Public distribution and actual external contribution workflow are still researcher-preview only. | Archive the first real external review or contribution. |
 
 ## Narrative Map V2: Evidence Routes And Promotion Gates
 
@@ -68,16 +70,16 @@ The v2 map adds two fields to each narrative line:
 | Module contract architecture | `docs/architecture/30-contracts/` and module design docs. | Keep new implementation changes mapped to target contracts and report surfaces. |
 | Implementation roadmap | Step execution reports and this narrative map. | Add a compressed roadmap arc when the next solver milestone closes. |
 | Fixture and counterexample corpus | `docs/architecture/96-fixture-corpus-maturity-ladder.md` and B1 expected outputs. | Promote a stable C2 seed toward B2 with expected report fields and migration notes. |
-| Runtime/history/replay evidence | `docs/product/demos/d3-replay-evidence/` and replay JSON. | Add schema-aware replay evidence checker. |
-| Agentic-SE operating layer | Task cards, completed archives, operating map, and governance roadmap. | Exercise governance eval seeds against real archives before validator promotion. |
+| Runtime/history/replay evidence | `docs/product/demos/d3-replay-evidence/`, replay JSON, and `g1-replay-evidence.check.json`. | Wire the replay checker into R2 release-readiness evidence. |
+| Agentic-SE operating layer | Task cards, completed archives, operating map, governance roadmap, and exercised governance evidence note. | Convert only the highest-signal exercised eval into a validator candidate. |
 | Quality gates and evidence | Agentic toolkit validators and R1 package smoke. | Add trend history after several non-trivial closures. |
-| UI/viewer/scientific figures | Figure 95 baseline and UI architecture docs. | Add D5 Solver Evidence Workbench screenshot package with visual QA. |
+| UI/viewer/scientific figures | Figure 95 baseline/trend, UI architecture docs, and D5 static screenshot package with visual QA. | Build a live workbench walkthrough only when viewer evidence projection is ready. |
 | Institutional agents and learning | Institutional-agent registry and scorecard. | Promote only after examples, refusal cases, and eval evidence accumulate. |
-| Git/worktree/PR governance | Permission policy, threat matrix, PR audit docs, and scoped commits. | Convert the highest-risk prompt eval into a validator candidate. |
-| Product/user/market story | README researcher route, D1/D2/D3 packages, and contribution boundary. | Demonstrate one external reviewer path from README to evidence artifact. |
-| Release/packaging/onboarding | R1 release note and R1 package smoke JSON. | Add reproducible build transcript and R2 criteria. |
-| External benchmark/comparison | B1 expected outputs and external comparison plan. | Add external-baseline feasibility matrix and first B2 candidate review. |
-| Business/open-source strategy | Researcher audience strategy and contribution boundary. | Capture first researcher contribution or review as an archive-backed example. |
+| Git/worktree/PR governance | Permission policy, threat matrix, PR audit docs, scoped commits, and `docs/agentic/evals/governance/exercised-evidence-20260526.md`. | Build E-GOV-001 validator candidate with false-positive notes. |
+| Product/user/market story | README researcher route, D1/D2/D3 packages, D5 static package, contribution boundary, and review packet. | Capture actual external reviewer feedback and update the review archive. |
+| Release/packaging/onboarding | R1 release note, R1 package smoke JSON, and D3 replay checker. | Add reproducible build transcript and R2 criteria. |
+| External benchmark/comparison | B1 expected outputs, external comparison plan, feasibility matrix, and B2 candidate review. | Produce the first optional external baseline run or source-level comparison note. |
+| Business/open-source strategy | Researcher audience strategy, contribution boundary, and first review packet. | Archive a real researcher review or contribution. |
 
 ## Narrative Arcs
 
@@ -165,20 +167,21 @@ Near-term plan:
 
 The strongest internal narratives remain solver architecture, agentic
 operating discipline, quality gates, and fixture evidence. The researcher
-audience decision, D1/D2/D3 packages, B1 expected outputs, R1 smoke automation,
-README route, and contribution boundary move the external legibility line
-forward. The weak axis is now the next rung of proof: schema-aware evidence
-checking, external-baseline feasibility, B2 candidate selection, D5 workbench
-evidence, and first external researcher review.
+audience decision, D1/D2/D3 packages, D3 replay checker, D5 static package,
+B1 expected outputs, B2 candidate review, R1 smoke automation, README route,
+and contribution boundary move the external legibility line forward. The weak
+axis is now the next rung of proof: live workbench evidence, reproducible R2
+build transcript, executable external baseline, actual external researcher
+feedback, and a first governance validator candidate.
 
 | Relative weak line | Current level | Why it is still weak | Strengthening task already in plan |
 | --- | --- | --- | --- |
-| Product/user/market story | Strong but split | CLI and evidence-route story is strong; workbench and external reviewer walkthrough are still thin. | Add D5 screenshot package and one external reviewer archive. |
-| Release/packaging/onboarding | Developing | R1 smoke exists, but reproducible build transcript and R2 release contract do not. | Add reproducible build transcript and schema-aware replay checker. |
-| External benchmark/comparison | Developing | B1 expected outputs exist, but external executable feasibility and B2 candidates do not. | Add external-baseline feasibility matrix and B2 candidate review. |
-| Business/open-source strategy | Developing | README route and contribution boundary exist, but no external contribution example has landed. | Capture first researcher review or contribution as archive-backed evidence. |
-| Governance eval execution | Developing | Three prompt-level eval seeds exist, but no validator candidate is implemented. | Exercise E-GOV-001, E-GOV-002, and E-GOV-008 in real archives before validator design. |
-| Demo evidence packaging | Strong but split | D0, D1, D2, and D3 are packaged; D5 workbench demo remains future work. | Add D5 Solver Evidence Workbench screenshot package after visual QA. |
+| Product/user/market story | Strong but split | CLI and evidence-route story is strong; D5 is static and no actual external reviewer response has landed. | Convert the first external researcher packet into a real review archive. |
+| Release/packaging/onboarding | Strong but split | R1 smoke and replay checker exist, but reproducible build transcript and R2 release contract do not. | Add R2 reproducible build transcript and release-gate notes. |
+| External benchmark/comparison | Strong but split | Feasibility and B2 candidate review exist, but external executable comparison is not yet run. | Decide the first optional SolveSpace or FreeCAD adapter. |
+| Business/open-source strategy | Developing | README route, contribution boundary, and review packet exist, but no external contribution example has landed. | Capture first real researcher review or contribution as archive-backed evidence. |
+| Governance eval execution | Developing | Three prompt-level eval seeds now have exercised evidence, but no validator candidate is implemented. | Build E-GOV-001 validator candidate before any default gate. |
+| Demo evidence packaging | Strong but split | D0, D1, D2, D3, and D5 static packages are present; live workbench remains future work. | Add live D5 workbench walkthrough after viewer evidence projection is ready. |
 
 This means the next plan should not primarily add more internal architecture
 language. It should translate the existing architecture into evidence packages
@@ -200,6 +203,7 @@ that a new user, reviewer, or future contributor can run, compare, and trust.
 | Phase 9: Release and researcher distribution strategy | Complete as seed | `docs/product/release-readiness-checklist.md` and `docs/product/researcher-audience-strategy.md` | GCS can explain who should adopt it first, how to try it, and what readiness means. |
 | Phase 10: Governance eval seeds | Complete as seed | `docs/agentic/evals/governance/` | The three highest-priority prompt-level governance evals are concrete. |
 | Phase 11: Researcher evidence route | Complete in evidence-roadmap batch | D2 JSON classifier, D3 replay package, B1 expected outputs, R1 preview, README route, Narrative Map v2, and Figure 95 refresh | A researcher can move from README to CLI evidence, replay evidence, expected outputs, and release smoke without raw chat context. |
+| Phase 12: Third-stage evidence package | Complete in this batch | D3 replay checker, external-baseline feasibility matrix, B2 candidate review, D5 static workbench package, first external review packet, exercised governance evidence, and Figure 95 trend | The prior weak-axis tasks now have concrete artifacts while preserving caveats about live GUI, real external feedback, and external executable benchmarks. |
 
 ## Decision Rules
 
@@ -213,16 +217,17 @@ that a new user, reviewer, or future contributor can run, compare, and trust.
 
 ## Next Task Queue
 
-1. Add a schema-aware replay evidence checker.
-2. Add an external-baseline feasibility matrix.
-3. Review B1 expected outputs for B2 research microbenchmark candidates.
-4. Add a D5 Solver Evidence Workbench screenshot package after visual QA.
-5. Capture the first external researcher review or contribution as a
-   completed-task archive.
-6. Decide which external baselines are executable locally and which remain
-   documentation-only comparisons.
-7. Exercise E-GOV-001, E-GOV-002, and E-GOV-008 in real task archives before
-   designing validator candidates.
+1. Add an R2 reproducible build transcript and release-gate note.
+2. Build an E-GOV-001 validator candidate for scoped staging evidence.
+3. Add B2 expected-output files for B2-01 and B2-02.
+4. Decide the first optional external adapter path: SolveSpace application or
+   FreeCAD Sketcher.
+5. Convert D5 from a static evidence board into a live workbench walkthrough
+   only after viewer evidence projection is ready.
+6. Convert the first external researcher review packet into an actual review
+   archive after real feedback arrives.
+7. Add a contribution workflow example once the first external review or
+   contribution changes the repository.
 
 ## Review Triggers
 

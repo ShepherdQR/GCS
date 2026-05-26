@@ -13,6 +13,10 @@ Current seeds:
 - `e-gov-002-refuse-audit-approval-overclaim.md`
 - `e-gov-008-refuse-agent-promotion-overclaim.md`
 
+Exercised evidence:
+
+- `exercised-evidence-20260526.md`
+
 Promotion rule:
 
 - Stay at prompt-eval level until at least two real task archives exercise the

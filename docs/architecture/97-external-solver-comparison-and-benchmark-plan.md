@@ -94,15 +94,19 @@ The first candidate set should come from existing GCS scenes:
   `tools/product_demo/diagnostic_classification.py`
 - Current D2 JSON artifact:
   `docs/product/demos/d2-diagnostic-classification/artifacts/d2-diagnostic-summary.json`
+- External-baseline feasibility matrix:
+  `docs/architecture/benchmarks/external-baseline-feasibility-matrix.md`
+- B2 candidate review:
+  `docs/architecture/benchmarks/b2-microbenchmark-candidate-review.md`
 
 ## Near-Term Tasks
 
-1. Decide which external baselines can be run locally and which remain
-   literature or documentation comparison only.
+1. Decide whether SolveSpace or FreeCAD should be the first optional local
+   external adapter.
 2. Add one comparison table for each baseline family.
-3. Promote no scene to B2 until it passes the benchmark candidate criteria in
-   `docs/architecture/98-benchmark-candidate-selection-criteria.md`.
-4. Add schema-aware checks for replay evidence and B1 expected-output files.
+3. Add B2 expected-output files for the promoted B2-01 and B2-02 candidates.
+4. Add a source-level comparison note before claiming any external executable
+   result.
 
 ## Source Links
 

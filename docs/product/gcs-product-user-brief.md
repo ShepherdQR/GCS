@@ -156,17 +156,18 @@ Longer term:
 | Demo workflow count | Shows user-visible capability. | Initial demo candidates identified here. |
 | Fixture maturity coverage | Connects scenes to evidence. | Needs corpus maturity ladder. |
 | New contributor time-to-run | Tests onboarding quality. | Needs 20-minute path. |
-| Report evidence inspectability | Tests solver trust. | D1, D2, D3, and B1 expected outputs now connect internal evidence to product demos. |
+| Report evidence inspectability | Tests solver trust. | D1, D2, D3, D3 checker, D5 static package, B1 expected outputs, and B2 review now connect internal evidence to product demos. |
 | Completed-task reconstructability | Tests agentic organization quality. | Strong and validated for recent tasks. |
 
 ## Next Product Tasks
 
-1. Add a schema-aware replay evidence checker.
-2. Add an external-baseline feasibility matrix.
-3. Identify the first B2 research microbenchmark candidates.
-4. Add a D5 Solver Evidence Workbench screenshot package after visual QA.
-5. Decide which external baselines are executable locally and which remain
-   documentation-only comparisons.
+1. Add an R2 reproducible build transcript.
+2. Add B2 expected-output files for B2-01 and B2-02.
+3. Decide the first optional SolveSpace or FreeCAD adapter path.
+4. Convert the first external researcher review packet into an actual review
+   archive after real feedback arrives.
+5. Promote D5 from static package to live workbench evidence only after viewer
+   report projection is ready.
 
 Completed first follow-ups:
 
@@ -176,10 +177,16 @@ Completed first follow-ups:
 - `docs/product/demos/d1-cli-smoke/`
 - `docs/product/demos/d2-diagnostic-classification/`
 - `docs/product/demos/d3-replay-evidence/`
+- `docs/product/demos/d5-solver-evidence-workbench/`
 - `tools/product_demo/diagnostic_classification.py`
+- `tools/product_demo/replay_evidence_check.py`
+- `tools/product_demo/d5_workbench_package.py`
 - `tools/product_demo/r1_package_smoke.py`
 - `docs/architecture/benchmarks/b1-diagnostic-classification/`
+- `docs/architecture/benchmarks/external-baseline-feasibility-matrix.md`
+- `docs/architecture/benchmarks/b2-microbenchmark-candidate-review.md`
 - `docs/product/releases/r1-researcher-preview-20260526.md`
+- `docs/product/reviews/first-external-researcher-review-packet-20260526.md`
 - `docs/product/researcher-contribution-boundary.md`
 - `docs/product/release-readiness-checklist.md`
 - `docs/product/researcher-audience-strategy.md`

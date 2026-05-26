@@ -16,11 +16,16 @@ Start here if you want to inspect what GCS can currently prove:
    `python tools\product_demo\diagnostic_classification.py`.
 4. Inspect D3 replay evidence:
    [`docs/product/demos/d3-replay-evidence/`](docs/product/demos/d3-replay-evidence/).
-5. Review B1 expected outputs:
+5. Run the D3 replay checker:
+   `python tools\product_demo\replay_evidence_check.py`.
+6. Inspect the D5 static Solver Evidence Workbench package:
+   [`docs/product/demos/d5-solver-evidence-workbench/`](docs/product/demos/d5-solver-evidence-workbench/).
+7. Review B1 expected outputs and B2 candidate decisions:
    [`docs/architecture/benchmarks/b1-diagnostic-classification/`](docs/architecture/benchmarks/b1-diagnostic-classification/).
-6. Check the R1 researcher preview:
+   [`docs/architecture/benchmarks/b2-microbenchmark-candidate-review.md`](docs/architecture/benchmarks/b2-microbenchmark-candidate-review.md).
+8. Check the R1 researcher preview:
    [`docs/product/releases/r1-researcher-preview-20260526.md`](docs/product/releases/r1-researcher-preview-20260526.md).
-7. Use the contribution boundary before proposing changes:
+9. Use the contribution boundary before proposing changes:
    [`docs/product/researcher-contribution-boundary.md`](docs/product/researcher-contribution-boundary.md).
 
 GCS is not claiming production CAD readiness or benchmark superiority. Its

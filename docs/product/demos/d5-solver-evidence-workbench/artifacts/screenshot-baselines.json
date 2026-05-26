@@ -1,0 +1,14 @@
+{
+  "schema_version": "gcs.screenshot_baselines.v1",
+  "baselines": [
+    {
+      "id": "d5-solver-evidence-workbench-static",
+      "path": "docs/product/demos/d5-solver-evidence-workbench/artifacts/d5-workbench-evidence.png",
+      "width": 1600,
+      "height": 980,
+      "min_bytes": 50000,
+      "bytes": 92228,
+      "sha256": "ad0f6e807f3b0d9dcafeb6640adc014ec18e67fed11b126bed03aa61804e34ef"
+    }
+  ]
+}

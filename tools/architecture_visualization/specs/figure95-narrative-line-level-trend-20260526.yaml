@@ -1,0 +1,50 @@
+schema: gcs.narrative_line_level_trend.v1
+figure_id: figure95-narrative-line-level-trend-20260526
+title: GCS Narrative Line Level Trend
+snapshot_date: 2026-05-26
+source:
+  - docs/architecture/95-gcs-narrative-map.md
+  - docs/architecture/99-narrative-map-third-stage-development-plan.md
+  - docs/architecture/benchmarks/external-baseline-feasibility-matrix.md
+  - docs/architecture/benchmarks/b2-microbenchmark-candidate-review.md
+exports:
+  svg: docs/architecture/70-visualization/assets/figure95-narrative-line-level-trend-20260526.svg
+level_scale:
+  5.0: Very strong
+  4.0: Strong
+  3.5: Strong but split
+  3.0: Developing
+  2.5: Initial and strengthening
+  2.0: Partial
+  1.0: Weak
+snapshots:
+  - id: researcher_evidence_route
+    label: After researcher evidence route
+    date: 2026-05-26
+    scores:
+      Product/user/market story: 3.5
+      Release/packaging/onboarding: 3.0
+      External benchmark/comparison: 3.0
+      Business/open-source strategy: 3.0
+      UI/viewer/scientific figures: 3.5
+      Governance eval execution: 3.0
+  - id: third_stage_package
+    label: After third-stage package
+    date: 2026-05-26
+    scores:
+      Product/user/market story: 3.5
+      Release/packaging/onboarding: 3.5
+      External benchmark/comparison: 3.5
+      Business/open-source strategy: 3.0
+      UI/viewer/scientific figures: 3.5
+      Governance eval execution: 3.0
+trend_reading:
+  strengthened:
+    - Release/packaging/onboarding
+    - External benchmark/comparison
+  still_weak:
+    - Business/open-source strategy
+    - Governance eval execution
+  caveat:
+    - D5 is a static evidence-board package, not a live GUI workflow.
+    - The first external researcher review packet is ready, but no real external feedback is claimed.

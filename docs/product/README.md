@@ -12,5 +12,6 @@ Start with:
 - `gcs-product-user-brief.md`
 - `releases/`
 - `release-readiness-checklist.md`
+- `reviews/`
 - `researcher-contribution-boundary.md`
 - `researcher-audience-strategy.md`

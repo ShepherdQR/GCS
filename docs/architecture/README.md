@@ -92,8 +92,16 @@ order, not by historical source order. Background research notes live under
    - `98-benchmark-candidate-selection-criteria.md`: promotion criteria for
      moving scenes from observed examples to benchmark candidates and frozen
      benchmark fixtures.
+   - `99-narrative-map-third-stage-development-plan.md`: seven-step plan and
+     execution status for turning the researcher evidence route into an
+     auditable research workbench narrative.
    - `benchmarks/b1-diagnostic-classification/`: first B1 expected-output
      files consumed by the D2 diagnostic classifier.
+   - `benchmarks/external-baseline-feasibility-matrix.md`: current feasibility
+     split between local executable, source/documentation, and commercial
+     external baselines.
+   - `benchmarks/b2-microbenchmark-candidate-review.md`: B1-to-B2 candidate
+     decisions for the first research microbenchmark set.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

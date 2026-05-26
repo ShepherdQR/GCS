@@ -22,6 +22,8 @@ It is not a public tool release.
 | Run D2 diagnostics | `tools/product_demo/diagnostic_classification.py` |
 | Inspect D2 evidence | `docs/product/demos/d2-diagnostic-classification/artifacts/d2-diagnostic-summary.json` |
 | Inspect D3 replay | `docs/product/demos/d3-replay-evidence/artifacts/g1-replay-evidence.report.json` |
+| Check D3 replay | `tools/product_demo/replay_evidence_check.py` and `docs/product/demos/d3-replay-evidence/artifacts/g1-replay-evidence.check.json` |
+| Inspect D5 static workbench | `docs/product/demos/d5-solver-evidence-workbench/` |
 | Inspect B1 expected outputs | `docs/architecture/benchmarks/b1-diagnostic-classification/expected/` |
 | Run package smoke | `tools/product_demo/r1_package_smoke.py` |
 
@@ -37,7 +39,8 @@ Current artifact:
 
 The smoke path checks docs validation, inventory validation, skill validation,
 dependency boundaries, D1 CLI smoke, D2 JSON classification, and D3 replay
-artifact shape.
+artifact shape. The dedicated D3 replay checker performs the stronger
+schema-aware check.
 
 ## Supported In R1
 
@@ -72,8 +75,8 @@ artifact shape.
 
 The next release target is R2 reproducible research snapshot. R2 needs:
 
-1. schema-aware replay evidence checker;
+1. reproducible build transcript;
 2. frozen B2 research microbenchmark candidates;
-3. external baseline feasibility matrix;
-4. reproducible build transcript;
+3. expected-output files for B2-01 and B2-02;
+4. first optional external baseline adapter decision;
 5. versioned migration policy for expected outputs.

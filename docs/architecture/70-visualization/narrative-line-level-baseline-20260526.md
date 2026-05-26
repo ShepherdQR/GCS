@@ -22,6 +22,8 @@ external-baseline feasibility, and first external review evidence.
   `docs/architecture/70-visualization/assets/figure95-narrative-line-level-baseline-20260526.svg`
 - PNG review render:
   `docs/architecture/70-visualization/assets/figure95-narrative-line-level-baseline-20260526.review.png`
+- Trend update:
+  `docs/architecture/70-visualization/narrative-line-level-trend-20260526.md`
 
 ## Score Mapping
 

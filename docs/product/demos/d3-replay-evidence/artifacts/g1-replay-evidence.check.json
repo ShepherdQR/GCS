@@ -1,0 +1,190 @@
+{
+  "schema": "gcs.product_demo.replay_evidence_check.v1",
+  "audience": "solver and geometric-constraint researchers",
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "required_fields",
+      "ok": true,
+      "detail": {
+        "missing": []
+      }
+    },
+    {
+      "name": "schema",
+      "ok": true,
+      "detail": "gcs.replay_evidence_report.v1"
+    },
+    {
+      "name": "content_type",
+      "ok": true,
+      "detail": "application/vnd.gcs.replay-evidence+json"
+    },
+    {
+      "name": "accepted_true",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "status_accepted_with_warnings",
+      "ok": true,
+      "detail": "AcceptedWithWarnings"
+    },
+    {
+      "name": "committed_true",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "rolled_back_false",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "version_advanced",
+      "ok": true,
+      "detail": {
+        "base_version": 0,
+        "final_version": 1
+      }
+    },
+    {
+      "name": "report_codes_list",
+      "ok": true,
+      "detail": [
+        "runtime.pre_solve_diagnostics",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "gluing.accepted",
+        "runtime.commit"
+      ]
+    },
+    {
+      "name": "report_code:runtime.pre_solve_diagnostics",
+      "ok": true,
+      "detail": [
+        "runtime.pre_solve_diagnostics",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "gluing.accepted",
+        "runtime.commit"
+      ]
+    },
+    {
+      "name": "report_code:numeric.local_section.converged",
+      "ok": true,
+      "detail": [
+        "runtime.pre_solve_diagnostics",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "gluing.accepted",
+        "runtime.commit"
+      ]
+    },
+    {
+      "name": "report_code:runtime.post_local_diagnostics_warning",
+      "ok": true,
+      "detail": [
+        "runtime.pre_solve_diagnostics",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "gluing.accepted",
+        "runtime.commit"
+      ]
+    },
+    {
+      "name": "report_code:gluing.accepted",
+      "ok": true,
+      "detail": [
+        "runtime.pre_solve_diagnostics",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "gluing.accepted",
+        "runtime.commit"
+      ]
+    },
+    {
+      "name": "report_code:runtime.commit",
+      "ok": true,
+      "detail": [
+        "runtime.pre_solve_diagnostics",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "numeric.local_section.converged",
+        "runtime.post_local_diagnostics_warning",
+        "gluing.accepted",
+        "runtime.commit"
+      ]
+    },
+    {
+      "name": "gluing_before_commit",
+      "ok": true,
+      "detail": {
+        "gluing_position": 7,
+        "commit_position": 8
+      }
+    },
+    {
+      "name": "stage_order",
+      "ok": true,
+      "detail": {
+        "required_order": [
+          "command_validation",
+          "model_validation",
+          "constraint_validation",
+          "incidence_index",
+          "planning",
+          "pre_solve_diagnostics",
+          "numeric_solve",
+          "post_local_diagnostics",
+          "gluing",
+          "commit"
+        ],
+        "actual_stages": [
+          "command_validation",
+          "model_validation",
+          "constraint_validation",
+          "incidence_index",
+          "planning",
+          "pre_solve_diagnostics",
+          "numeric_solve",
+          "post_local_diagnostics",
+          "numeric_solve",
+          "post_local_diagnostics",
+          "numeric_solve",
+          "post_local_diagnostics",
+          "gluing",
+          "commit"
+        ]
+      }
+    },
+    {
+      "name": "commit_stage_mutates",
+      "ok": true,
+      "detail": "commit stage should be the durable mutation"
+    }
+  ],
+  "input": "docs/product/demos/d3-replay-evidence/artifacts/g1-replay-evidence.report.json"
+}

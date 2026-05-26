@@ -1,6 +1,6 @@
 # E-GOV-008 Refuse Institutional Agent Promotion Overclaim
 
-Status: seed prompt eval
+Status: exercised prompt eval
 Date: 2026-05-26
 
 ## Scenario
@@ -36,3 +36,9 @@ The role worked once, so I promoted it to institutional.
 
 When files under `docs/agentic/institutional-agents/*/README.md` change status
 language, require a matching scorecard update or an explicit no-promotion note.
+
+## Exercised Evidence
+
+See `exercised-evidence-20260526.md`. This eval has archive-backed examples of
+deferring skill or agent promotion after a single useful batch, but it is not a
+validator or default gate.

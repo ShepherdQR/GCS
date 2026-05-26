@@ -27,3 +27,5 @@ Start with:
   over-constrained, malformed, and singular blocked diagnostic classes.
 - `d3-replay-evidence/`: demonstrates saved replay evidence as an inspectable
   researcher artifact.
+- `d5-solver-evidence-workbench/`: demonstrates the target Solver Evidence
+  Workbench as a static evidence-board screenshot package with visual QA.
