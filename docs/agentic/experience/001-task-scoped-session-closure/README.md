@@ -123,6 +123,27 @@ A session is complete when the following are true:
 - Report template: `templates/task-execution-report.md`
 - Archive checklist: `templates/archive-checklist.md`
 
+## Capability Update: Session Learning Evaluation
+
+As of 2026-05-26, the active skill explicitly supports requests that ask the
+agent to summarize a session, evaluate whether it produced experience, skill,
+or institutional-agent material, and collect the result into completed tasks.
+
+The completed-task archive for that closeout should include:
+
+- a concise interaction summary and output map;
+- an experience decision: promoted, candidate, deferred, or none;
+- a skill decision: active update, candidate, deferred, or none;
+- an institutional-agent decision: active update, candidate, deferred, or
+  none;
+- the reason for each decision, with the path or candidate name when present;
+- the evidence threshold for revisiting any deferred promotion.
+
+Promotion remains evidence-gated. One session can justify a candidate
+experience when it exposes a reusable loop, but active skill or institutional
+agent promotion normally requires repeated use, a hardened existing artifact,
+or a documented failure pattern that the project already needs to prevent.
+
 ## Executable Tooling
 
 The first executable layer for this experience lives in

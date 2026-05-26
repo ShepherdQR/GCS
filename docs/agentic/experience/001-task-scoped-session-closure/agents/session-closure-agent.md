@@ -26,6 +26,9 @@ lifecycle orchestrator.
   `docs/agentic/experience/`, both, or neither.
 - Identify whether an experience should be promoted into a skill, template,
   eval, fixture, or tool.
+- When closing a session summary request, explicitly classify experience,
+  skill, and institutional-agent outcomes as active, candidate, deferred, or
+  none, with the evidence threshold for revisiting deferred items.
 
 ## Non-Responsibilities
 
@@ -52,3 +55,5 @@ or blocker. Do not include raw chat logs. Do not expand scope.
 - Can a future agent find the durable report without reading chat history?
 - Are skipped checks and residual risks visible?
 - Is any reusable lesson separated from the one task that produced it?
+- Is the experience/skill/agent outcome explicit when the user asked for a
+  session learning evaluation?

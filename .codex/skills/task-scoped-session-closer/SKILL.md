@@ -1,6 +1,6 @@
 ---
 name: task-scoped-session-closer
-description: Project-specific closure workflow for non-trivial GCS agentic-SE work. Use when a task needs a persisted task card, completed-task archive, evidence bundle, closure score, roadmap update, commit/push handoff, or when work touches quality gates, fixtures, architecture docs, institutional-agent artifacts, repository cleanup, or multi-step implementation. Do not use for tiny chat-only/status/typo work allowed by the lifecycle runbook low-risk boundary.
+description: Project-specific closure workflow for non-trivial GCS agentic-SE work. Use when a task needs a persisted task card, completed-task archive, evidence bundle, closure score, roadmap update, commit/push handoff, or when the user asks to summarize a session, evaluate whether it produced experience/skill/agent material, collect the result into completed tasks, or work on quality gates, fixtures, architecture docs, institutional-agent artifacts, repository cleanup, or multi-step implementation. Do not use for tiny chat-only/status/typo work allowed by the lifecycle runbook low-risk boundary.
 ---
 
 # Task-Scoped Session Closer
@@ -52,6 +52,12 @@ allows to remain chat-only or commit-note-only.
    - Create `docs/completed-tasks/<date-slug>/README.md`.
    - Link the task card, changed files, evidence, decisions, risks, and
      follow-up.
+   - Include a session-learning evaluation when the user asks for session
+     summary/collection or when the work produced reusable practice:
+     experience: yes/candidate/no; skill: active/candidate/no; agent:
+     active/candidate/no.
+   - Record the promotion or deferral reason, target path or candidate name,
+     and the evidence threshold for revisiting deferred skill or agent work.
    - Add an experience or institutional-agent note when a reusable lesson was
      learned.
 
@@ -79,6 +85,11 @@ python tools\agentic_design\agentic_toolkit.py validate-docs
 - Do not mark a non-trivial task complete only because files changed.
 - Do not archive raw chat logs.
 - Do not hide unresolved risk in optimistic summary language.
+- Do not promote a new skill or institutional agent from one isolated example
+  unless an existing artifact is being hardened or a severe repeated failure
+  pattern is already documented.
+- Do not omit the experience/skill/agent decision when the user explicitly
+  asks whether a session produced them; "no promotion" still needs a reason.
 - Do not validate all legacy archives unless a migration or exemption policy is
   in scope.
 - Do not let the closure process override module-specific steward skills.
@@ -92,4 +103,6 @@ At close, the durable archive should let an independent reviewer answer:
 - what evidence ran;
 - what decisions were made;
 - what risks remain;
+- whether the session produced experience, skill, or agent material;
+- what promotion, deferral, or reuse threshold was recorded;
 - what task should happen next.

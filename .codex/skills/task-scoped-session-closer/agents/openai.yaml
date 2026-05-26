@@ -1,4 +1,4 @@
 interface:
   display_name: "Task-Scoped Session Closer"
-  short_description: "Close non-trivial GCS work with evidence and archive handoff."
-  default_prompt: "Use $task-scoped-session-closer to close this GCS task with task card, evidence, archive, score, roadmap update, and commit/push handoff."
+  short_description: "Close GCS work with evidence, archive handoff, and learning evaluation."
+  default_prompt: "Use $task-scoped-session-closer to close this GCS task with task card, evidence, completed-task archive, experience/skill/agent evaluation, score, roadmap update, and commit/push handoff."
