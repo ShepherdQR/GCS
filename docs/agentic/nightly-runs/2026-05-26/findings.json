@@ -1,0 +1,89 @@
+{
+  "run_date": "2026-05-26",
+  "run_status": "blocked",
+  "policy_status": "unverified-local-docs-unreadable",
+  "repository_root": "C:\\Users\\QR\\.codex\\worktrees\\d8aa\\GCS",
+  "summary": {
+    "total_findings": 1,
+    "actionable_findings": 1,
+    "successful_checks": 0,
+    "failed_or_blocked_checks": 9,
+    "skipped_checks": 0
+  },
+  "findings": [
+    {
+      "id": "nightly-2026-05-26-execution-sandbox-blocked",
+      "title": "Local command runner failed before any diagnostic process could start",
+      "severity": "unknown-policy-doc-unavailable",
+      "taxonomy": "environment-blocker",
+      "status": "actionable",
+      "scope": "nightly-diagnostics-runner",
+      "evidence": [
+        "All attempted process launches returned: windows sandbox: setup refresh failed with status exit code: 1",
+        "The failure affected both shell-based and Node-based execution attempts",
+        "Branch, commit SHA, git status, and requested diagnostics were therefore not observable"
+      ],
+      "impact": "This run cannot provide repository health evidence beyond the runner failure itself.",
+      "minimal_repair": [
+        "Restore local process execution for the Codex sandbox in this worktree",
+        "Re-run the nightly diagnostics workflow unchanged once command execution succeeds"
+      ],
+      "required_validation": [
+        "Confirm `git status --short --branch` runs successfully",
+        "Confirm the nightly policy docs are readable",
+        "Execute the full requested diagnostic command list and regenerate this dated run bundle"
+      ],
+      "notes": [
+        "Per instruction, environment failure is classified as evidence and not counted as a successful check.",
+        "Severity and taxonomy names from the policy docs could not be loaded in this blocked run."
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "command": "git status --short --branch",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "git rev-parse HEAD",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py validate-docs",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py validate-inventory",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py validate-skills",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py check-dependencies",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "python tools\\scene_generation\\tools.py list",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "python -m unittest tests.tools.test_scene_generation_explorer",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py run-quality-gates --skip-build --skip-ctest --skip-cli --continue-on-failure",
+      "outcome": "blocked-before-start",
+      "reason": "windows sandbox: setup refresh failed with status exit code: 1"
+    }
+  ]
+}
