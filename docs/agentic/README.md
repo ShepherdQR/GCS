@@ -29,6 +29,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `trace-schema.md` | Minimal trace schema for agent work and tool calls. |
 | `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
+| `metrics-dashboard.md` | Lightweight baseline and update rule for lifecycle, validation, governance, product narrative, and commit-scope metrics. |
 | `ai-governance-next-actions.md` | Active roadmap for executable AI governance work after the first PR audit and nightly-diagnostics design. |
 | `agent-permission-policy.md` | Permission-as-code policy for unattended agent actions, human gates, and PR audit enforcement. |
 | `pr-audit-governance.md` | PR-class, risk, evidence, exploratory-PR, and automated-audit governance. |

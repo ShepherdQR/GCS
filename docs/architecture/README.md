@@ -80,6 +80,9 @@ order, not by historical source order. Background research notes live under
    - `94-repository-audit-statistics-architecture.md`: 2026-05-25 repository
      audit/statistics architecture for reproducible file, LOC, module,
      fixture, documentation, and evidence-growth reporting.
+   - `95-gcs-narrative-map.md`: active narrative-line maturity map connecting
+     solver evidence, product/user value, agentic-SE, governance, metrics, and
+     external positioning.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

@@ -50,6 +50,7 @@ institutional-agent promotion, or quality-gate decision depends on that record.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-26 | [Narrative plan execution](2026-05-26-narrative-plan-execution/README.md) | done |
 | 2026-05-26 | [AI organization frontier research](2026-05-26-ai-organization-frontier-research/README.md) | done |
 | 2026-05-26 | [Repository audit next steps execution](2026-05-26-repository-audit-next-steps-execution/README.md) | done |
 | 2026-05-26 | [Repository audit diff mode](2026-05-26-repository-audit-diff-mode/README.md) | done |
