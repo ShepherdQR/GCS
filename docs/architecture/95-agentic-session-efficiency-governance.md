@@ -263,6 +263,13 @@ Rules:
 - Allow manual token fields with `confidence: estimated` or `unknown`.
 - Project session summaries into Markdown tables.
 
+Implementation note, 2026-05-26: the first local reporter lives under
+`tools/session_efficiency/`. It renders one or more JSON records into Markdown
+and enriches records with outcome score, rework penalty, and value-per-token
+metrics when token telemetry is known. Records with `confidence: unknown` keep
+value-per-token fields as `n/a` and remain useful for outcome and validation
+review.
+
 ### Phase 2: Repository-Audit Join
 
 - Join files changed, artifact classes, generated reports, and task archives

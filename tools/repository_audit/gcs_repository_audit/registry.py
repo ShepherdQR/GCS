@@ -6,6 +6,9 @@ import os
 from pathlib import Path
 from typing import Any
 
+from .collect import read_snapshot
+from .trend import build_trend, write_markdown_trend
+
 
 MANIFEST_SCHEMA_VERSION = "gcs-repository-audit-manifest-0.1"
 
@@ -122,6 +125,10 @@ def render_markdown_index(
         "- Per-snapshot `README.md` files are human projections and may be regenerated from the snapshot.",
         "- Accepted snapshots should target committed Git revisions, not dirty worktree state.",
         "",
+        "## Companion Reports",
+        "",
+        f"- Accepted trend: [trend.md]({_link(output_dir, reports_root / 'trend.md')})",
+        "",
     ]
 
     if entries:
@@ -208,3 +215,29 @@ def write_markdown_index(
         newline="\n",
     )
     return entries
+
+
+def accepted_snapshots(reports_root: Path) -> list[dict[str, Any]]:
+    snapshots: list[dict[str, Any]] = []
+    for entry in load_registry_entries(reports_root):
+        snapshot_path = Path(entry["snapshot_path"])
+        if snapshot_path.exists():
+            snapshots.append(read_snapshot(snapshot_path))
+    return snapshots
+
+
+def write_accepted_trend(
+    reports_root: Path,
+    output: Path,
+    *,
+    command: str | None = None,
+    allow_single: bool = True,
+) -> int:
+    snapshots = accepted_snapshots(reports_root)
+    trend = build_trend(
+        snapshots,
+        require_two=not allow_single,
+        source="accepted-snapshot-registry",
+    )
+    write_markdown_trend(trend, output, command=command)
+    return len(snapshots)

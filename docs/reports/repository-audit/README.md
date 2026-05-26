@@ -1,6 +1,6 @@
 # GCS Repository Audit Index
 
-Generated: `2026-05-26T13:04:12.589994+00:00`
+Generated: `2026-05-26T13:28:19.218667+00:00`
 Registry root: `C:/Codes/Trae/s002_GCS/GCS/docs/reports/repository-audit`
 Accepted snapshots: `1`
 Manifest schema: `gcs-repository-audit-manifest-0.1`
@@ -11,6 +11,10 @@ Manifest schema: `gcs-repository-audit-manifest-0.1`
 - `snapshot.json` is the canonical machine-readable audit artifact.
 - Per-snapshot `README.md` files are human projections and may be regenerated from the snapshot.
 - Accepted snapshots should target committed Git revisions, not dirty worktree state.
+
+## Companion Reports
+
+- Accepted trend: [trend.md](trend.md)
 
 ## Latest Accepted Snapshot
 

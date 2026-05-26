@@ -315,6 +315,23 @@ def collect_revision_snapshot(
     return replace(snapshot, findings=check_snapshot(snapshot))
 
 
+def collect_index_snapshot(
+    repo_root: Path,
+    *,
+    generated_at: str | None = None,
+    base: str | None = None,
+    contract: CountingContract | None = None,
+) -> RepositoryAuditSnapshot:
+    tree = git_output(repo_root.resolve(), ["write-tree"]).decode("utf-8", errors="replace").strip()
+    return collect_revision_snapshot(
+        repo_root,
+        tree,
+        generated_at=generated_at,
+        base=base,
+        contract=contract,
+    )
+
+
 def write_snapshot(snapshot: RepositoryAuditSnapshot, output: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(

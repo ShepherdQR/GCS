@@ -412,3 +412,72 @@ def render_markdown_diff(
 def write_markdown_diff(diff: Any, output: Path, *, command: str | None = None) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(render_markdown_diff(diff, command=command), encoding="utf-8", newline="\n")
+
+
+def render_archive_delta(diff: Any, *, command: str | None = None, max_artifact_rows: int = 8) -> str:
+    data = _to_dict(diff)
+    summary = dict(data.get("summary", {}))
+    artifact_rows = _top_group_rows(data, "by_artifact_class", max_artifact_rows)
+    findings = [dict(finding) for finding in data.get("findings", [])]
+
+    lines: list[str] = [
+        "## Repository Audit Delta",
+        "",
+        "| Metric | Value |",
+        "| --- | --- |",
+        f"| changed_files | {_fmt_int(summary.get('changed_files'))} |",
+        f"| added_files | {_fmt_int(summary.get('added_files'))} |",
+        f"| removed_files | {_fmt_int(summary.get('removed_files'))} |",
+        f"| modified_files | {_fmt_int(summary.get('modified_files'))} |",
+        f"| delta_physical_lines | {_fmt_delta(summary.get('delta_physical_lines'))} |",
+        f"| added_findings | {_fmt_int(summary.get('added_findings'))} |",
+        f"| removed_findings | {_fmt_int(summary.get('removed_findings'))} |",
+        "",
+        "### Artifact Deltas",
+        "",
+    ]
+    if artifact_rows:
+        lines.extend(
+            _table(
+                ["Class", "Files", "Lines"],
+                [
+                    [
+                        row.get("key", ""),
+                        _fmt_delta(row.get("delta_files")),
+                        _fmt_delta(row.get("delta_physical_lines")),
+                    ]
+                    for row in artifact_rows
+                ],
+            )
+        )
+    else:
+        lines.append("No artifact-class deltas.")
+
+    lines.extend(["", "### Finding Deltas", ""])
+    if findings:
+        lines.extend(
+            _table(
+                ["Change", "Severity", "ID", "Path"],
+                [
+                    [
+                        finding.get("change_type", ""),
+                        finding.get("severity", ""),
+                        finding.get("id", ""),
+                        finding.get("path") or "<repo>",
+                    ]
+                    for finding in findings
+                ],
+            )
+        )
+    else:
+        lines.append("No finding deltas.")
+
+    if command:
+        lines.extend(["", "### Reproduction", "", "```bat", command, "```"])
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def write_archive_delta(diff: Any, output: Path, *, command: str | None = None) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(render_archive_delta(diff, command=command), encoding="utf-8", newline="\n")

@@ -11,9 +11,14 @@ sys.path.insert(0, str(REPOSITORY_AUDIT_ROOT))
 
 from gcs_repository_audit.classify import ARTIFACT_LAYERS, classify_path, normalize_path
 from gcs_repository_audit.collect import collect_snapshot, write_snapshot
-from gcs_repository_audit.diff import compare_snapshots, render_markdown_diff, write_diff
+from gcs_repository_audit.diff import compare_snapshots, render_archive_delta, render_markdown_diff, write_diff
 from gcs_repository_audit.models import GitInfo
-from gcs_repository_audit.registry import load_registry_entries, render_markdown_index
+from gcs_repository_audit.registry import (
+    accepted_snapshots,
+    load_registry_entries,
+    render_markdown_index,
+    write_accepted_trend,
+)
 from gcs_repository_audit.report import render_markdown_report
 from gcs_repository_audit.trend import build_trend, render_markdown_trend
 
@@ -279,6 +284,35 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertIn("| physical_lines | 1 | 3 | +2 |", report)
         self.assertIn("| modified | README.md | repo_root_config | +2 |", report)
 
+    def test_render_archive_delta_summarizes_task_output(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            readme = root / "README.md"
+            readme.write_text("# Demo\n", encoding="utf-8")
+            base_snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md"],
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="base", branch="test", dirty=False),
+            )
+            report_path = root / "docs" / "reports" / "repository-audit" / "delta.md"
+            report_path.parent.mkdir(parents=True)
+            report_path.write_text("# Delta\nMore\n", encoding="utf-8")
+            head_snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md", "docs/reports/repository-audit/delta.md"],
+                generated_at="2026-05-26T00:00:01+00:00",
+                git_info=GitInfo(head="head", branch="test", dirty=False),
+            )
+
+        report = render_archive_delta(compare_snapshots(base_snapshot, head_snapshot), command="archive-delta")
+
+        self.assertIn("## Repository Audit Delta", report)
+        self.assertIn("| changed_files | 1 |", report)
+        self.assertIn("| delta_physical_lines | +2 |", report)
+        self.assertIn("| project_report | +1 | +2 |", report)
+        self.assertIn("archive-delta", report)
+
     def test_render_markdown_trend_summarizes_snapshot_series(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -305,6 +339,7 @@ class RepositoryAuditTests(unittest.TestCase):
 
         self.assertEqual(trend["schema_version"], "gcs-repository-audit-trend-0.1")
         self.assertIn("# GCS Repository Audit Trend", report)
+        self.assertIn("Source: `snapshot-series`", report)
         self.assertIn("| files | 1 | 2 | +1 |", report)
         self.assertIn("| project_report | +1 | +2 |", report)
 
@@ -358,6 +393,52 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertIn("Accepted snapshots: `1`", report)
         self.assertIn("| 2026-05-26 | 2026-05-26T00:00:01+00:00 | abc123456789 | 1 | 1 | 0 |", report)
         self.assertIn("[snapshot](2026-05-26/snapshot.json)", report)
+
+    def test_accepted_trend_allows_single_baseline_snapshot(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            readme = root / "README.md"
+            readme.write_text("# Demo\n", encoding="utf-8")
+            snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md"],
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="abc123456789", branch=None, dirty=False),
+            )
+
+            reports_root = root / "docs" / "reports" / "repository-audit"
+            accepted_dir = reports_root / "2026-05-26"
+            accepted_dir.mkdir(parents=True)
+            write_snapshot(snapshot, accepted_dir / "snapshot.json")
+            (accepted_dir / "README.md").write_text("# Accepted Report\n", encoding="utf-8")
+            (accepted_dir / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": "gcs-repository-audit-manifest-0.1",
+                        "snapshot_id": "2026-05-26",
+                        "acceptance_state": "accepted",
+                        "accepted_at": "2026-05-26T00:00:01+00:00",
+                        "revision": "abc123456789",
+                        "snapshot_path": "snapshot.json",
+                        "report_path": "README.md",
+                    },
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            output = reports_root / "trend.md"
+
+            count = write_accepted_trend(reports_root, output, command="accepted-trend")
+            loaded_snapshot_count = len(accepted_snapshots(reports_root))
+
+            report = output.read_text(encoding="utf-8")
+
+        self.assertEqual(count, 1)
+        self.assertEqual(loaded_snapshot_count, 1)
+        self.assertIn("Source: `accepted-snapshot-registry`", report)
+        self.assertIn("baseline-only trend", report)
+        self.assertIn("| files | 1 | 1 | 0 |", report)
 
 
 if __name__ == "__main__":

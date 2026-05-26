@@ -48,16 +48,34 @@ Compare two committed Git revisions:
 python tools\repository_audit\repository_audit.py diff --base HEAD~1 --head HEAD --output var\repository-audit\diff.json
 ```
 
+Compare the current staged index to a base revision:
+
+```bat
+python tools\repository_audit\repository_audit.py diff --base HEAD --head-index --output var\repository-audit\index.diff.json
+```
+
 Render a Markdown report from a saved diff:
 
 ```bat
 python tools\repository_audit\repository_audit.py diff-report --diff var\repository-audit\diff.json --output var\repository-audit\diff.md
 ```
 
+Render a compact audit-delta section for a completed-task archive:
+
+```bat
+python tools\repository_audit\repository_audit.py archive-delta --diff var\repository-audit\index.diff.json --output docs\completed-tasks\2026-05-26-example\repository-audit-delta.md
+```
+
 Render a Markdown trend report from two or more snapshots:
 
 ```bat
 python tools\repository_audit\repository_audit.py trend --snapshot var\repository-audit\base.snapshot.json --snapshot var\repository-audit\head.snapshot.json --output var\repository-audit\trend.md
+```
+
+Render a Markdown trend report from accepted snapshot manifests:
+
+```bat
+python tools\repository_audit\repository_audit.py accepted-trend --reports-root docs\reports\repository-audit --output docs\reports\repository-audit\trend.md
 ```
 
 Render the accepted snapshot index:
@@ -86,6 +104,8 @@ The MVP implements:
 - Markdown trend report generation from snapshot series;
 - accepted snapshot manifests and a registry index under
   `docs/reports/repository-audit/`;
+- accepted-registry trend reports;
+- compact archive delta sections for completed-task reports;
 - initial warning/error findings.
 
 It does not implement external adapters, historical charts, token-efficiency

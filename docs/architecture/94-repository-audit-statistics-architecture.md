@@ -109,6 +109,7 @@ python tools\repository_audit\repository_audit.py report --snapshot var\reposito
 python tools\repository_audit\repository_audit.py diff --base origin/master --head HEAD --output var\repository-audit\diff.json
 python tools\repository_audit\repository_audit.py check --snapshot var\repository-audit\latest.snapshot.json
 python tools\repository_audit\repository_audit.py index --reports-root docs\reports\repository-audit --output docs\reports\repository-audit\README.md
+python tools\repository_audit\repository_audit.py accepted-trend --reports-root docs\reports\repository-audit --output docs\reports\repository-audit\trend.md
 ```
 
 Agentic toolkit integration:
@@ -427,6 +428,14 @@ registry index are available through `repository_audit.py index`. Accepted
 snapshots should be collected from committed revisions with
 `repository_audit.py collect --revision <rev>` so the durable baseline is not
 polluted by unrelated dirty worktree edits.
+
+Implementation note, 2026-05-26: `repository_audit.py accepted-trend` can
+render a trend report directly from accepted manifests. With one accepted
+snapshot it emits a baseline-only trend; with two or more snapshots it compares
+the first and latest accepted baselines. `repository_audit.py archive-delta`
+renders a compact completed-task section from a diff JSON, and
+`diff --head-index` supports comparing the staged index to a base revision so
+archives can record scoped deltas before commit.
 
 ## Acceptance Criteria For First Implementation Task
 

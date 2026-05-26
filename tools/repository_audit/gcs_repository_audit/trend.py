@@ -64,10 +64,18 @@ def _group_map(snapshot: dict[str, Any], group_name: str) -> dict[str, dict[str,
     }
 
 
-def build_trend(snapshots: list[Any], *, generated_at: str | None = None) -> dict[str, Any]:
+def build_trend(
+    snapshots: list[Any],
+    *,
+    generated_at: str | None = None,
+    require_two: bool = True,
+    source: str = "snapshot-series",
+) -> dict[str, Any]:
     data = [_to_dict(snapshot) for snapshot in snapshots]
-    if len(data) < 2:
+    if require_two and len(data) < 2:
         raise ValueError("trend requires at least two snapshots")
+    if not data:
+        raise ValueError("trend requires at least one snapshot")
 
     rows: list[dict[str, Any]] = []
     for index, snapshot in enumerate(data):
@@ -124,6 +132,7 @@ def build_trend(snapshots: list[Any], *, generated_at: str | None = None) -> dic
         "schema_version": TREND_SCHEMA_VERSION,
         "tool_version": TOOL_VERSION,
         "generated_at": generated_at or _datetime.datetime.now(_datetime.UTC).isoformat(),
+        "source": source,
         "snapshot_count": len(data),
         "snapshots": rows,
         "total_delta": total_delta,
@@ -140,6 +149,7 @@ def render_markdown_trend(trend: dict[str, Any], *, command: str | None = None, 
         f"Generated: `{trend.get('generated_at', '<unknown>')}`",
         f"Schema: `{trend.get('schema_version', '<unknown>')}`",
         f"Tool: `{trend.get('tool_version', '<unknown>')}`",
+        f"Source: `{trend.get('source', '<unknown>')}`",
         f"Snapshots: `{trend.get('snapshot_count', 0)}`",
         "",
         "## Executive Summary",
@@ -152,6 +162,11 @@ def render_markdown_trend(trend: dict[str, Any], *, command: str | None = None, 
         (
             f"- Findings changed by errors {_fmt_delta(total_delta.get('errors', {}).get('delta'))} "
             f"and warnings {_fmt_delta(total_delta.get('warnings', {}).get('delta'))}."
+        ),
+        (
+            "- This is a baseline-only trend; collect more accepted snapshots before interpreting growth."
+            if _as_int(trend.get("snapshot_count")) < 2
+            else "- This trend compares the first and latest snapshots in the supplied series."
         ),
         "",
         "## Snapshot Series",

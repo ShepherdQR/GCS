@@ -9,11 +9,14 @@ from pathlib import Path
 from gcs_repository_audit import (
     build_trend,
     check_snapshot,
+    collect_index_snapshot,
     collect_revision_snapshot,
     collect_snapshot,
     compare_snapshots,
     read_diff,
     read_snapshot,
+    write_archive_delta,
+    write_accepted_trend,
     write_diff,
     write_markdown_index,
     write_markdown_diff,
@@ -47,6 +50,7 @@ def build_parser() -> argparse.ArgumentParser:
     diff = subparsers.add_parser("diff", help="Compare two snapshots or Git revisions")
     diff.add_argument("--base", default=None, help="Base Git revision when snapshots are not provided")
     diff.add_argument("--head", default="HEAD", help="Head Git revision when snapshots are not provided")
+    diff.add_argument("--head-index", action="store_true", help="Compare base revision to the current staged index tree")
     diff.add_argument("--base-snapshot", type=Path, default=None)
     diff.add_argument("--head-snapshot", type=Path, default=None)
     diff.add_argument("--output", type=Path, required=True)
@@ -54,6 +58,10 @@ def build_parser() -> argparse.ArgumentParser:
     diff_report = subparsers.add_parser("diff-report", help="Render a Markdown repository audit diff report")
     diff_report.add_argument("--diff", type=Path, required=True)
     diff_report.add_argument("--output", type=Path, required=True)
+
+    archive_delta = subparsers.add_parser("archive-delta", help="Render a compact audit-delta section for task archives")
+    archive_delta.add_argument("--diff", type=Path, required=True)
+    archive_delta.add_argument("--output", type=Path, required=True)
 
     trend = subparsers.add_parser("trend", help="Render a Markdown trend report from snapshots")
     trend.add_argument("--snapshot", type=Path, action="append", required=True)
@@ -66,6 +74,22 @@ def build_parser() -> argparse.ArgumentParser:
         default=ROOT / "docs" / "reports" / "repository-audit",
     )
     index.add_argument("--output", type=Path, required=True)
+
+    accepted_trend = subparsers.add_parser(
+        "accepted-trend",
+        help="Render a Markdown trend report from accepted snapshot manifests",
+    )
+    accepted_trend.add_argument(
+        "--reports-root",
+        type=Path,
+        default=ROOT / "docs" / "reports" / "repository-audit",
+    )
+    accepted_trend.add_argument("--output", type=Path, required=True)
+    accepted_trend.add_argument(
+        "--require-two",
+        action="store_true",
+        help="Fail unless the accepted registry has at least two snapshots",
+    )
 
     return parser
 
@@ -127,11 +151,16 @@ def diff_command(args: argparse.Namespace) -> int:
         base_snapshot = read_snapshot(args.base_snapshot)
         head_snapshot = read_snapshot(args.head_snapshot)
     else:
-        if not args.base:
-            print("diff requires --base when snapshots are not provided", file=sys.stderr)
-            return 2
-        base_snapshot = collect_revision_snapshot(args.repo_root, args.base, base=args.base)
-        head_snapshot = collect_revision_snapshot(args.repo_root, args.head, base=args.base)
+        if args.head_index:
+            base_revision = args.base or "HEAD"
+            base_snapshot = collect_revision_snapshot(args.repo_root, base_revision, base=base_revision)
+            head_snapshot = collect_index_snapshot(args.repo_root, base=base_revision)
+        else:
+            if not args.base:
+                print("diff requires --base when snapshots are not provided", file=sys.stderr)
+                return 2
+            base_snapshot = collect_revision_snapshot(args.repo_root, args.base, base=args.base)
+            head_snapshot = collect_revision_snapshot(args.repo_root, args.head, base=args.base)
 
     diff = compare_snapshots(base_snapshot, head_snapshot)
     write_diff(diff, args.output)
@@ -151,6 +180,14 @@ def diff_report_command(args: argparse.Namespace, argv: list[str]) -> int:
     command = "python tools\\repository_audit\\repository_audit.py " + " ".join(argv)
     write_markdown_diff(diff, args.output, command=command)
     print(f"Repository audit diff report written: {args.output}")
+    return 0
+
+
+def archive_delta_command(args: argparse.Namespace, argv: list[str]) -> int:
+    diff = read_diff(args.diff)
+    command = "python tools\\repository_audit\\repository_audit.py " + " ".join(argv)
+    write_archive_delta(diff, args.output, command=command)
+    print(f"Repository audit archive delta written: {args.output}")
     return 0
 
 
@@ -174,6 +211,22 @@ def index_command(args: argparse.Namespace, argv: list[str]) -> int:
     return 0
 
 
+def accepted_trend_command(args: argparse.Namespace, argv: list[str]) -> int:
+    command = "python tools\\repository_audit\\repository_audit.py " + " ".join(argv)
+    try:
+        count = write_accepted_trend(
+            args.reports_root,
+            args.output,
+            command=command,
+            allow_single=not args.require_two,
+        )
+    except ValueError as error:
+        print(str(error), file=sys.stderr)
+        return 2
+    print(f"Repository audit accepted trend written: {args.output} ({count} accepted snapshots)")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -187,10 +240,14 @@ def main(argv: list[str]) -> int:
         return diff_command(args)
     if args.command == "diff-report":
         return diff_report_command(args, argv)
+    if args.command == "archive-delta":
+        return archive_delta_command(args, argv)
     if args.command == "trend":
         return trend_command(args, argv)
     if args.command == "index":
         return index_command(args, argv)
+    if args.command == "accepted-trend":
+        return accepted_trend_command(args, argv)
     parser.error(f"unknown command {args.command}")
     return 2
 
