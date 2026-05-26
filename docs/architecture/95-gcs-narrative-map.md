@@ -37,15 +37,15 @@ advances:
 | Implementation roadmap | Strong | Step history and upcoming solver work are recorded in depth. | New readers need a compressed view of roadmap arcs. | Maintain this map as the one-page entry point and keep details in the roadmap. |
 | Fixture and counterexample corpus | Strong | Verification, generated, milestone, showcase, and counterexample assets exist. | The corpus is not yet narrated as a maturity ladder. | Define corpus levels and acceptance evidence per level. |
 | Runtime/history/replay evidence | Strong | Replay evidence and saved-report workflow are becoming a differentiator. | The auditability story is not yet foregrounded. | Use replay evidence as the trust bridge between solver behavior and agentic governance. |
-| Agentic-SE operating layer | Very strong | Task cards, runbooks, archives, quality gates, PR audit, and institutional agents exist. | The system is extensive and needs a compact operating map. | Keep `docs/agentic` operational and summarize its role here. |
+| Agentic-SE operating layer | Very strong | Task cards, runbooks, archives, quality gates, PR audit, institutional agents, and an operating map exist. | The next risk is process sprawl rather than absence. | Keep `docs/agentic/agentic-organization-operating-map.md` as the compact entry point. |
 | Quality gates and evidence | Strong | Local validators, contract tests, tool tests, fixture gates, and quality scripts exist. | Trend visibility is still thin. | Maintain `docs/agentic/metrics-dashboard.md` after non-trivial tasks. |
 | UI/viewer/scientific figures | Strong but split | Viewer, visual QA, figure pipeline, and Solver Evidence Workbench direction exist. | Visual work can appear separate from solver evidence. | Frame UI as evidence-first interaction, not decoration. |
-| Institutional agents and learning | Promising | Standing agents, templates, examples, and refusal evals exist. | Utility must be proven through reuse and recurrence reduction. | Promote only with template, example, boundary, and eval evidence. |
-| Git/worktree/PR governance | Strong | Worktree, branch, PR audit, permissions, and repository-audit policies exist. | Broader AI-security threat categories are not yet summarized in one matrix. | Add a permission threat matrix when the next governance task runs. |
-| Product/user/market story | Weak | Build, viewer, and architecture docs exist, but target users are not foregrounded. | A collaborator can learn architecture faster than user value. | Use `docs/product/gcs-product-user-brief.md` as the first product narrative. |
-| Release/packaging/onboarding | Partial | Build, test, and viewer commands exist. | No polished 20-minute contributor path or release ladder. | Add onboarding and release-readiness docs after product brief stabilizes. |
-| External benchmark/comparison | Weak | Research notes exist, but no solver comparison corpus or positioning map. | GCS is not yet placed against academic or commercial solvers. | Create a comparison and benchmark plan after corpus ladder. |
-| Business/open-source strategy | Weak | The repo has project identity but no explicit distribution model. | Audience and adoption path are unresolved. | Decide primary audience before public README expansion. |
+| Institutional agents and learning | Developing | Standing agents, templates, examples, refusal evals, and a registry scorecard exist. | Seed agents need more examples before promotion. | Use `docs/agentic/institutional-agent-registry-and-scorecard.md` before status changes. |
+| Git/worktree/PR governance | Strong | Worktree, branch, PR audit, permissions, threat matrix, and repository-audit policies exist. | Governance evals are planned but not yet executable gates. | Execute the staged roadmap in `docs/agentic/governance-eval-roadmap.md`. |
+| Product/user/market story | Initial and strengthening | Product brief, demo ladder, contributor path, and first demo package exist. | The story still lacks behavior-rich demo transcripts and external positioning. | Convert D1 and D2 demos into concrete demo packages with command evidence. |
+| Release/packaging/onboarding | Partial | A 20-minute contributor path exists and build/test commands are documented elsewhere. | Release readiness, packaging, and support boundaries are not yet explicit. | Add a release-readiness checklist and package smoke path. |
+| External benchmark/comparison | Weak | Corpus maturity levels exist, but external solver comparison is still absent. | GCS is not yet placed against academic or commercial solvers. | Create a comparison and benchmark plan after corpus ladder. |
+| Business/open-source strategy | Weak | The repo has project identity and early user briefs, but no explicit distribution model. | Audience, adoption path, and contribution model are unresolved. | Decide primary audience before public README expansion. |
 
 ## Narrative Arcs
 
@@ -104,9 +104,12 @@ Owns:
 
 Near-term plan:
 
-1. Maintain `docs/agentic/metrics-dashboard.md`.
-2. Continue task-scoped archives for non-trivial work.
-3. Promote institutional-agent rules only after evidence.
+1. Use `docs/agentic/agentic-organization-operating-map.md` as the compact
+   operating entry point.
+2. Maintain `docs/agentic/metrics-dashboard.md`.
+3. Continue task-scoped archives for non-trivial work.
+4. Promote institutional-agent rules only after scorecard and eval evidence.
+5. Convert governance risks into staged evals before adding default gates.
 
 ### Arc 4: Product And Adoption
 
@@ -126,6 +129,26 @@ Near-term plan:
 2. Convert the strongest internal scenarios into demo workflows.
 3. Add a 20-minute new contributor path once demo workflows stabilize.
 
+## Relative Weakness Analysis
+
+The strongest internal narratives are solver architecture, agentic operating
+discipline, quality gates, and fixture evidence. The relatively weak lines are
+now concentrated around external legibility: product behavior demos, release
+readiness, external comparison, and distribution strategy.
+
+| Relative weak line | Current level | Why it is still weak | Strengthening task already in plan |
+| --- | --- | --- | --- |
+| Product/user/market story | Initial and strengthening | The project now has product docs, but the user still sees more architecture than live behavior. | Build D1 smoke demo and D2 diagnostic classification demo packages with command transcripts. |
+| Release/packaging/onboarding | Partial | New contributors have a first path, but release criteria and package smoke checks are not consolidated. | Add release-readiness checklist and package smoke path. |
+| External benchmark/comparison | Weak | Corpus maturity exists, but no comparison map explains how GCS differs from other solvers. | Add external solver comparison and benchmark plan, then benchmark-candidate criteria. |
+| Business/open-source strategy | Weak | The intended adoption model is not yet chosen. | Add audience, distribution, contribution, and positioning brief before public README expansion. |
+| Governance eval execution | Developing | Risks are mapped, but most evals are not executable or opt-in gates yet. | Add prompt-level evals for unrelated staging, audit overclaim, and institutional-agent promotion. |
+| Demo evidence packaging | Initial | Demo ladder exists, but most demo levels are not packaged as inspectable artifacts. | Use `docs/product/demos/` for D0 task closure, D1 smoke, D2 diagnostics, and later replay/workbench demos. |
+
+This means the next plan should not primarily add more internal architecture
+language. It should translate the existing architecture into evidence packages
+that a new user, reviewer, or future contributor can run, compare, and trust.
+
 ## Execution Plan
 
 | Phase | Status | Output | Acceptance |
@@ -136,7 +159,9 @@ Near-term plan:
 | Phase 3: Corpus and demo ladders | Complete in next-stage batch | `docs/architecture/96-fixture-corpus-maturity-ladder.md` and `docs/product/gcs-demo-ladder.md` | Roadmap becomes user-visible capability growth. |
 | Phase 4: Permission threat matrix | Complete in next-stage batch | `docs/agentic/permission-threat-matrix.md` | Governance maps private data, untrusted content, outbound channels, writes, branches, and network actions. |
 | Phase 5: Onboarding and release path | Partial in next-stage batch | `docs/product/20-minute-contributor-path.md`; release checklist remains later | A new contributor can build context, run light validators, and understand the thesis. |
-| Phase 6: External positioning | Later | Solver comparison and benchmark plan | GCS can explain how it differs from academic and commercial solvers. |
+| Phase 6: AI organization operating narrative | Complete in this batch | `docs/agentic/agentic-organization-operating-map.md`, `docs/agentic/institutional-agent-registry-and-scorecard.md`, `docs/agentic/governance-eval-roadmap.md`, `docs/product/demos/agentic-task-closure-demo/README.md` | The agentic organization story has operating, role, eval, and demo artifacts. |
+| Phase 7: External positioning | Next weak-line batch | Solver comparison and benchmark plan | GCS can explain how it differs from academic and commercial solvers. |
+| Phase 8: Release and distribution strategy | Next weak-line batch | Release-readiness checklist and audience/distribution brief | GCS can explain who should adopt it, how to try it, and what readiness means. |
 
 ## Decision Rules
 
@@ -150,11 +175,19 @@ Near-term plan:
 
 ## Next Task Queue
 
-1. Define release-readiness checklist.
-2. Add D1 smoke demo note with command transcript.
-3. Add D2 diagnostic classification demo package.
+1. Add D1 smoke demo package with exact command transcript and expected
+   evidence.
+2. Add D2 diagnostic classification demo package for solved, underconstrained,
+   overconstrained, singular, and blocked scenes.
+3. Define release-readiness checklist with package smoke path and support
+   boundaries.
 4. Add external comparison and benchmark plan.
-5. Add benchmark-candidate selection criteria after fixture maturity stabilizes.
+5. Add benchmark-candidate selection criteria after fixture maturity
+   stabilizes.
+6. Add audience, distribution, contribution, and open-source strategy brief
+   before public README expansion.
+7. Add prompt-level governance eval files for E-GOV-001, E-GOV-002, and
+   E-GOV-008.
 
 ## Review Triggers
 

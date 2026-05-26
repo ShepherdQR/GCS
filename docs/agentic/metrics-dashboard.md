@@ -23,9 +23,9 @@ workflow health, and narrative maturity.
 | Inventory validation | Strong | `validate-inventory` is part of the expected gate. | Run for scoped architecture/agentic batches. |
 | Skill validation | Strong | Project skills are the routing layer. | Run after skill or steward-related work. |
 | Dependency boundary | Strong | `check-dependencies` is part of the expected gate. | Keep mathematical layers free of UI/IO/agentic dependencies. |
-| Product/user narrative | Weak to initial | First product brief exists. | Add onboarding and demo ladder. |
+| Product/user narrative | Initial and strengthening | Product brief, demo ladder, contributor path, and first demo package exist. | Add behavior-rich D1 and D2 demo packages. |
 | Metrics trend history | Initial | This dashboard is the first active baseline. | Add timestamped updates after important closures. |
-| Permission/governance telemetry | Partial | Permission policy and PR governance exist. | Add threat matrix and escalation summary fields. |
+| Permission/governance telemetry | Developing | Permission policy, PR governance, threat matrix, and governance eval roadmap exist. | Add prompt-level evals before validator candidates. |
 
 ## Metrics To Update
 
@@ -53,6 +53,10 @@ workflow health, and narrative maturity.
 | New demo ladder | 1 | `docs/product/gcs-demo-ladder.md` |
 | New permission threat matrix | 1 | `docs/agentic/permission-threat-matrix.md` |
 | New contributor path | 1 | `docs/product/20-minute-contributor-path.md` |
+| New agentic organization operating map | 1 | `docs/agentic/agentic-organization-operating-map.md` |
+| New institutional-agent scorecard | 1 | `docs/agentic/institutional-agent-registry-and-scorecard.md` |
+| New governance eval roadmap | 1 | `docs/agentic/governance-eval-roadmap.md` |
+| New product demo package directory | 1 | `docs/product/demos/` |
 | Active metrics dashboard | 1 | This document |
 | Known unrelated dirty file in current session | 1 | `docs/research/OpusTime/OpusTime.md`; do not stage for narrative commits. |
 
@@ -94,3 +98,5 @@ Follow-up:
 | Add demo ladder | viewer bridge and architecture stewards | CLI, replay, report, and workbench demos are ordered. |
 | Add permission threat matrix | governance owner | Private data, untrusted content, outbound comms, writes, branch actions, and network/dependencies are mapped. |
 | Add onboarding path | architecture steward | New reviewer can build, run, inspect evidence, and read the thesis in one sitting. |
+| Add D1 and D2 demo packages | product and quality stewards | User-visible demos include command evidence and expected outcomes. |
+| Add external comparison plan | architecture and product stewards | GCS can explain its position against solver alternatives. |

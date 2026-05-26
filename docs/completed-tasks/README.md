@@ -50,6 +50,7 @@ institutional-agent promotion, or quality-gate decision depends on that record.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-26 | [AI organization narrative execution](2026-05-26-ai-organization-narrative-execution/README.md) | done |
 | 2026-05-26 | [Next-stage mainline evidence](2026-05-26-next-stage-mainline-evidence/README.md) | done |
 | 2026-05-26 | [AI governance plan session closeout](2026-05-26-ai-governance-plan-session-closeout/README.md) | done |
 | 2026-05-26 | [Repository audit snapshot registry](2026-05-26-repository-audit-snapshot-registry/README.md) | done |

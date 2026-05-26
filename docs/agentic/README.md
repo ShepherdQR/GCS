@@ -30,6 +30,9 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `experience-record-template.md` | Learning record for failures, review findings, and repeated friction. |
 | `eval-rubric.md` | General scoring rubric for agentic SE work. |
 | `metrics-dashboard.md` | Lightweight baseline and update rule for lifecycle, validation, governance, product narrative, and commit-scope metrics. |
+| `agentic-organization-operating-map.md` | Compact operating map for GCS as an evidence-rich agentic organization. |
+| `institutional-agent-registry-and-scorecard.md` | Registry, scorecard, promotion rule, and candidate backlog for institutional agents. |
+| `governance-eval-roadmap.md` | Staged roadmap turning permission and audit risks into eval candidates and future gates. |
 | `ai-governance-execution-plan-2026-05-26.md` | Current ordered queue for AI governance, PR audit, nightly diagnostics, permission, repository-audit, Git-session, and eval work. |
 | `ai-governance-next-actions.md` | Active roadmap for executable AI governance work after the first PR audit and nightly-diagnostics design. |
 | `agent-permission-policy.md` | Permission-as-code policy for unattended agent actions, human gates, and PR audit enforcement. |
