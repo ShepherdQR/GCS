@@ -53,6 +53,7 @@ institutional-agent promotion, or quality-gate decision depends on that record.
 | 2026-05-26 | [Repository audit collector MVP](2026-05-26-repository-audit-collector-mvp/README.md) | done |
 | 2026-05-26 | [Git stitch and PR audit permission policy](2026-05-26-git-stitch-pr-audit-permission-policy/README.md) | done |
 | 2026-05-26 | [Git session branch session summary](2026-05-26-git-session-branch-session-summary/README.md) | done |
+| 2026-05-26 | [Tailor Git session timeline cleanup](2026-05-26-tailor-git-session-timeline-cleanup/README.md) | done |
 | 2026-05-25 | [Agentic governance execution](2026-05-25-agentic-governance-execution/README.md) | done |
 | 2026-05-25 | [Agentic PR governance and nightly diagnostics](2026-05-25-agentic-pr-governance-nightly-diagnostics/README.md) | done |
 | 2026-05-25 | [Agentic-SE next direction closeout](2026-05-25-agentic-se-next-direction-closeout/README.md) | done |
