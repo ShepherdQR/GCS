@@ -83,6 +83,9 @@ order, not by historical source order. Background research notes live under
    - `95-gcs-narrative-map.md`: active narrative-line maturity map connecting
      solver evidence, product/user value, agentic-SE, governance, metrics, and
      external positioning.
+   - `96-fixture-corpus-maturity-ladder.md`: active fixture corpus maturity
+     ladder for smoke, verification, generated, milestone, counterexample,
+     showcase, and benchmark-candidate scenes.
 9. `90-references/`
    - Commercial and research notes used as background material.
 

@@ -12,6 +12,10 @@ agents, and future scheduled work.
 The rule is simple: an agent may produce evidence and proposals unattended, but
 it must not silently take authority-bearing actions.
 
+The concrete threat combinations are mapped in
+`docs/agentic/permission-threat-matrix.md`. When this policy and the matrix
+disagree, use the stricter rule.
+
 ## Action Classes
 
 | Class | Examples | Default |

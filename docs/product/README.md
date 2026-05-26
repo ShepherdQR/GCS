@@ -6,5 +6,6 @@ solver contracts and module boundaries.
 
 Start with:
 
+- `20-minute-contributor-path.md`
+- `gcs-demo-ladder.md`
 - `gcs-product-user-brief.md`
-

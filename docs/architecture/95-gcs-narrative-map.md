@@ -133,9 +133,9 @@ Near-term plan:
 | Phase 0: Narrative map | Complete in this batch | `docs/architecture/95-gcs-narrative-map.md` | A reviewer can see all narrative lines and next moves from one document. |
 | Phase 1: Product/user brief | Complete in this batch | `docs/product/gcs-product-user-brief.md` | Target users, workflows, promises, non-goals, and first demos are explicit. |
 | Phase 2: Metrics dashboard | Complete in this batch | `docs/agentic/metrics-dashboard.md` | Current baseline and update rules are visible. |
-| Phase 3: Corpus and demo ladders | Next | Corpus maturity ladder and demo ladder | Roadmap becomes user-visible capability growth. |
-| Phase 4: Permission threat matrix | Next | Agent permission threat matrix | Governance maps private data, untrusted content, outbound channels, writes, branches, and network actions. |
-| Phase 5: Onboarding and release path | Later | 20-minute contributor path and release-readiness checklist | A new contributor can build, run, inspect evidence, and understand the thesis. |
+| Phase 3: Corpus and demo ladders | Complete in next-stage batch | `docs/architecture/96-fixture-corpus-maturity-ladder.md` and `docs/product/gcs-demo-ladder.md` | Roadmap becomes user-visible capability growth. |
+| Phase 4: Permission threat matrix | Complete in next-stage batch | `docs/agentic/permission-threat-matrix.md` | Governance maps private data, untrusted content, outbound channels, writes, branches, and network actions. |
+| Phase 5: Onboarding and release path | Partial in next-stage batch | `docs/product/20-minute-contributor-path.md`; release checklist remains later | A new contributor can build context, run light validators, and understand the thesis. |
 | Phase 6: External positioning | Later | Solver comparison and benchmark plan | GCS can explain how it differs from academic and commercial solvers. |
 
 ## Decision Rules
@@ -150,11 +150,11 @@ Near-term plan:
 
 ## Next Task Queue
 
-1. Define fixture corpus maturity levels.
-2. Define demo ladder from CLI evidence to Solver Evidence Workbench.
-3. Add permission threat matrix to the AI governance layer.
-4. Add 20-minute contributor path.
-5. Add external comparison and benchmark plan.
+1. Define release-readiness checklist.
+2. Add D1 smoke demo note with command transcript.
+3. Add D2 diagnostic classification demo package.
+4. Add external comparison and benchmark plan.
+5. Add benchmark-candidate selection criteria after fixture maturity stabilizes.
 
 ## Review Triggers
 

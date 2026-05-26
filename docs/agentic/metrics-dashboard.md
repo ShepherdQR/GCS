@@ -49,6 +49,10 @@ workflow health, and narrative maturity.
 | Active narrative-line research bundle | 1 | `docs/research/20260526/ai-organization-frontier/` |
 | New narrative map | 1 | `docs/architecture/95-gcs-narrative-map.md` |
 | New product/user brief | 1 | `docs/product/gcs-product-user-brief.md` |
+| New fixture corpus maturity ladder | 1 | `docs/architecture/96-fixture-corpus-maturity-ladder.md` |
+| New demo ladder | 1 | `docs/product/gcs-demo-ladder.md` |
+| New permission threat matrix | 1 | `docs/agentic/permission-threat-matrix.md` |
+| New contributor path | 1 | `docs/product/20-minute-contributor-path.md` |
 | Active metrics dashboard | 1 | This document |
 | Known unrelated dirty file in current session | 1 | `docs/research/OpusTime/OpusTime.md`; do not stage for narrative commits. |
 

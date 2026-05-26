@@ -155,9 +155,15 @@ Longer term:
 
 ## Next Product Tasks
 
-1. Write a 20-minute contributor path.
-2. Define a demo ladder from CLI report to Solver Evidence Workbench.
-3. Define fixture corpus maturity levels.
+1. Add D1 smoke demo note with command transcript.
+2. Add D2 diagnostic classification demo package.
+3. Add release-readiness checklist.
 4. Add external comparison and benchmark positioning.
 5. Decide whether the primary public identity is solver research, local
    workbench, agentic-SE exemplar, or a staged combination.
+
+Completed first follow-ups:
+
+- `docs/product/20-minute-contributor-path.md`
+- `docs/product/gcs-demo-ladder.md`
+- `docs/architecture/96-fixture-corpus-maturity-ladder.md`
