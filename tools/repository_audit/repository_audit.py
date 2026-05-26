@@ -15,6 +15,7 @@ from gcs_repository_audit import (
     read_diff,
     read_snapshot,
     write_diff,
+    write_markdown_index,
     write_markdown_diff,
     write_markdown_report,
     write_markdown_trend,
@@ -33,6 +34,7 @@ def build_parser() -> argparse.ArgumentParser:
     collect = subparsers.add_parser("collect", help="Collect a repository audit snapshot")
     collect.add_argument("--output", type=Path, required=True)
     collect.add_argument("--base", default=None)
+    collect.add_argument("--revision", default=None, help="Collect from a committed Git revision instead of the worktree")
 
     check = subparsers.add_parser("check", help="Check a snapshot or the current repository")
     check.add_argument("--snapshot", type=Path, default=None)
@@ -57,6 +59,14 @@ def build_parser() -> argparse.ArgumentParser:
     trend.add_argument("--snapshot", type=Path, action="append", required=True)
     trend.add_argument("--output", type=Path, required=True)
 
+    index = subparsers.add_parser("index", help="Render the accepted repository audit snapshot index")
+    index.add_argument(
+        "--reports-root",
+        type=Path,
+        default=ROOT / "docs" / "reports" / "repository-audit",
+    )
+    index.add_argument("--output", type=Path, required=True)
+
     return parser
 
 
@@ -66,7 +76,10 @@ def load_findings(snapshot_path: Path) -> list[dict]:
 
 
 def collect_command(args: argparse.Namespace) -> int:
-    snapshot = collect_snapshot(args.repo_root, base=args.base)
+    if args.revision:
+        snapshot = collect_revision_snapshot(args.repo_root, args.revision, base=args.base)
+    else:
+        snapshot = collect_snapshot(args.repo_root, base=args.base)
     write_snapshot(snapshot, args.output)
     print(
         "Repository audit snapshot written: "
@@ -154,6 +167,13 @@ def trend_command(args: argparse.Namespace, argv: list[str]) -> int:
     return 0
 
 
+def index_command(args: argparse.Namespace, argv: list[str]) -> int:
+    command = "python tools\\repository_audit\\repository_audit.py " + " ".join(argv)
+    entries = write_markdown_index(args.reports_root, args.output, command=command)
+    print(f"Repository audit index written: {args.output} ({len(entries)} accepted snapshots)")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -169,6 +189,8 @@ def main(argv: list[str]) -> int:
         return diff_report_command(args, argv)
     if args.command == "trend":
         return trend_command(args, argv)
+    if args.command == "index":
+        return index_command(args, argv)
     parser.error(f"unknown command {args.command}")
     return 2
 

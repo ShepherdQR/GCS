@@ -12,6 +12,12 @@ Collect a JSON snapshot:
 python tools\repository_audit\repository_audit.py collect --output var\repository-audit\latest.snapshot.json
 ```
 
+Collect a JSON snapshot from a committed revision:
+
+```bat
+python tools\repository_audit\repository_audit.py collect --revision HEAD --output docs\reports\repository-audit\2026-05-26\snapshot.json
+```
+
 Check a snapshot:
 
 ```bat
@@ -54,6 +60,12 @@ Render a Markdown trend report from two or more snapshots:
 python tools\repository_audit\repository_audit.py trend --snapshot var\repository-audit\base.snapshot.json --snapshot var\repository-audit\head.snapshot.json --output var\repository-audit\trend.md
 ```
 
+Render the accepted snapshot index:
+
+```bat
+python tools\repository_audit\repository_audit.py index --reports-root docs\reports\repository-audit --output docs\reports\repository-audit\README.md
+```
+
 Run focused tests:
 
 ```bat
@@ -72,7 +84,9 @@ The MVP implements:
 - JSON diff output for saved snapshots or committed Git revisions;
 - Markdown diff report generation from saved JSON diffs;
 - Markdown trend report generation from snapshot series;
+- accepted snapshot manifests and a registry index under
+  `docs/reports/repository-audit/`;
 - initial warning/error findings.
 
-It does not implement external adapters, historical charts, or default
-quality-gate enforcement yet.
+It does not implement external adapters, historical charts, token-efficiency
+joins, or default quality-gate enforcement yet.

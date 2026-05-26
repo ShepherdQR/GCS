@@ -1,0 +1,12 @@
+{
+  "accepted_at": "2026-05-26T20:59:32+08:00",
+  "accepted_by": "codex",
+  "acceptance_scope": "repository-audit-phase-baseline",
+  "acceptance_state": "accepted",
+  "description": "First accepted repository-audit baseline after overview, diff, trend, opt-in gate, and narrative roadmap support.",
+  "report_path": "README.md",
+  "revision": "7555ff8844af348a2fbbda149bf26f8d6c8f28ce",
+  "schema_version": "gcs-repository-audit-manifest-0.1",
+  "snapshot_id": "2026-05-26",
+  "snapshot_path": "snapshot.json"
+}

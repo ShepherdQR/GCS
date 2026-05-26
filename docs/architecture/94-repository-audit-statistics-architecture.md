@@ -47,6 +47,7 @@ tools/repository_audit/
     metrics.py
     report.py
     diff.py
+    registry.py
     policy.py
   repository_audit.py
 tests/tools/test_repository_audit.py
@@ -107,6 +108,7 @@ python tools\repository_audit\repository_audit.py collect --output var\repositor
 python tools\repository_audit\repository_audit.py report --snapshot var\repository-audit\latest.snapshot.json --output docs\reports\repository-audit\2026-05-25\README.md
 python tools\repository_audit\repository_audit.py diff --base origin/master --head HEAD --output var\repository-audit\diff.json
 python tools\repository_audit\repository_audit.py check --snapshot var\repository-audit\latest.snapshot.json
+python tools\repository_audit\repository_audit.py index --reports-root docs\reports\repository-audit --output docs\reports\repository-audit\README.md
 ```
 
 Agentic toolkit integration:
@@ -210,6 +212,7 @@ The classifier should emit exactly one primary `artifact_class` per file:
 | `tool_test` | `tests/tools/**` | support test evidence |
 | `fixture` | `fixtures/**` | counted as evidence/data, not source LOC |
 | `architecture_doc` | `docs/architecture/**` | durable architecture |
+| `product_doc` | `docs/product/**` | product-facing briefs and usage narratives |
 | `research_doc` | `docs/research/**` | background research |
 | `agentic_process_doc` | `docs/agentic/**` | workflow and lifecycle |
 | `completed_task_archive` | `docs/completed-tasks/**` | historical memory |
@@ -303,6 +306,10 @@ var/repository-audit/
 docs/reports/repository-audit/YYYY-MM-DD/
   README.md
   snapshot.json
+  manifest.json
+
+docs/reports/repository-audit/
+  README.md
 
 docs/research/YYYYMMDD/repository-audit-statistics/
   source-aware research and architecture background
@@ -313,6 +320,11 @@ Rules:
 - `var/` is local scratch and should not normally be committed.
 - `docs/reports/` is for accepted durable snapshots, release reports, and
   major milestone audits.
+- `manifest.json` records that a snapshot is accepted, which committed Git
+  revision it measures, who or what accepted it, and which report projection
+  belongs to it.
+- `docs/reports/repository-audit/README.md` is the registry index generated
+  from accepted manifests.
 - `docs/research/` is for source-aware studies and design rationale.
 - Completed task archives link to the research/report artifacts but do not
   duplicate full generated tables unless they are needed as evidence.
@@ -408,8 +420,13 @@ finding deltas, and reproduction commands.
 Implementation note, 2026-05-26: the first trend projection is available
 through `repository_audit.py trend`. It reads two or more saved snapshots and
 renders a Markdown series summary, total deltas, and artifact-class deltas.
-Long-lived snapshot registries, chart output, and recurring cadence policy
-remain future work.
+Chart output and recurring cadence policy remain future work.
+
+Implementation note, 2026-05-26: accepted snapshot manifests and the generated
+registry index are available through `repository_audit.py index`. Accepted
+snapshots should be collected from committed revisions with
+`repository_audit.py collect --revision <rev>` so the durable baseline is not
+polluted by unrelated dirty worktree edits.
 
 ## Acceptance Criteria For First Implementation Task
 
@@ -443,3 +460,5 @@ A first implementation task is complete when:
   every phase close or only major releases.
 - Whether ownership routing should remain skill/module based or eventually be
   projected into GitHub CODEOWNERS.
+- What cadence should promote accepted snapshots into the default trend series
+  after the registry has enough baseline density.

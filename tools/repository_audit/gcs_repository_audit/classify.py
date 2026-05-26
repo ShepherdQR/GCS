@@ -45,6 +45,7 @@ ARTIFACT_LAYERS = {
     "contract_test": "test",
     "fixture": "evidence",
     "generated_store": "generated_evidence",
+    "product_doc": "product",
     "project_report": "report",
     "repo_root_config": "configuration",
     "research_doc": "research",
@@ -111,6 +112,8 @@ def classify_path(path: str) -> str:
         return "architecture_doc"
     if path == "docs/current-model.md":
         return "architecture_doc"
+    if path.startswith("docs/product/"):
+        return "product_doc"
     if path.startswith("docs/reports/"):
         return "project_report"
     if path.startswith("docs/research/"):

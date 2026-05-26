@@ -13,6 +13,7 @@ from gcs_repository_audit.classify import ARTIFACT_LAYERS, classify_path, normal
 from gcs_repository_audit.collect import collect_snapshot, write_snapshot
 from gcs_repository_audit.diff import compare_snapshots, render_markdown_diff, write_diff
 from gcs_repository_audit.models import GitInfo
+from gcs_repository_audit.registry import load_registry_entries, render_markdown_index
 from gcs_repository_audit.report import render_markdown_report
 from gcs_repository_audit.trend import build_trend, render_markdown_trend
 
@@ -28,6 +29,7 @@ class RepositoryAuditTests(unittest.TestCase):
             "tool_test": "tests/tools/test_repository_audit.py",
             "fixture": "fixtures/scene/basic/g1.txt",
             "architecture_doc": "docs/architecture/README.md",
+            "product_doc": "docs/product/gcs-product-user-brief.md",
             "research_doc": "docs/research/topic.md",
             "project_report": "docs/reports/repository-audit/2026-05-26/README.md",
             "agentic_process_doc": "docs/agentic/README.md",
@@ -305,6 +307,57 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertIn("# GCS Repository Audit Trend", report)
         self.assertIn("| files | 1 | 2 | +1 |", report)
         self.assertIn("| project_report | +1 | +2 |", report)
+
+    def test_registry_index_renders_accepted_snapshot_manifest(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            readme = root / "README.md"
+            readme.write_text("# Demo\n", encoding="utf-8")
+            snapshot = collect_snapshot(
+                root,
+                tracked_paths=["README.md"],
+                generated_at="2026-05-26T00:00:00+00:00",
+                git_info=GitInfo(head="abc123456789", branch=None, dirty=False),
+            )
+
+            reports_root = root / "docs" / "reports" / "repository-audit"
+            accepted_dir = reports_root / "2026-05-26"
+            accepted_dir.mkdir(parents=True)
+            write_snapshot(snapshot, accepted_dir / "snapshot.json")
+            (accepted_dir / "README.md").write_text("# Accepted Report\n", encoding="utf-8")
+            (accepted_dir / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": "gcs-repository-audit-manifest-0.1",
+                        "snapshot_id": "2026-05-26",
+                        "acceptance_state": "accepted",
+                        "accepted_at": "2026-05-26T00:00:01+00:00",
+                        "accepted_by": "test",
+                        "acceptance_scope": "milestone",
+                        "revision": "abc123456789",
+                        "snapshot_path": "snapshot.json",
+                        "report_path": "README.md",
+                        "description": "First accepted snapshot.",
+                    },
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            entries = load_registry_entries(reports_root)
+            report = render_markdown_index(
+                reports_root,
+                entries,
+                output=reports_root / "README.md",
+                generated_at="2026-05-26T00:00:02+00:00",
+            )
+
+        self.assertEqual(len(entries), 1)
+        self.assertIn("# GCS Repository Audit Index", report)
+        self.assertIn("Accepted snapshots: `1`", report)
+        self.assertIn("| 2026-05-26 | 2026-05-26T00:00:01+00:00 | abc123456789 | 1 | 1 | 0 |", report)
+        self.assertIn("[snapshot](2026-05-26/snapshot.json)", report)
 
 
 if __name__ == "__main__":

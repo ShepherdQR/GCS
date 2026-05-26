@@ -1,18 +1,18 @@
 # GCS Repository Audit
 
-Generated: `2026-05-26T11:15:29.937398+00:00`
+Generated: `2026-05-26T13:01:12.905721+00:00`
 Repository: `C:/Codes/Trae/s002_GCS/GCS`
-Revision: `9e6b3f1228b1f0a85962de0d8d33526f4b15eae2`
-Branch: `master`
-Dirty worktree: `yes`
+Revision: `7555ff8844af348a2fbbda149bf26f8d6c8f28ce`
+Branch: `<unknown>`
+Dirty worktree: `no`
 Schema: `gcs-repository-audit-0.1`
 Tool: `0.1`
 
 ## Executive Summary
 
-- Counted 805 tracked files, 778 text files, 27 binary files, and 144,685 physical text lines.
+- Counted 825 tracked files, 798 text files, 27 binary files, and 149,448 physical text lines.
 - Found 0 errors and 0 warnings under the current repository-audit policy.
-- Agentic surface: 20 project-local skills, 20 skill agent configs, 4 institutional agents, 45 task cards, and 58 completed-task archives.
+- Agentic surface: 20 project-local skills, 20 skill agent configs, 4 institutional agents, 49 task cards, and 62 completed-task archives.
 
 ## Counting Contract
 
@@ -28,11 +28,11 @@ Tool: `0.1`
 
 | Metric | Count |
 | --- | --- |
-| files | 805 |
-| text_files | 778 |
+| files | 825 |
+| text_files | 798 |
 | binary_files | 27 |
-| physical_lines | 144,685 |
-| bytes | 9,407,231 |
+| physical_lines | 149,448 |
+| bytes | 9,499,655 |
 
 ## Agentic Governance Surface
 
@@ -41,8 +41,8 @@ Tool: `0.1`
 | project_local_skills | 20 |
 | skill_agent_configs | 20 |
 | institutional_agents | 4 |
-| task_cards | 45 |
-| completed_task_archives | 58 |
+| task_cards | 49 |
+| completed_task_archives | 62 |
 | pr_audits | 3 |
 
 ## Artifact Class Breakdown
@@ -50,19 +50,20 @@ Tool: `0.1`
 | Key | Files | Text | Binary | Lines |
 | --- | --- | --- | --- | --- |
 | generated_store | 161 | 161 | 0 | 33,416 |
-| research_doc | 75 | 75 | 0 | 18,890 |
-| architecture_doc | 85 | 82 | 3 | 17,385 |
-| agentic_process_doc | 161 | 161 | 0 | 16,879 |
+| research_doc | 81 | 81 | 0 | 21,151 |
+| architecture_doc | 86 | 83 | 3 | 17,579 |
+| agentic_process_doc | 166 | 166 | 0 | 17,400 |
+| tooling | 53 | 53 | 0 | 15,033 |
 | fixture | 75 | 75 | 0 | 14,444 |
-| tooling | 51 | 51 | 0 | 14,140 |
+| completed_task_archive | 64 | 64 | 0 | 9,489 |
 | solver_source | 20 | 20 | 0 | 9,134 |
-| completed_task_archive | 60 | 60 | 0 | 8,937 |
 | viewer_python | 13 | 13 | 0 | 3,967 |
 | contract_test | 13 | 13 | 0 | 2,654 |
-| tool_test | 15 | 15 | 0 | 2,459 |
+| tool_test | 15 | 15 | 0 | 2,626 |
 | codex_skill | 45 | 45 | 0 | 1,653 |
 | repo_root_config | 5 | 5 | 0 | 467 |
-| project_report | 1 | 1 | 0 | 157 |
+| product_doc | 2 | 2 | 0 | 173 |
+| project_report | 1 | 1 | 0 | 159 |
 | application_shell | 1 | 1 | 0 | 103 |
 | visual_asset | 24 | 0 | 24 | 0 |
 
@@ -71,29 +72,29 @@ Tool: `0.1`
 | Key | Files | Text | Binary | Lines |
 | --- | --- | --- | --- | --- |
 | generated_evidence | 161 | 161 | 0 | 33,416 |
-| research | 75 | 75 | 0 | 18,890 |
-| architecture | 85 | 82 | 3 | 17,385 |
-| process | 161 | 161 | 0 | 16,879 |
+| research | 81 | 81 | 0 | 21,151 |
+| architecture | 86 | 83 | 3 | 17,579 |
+| process | 166 | 166 | 0 | 17,400 |
+| support | 53 | 53 | 0 | 15,033 |
 | evidence | 75 | 75 | 0 | 14,444 |
-| support | 51 | 51 | 0 | 14,140 |
-| product | 34 | 34 | 0 | 13,204 |
-| archive | 60 | 60 | 0 | 8,937 |
-| test | 28 | 28 | 0 | 5,113 |
+| product | 36 | 36 | 0 | 13,377 |
+| archive | 64 | 64 | 0 | 9,489 |
+| test | 28 | 28 | 0 | 5,280 |
 | skill | 45 | 45 | 0 | 1,653 |
 | configuration | 5 | 5 | 0 | 467 |
-| report | 1 | 1 | 0 | 157 |
+| report | 1 | 1 | 0 | 159 |
 | asset | 24 | 0 | 24 | 0 |
 
 ## Top-Level Breakdown
 
 | Key | Files | Text | Binary | Lines |
 | --- | --- | --- | --- | --- |
-| docs | 406 | 379 | 27 | 62,248 |
+| docs | 424 | 397 | 27 | 65,951 |
 | .codex_scene_generation_store | 161 | 161 | 0 | 33,416 |
+| tools | 48 | 48 | 0 | 14,945 |
 | fixtures | 75 | 75 | 0 | 14,444 |
-| tools | 46 | 46 | 0 | 14,052 |
 | src | 20 | 20 | 0 | 9,134 |
-| tests | 28 | 28 | 0 | 5,113 |
+| tests | 28 | 28 | 0 | 5,280 |
 | python | 14 | 14 | 0 | 3,972 |
 | .codex | 45 | 45 | 0 | 1,653 |
 | CMakeLists.txt | 1 | 1 | 0 | 251 |
@@ -122,7 +123,7 @@ Tool: `0.1`
 
 | Path | Class | Lines |
 | --- | --- | --- |
-| tools/agentic_design/agentic_toolkit.py | tooling | 2,730 |
+| tools/agentic_design/agentic_toolkit.py | tooling | 2,737 |
 | docs/architecture/66-implementation-execution-roadmap.md | architecture_doc | 1,911 |
 | fixtures/scene/milestone/milestone_20g40c_20260524.gcs.json | fixture | 1,827 |
 | fixtures/scene/counterexamples/mixed_geometry_20g40c_singular_20260524.gcs.json | fixture | 1,808 |
@@ -155,5 +156,5 @@ No repository-audit findings under the current policy.
 ## Reproduction
 
 ```bat
-python tools\repository_audit\repository_audit.py report --output docs\reports\repository-audit\2026-05-26\README.md
+python tools\repository_audit\repository_audit.py report --snapshot docs\reports\repository-audit\2026-05-26\snapshot.json --output docs\reports\repository-audit\2026-05-26\README.md
 ```
