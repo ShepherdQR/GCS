@@ -419,6 +419,7 @@ def db_import(import_all, since, project, all_projects, force):
                     db_conn.execute("DELETE FROM edits WHERE session_id = ?", (sid,))
                     db_conn.execute("DELETE FROM tool_calls WHERE session_id = ?", (sid,))
                     db_conn.execute("DELETE FROM turns WHERE session_id = ?", (sid,))
+                    db_conn.execute("DELETE FROM chapters WHERE session_id = ?", (sid,))
                     db_conn.execute("DELETE FROM alert_log WHERE session_id = ?", (sid,))
                     db_conn.execute("DELETE FROM sessions WHERE id = ?", (sid,))
                     db_conn.commit()
