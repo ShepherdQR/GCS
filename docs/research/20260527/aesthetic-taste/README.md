@@ -73,3 +73,27 @@ Dependencies: matplotlib, numpy
 ## Image
 
 ![Elegant curve on A4 paper](elegant_curve_a4.png)
+
+## Bridge: Constraint Graph on A4
+
+![Bridge constraint graph on A4 paper](bridge_constraint_graph.png)
+
+The bridge image translates the same aesthetic position into a minimal
+geometric constraint graph: 3 rigid sets, 2 constraint types (distance and
+coincident), rendered in the GCS palette from `python/gcs_viz/color_scheme.py`.
+
+Where the single curve answers "what does our taste look like on a blank
+page?", the bridge answers "what does our taste look like with solver
+evidence on the page?"
+
+**Generation:**
+```
+python docs/research/20260527/aesthetic-taste/bridge_constraint_graph.py
+```
+
+**GCS tokens used:**
+- Paper: `surface.paper` (#F7F4EC)
+- Rigid sets: `rigidSet.palette.01` (#587C7A), `.02` (#B88746), `.05` (#C66E4E)
+- Constraints: `constraint.type.distance.color` (#B88746), `.coincident.color` (#B8574E)
+- Labels: `text.muted` (#8B867A)
+- Line styles: `constraint.type.distance.lineStyle` (solid), `.coincident.lineStyle` (dotted)
