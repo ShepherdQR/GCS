@@ -48,7 +48,7 @@ Trend brief:
 | Runtime/history/replay evidence | Strong | Replay evidence, saved-report workflow, and D3 schema-aware checker are now concrete differentiators. | The checker is not yet wired into an R2 release gate. | Use replay evidence as the trust bridge between solver behavior and agentic governance. |
 | Agentic-SE operating layer | Very strong | Task cards, runbooks, archives, quality gates, PR audit, institutional agents, and an operating map exist. | The next risk is process sprawl rather than absence. | Keep `docs/agentic/agentic-organization-operating-map.md` as the compact entry point. |
 | Quality gates and evidence | Strong | Local validators, contract tests, tool tests, fixture gates, and quality scripts exist. | Trend visibility is still thin. | Maintain `docs/agentic/metrics-dashboard.md` after non-trivial tasks. |
-| UI/viewer/scientific figures | Strong but split | Viewer, visual QA, figure pipeline, and Solver Evidence Workbench direction exist. | Visual work can appear separate from solver evidence. | Frame UI as evidence-first interaction, not decoration. |
+| UI/viewer/scientific figures | Strong, integration in progress | Viewer, visual QA, figure pipeline, Solver Evidence Workbench direction, and an explicit UI/viewer/figure integration plan exist. | The next proof point must show one evidence chain from report to viewer to figure/demo artifact. | Promote one end-to-end evidence walkthrough using `docs/architecture/97-ui-viewer-figure-integration-plan.md`. |
 | Institutional agents and learning | Developing | Standing agents, templates, examples, refusal evals, and a registry scorecard exist. | Seed agents need more examples before promotion. | Use `docs/agentic/institutional-agent-registry-and-scorecard.md` before status changes. |
 | Git/worktree/PR governance | Strong | Worktree, branch, PR audit, permissions, threat matrix, repository-audit policies, and exercised governance eval evidence exist. | E-GOV-001 is ready for validator-candidate design, but no validator is implemented yet. | Convert E-GOV-001 into a scoped validator candidate. |
 | Product/user/market story | Strong but split | Researcher primary audience, product brief, demo ladder, D1/D2/D3 demos, D5 static workbench package, README route, and contributor boundary exist. | Actual external reviewer feedback and live workbench walkthrough are still missing. | Convert the first researcher review packet into a real review archive. |
@@ -118,8 +118,9 @@ Owns:
 Near-term plan:
 
 1. Treat UI as evidence-first interaction.
-2. Make replay evidence visible before adding broader UI surface area.
-3. Use screenshots and visual QA as acceptance evidence, not decoration.
+2. Bind viewer states and scientific figures to the same source evidence.
+3. Make replay evidence visible before adding broader UI surface area.
+4. Use screenshots and visual QA as acceptance evidence, not decoration.
 
 ### Arc 3: Agentic Organization
 
@@ -176,12 +177,12 @@ feedback, and a first governance validator candidate.
 
 | Relative weak line | Current level | Why it is still weak | Strengthening task already in plan |
 | --- | --- | --- | --- |
-| Product/user/market story | Strong but split | CLI and evidence-route story is strong; D5 is static and no actual external reviewer response has landed. | Convert the first external researcher packet into a real review archive. |
+| Product/user/market story | Strong but split | CLI and evidence-route story is strong; D5 now has viewer and figure evidence, but no actual external reviewer response has landed. | Convert the first external researcher packet into a real review archive. |
 | Release/packaging/onboarding | Strong but split | R1 smoke and replay checker exist, but reproducible build transcript and R2 release contract do not. | Add R2 reproducible build transcript and release-gate notes. |
 | External benchmark/comparison | Strong but split | Feasibility and B2 candidate review exist, but external executable comparison is not yet run. | Decide the first optional SolveSpace or FreeCAD adapter. |
 | Business/open-source strategy | Developing | README route, contribution boundary, and review packet exist, but no external contribution example has landed. | Capture first real researcher review or contribution as archive-backed evidence. |
 | Governance eval execution | Developing | Three prompt-level eval seeds now have exercised evidence, but no validator candidate is implemented. | Build E-GOV-001 validator candidate before any default gate. |
-| Demo evidence packaging | Strong but split | D0, D1, D2, D3, and D5 static packages are present; live workbench remains future work. | Add live D5 workbench walkthrough after viewer evidence projection is ready. |
+| Demo evidence packaging | Strong and active | D0, D1, D2, D3, and D5 packages are present; D5 now ties Figure 72, VE-002 viewer canvas evidence, visual QA, and projection contracts together. | Add a full live D5 workbench walkthrough after structured report projection is ready. |
 
 This means the next plan should not primarily add more internal architecture
 language. It should translate the existing architecture into evidence packages
@@ -222,8 +223,9 @@ that a new user, reviewer, or future contributor can run, compare, and trust.
 3. Add B2 expected-output files for B2-01 and B2-02.
 4. Decide the first optional external adapter path: SolveSpace application or
    FreeCAD Sketcher.
-5. Convert D5 from a static evidence board into a live workbench walkthrough
-   only after viewer evidence projection is ready.
+5. Keep the D5 Solver Evidence Workbench package current with Figure 72,
+   VE-002 viewer artifacts, visual QA, and projection evidence; add a full live
+   walkthrough only after structured report projection is ready.
 6. Convert the first external researcher review packet into an actual review
    archive after real feedback arrives.
 7. Add a contribution workflow example once the first external review or

@@ -118,6 +118,30 @@ def check_theme(repo_root: Path, result: QaResult):
                 f"{text_key} on {bg_key} contrast is {ratio:.2f}, expected >= 4.5",
             )
 
+    state_text = getattr(color_scheme, "STATE_TEXT_COLORS", {})
+    result.require(bool(state_text), "color_scheme.py must expose STATE_TEXT_COLORS for small status text")
+    for state_key in ("solved", "info", "warning", "error", "pending", "replay_current"):
+        if state_key not in state_text:
+            result.errors.append(f"Missing STATE_TEXT_COLORS token: {state_key}")
+            continue
+        for bg_key in ("bg_window", "bg_panel", "bg_panel_alt"):
+            ratio = contrast_ratio(state_text[state_key], theme[bg_key])
+            result.require(
+                ratio >= 4.5,
+                f"STATE_TEXT_COLORS[{state_key!r}] on {bg_key} contrast is {ratio:.2f}, expected >= 4.5",
+            )
+
+    node_light = theme.get("text_node_light")
+    node_dark = theme.get("text_node_dark")
+    result.require(bool(node_light and node_dark), "GCS_THEME must expose text_node_light and text_node_dark")
+    for index, fill in enumerate(getattr(color_scheme, "RIGID_SET_COLORS", []), start=1):
+        light_ratio = contrast_ratio(node_light, fill)
+        dark_ratio = contrast_ratio(node_dark, fill)
+        result.require(
+            max(light_ratio, dark_ratio) >= 4.5,
+            f"rigidSet.palette.{index:02d} has no readable dynamic graph-node label color",
+        )
+
     for semantic_key in ("success", "warning", "error", "info", "accent"):
         if semantic_key not in theme:
             continue

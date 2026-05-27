@@ -126,17 +126,27 @@ bundle and visualizes the fixed-boundary solve intent, two local components,
 rank/residual evidence, gluing diagnostics, replay-boundary gates, and the
 negative missing-fixed-ID validation boundary.
 
-Production artifact:
+Production artifacts:
 
 - [`assets/figure72-gcs-integrated-showcase-scene.html`](assets/figure72-gcs-integrated-showcase-scene.html)
+- [`assets/figure72-gcs-integrated-showcase-scene.review.png`](assets/figure72-gcs-integrated-showcase-scene.review.png)
+- [`assets/figure72-gcs-integrated-showcase-scene.review.pdf`](assets/figure72-gcs-integrated-showcase-scene.review.pdf)
+- [`assets/figure72-gcs-integrated-showcase-browser-export.json`](assets/figure72-gcs-integrated-showcase-browser-export.json)
+
+Review artifact:
+
+![Figure 72 - GCS Integrated Showcase Evidence](assets/figure72-gcs-integrated-showcase-scene.review.png)
 
 Legacy atlas artifact:
 
-![Figure 72 - GCS Integrated Showcase Scene](assets/figure72-gcs-integrated-showcase-scene.svg)
+- `assets/figure72-gcs-integrated-showcase-scene.svg`
 
 Generated assets:
 
 - `assets/figure72-gcs-integrated-showcase-scene.html`
+- `assets/figure72-gcs-integrated-showcase-scene.review.png`
+- `assets/figure72-gcs-integrated-showcase-scene.review.pdf`
+- `assets/figure72-gcs-integrated-showcase-browser-export.json`
 - `assets/figure72-gcs-integrated-showcase-scene.svg`
 - `showcase-scene-report.md`
 
@@ -153,13 +163,42 @@ Rebuild command:
 
 ```powershell
 python -B tools\architecture_visualization\showcase_scene_html_compositor.py
+python -B tools\architecture_visualization\browser_export.py --figure figure72 --formats png,pdf --viewport 1600x1400 --require-browser
 python -B tools\architecture_visualization\render_showcase_scene.py
 ```
 
 Figure 72 should be regenerated when the showcase scene, metadata, behavior
 schema, or public evidence expectations change. The HTML compositor is the
-P6.3 production path; the SVG remains useful as a deterministic legacy atlas
-view.
+P6.3 production path, the browser review artifacts are the P7 review path, and
+the SVG remains useful as a deterministic legacy atlas view.
+
+## Viewer Evidence VE-002
+
+VE-002 is the Phase 10 viewer-canvas review artifact for the D5 Solver
+Evidence Workbench. It exercises `GCSPlatformGUI` against empty, triangle,
+mixed replay, and D5 diagnostic states without updating the narrative map.
+
+Production artifacts:
+
+- [`assets/ve002-d5-viewer-evidence-workbench.review.png`](assets/ve002-d5-viewer-evidence-workbench.review.png)
+- [`assets/ve002-d5-viewer-evidence-workbench.capture.json`](assets/ve002-d5-viewer-evidence-workbench.capture.json)
+
+Design controls:
+
+- `tools/ui_qa/capture_viewer_evidence.py`
+- `python/gcs_viz/platform_gui.py`
+- `python/gcs_viz/viewer_bridge.py`
+- `python/gcs_viz/visualizer.py`
+
+Rebuild command:
+
+```powershell
+python -B tools\ui_qa\capture_viewer_evidence.py
+```
+
+VE-002 should be regenerated when viewer focus projection, replay projection,
+diagnostic overlay color, the D5 showcase scene, or three-view canvas layout
+changes.
 
 ## Editorial Figure 73
 

@@ -133,8 +133,11 @@ Candidate assets:
 - `python/gcs_viz/`
 - `docs/architecture/92-gcs-ui-architecture-adjustment-record.md`
 - `docs/product/demos/d5-solver-evidence-workbench/`
+- `docs/architecture/97-ui-viewer-figure-integration-plan.md`
 - `fixtures/scene/showcase/`
 - UI QA tools under `tools/ui_qa/`
+- Figure 72 review artifacts, VE-002 viewer artifacts, and visual evidence
+  manifest
 
 Acceptance:
 
@@ -190,7 +193,7 @@ Acceptance:
 | D2 | Automated package | Keep `tools/product_demo/diagnostic_classification.py` and the JSON summary current with B1 expected outputs. |
 | D3 | Active checked package | Keep `docs/product/demos/d3-replay-evidence/`, its saved replay artifact, and replay checker current. |
 | D4 | Now defined | Use the corpus ladder for future fixture promotion tasks. |
-| D5 | Static evidence package | Use `docs/product/demos/d5-solver-evidence-workbench/` as the static workbench baseline; promote only later to live GUI evidence. |
+| D5 | Viewer evidence active | Keep the Solver Evidence Workbench demo tied to Figure 72, VE-002 viewer artifacts, visual QA, and viewer projection evidence. |
 | D6 | Partial | Turn showcase fixture evidence into one external reviewer story. |
 | D7 | Feasibility mapped | Use the external-baseline feasibility matrix before attempting external executable comparisons. |
 
@@ -220,7 +223,8 @@ docs/product/demos/
 ## Next Actions
 
 1. Add an R2 reproducible build transcript.
-2. Convert D5 from static evidence board to live workbench evidence only after
-   viewer projection is ready.
+2. Keep D5 tied to Figure 72, VE-002 viewer artifacts, visual QA, and projection
+   evidence; add a full live workbench walkthrough only after structured report
+   projection is ready.
 3. Add B2 expected-output files for B2-01 and B2-02.
 4. Decide the first optional SolveSpace or FreeCAD external adapter path.

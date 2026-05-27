@@ -27,5 +27,7 @@ Start with:
   over-constrained, malformed, and singular blocked diagnostic classes.
 - `d3-replay-evidence/`: demonstrates saved replay evidence as an inspectable
   researcher artifact.
-- `d5-solver-evidence-workbench/`: demonstrates the target Solver Evidence
-  Workbench as a static evidence-board screenshot package with visual QA.
+- `d5-solver-evidence-workbench/`: demonstrates the first Solver Evidence
+  Workbench chain from showcase scene evidence to viewer projection contracts,
+  Figure 72 review artifacts, VE-002 viewer canvas evidence, visual QA, and
+  follow-up.

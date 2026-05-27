@@ -58,8 +58,8 @@ Tk state and user actions; `visualizer.py` draws supplied states only.
 | 5 | Design QA And Accessibility | Complete | `tools/ui_qa/gcs_ui_qa.py`, UI QA fixture and unittest |
 | 6 | Interaction Semantics | Complete | `selection_focus`, replay focus projection, table-selection highlighting |
 | 7 | Solve Diagnostics Overlay | Complete | `constraint_states`, safe fallback, renderer overlays |
-| 8 | Accessibility And Contrast Refinement | Planned | Status text colors, node label strategy, stale UI cleanup |
-| 9 | Replay Rail Refinement | Planned | History frame projection, rail controls, deletion hints |
+| 8 | Accessibility And Contrast Refinement | Complete | `STATE_TEXT_COLORS`, dynamic graph-node label contrast, UI QA contrast checks |
+| 9 | Replay Rail Refinement | Complete | `project_history_frame`, viewport speed control, deletion hints |
 | 10 | Manual Visual QA Pass | Planned | Local GUI screenshot and taste calibration cycle |
 | 11 | Constraint Manager And Repair Drafts | Backlog | Constraint row projection, diagnostic filters, safe repair candidates |
 | 12 | Local-To-Global Evidence Inspector | Backlog | Context covers, boundary projections, gluing, obstruction paths |
@@ -341,7 +341,7 @@ Completion evidence:
 
 ## Phase 8: Accessibility And Contrast Refinement
 
-Status: planned.
+Status: complete.
 
 Goal:
 
@@ -377,9 +377,22 @@ Acceptance:
 - graph labels remain readable on all current rigid-set colors;
 - UI QA report distinguishes hard failures from advisory warnings.
 
+Completion evidence:
+
+- `python/gcs_viz/color_scheme.py` now splits graphic state accents from
+  contrast-safe `STATE_TEXT_COLORS`.
+- `python/gcs_viz/platform_gui.py` uses `STATE_TEXT_COLORS` for log, DOF,
+  solve-summary, and replay-state text.
+- `python/gcs_viz/visualizer.py` chooses graph-node label text dynamically by
+  contrast against each rigid-set fill.
+- `tools/ui_qa/gcs_ui_qa.py` checks state text contrast and graph-node label
+  contrast.
+- `docs/architecture/70-visualization/viewer-accessibility-contrast-refinement.md`
+  records the status-text versus graphic-accent token rule.
+
 ## Phase 9: Replay Rail Refinement
 
-Status: planned.
+Status: complete.
 
 Goal:
 
@@ -413,9 +426,22 @@ Acceptance:
 - speed changes affect subsequent steps;
 - delete actions show what changed rather than disappearing silently.
 
+Completion evidence:
+
+- `python/gcs_viz/viewer_bridge.py` now exposes
+  `project_history_frame(history, index)`.
+- `python/gcs_viz/platform_gui.py` consumes the frame projection for rail
+  action text, progress, title, focus, and deletion hints.
+- The replay speed control is mirrored into the viewport rail while sharing
+  the existing speed variable.
+- `tests/tools/test_gcs_viz_history_replay.py` covers frame projection and
+  deletion hints without importing Tk.
+- `docs/architecture/70-visualization/viewer-history-frame-projection.md`
+  records the projection contract.
+
 ## Phase 10: Manual Visual QA Pass
 
-Status: planned.
+Status: complete with TkAgg canvas evidence.
 
 Goal:
 
@@ -423,13 +449,17 @@ Run the UI against real desktop states and calibrate taste beyond static checks.
 
 Deliverables:
 
-- manual run of `scripts/start_gui.cmd`;
-- checklist results for empty model, `triangle_003.json`,
-  `mixed_geometry_constraints.json`, active replay, solve success, solve
-  warning/error when available, and narrow desktop width;
-- screenshots or written visual notes if screenshots are not practical;
-- final polish ticket list for any overlap, density, contrast, or hierarchy
-  issues found.
+- `tools/ui_qa/capture_viewer_evidence.py` instantiates `GCSPlatformGUI` and
+  captures the TkAgg viewer canvas for empty model, `triangle_003.json`,
+  `mixed_geometry_constraints.json`, active replay, and the D5 showcase
+  diagnostic state at narrow width;
+- `docs/architecture/70-visualization/assets/ve002-d5-viewer-evidence-workbench.review.png`
+  is the committed VE-002 review artifact;
+- `docs/architecture/70-visualization/assets/ve002-d5-viewer-evidence-workbench.capture.json`
+  records rail-state text, focus projections, graph summaries, and capture
+  scope;
+- `docs/architecture/70-visualization/viewer-phase-10-visual-qa.md` records
+  checklist results, skipped checks, and remaining risk.
 
 Suggested files:
 
@@ -440,15 +470,29 @@ Suggested files:
 
 Boundary:
 
-- no raw screenshot baseline unless explicitly approved;
-- do not block on a full C++ solve if the local engine is unavailable;
-- record skipped checks clearly.
+- keep the capture as viewer evidence, not a new solver report source;
+- do not claim a live solve success when the local C++ engine is unavailable;
+- keep the narrative map unchanged for this pass.
 
 Acceptance:
 
-- the GUI has been inspected in a real desktop session;
+- the GUI canvas has been inspected through real `GCSPlatformGUI` TkAgg states;
 - visual notes separate defects from future preferences;
+- the review PNG is listed in the screenshot baseline manifest;
 - this report is updated with the next UI phase recommendation.
+
+Completion summary:
+
+- Ran the viewer against four Phase 10 states: empty model, triangle graph
+  focus, mixed-constraint replay frame, and D5 diagnostic focus at narrow
+  desktop width.
+- Added the VE-002 contact-sheet PNG and capture JSON to the visual evidence
+  manifest and screenshot baseline gate.
+- Fixed a discovered Summary-panel collision by moving diagnostic DOF text
+  above the legend in `python/gcs_viz/visualizer.py`.
+- Full operating-system window screenshot capture remains future work; the
+  committed baseline covers the embedded viewer canvas and records surrounding
+  rail state in JSON.
 
 ## Phase 11: Constraint Manager And Repair Drafts
 
@@ -532,19 +576,20 @@ Acceptance:
 
 ## Scheduling Recommendation
 
-The next standalone work item should be Phase 8.
+The next standalone work item should be Phase 11 once structured diagnostic
+projection is ready enough to make constraint-manager rows evidence-backed.
 
 Reasoning:
 
 - Phase 6 turned the existing focus contract into a reusable interaction
   primitive.
 - Phase 7 built diagnostics overlays on top of the same projection path.
-- Phase 8 should now refine contrast and text/state strategy around the active
-  focus and diagnostic states.
-- Phase 9 should refine replay after selection and diagnostic state precedence
-  are clear.
-- Phase 10 should be run after Phase 8 or Phase 9, unless a manual GUI review
-  is needed sooner to unblock confidence.
+- Phase 8 refined contrast and text/state strategy around the active focus and
+  diagnostic states.
+- Phase 9 refined replay through a pure history-frame projection.
+- Phase 10 now has a committed TkAgg viewer-canvas review artifact and a
+  baseline entry. Full-window OS screenshot capture can be added later if a
+  reliable capture backend is available.
 - Phase 11 should follow once diagnostic projections are stable enough to make
   constraint filtering meaningful.
 - Phase 12 should wait until planner and diagnostics reports expose enough
@@ -557,9 +602,10 @@ Reasoning:
   is authoritative.
 - Solve diagnostics currently rely on text parsing; structured solver reports
   should eventually replace this projection.
-- The current local shell may lack `matplotlib`; `tools/ui_qa/gcs_ui_qa.py`
-  skips render smoke in that case. A fuller visual QA pass needs the GUI
-  runtime environment.
+- The base local shell may lack `matplotlib`; `tools/ui_qa/gcs_ui_qa.py` skips
+  render smoke in that case. Phase 10 used a dependency-complete Python
+  environment to instantiate `GCSPlatformGUI` and produce the VE-002 canvas
+  baseline.
 - Some semantic accent colors remain suitable for graphics but not small text;
   keep color plus text/state wording together until Phase 8 resolves token
   separation.

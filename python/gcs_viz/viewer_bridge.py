@@ -255,6 +255,72 @@ def build_history_graph(history: Iterable[Mapping], through_index: int) -> GCSGr
     return replay_graph
 
 
+def _deletion_hints_from_entry(entry: Mapping) -> list[dict[str, object]]:
+    action = entry.get("action")
+    payload = entry.get("payload") or {}
+    if action == "RemoveRigidSet":
+        kind = "rigid_set"
+        label = "Removed rigid set"
+    elif action == "RemoveGeometry":
+        kind = "geometry"
+        label = "Removed geometry"
+    elif action == "RemoveConstraint":
+        kind = "constraint"
+        label = "Removed constraint"
+    else:
+        return []
+
+    removed_id = _coerce_int(payload.get("id"))
+    if removed_id is None:
+        return []
+    return [{
+        "kind": kind,
+        "id": removed_id,
+        "label": f"{label} {removed_id}",
+    }]
+
+
+def project_history_frame(history: Iterable[Mapping], index: int) -> dict:
+    history_list = list(history)
+    total = len(history_list)
+    if total == 0:
+        return {
+            "mode": "history_frame",
+            "index": -1,
+            "step": 0,
+            "total": 0,
+            "action": "Empty",
+            "action_label": "No history",
+            "progress": 0.0,
+            "title": "Replay History",
+            "focus": None,
+            "deletion_hints": [],
+        }
+    if index < 0 or index >= total:
+        raise IndexError(f"history frame index {index} out of range for {total} entries")
+
+    entry = history_list[index]
+    action = str(entry.get("action", "Unknown"))
+    replay_graph = build_history_graph(history_list, index)
+    focus = history_focus_from_entry(entry, replay_graph)
+    deletion_hints = _deletion_hints_from_entry(entry)
+    deletion_label = "; ".join(str(hint["label"]) for hint in deletion_hints)
+    action_label = f"{action} - {deletion_label}" if deletion_label else action
+    step = index + 1
+    return {
+        "mode": "history_frame",
+        "index": index,
+        "step": step,
+        "total": total,
+        "action": action,
+        "action_label": action_label,
+        "progress": (step / total) * 100.0,
+        "title": f"Replay History - Step {step}/{total}: {action_label}",
+        "focus": focus,
+        "deletion_hints": deletion_hints,
+    }
+
+
 def apply_history_entry(replay_graph: GCSGraph, entry: Mapping) -> bool:
     action = entry.get("action")
     payload = entry.get("payload") or {}

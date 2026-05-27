@@ -57,6 +57,9 @@ institutional-agent promotion, or quality-gate decision depends on that record.
 | 2026-05-26 | [Task-scoped session closer skill upgrade](2026-05-26-task-scoped-session-closer-skill-upgrade/README.md) | done |
 | 2026-05-26 | [Repository audit session closeout](2026-05-26-repository-audit-session-closeout/README.md) | done |
 | 2026-05-26 | [Repository audit plan execution](2026-05-26-repository-audit-plan-execution/README.md) | done |
+| 2026-05-26 | [UI viewer figure integration](2026-05-26-ui-viewer-figure-integration/README.md) | done |
+| 2026-05-26 | [VE-002 viewer visual evidence](2026-05-26-ve002-viewer-visual-evidence/README.md) | done |
+| 2026-05-26 | [UI viewer figure development plan](2026-05-26-ui-viewer-figure-development-plan/README.md) | done |
 | 2026-05-26 | [AI organization narrative execution](2026-05-26-ai-organization-narrative-execution/README.md) | done |
 | 2026-05-26 | [Next-stage mainline evidence](2026-05-26-next-stage-mainline-evidence/README.md) | done |
 | 2026-05-26 | [AI governance plan session closeout](2026-05-26-ai-governance-plan-session-closeout/README.md) | done |

@@ -1,0 +1,59 @@
+{
+  "figure": "figure72",
+  "schema_version": "gcs.showcase_figure.v1",
+  "spec": "tools/architecture_visualization/specs/figure72.yaml",
+  "html": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.html",
+  "requested_formats": [
+    "png",
+    "pdf"
+  ],
+  "status": "exported",
+  "reason": "Browser CLI produced all supported requested artifacts.",
+  "browser": {
+    "backend": "chromium-cli",
+    "executable": "chrome.exe",
+    "version": "version unavailable from browser CLI"
+  },
+  "html_token_checks": [
+    {
+      "token": "--gcs-paper",
+      "passed": true
+    },
+    {
+      "token": "--gcs-panel",
+      "passed": true
+    },
+    {
+      "token": "--gcs-ink",
+      "passed": true
+    },
+    {
+      "token": "--gcs-domain",
+      "passed": true
+    },
+    {
+      "token": "data-gcs-box-label=\"figure72-scene_contract\"",
+      "passed": true
+    }
+  ],
+  "html_tokens_passed": true,
+  "exports": [
+    {
+      "format": "png",
+      "path": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.review.png",
+      "exists": true,
+      "bytes": 125836,
+      "exit_code": 0,
+      "diagnostic": "125836 bytes written to file <repo>\\docs\\architecture\\70-visualization\\assets\\figure72-gcs-integrated-showcase-scene.review.png"
+    },
+    {
+      "format": "pdf",
+      "path": "docs/architecture/70-visualization/assets/figure72-gcs-integrated-showcase-scene.review.pdf",
+      "exists": true,
+      "bytes": 98967,
+      "exit_code": 0,
+      "diagnostic": "98967 bytes written to file <repo>\\docs\\architecture\\70-visualization\\assets\\figure72-gcs-integrated-showcase-scene.review.pdf"
+    }
+  ],
+  "unsupported_formats": []
+}

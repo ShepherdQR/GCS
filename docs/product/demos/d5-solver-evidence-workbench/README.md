@@ -1,69 +1,89 @@
-# D5 Solver Evidence Workbench Package
+# D5 Solver Evidence Workbench Demo
 
-Status: active static package
+Status: active
 Date: 2026-05-26
-Audience: solver and geometric-constraint researchers
 
-## Claim
+## Audience
 
-GCS can package the intended Solver Evidence Workbench view as a static,
-evidence-first screenshot artifact that links geometry, diagnostic classes,
-replay timeline, and research boundaries.
+Technical reviewer who wants to know whether GCS can make solver evidence
+inspectable instead of merely showing geometry.
 
-This package is a static workbench evidence board. It is not a live GUI claim.
-
-## Inputs
-
-| Input | Role |
-| --- | --- |
-| `docs/product/demos/d2-diagnostic-classification/artifacts/d2-diagnostic-summary.json` | Diagnostic classification evidence. |
-| `docs/product/demos/d3-replay-evidence/artifacts/g1-replay-evidence.report.json` | Replay and transaction evidence. |
-| `docs/architecture/92-gcs-ui-architecture-adjustment-record.md` | Workbench direction and UI posture. |
-| `docs/architecture/75-ui-design-system-conventions.md` | Evidence-first interface grammar. |
-
-## Generated Artifacts
-
-| Artifact | Meaning |
-| --- | --- |
-| `docs/product/demos/d5-solver-evidence-workbench/artifacts/d5-workbench-evidence.png` | Static evidence-board screenshot. |
-| `docs/product/demos/d5-solver-evidence-workbench/artifacts/screenshot-baselines.json` | Screenshot baseline manifest for the D5 package. |
-
-## Generation Command
-
-```bat
-python tools\product_demo\d5_workbench_package.py --output docs\product\demos\d5-solver-evidence-workbench\artifacts\d5-workbench-evidence.png --manifest docs\product\demos\d5-solver-evidence-workbench\artifacts\screenshot-baselines.json
-```
-
-## Visual QA Command
-
-```bat
-python tools\ui_qa\gcs_screenshot_baseline.py --manifest docs\product\demos\d5-solver-evidence-workbench\artifacts\screenshot-baselines.json
-```
-
-Latest result:
+## Demo Thesis
 
 ```text
-GCS screenshot baseline checks passed (1 baselines)
+showcase scene -> structured evidence bundle -> viewer/figure projection
+    -> browser review artifact -> viewer canvas review artifact
+    -> visual QA and follow-up
 ```
 
-## What The Screenshot Shows
+This package is the first D5 demo. It now includes a Phase 10 viewer-canvas
+review artifact produced through `GCSPlatformGUI` and the same TkAgg canvas path
+used by the local desktop viewer. It proves that the workbench line has a
+concrete evidence chain and review artifacts without updating the narrative map
+in this pass.
 
-- a compact model canvas for the `g1` scene;
-- an evidence rail for accepted status, warning status, commit, and version
-  advance;
-- D2 diagnostic-classification counts;
-- D3 replay timeline stages;
-- a research boundary that distinguishes static evidence from live GUI
-  behavior.
+This supersedes the earlier static evidence-board package, while preserving the
+same caveat: the committed visual artifacts are review evidence, not a claim
+that every live GUI workflow is complete.
 
-## Acceptance
+## Scene
 
-- The screenshot is generated from repository evidence artifacts.
-- The manifest records dimensions, byte count, and sha256.
-- The screenshot baseline checker passes.
-- The package explicitly says it is not live GUI evidence.
+- Positive scene:
+  `fixtures/scene/showcase/integrated_feature_showcase.gcs.json`
+- Positive metadata:
+  `fixtures/scene/showcase/integrated_feature_showcase.metadata.json`
+- Negative metadata:
+  `fixtures/scene/showcase/integrated_feature_showcase_missing_fixed.metadata.json`
 
-## Next Upgrade
+## Command Path
 
-Turn this static package into a live D5 workbench walkthrough only when the
-viewer can project report evidence without becoming hidden solver truth.
+```bat
+python tools\architecture_visualization\showcase_fixture_evidence.py
+python tools\architecture_visualization\showcase_scene_html_compositor.py --check
+python tools\architecture_visualization\browser_export.py --figure figure72 --formats png,pdf --viewport 1600x1400 --require-browser
+python tools\ui_qa\capture_viewer_evidence.py
+python tools\ui_qa\gcs_screenshot_baseline.py
+```
+
+## Viewer Path
+
+- Projection contracts:
+  - `selection_focus(...)`
+  - `constraint_state_projection(...)`
+  - `combine_focus_with_constraint_states(...)`
+  - `project_history_frame(...)`
+- Python surfaces:
+  - `python/gcs_viz/viewer_bridge.py`
+  - `python/gcs_viz/platform_gui.py`
+  - `python/gcs_viz/visualizer.py`
+
+## Expected Output
+
+- Showcase fixture evidence passes.
+- Figure 72 HTML is current.
+- Browser export manifest reports `status: exported` and
+  `html_tokens_passed: true`.
+- Screenshot baseline validates the Figure 72 review PNG.
+- Screenshot baseline validates the VE-002 viewer review PNG.
+- No-Tk viewer projection tests pass.
+
+## Evidence Artifact
+
+See [evidence.md](evidence.md).
+
+## Known Limitations
+
+- This package uses Figure 72 and VE-002 review artifacts as visual surfaces;
+  it does not yet include a full operating-system window screenshot.
+- The VE-002 review PNG is a stable TkAgg viewer-canvas contact sheet; rail
+  state is recorded in JSON.
+- Structured C++ report delivery into Python viewer projections remains a
+  future implementation path.
+- Local-to-global context-cover overlays are not part of this demo yet.
+
+## Next Task
+
+Follow `docs/architecture/98-ui-viewer-figure-development-plan.md`: harden
+VE-002, define structured report projection, and start Phase 11 only after
+diagnostic report projections are stable enough to make constraint-manager rows
+evidence-backed rather than UI-inferred.
