@@ -1,40 +1,59 @@
-# Session Output Summary — 2026-05-28 (Token Billing)
+# Session Output Summary — 2026-05-28
 
-Session: Token Billing Medium-Term Plans Execution
+Session: Benefit Audit System — Status Analysis & Roadmap Planning
 Date: 2026-05-28
 Status: closed
 
 ## One-Sentence Summary
-Executed all 6 medium-term token billing plans plus wrote S1-L6 roadmap — 385 lines across 5 files, 0 schema migrations.
+
+Analyzed the complete state of the session benefit audit system, identified remaining short/medium/long-term plans, and persisted a comprehensive roadmap document covering 12 initiatives across three time horizons.
 
 ## Deliverables
+
 | # | Deliverable | Type | Files | Status |
 |---|-------------|------|-------|--------|
-| 1 | Multi-model cost comparison | feature | cost_model.py, reporter.py, cli.py | done |
-| 2 | Daily/weekly budget tracking | feature | db.py, reporter.py | done |
-| 3 | Monthly cost prediction | feature | db.py, reporter.py | done |
-| 4 | Batch API pricing | feature | config.yaml, cost_model.py, cli.py | done |
-| 5 | Cache TTL differentiation | feature | config.yaml, cost_model.py, cli.py | done |
-| 6 | Model routing optimization | feature | db.py, reporter.py, cli.py | done |
-| 7 | Token billing roadmap S1-L6 | docs | docs/research/20260528/token-billing-roadmap/ | done |
-| 8 | Task card | docs | docs/agentic/tasks/2026-05-28-token-billing-medium-term-execution.md | done |
+| 1 | Benefit audit roadmap | planning doc | `docs/reports/session-benefit-audit-roadmap-2026-05-28.md` | complete |
+| 2 | Token benefit report | report | `docs/reports/token-audit/session-2026-05-28.md` | complete |
+| 3 | Completed-task archive | archive | `docs/completed-tasks/2026-05-28-benefit-audit-roadmap/README.md` | complete |
 
 ## Verification Gates
+
 | Gate | Result |
 |------|--------|
-| compileall -q | passed |
-| report --compare | shows multi-model inline |
-| dashboard | shows budget + prediction |
-| routing --days 90 | returns results |
+| CLI compile check | PASS — `python -m compileall -q tools/token_audit/` |
+| DB stats | PASS — 13 sessions, 2.26M tokens, $1.58 |
+| Baseline calibration | PASS — P25/P50/P75 produced for 2 of 3 metrics |
+| BEI percentile engine | PASS — `_percentile_score()` with P25/P50/P75 |
+| HTML dashboard | PASS — 6987 bytes self-contained with Chart.js |
+| Snap command | PASS — one-shot DB-only quick view |
+
+## Remaining Roadmap
+
+See `docs/reports/session-benefit-audit-roadmap-2026-05-28.md` for full details.
+
+| Horizon | Count | Key items |
+|---------|-------|-----------|
+| Short (1-4w) | 4 | cost baseline activation, multi-project data, knowledge thresholds, snap trend |
+| Medium (1-3m) | 4 | datasette web UI, session comparison, anomaly detection, backup/migration |
+| Long (3-12m) | 4 | OpenTelemetry, predictive model, team insights, org budget |
+
+Decision matrix: 12 planned items, 3 high-priority short-term, all gated by data accumulation.
+
+## Narrative Line Impact
+
+| Narrative line | Before | After | Change |
+|----------------|--------|-------|--------|
+| Institutional process: token economics | System in "build" phase with ad-hoc improvements | System in "operate" phase with structured short/medium/long-term roadmap | Phase transition documented |
 
 ## Token Benefit
+
 | Metric | Value |
 |--------|-------|
-| Model | deepseek-v4-pro |
-| Total Tokens | ~139K |
+| Total Tokens | 138,870 (in: 105,387 / out: 33,483) |
 | Cache Hit Rate | 98.9% |
-| Estimated Cost | $0.11 (vs Sonnet $3.73, Opus $6.21) |
-| Lines Changed | +16,566 / -60 |
+| Cost | $0.11 |
+| BEI | 0.44 C |
 
 ## Commit
-`5072f02` feat(token-audit): six billing medium-term plans
+
+`<pending>` — See final commit after push.
