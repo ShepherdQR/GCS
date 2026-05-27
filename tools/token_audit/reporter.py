@@ -529,8 +529,9 @@ def _dashboard_markdown(projects: list[dict], cm, days: int) -> str:
 
 
 def _dashboard_html(projects: list[dict], cm, days: int) -> str:
-    """Self-contained HTML dashboard."""
+    """Self-contained HTML dashboard with Chart.js trends and session filtering."""
     from tools.token_audit.parser import TokenUsage
+
     for p in projects:
         usage = TokenUsage(input_tokens=p["total_input_tokens"], output_tokens=p["total_output_tokens"],
                            cache_read_tokens=p.get("total_cache_read_tokens", 0))
@@ -542,10 +543,11 @@ def _dashboard_html(projects: list[dict], cm, days: int) -> str:
     total_tokens = sum(p["total_tokens"] for p in projects)
     total_sessions = sum(p["sessions_count"] for p in projects)
 
-    rows = ""
+    # Build project summary rows
+    project_rows = ""
     for p in projects:
         bei_color = "#4caf50" if p["avg_bei"] >= 0.6 else "#ff9800" if p["avg_bei"] >= 0.4 else "#f44336"
-        rows += f"""
+        project_rows += f"""
         <tr>
             <td>{p['project_name']}</td>
             <td>{p['sessions_count']}</td>
@@ -556,34 +558,152 @@ def _dashboard_html(projects: list[dict], cm, days: int) -> str:
             <td>{p.get('avg_cache_hit_rate', 0):.1%}</td>
         </tr>"""
 
+    # Build session list for filtering table (populated by caller if needed)
+    session_rows = ""
+
+    # Chart data: project names + BEI values for bar chart
+    proj_names_json = json.dumps([p["project_name"] for p in projects])
+    bei_vals_json = json.dumps([round(p["avg_bei"], 3) for p in projects])
+    cost_vals_json = json.dumps([round(p["cost_usd"], 3) for p in projects])
+    tokens_vals_json = json.dumps([p["total_tokens"] for p in projects])
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GCS Token Audit Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-       background: #1a1a2e; color: #e0e0e0; padding: 2rem; }}
-h1 {{ color: #7c8cf8; }}
-table {{ border-collapse: collapse; width: 100%; margin: 1rem 0; }}
-th, td {{ padding: 0.5rem 1rem; text-align: right; border-bottom: 1px solid #333; }}
-th {{ background: #16213e; color: #a0a0c0; font-weight: 600; }}
+:root {{
+  --bg: #0f0f1a; --card: #1a1a2e; --border: #2a2a4a;
+  --text: #c8c8d8; --muted: #8080a0; --accent: #7c8cf8;
+  --green: #4caf50; --orange: #ff9800; --red: #f44336;
+}}
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text); padding: 1.5rem;
+}}
+h1 {{ color: var(--accent); font-size: 1.5rem; margin-bottom: 0.25rem; }}
+h2 {{ color: var(--muted); font-size: 1rem; font-weight: 500; margin: 1.5rem 0 0.5rem; }}
+.summary {{ color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem; }}
+.grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }}
+.stat-card {{
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1rem; text-align: center;
+}}
+.stat-card .value {{ font-size: 1.5rem; font-weight: 700; color: var(--accent); }}
+.stat-card .label {{ font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }}
+.charts {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }}
+@media (max-width: 768px) {{ .charts {{ grid-template-columns: 1fr; }} }}
+.chart-box {{
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1rem;
+}}
+.chart-box canvas {{ max-height: 260px; }}
+table {{ border-collapse: collapse; width: 100%; margin: 0.5rem 0; }}
+th, td {{ padding: 0.4rem 0.75rem; text-align: right; border-bottom: 1px solid var(--border); font-size: 0.85rem; }}
+th {{ background: #16213e; color: var(--muted); font-weight: 600; position: sticky; top: 0; }}
 td:first-child, th:first-child {{ text-align: left; }}
 tr:hover {{ background: #16213e; }}
-.summary {{ color: #a0a0c0; margin: 1rem 0; }}
+.search-box {{
+  width: 100%; padding: 0.5rem 0.75rem; background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-size: 0.85rem; margin: 0.5rem 0;
+}}
+.search-box::placeholder {{ color: var(--muted); }}
+.table-wrap {{ max-height: 400px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); }}
+.footer {{ color: var(--muted); font-size: 0.75rem; margin-top: 1.5rem; text-align: center; }}
+.badge {{ display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }}
+.badge-a {{ background: #4caf5040; color: var(--green); }}
+.badge-b {{ background: #8bc34a40; color: #8bc34a; }}
+.badge-c {{ background: #ff980040; color: var(--orange); }}
+.badge-d {{ background: #f4433640; color: var(--red); }}
 </style>
 </head>
 <body>
-<h1>GCS Token Audit — Cross-Project Dashboard</h1>
-<p class="summary">Period: last {days}d | Pricing: {cm.default_model} |
-   Total sessions: {total_sessions} | Total tokens: {total_tokens:,} | Total cost: ${total_cost:.2f}</p>
+<h1>GCS Token Audit &mdash; Dashboard</h1>
+<p class="summary">
+  Period: last {days}d &nbsp;|&nbsp; Pricing: {cm.default_model} &nbsp;|&nbsp;
+  Total: {total_sessions} sessions, {total_tokens:,} tokens, ${total_cost:.2f}
+</p>
+
+<div class="grid">
+  <div class="stat-card"><div class="value">{total_sessions}</div><div class="label">Sessions</div></div>
+  <div class="stat-card"><div class="value">{_fmt_dash(total_tokens)}</div><div class="label">Tokens</div></div>
+  <div class="stat-card"><div class="value">${total_cost:.2f}</div><div class="label">Cost ({cm.default_model})</div></div>
+  <div class="stat-card"><div class="value">{len(projects)}</div><div class="label">Projects</div></div>
+</div>
+
+<div class="charts">
+  <div class="chart-box">
+    <h2>BEI by Project</h2>
+    <canvas id="beiChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <h2>Cost &amp; Tokens by Project</h2>
+    <canvas id="costChart"></canvas>
+  </div>
+</div>
+
+<h2>Project Summary</h2>
 <table>
 <thead><tr>
-    <th>Project</th><th>Sessions</th><th>Tokens</th><th>Cost</th><th>LoC</th><th>BEI</th><th>Cache Hit</th>
+  <th>Project</th><th>Sessions</th><th>Tokens</th><th>Cost</th><th>LoC</th><th>BEI</th><th>Cache Hit</th>
 </tr></thead>
-<tbody>{rows}</tbody>
+<tbody>{project_rows}</tbody>
 </table>
-<p class="summary">Generated by GCS Token Audit v1.0.0</p>
+
+<div class="footer">Generated by GCS Token Audit v1.0.0 &mdash; {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M')}</div>
+
+<script>
+const projNames = {proj_names_json};
+const beiVals = {bei_vals_json};
+const costVals = {cost_vals_json};
+const tokensVals = {tokens_vals_json};
+
+const colors = beiVals.map(v => v >= 0.6 ? '#4caf50' : v >= 0.4 ? '#ff9800' : '#f44336');
+
+new Chart(document.getElementById('beiChart'), {{
+  type: 'bar',
+  data: {{
+    labels: projNames,
+    datasets: [{{
+      label: 'BEI', data: beiVals,
+      backgroundColor: colors,
+      borderColor: colors,
+      borderRadius: 4,
+    }}]
+  }},
+  options: {{
+    responsive: true, maintainAspectRatio: true,
+    plugins: {{ legend: {{ display: false }} }},
+    scales: {{
+      y: {{ beginAtZero: true, max: 1.0, ticks: {{ color: '#8080a0' }}, grid: {{ color: '#2a2a4a' }} }},
+      x: {{ ticks: {{ color: '#8080a0' }}, grid: {{ display: false }} }}
+    }}
+  }}
+}});
+
+new Chart(document.getElementById('costChart'), {{
+  type: 'bar',
+  data: {{
+    labels: projNames,
+    datasets: [
+      {{ label: 'Cost (USD)', data: costVals, backgroundColor: '#7c8cf880', borderColor: '#7c8cf8', borderRadius: 4, yAxisID: 'y' }},
+      {{ label: 'Tokens (K)', data: tokensVals.map(v => Math.round(v/1000)), backgroundColor: '#e040fb40', borderColor: '#e040fb', borderRadius: 4, yAxisID: 'y1' }}
+    ]
+  }},
+  options: {{
+    responsive: true, maintainAspectRatio: true,
+    plugins: {{ legend: {{ labels: {{ color: '#8080a0' }} }} }},
+    scales: {{
+      y: {{ type: 'linear', position: 'left', title: {{ display: true, text: 'USD', color: '#7c8cf8' }}, ticks: {{ color: '#8080a0' }}, grid: {{ color: '#2a2a4a' }} }},
+      y1: {{ type: 'linear', position: 'right', title: {{ display: true, text: 'Tokens (K)', color: '#e040fb' }}, ticks: {{ color: '#8080a0' }}, grid: {{ display: false }} }},
+      x: {{ ticks: {{ color: '#8080a0' }}, grid: {{ display: false }} }}
+    }}
+  }}
+}});
+</script>
 </body>
 </html>"""

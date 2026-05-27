@@ -191,6 +191,8 @@ def report(session_id, from_date, to_date, output_fmt, output_path, pricing_mode
     if baseline:
         try:
             baselines = calibrate_baselines(db_conn, window_days=30)
+            if baselines:
+                bei_engine.load_baselines(baselines)
         except Exception:
             pass  # Best-effort — report still works without baselines
 
@@ -450,6 +452,13 @@ def _import_session(db_conn, jsonl_path, records, project_name):
     cost_model = CostModel()
     git_linker = GitLinker()
     bei_engine = BEIEngine(db_conn=db_conn, cost_model=cost_model)
+    # Load calibrated baselines for accurate BEI scoring
+    try:
+        baselines = calibrate_baselines(db_conn, window_days=30)
+        if baselines:
+            bei_engine.load_baselines(baselines)
+    except Exception:
+        pass
 
     sid = IncrementalJSONLParser.get_session_id(records)
     start_ts, end_ts = IncrementalJSONLParser.get_timestamps(records)
@@ -676,6 +685,82 @@ def baseline_calibrate(project, days):
             click.echo(f"    P25={stats['p25']:.2f}  P50={stats['p50']:.2f}  P75={stats['p75']:.2f}  n={stats['sample_size']}")
     else:
         click.echo("Insufficient data for calibration (need >=5 sessions per metric).")
+    db_conn.close()
+
+
+# ── snap ──────────────────────────────────────────────────────
+
+@main.command()
+@click.option("--session", "-s", "session_id", default=None, help="Session ID (default: latest)")
+@click.option("--format", "-f", "output_fmt", default="text",
+              type=click.Choice(["text", "json"]))
+@click.option("--pricing", "-p", "pricing_model", default="",
+              help="Pricing model for cost display")
+def snap(session_id, output_fmt, pricing_model):
+    """Quick one-shot session summary — no JSONL scanning, DB-only.
+
+    Much faster than 'report' for a quick check. Shows tokens, cost,
+    BEI, cache rate, and edits in a compact format.
+    """
+    db_conn = init_db()
+    cost_model = CostModel()
+    if not pricing_model:
+        pricing_model = cost_model.default_model
+
+    if session_id:
+        sess = get_session(db_conn, session_id)
+    else:
+        sess = get_latest_session(db_conn)
+
+    if not sess:
+        click.echo("No sessions in database. Run 'db import' first.")
+        db_conn.close()
+        return
+
+    model_for_cost = cost_model.resolve_model(pricing_model, sess.get("model_id", ""))
+    usage = TokenUsage(
+        input_tokens=sess.get("total_input_tokens", 0),
+        output_tokens=sess.get("total_output_tokens", 0),
+        cache_read_tokens=sess.get("total_cache_read_tokens", 0),
+        cache_creation_tokens=sess.get("total_cache_creation_tokens", 0),
+    )
+    cost_usd = cost_model.calculate_usd(usage, model_for_cost)
+    total_tokens = usage.input_tokens + usage.output_tokens
+    cache_rate = usage.cache_hit_rate
+    bei = sess.get("bei_composite", 0) or 0
+    commits = sess.get("commits_count", 0) or 0
+    cpc = cost_usd / commits if commits > 0 else float("inf")
+    loc = (sess.get("lines_added", 0) or 0) + (sess.get("lines_removed", 0) or 0)
+
+    if output_fmt == "json":
+        data = {
+            "session_id": sess["id"][:20],
+            "project": sess.get("project_name", ""),
+            "started_at": sess.get("started_at", ""),
+            "model": sess.get("model_id", ""),
+            "tokens": {"input": usage.input_tokens, "output": usage.output_tokens,
+                       "cache_read": usage.cache_read_tokens, "cache_creation": usage.cache_creation_tokens,
+                       "total": total_tokens},
+            "cost_usd": round(cost_usd, 4),
+            "pricing_model": model_for_cost,
+            "cache_hit_rate": round(cache_rate, 3),
+            "bei": round(bei, 3),
+            "bei_rating": BEIScores.rating(bei),
+            "commits": commits,
+            "cost_per_commit": round(cpc, 4) if cpc != float("inf") else None,
+            "lines_changed": loc,
+        }
+        click.echo(json.dumps(data, indent=2))
+    else:
+        click.echo(f"Session: {sess['id'][:20]}...  {sess.get('started_at', '?')[:19]}")
+        click.echo(f"Project: {sess.get('project_name', '?')}  Model: {sess.get('model_id', '?')}")
+        click.echo(f"Tokens:  in={usage.input_tokens:,}  out={usage.output_tokens:,}  "
+                   f"cache_read={usage.cache_read_tokens:,}  total={total_tokens:,}")
+        click.echo(f"Cost:    ${cost_usd:.2f} ({model_for_cost})  "
+                   f"Cache: {cache_rate:.1%}  BEI: {bei:.2f} {BEIScores.rating(bei)}")
+        click.echo(f"Output:  {loc} lines  {commits} commits  "
+                   f"CPC=${cpc:.2f}" if cpc != float("inf") else f"Output:  {loc} lines  {commits} commits")
+
     db_conn.close()
 
 

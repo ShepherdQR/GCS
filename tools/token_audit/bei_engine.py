@@ -6,7 +6,6 @@ from typing import Optional
 import yaml
 
 from tools.token_audit.parser import SessionSnapshot, TokenUsage
-from tools.token_audit.db import get_project_baseline
 
 
 class BEIScores:
@@ -52,8 +51,8 @@ class BEIScores:
 class BEIEngine:
     """Computes BEI scores for a session snapshot.
 
-    Baselines are loaded from config.yaml and can be recalibrated
-    from historical DB data via recalibrate().
+    Baselines are loaded from config.yaml as fallback, and can be
+    overridden with percentile data from calibrate_baselines().
     """
 
     def __init__(self, config_path: str = None, db_conn: sqlite3.Connection = None,
@@ -67,9 +66,10 @@ class BEIEngine:
             "output": 0.30, "quality": 0.25, "decision": 0.20,
             "knowledge": 0.10, "efficiency": 0.15,
         })
-        # Start with config baselines; recalibrate() overwrites from DB
-        self.baselines = dict(self.config.get("bei", {}).get("baselines", {}))
-        self._baselines_calibrated = False
+        # Config hardcoded baselines — used only when no DB calibration available
+        self._config_baselines = dict(self.config.get("bei", {}).get("baselines", {}))
+        # DB-calibrated baselines (set via load_baselines)
+        self.baselines: dict = {}
 
     @staticmethod
     def _load_config(path: str) -> dict:
@@ -78,160 +78,142 @@ class BEIEngine:
                 return yaml.safe_load(f) or {}
         return {}
 
-    def recalibrate(self, project: str = "GCS_A") -> dict:
-        """Recalibrate baselines from historical DB data (P75/P90).
+    def load_baselines(self, calibrated: dict) -> None:
+        """Load P25/P50/P75 baselines from calibrate_baselines().
 
-        Returns a dict of {metric: old_value -> new_value} for changed baselines.
-        Call this after importing new sessions to keep baselines current.
+        These percentile baselines replace the hardcoded config values
+        for scoring normalization.
         """
-        if not self.db_conn:
-            return {}
-
-        changes = {}
-        # Metrics that use P75 from history
-        p75_metrics = {
-            "output_per_1M_tokens": "output_per_1M_tokens",
-            "cost_per_commit": "ideal_cost_per_commit_usd",
-            "cache_hit_rate": "ideal_cache_hit_rate",
-            "edit_rejection_rate": "max_edit_rejection_rate",
-        }
-        for db_metric, baseline_key in p75_metrics.items():
-            hist = get_project_baseline(self.db_conn, project, db_metric)
-            if hist is not None and hist > 0:
-                old = self.baselines.get(baseline_key)
-                self.baselines[baseline_key] = round(hist, 4)
-                if old != self.baselines[baseline_key]:
-                    changes[baseline_key] = {"from": old, "to": self.baselines[baseline_key]}
-
-        # P90 for knowledge thresholds
-        p90_metrics = {
-            "memory_entries_p90": ("max_memory_entries", 3),
-            "skill_invocations_p90": ("max_skill_invocations", 5),
-        }
-        for db_metric, (baseline_key, default) in p90_metrics.items():
-            hist = get_project_baseline(self.db_conn, project, db_metric)
-            if hist is not None and hist > 0:
-                old = self.baselines.get(baseline_key, default)
-                self.baselines[baseline_key] = max(1, round(hist))
-                if old != self.baselines[baseline_key]:
-                    changes[baseline_key] = {"from": old, "to": self.baselines[baseline_key]}
-
-        self._baselines_calibrated = True
-        return changes
+        self.baselines = calibrated
 
     def calculate(self, snapshot: SessionSnapshot, project: str = "GCS_A") -> BEIScores:
-        """Calculate all five BEI dimensions."""
+        """Calculate all five BEI dimensions using available baselines."""
         scores = BEIScores(
-            output=self._output_score(snapshot, project),
+            output=self._output_score(snapshot),
             quality=self._quality_score(snapshot),
             decision=self._decision_score(snapshot),
             knowledge=self._knowledge_score(snapshot),
-            efficiency=self._efficiency_score(snapshot, project),
+            efficiency=self._efficiency_score(snapshot),
         )
         scores.compute_composite(self.weights)
         return scores
 
-    def _output_score(self, snapshot: SessionSnapshot, project: str) -> float:
-        """Output dimension: LoC per 1M tokens."""
+    # ── percentile-based normalization ──────────────────────────
+
+    @staticmethod
+    def _percentile_score(value: float, bl: dict, higher_is_better: bool = True) -> float:
+        """Normalize a value to [0, 1] using P25/P50/P75 baselines.
+
+        higher_is_better=True:  larger values → higher score (e.g. output, cache)
+        higher_is_better=False: smaller values → higher score (e.g. cost, rejection)
+        """
+        p25 = bl.get("p25", 0)
+        p50 = bl.get("p50", 0)
+        p75 = bl.get("p75", 0)
+
+        if p50 <= 0:
+            return 0.5  # No usable baseline
+
+        if higher_is_better:
+            if value >= p75:
+                return 0.85 + 0.15 * min((value - p75) / max(p75 - p50, 0.01), 1.0)
+            elif value >= p50:
+                return 0.50 + 0.35 * (value - p50) / max(p75 - p50, 0.01)
+            elif value >= p25:
+                return 0.15 + 0.35 * (value - p25) / max(p50 - p25, 0.01)
+            else:
+                return 0.15 * max(value / max(p25, 0.01), 0.0)
+        else:
+            if value <= p25:
+                return 0.85 + 0.15 * min((p25 - value) / max(p50 - p25, 0.01), 1.0)
+            elif value <= p50:
+                return 0.50 + 0.35 * (p50 - value) / max(p50 - p25, 0.01)
+            elif value <= p75:
+                return 0.15 + 0.35 * (p75 - value) / max(p75 - p50, 0.01)
+            else:
+                return 0.15 * max(p75 / max(value, 0.01), 0.0)
+
+    # ── dimension scoring ───────────────────────────────────────
+
+    def _output_score(self, snapshot: SessionSnapshot) -> float:
+        """Output dimension: LoC per 1M tokens, normalized vs P50/P75."""
         total_tokens = snapshot.tokens.total_tokens
         if total_tokens == 0:
             return 0.0
         raw = (snapshot.lines_added + snapshot.lines_removed) * 1_000_000.0 / total_tokens
 
-        baseline = self.baselines.get("output_per_1M_tokens", 200)
-        if self.db_conn:
-            hist = get_project_baseline(self.db_conn, project, "output_per_1M_tokens")
-            if hist is not None and hist > 0:
-                baseline = hist
+        bl = self.baselines.get("output_per_1M_tokens")
+        if bl and bl.get("p50", 0) > 0:
+            return self._percentile_score(raw, bl, higher_is_better=True)
 
+        # Fallback: config hardcoded baseline
+        baseline = self._config_baselines.get("output_per_1M_tokens", 200)
         if baseline <= 0:
-            return 0.5  # Neutral if no baseline
+            return 0.5
         return min(raw / baseline, 1.0)
 
     def _quality_score(self, snapshot: SessionSnapshot) -> float:
-        """Quality dimension: edit acceptance + commit message signals.
-
-        Combines:
-        - Edit rejection rate (weight 0.5): 1 - rejection_rate
-        - Commit quality signals (weight 0.5): conventional commits, keywords
-        """
+        """Quality dimension: edit acceptance + commit message signals."""
         total_edits = snapshot.edit_accept_count + snapshot.edit_reject_count
         if total_edits == 0:
-            edit_score = 0.5  # Neutral — no edit data
+            edit_score = 0.5
         else:
             rejection_rate = snapshot.edit_reject_count / total_edits
             edit_score = max(0.0, 1.0 - rejection_rate)
 
-        # Commit message quality
         commit_score = self._commit_quality_score(snapshot)
-
         return edit_score * 0.5 + commit_score * 0.5
 
     def _commit_quality_score(self, snapshot: SessionSnapshot) -> float:
-        """Score commit message quality from git data attached to snapshot.
-
-        Signals:
-        - Has commits at all (0.0 → 0.3)
-        - Conventional commit format: type(scope): description
-        - Semantic keywords: fix, feat, refactor, perf, test, docs, chore
-        - Architecture/design keywords: extract, decouple, contract, etc.
-        """
+        """Score commit message quality from git data attached to snapshot."""
         commit_signals = getattr(snapshot, 'commit_signals', None)
         if not commit_signals:
-            return 0.5  # No commit data — neutral
+            return 0.5
 
         total = commit_signals.get("total_commits", 0)
         if total == 0:
-            return 0.3  # Has edits but no commits — below neutral
+            return 0.3
 
-        # Conventional commit detection
         conventional_count = commit_signals.get("conventional_commits", 0)
         conv_rate = conventional_count / total
 
-        # Semantic keyword signals
         semantic_count = commit_signals.get("semantic_signals", 0)
         sem_rate = min(semantic_count / total, 1.0)
 
-        # Architecture/design signals (from git_linker)
         arch_count = commit_signals.get("architecture_signals", 0)
         arch_rate = min(arch_count / max(total, 1), 1.0)
 
-        # Composite: base 0.3 + up to 0.7 from signals
         score = 0.3 + conv_rate * 0.3 + sem_rate * 0.2 + arch_rate * 0.2
         return min(score, 1.0)
 
     def _decision_score(self, snapshot: SessionSnapshot) -> float:
         """Decision dimension: architecture signals + doc changes."""
         score = 0.0
-
-        # Document changes signal
         if snapshot.docs_touched:
             score += 0.4
-
-        # Memory entries signal
         if snapshot.memory_entries:
             score += min(len(snapshot.memory_entries) * 0.2, 0.3)
-
-        # Skill invocations signal
         if snapshot.skills_invoked:
             score += min(len(snapshot.skills_invoked) * 0.1, 0.3)
-
         return min(score, 1.0)
 
     def _knowledge_score(self, snapshot: SessionSnapshot) -> float:
-        """Knowledge accumulation dimension."""
-        max_memory = self.baselines.get("max_memory_entries", 3)
-        max_skill = self.baselines.get("max_skill_invocations", 5)
+        """Knowledge accumulation dimension — with DB-baseline-aware thresholds."""
+        max_memory = self._config_baselines.get("max_memory_entries", 3)
+        max_skill = self._config_baselines.get("max_skill_invocations", 5)
 
         memory_sig = min(len(snapshot.memory_entries) / max(max_memory, 1), 1.0)
         skill_sig = min(len(snapshot.skills_invoked) / max(max_skill, 1), 1.0)
         return memory_sig * 0.4 + skill_sig * 0.6
 
-    def _efficiency_score(self, snapshot: SessionSnapshot, project: str) -> float:
-        """Efficiency dimension: cache hit rate + cost per commit."""
+    def _efficiency_score(self, snapshot: SessionSnapshot) -> float:
+        """Efficiency dimension: cache hit rate + cost per commit.
+
+        Uses percentile baselines when available, falls back to config values.
+        """
         cache_rate = snapshot.tokens.cache_hit_rate
 
-        # Compute cost per commit — use snapshot cost if available, otherwise compute from tokens
+        # Cost per commit
         cost_micro = snapshot.cost_usd_micro
         if cost_micro == 0 and snapshot.tokens.total_tokens > 0 and self.cost_model:
             cost_micro = self.cost_model.calculate(snapshot.tokens, self.cost_model.default_model)
@@ -239,23 +221,22 @@ class BEIEngine:
         if snapshot.commits_count > 0 and cost_micro > 0:
             cost_per_commit = (cost_micro / 1_000_000.0) / snapshot.commits_count
         else:
-            cost_per_commit = 999.0  # No commits — worst score
+            cost_per_commit = 999.0
 
-        # Use DB-calibrated baseline if available, otherwise config fallback
-        ideal_cost = self.baselines.get("ideal_cost_per_commit_usd", 0.50)
-        if self.db_conn:
-            hist = get_project_baseline(self.db_conn, project, "cost_per_commit")
-            if hist is not None and hist > 0:
-                ideal_cost = hist
+        # Cache hit rate score
+        cache_bl = self.baselines.get("cache_hit_rate")
+        if cache_bl and cache_bl.get("p50", 0) > 0:
+            cache_eff = self._percentile_score(cache_rate, cache_bl, higher_is_better=True)
+        else:
+            ideal_cache = self._config_baselines.get("ideal_cache_hit_rate", 0.85)
+            cache_eff = min(cache_rate / max(ideal_cache, 0.01), 1.0)
 
-        cost_eff = max(0.0, 1.0 - (cost_per_commit / max(ideal_cost, 0.01)))
-
-        # Cache hit rate: use DB P75 baseline if available
-        ideal_cache = self.baselines.get("ideal_cache_hit_rate", 0.85)
-        if self.db_conn:
-            hist = get_project_baseline(self.db_conn, project, "cache_hit_rate")
-            if hist is not None and hist > 0:
-                ideal_cache = hist
-        cache_eff = min(cache_rate / max(ideal_cache, 0.01), 1.0)
+        # Cost per commit score
+        cpc_bl = self.baselines.get("cost_per_commit")
+        if cpc_bl and cpc_bl.get("p50", 0) > 0:
+            cost_eff = self._percentile_score(cost_per_commit, cpc_bl, higher_is_better=False)
+        else:
+            ideal_cost = self._config_baselines.get("ideal_cost_per_commit_usd", 0.50)
+            cost_eff = max(0.0, 1.0 - (cost_per_commit / max(ideal_cost, 0.01)))
 
         return cache_eff * 0.4 + cost_eff * 0.6
