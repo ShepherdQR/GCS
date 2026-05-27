@@ -192,7 +192,10 @@ def get_recent_alerts(
 # ── Daily Summary ─────────────────────────────────────────────
 
 def upsert_daily_summary(conn: sqlite3.Connection, date_str: str = None) -> None:
-    """Recalculate and upsert daily summary for the given date (default: today)."""
+    """Recalculate and upsert daily summary for the given date (default: today).
+
+    Cost is computed from raw tokens using the default pricing model.
+    """
     if date_str is None:
         date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
@@ -202,7 +205,8 @@ def upsert_daily_summary(conn: sqlite3.Connection, date_str: str = None) -> None
             COUNT(*) as sessions_count,
             COALESCE(SUM(total_input_tokens), 0) as total_input_tokens,
             COALESCE(SUM(total_output_tokens), 0) as total_output_tokens,
-            COALESCE(SUM(total_cost_usd_micro), 0) as total_cost_usd_micro,
+            COALESCE(SUM(total_cache_read_tokens), 0) as total_cache_read_tokens,
+            COALESCE(SUM(total_cache_creation_tokens), 0) as total_cache_creation_tokens,
             COALESCE(SUM(lines_added), 0) as lines_added,
             COALESCE(SUM(lines_removed), 0) as lines_removed,
             COALESCE(SUM(commits_count), 0) as commits_count,
@@ -217,6 +221,18 @@ def upsert_daily_summary(conn: sqlite3.Connection, date_str: str = None) -> None
         """,
         (date_str,),
     ).fetchone()
+
+    # Compute cost from raw tokens using default pricing model
+    from tools.token_audit.cost_model import CostModel
+    from tools.token_audit.parser import TokenUsage
+    cm = CostModel()
+    usage = TokenUsage(
+        input_tokens=row["total_input_tokens"],
+        output_tokens=row["total_output_tokens"],
+        cache_read_tokens=row["total_cache_read_tokens"],
+        cache_creation_tokens=row["total_cache_creation_tokens"],
+    )
+    cost_micro = cm.calculate(usage, cm.default_model)
 
     conn.execute(
         """
@@ -241,7 +257,7 @@ def upsert_daily_summary(conn: sqlite3.Connection, date_str: str = None) -> None
             row["sessions_count"],
             row["total_input_tokens"],
             row["total_output_tokens"],
-            row["total_cost_usd_micro"],
+            cost_micro,
             row["lines_added"],
             row["lines_removed"],
             row["commits_count"],
@@ -336,7 +352,7 @@ def get_project_baseline(
 
 
 def db_stats(conn: sqlite3.Connection) -> dict:
-    """Return database statistics."""
+    """Return database statistics. Cost is NOT computed here — caller should use CostModel."""
     return {
         "total_sessions": conn.execute("SELECT COUNT(*) FROM sessions").fetchone()[0],
         "total_turns": conn.execute("SELECT COUNT(*) FROM turns").fetchone()[0],
@@ -355,10 +371,13 @@ def db_stats(conn: sqlite3.Connection) -> dict:
         "total_output_tokens": conn.execute(
             "SELECT COALESCE(SUM(total_output_tokens), 0) FROM sessions"
         ).fetchone()[0],
+        "total_cache_read_tokens": conn.execute(
+            "SELECT COALESCE(SUM(total_cache_read_tokens), 0) FROM sessions"
+        ).fetchone()[0],
+        "total_cache_creation_tokens": conn.execute(
+            "SELECT COALESCE(SUM(total_cache_creation_tokens), 0) FROM sessions"
+        ).fetchone()[0],
         "total_tokens": conn.execute(
             "SELECT COALESCE(SUM(total_input_tokens + total_output_tokens), 0) FROM sessions"
-        ).fetchone()[0],
-        "total_cost_usd": conn.execute(
-            "SELECT COALESCE(SUM(total_cost_usd_micro), 0) / 1000000.0 FROM sessions"
         ).fetchone()[0],
     }

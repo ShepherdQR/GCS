@@ -16,24 +16,34 @@ def generate_session_report(
     snapshot: SessionSnapshot,
     bei_scores: Optional[BEIScores] = None,
     cost_model: Optional[CostModel] = None,
+    pricing_model: str = "",
     fmt: str = "markdown",
 ) -> str:
-    """Generate a single-session report."""
+    """Generate a single-session report.
+
+    Cost is computed at report time from raw token counts using the given
+    pricing_model (defaults to config's report.default_pricing_model).
+    """
     if fmt == "json":
-        return _session_report_json(snapshot, bei_scores, cost_model)
-    return _session_report_markdown(snapshot, bei_scores, cost_model)
+        return _session_report_json(snapshot, bei_scores, cost_model, pricing_model)
+    return _session_report_markdown(snapshot, bei_scores, cost_model, pricing_model)
 
 
 def _session_report_markdown(
     snap: SessionSnapshot,
     bei: Optional[BEIScores],
     cm: Optional[CostModel],
+    pricing_model: str = "",
 ) -> str:
     """Generate a Markdown session report."""
     if cm is None:
         cm = CostModel()
+    if not pricing_model:
+        pricing_model = cm.default_model
 
-    cost_usd = snap.cost_usd_micro / 1_000_000.0
+    # Compute cost at report time from raw token counts
+    model_for_cost = cm.resolve_model(pricing_model, snap.model_id or "")
+    cost_usd = cm.calculate_usd(snap.tokens, model_for_cost)
     cache_rate = snap.tokens.cache_hit_rate
     total_tokens = snap.tokens.total_tokens
     total_edits = snap.edit_accept_count + snap.edit_reject_count
@@ -82,7 +92,7 @@ def _session_report_markdown(
     lines.append(f"| Cache Read Tokens | {snap.tokens.cache_read_tokens:,}")
     lines.append(f"| Cache Creation Tokens | {snap.tokens.cache_creation_tokens:,}")
     lines.append(f"| Cache Hit Rate | {cache_rate:.1%}")
-    lines.append(f"| Estimated Cost | {cm.usd_display(snap.cost_usd_micro)}")
+    lines.append(f"| Estimated Cost ({model_for_cost}) | {cm.usd_display_f(cost_usd)}")
 
     # Output Summary
     lines.append("\n## Output Summary\n")
@@ -140,10 +150,16 @@ def _session_report_json(
     snap: SessionSnapshot,
     bei: Optional[BEIScores],
     cm: Optional[CostModel],
+    pricing_model: str = "",
 ) -> str:
     """Generate a JSON session report."""
     if cm is None:
         cm = CostModel()
+    if not pricing_model:
+        pricing_model = cm.default_model
+
+    model_for_cost = cm.resolve_model(pricing_model, snap.model_id or "")
+    cost_usd = cm.calculate_usd(snap.tokens, model_for_cost)
 
     data = {
         "session_id": snap.session_id,
@@ -158,7 +174,8 @@ def _session_report_json(
             "cache_creation": snap.tokens.cache_creation_tokens,
             "total": snap.tokens.total_tokens,
         },
-        "cost_usd": round(snap.cost_usd_micro / 1_000_000.0, 4),
+        "cost_usd": round(cost_usd, 4),
+        "cost_pricing_model": model_for_cost,
         "output": {
             "lines_added": snap.lines_added,
             "lines_removed": snap.lines_removed,
@@ -189,26 +206,42 @@ def _session_report_json(
 def generate_trend_report(
     db_conn: sqlite3.Connection,
     days: int = 7,
+    pricing_model: str = "",
     fmt: str = "markdown",
 ) -> str:
-    """Generate a trend report from daily summaries."""
+    """Generate a trend report from daily summaries.
+
+    Cost is computed at report time from raw token counts.
+    """
     summaries = get_daily_summaries(db_conn, days)
     if fmt == "json":
         return json.dumps(summaries, indent=2, ensure_ascii=False)
-    return _trend_report_markdown(summaries, days)
+    return _trend_report_markdown(summaries, days, pricing_model)
 
 
-def _trend_report_markdown(summaries: list[dict], days: int) -> str:
+def _trend_report_markdown(summaries: list[dict], days: int, pricing_model: str = "") -> str:
     """Generate a Markdown trend report."""
+    cm = CostModel()
+    if not pricing_model:
+        pricing_model = cm.default_model
+    model_for_cost = cm.resolve_model(pricing_model)
+
     lines = []
     lines.append(f"# Token Efficiency Trend ({days}d)\n")
-    lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append(f"Pricing model: **{model_for_cost}**\n")
     lines.append("---\n")
     lines.append("| Date | Sessions | Tokens | Cost | LoC | Commits | Cache Hit | BEI |")
     lines.append("|------|----------|--------|------|-----|---------|-----------|-----|")
 
     for s in sorted(summaries, key=lambda x: x["date"]):
-        cost = s.get("total_cost_usd_micro", 0) / 1_000_000.0
+        # Compute cost from raw tokens
+        from tools.token_audit.parser import TokenUsage
+        usage = TokenUsage(
+            input_tokens=s.get("total_input_tokens", 0),
+            output_tokens=s.get("total_output_tokens", 0),
+        )
+        cost = cm.calculate_usd(usage, model_for_cost)
         bei = s.get("avg_bei_composite", 0) or 0
         cache = s.get("avg_cache_hit_rate", 0) or 0
         lines.append(
@@ -221,17 +254,17 @@ def _trend_report_markdown(summaries: list[dict], days: int) -> str:
             f"{bei:.2f}"
         )
 
-    # Summary row
-    total_cost = sum(s.get("total_cost_usd_micro", 0) for s in summaries) / 1_000_000.0
+    # Summary row — compute total cost from raw tokens
+    total_input = sum(s.get("total_input_tokens", 0) for s in summaries)
+    total_output = sum(s.get("total_output_tokens", 0) for s in summaries)
+    total_usage = TokenUsage(input_tokens=total_input, output_tokens=total_output)
+    total_cost = cm.calculate_usd(total_usage, model_for_cost)
     total_sessions = sum(s["sessions_count"] for s in summaries)
-    total_tokens = sum(
-        s.get("total_input_tokens", 0) + s.get("total_output_tokens", 0)
-        for s in summaries
-    )
+    total_tokens = total_input + total_output
     lines.append(
         f"\n**Total**: {total_sessions} sessions, "
         f"{total_tokens:,} tokens, "
-        f"${total_cost:.2f} cost"
+        f"${total_cost:.2f} cost ({model_for_cost})"
     )
 
     # ASCII trend of BEI
@@ -249,11 +282,11 @@ def _trend_report_markdown(summaries: list[dict], days: int) -> str:
     return "\n".join(lines)
 
 
-def generate_weekly_report(db_conn: sqlite3.Connection) -> str:
+def generate_weekly_report(db_conn: sqlite3.Connection, pricing_model: str = "") -> str:
     """Generate a weekly report."""
-    return generate_trend_report(db_conn, days=7)
+    return generate_trend_report(db_conn, days=7, pricing_model=pricing_model)
 
 
-def generate_monthly_report(db_conn: sqlite3.Connection) -> str:
+def generate_monthly_report(db_conn: sqlite3.Connection, pricing_model: str = "") -> str:
     """Generate a monthly report."""
-    return generate_trend_report(db_conn, days=30)
+    return generate_trend_report(db_conn, days=30, pricing_model=pricing_model)

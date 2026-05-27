@@ -1,15 +1,16 @@
 """Git data linker — correlates session time windows with git activity."""
 
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 
 class GitLinker:
     """Link AI session activity to git changes."""
 
-    def __init__(self, repo_path: str = "."):
+    def __init__(self, repo_path: str = ".", window_padding_minutes: int = 2):
         self.repo_path = repo_path
+        self.window_padding = timedelta(minutes=window_padding_minutes)
 
     def _run(self, args: list[str]) -> str:
         """Run a git command and return stdout."""
@@ -24,15 +25,25 @@ class GitLinker:
         except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
             return ""
 
+    @staticmethod
+    def _normalize_dt(dt: datetime) -> datetime:
+        """Convert a datetime to a naive UTC datetime for git comparison.
+
+        Git log dates are in local time without timezone markers.
+        We convert aware datetimes to UTC then strip tzinfo so comparisons
+        against git output (parsed as naive local) are consistent.
+        """
+        if dt.tzinfo is not None:
+            dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+        return dt
+
     def get_commits_in_window(
         self, start: datetime, end: datetime
     ) -> list[dict]:
-        """Get commits between two timestamps."""
-        # Normalize to naive datetimes
-        if start.tzinfo is not None:
-            start = start.replace(tzinfo=None)
-        if end.tzinfo is not None:
-            end = end.replace(tzinfo=None)
+        """Get commits between two timestamps with configurable padding."""
+        start = self._normalize_dt(start) - self.window_padding
+        end = self._normalize_dt(end) + self.window_padding
+
         start_str = start.strftime("%Y-%m-%dT%H:%M:%S")
         end_str = end.strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -64,20 +75,14 @@ class GitLinker:
     def get_diff_stats(
         self, start: datetime, end: datetime
     ) -> dict:
-        """Get diff statistics between two timestamps using reflog."""
-        start_str = start.strftime("%Y-%m-%dT%H:%M:%S")
-        end_str = end.strftime("%Y-%m-%dT%H:%M:%S")
-
-        # Try to find commits in the window
+        """Get diff statistics between two timestamps using commit range."""
         commits = self.get_commits_in_window(start, end)
         if not commits:
             return {"lines_added": 0, "lines_removed": 0, "files_changed": 0}
 
-        # Get diff between first and last commit's parents
         first = commits[-1]["hash"]
         last = commits[0]["hash"]
 
-        # diff between parent of first and last
         stat_output = self._run([
             "diff", "--stat",
             f"{first}~1..{last}",
@@ -99,49 +104,92 @@ class GitLinker:
     def get_session_diff(
         self, start: datetime, end: datetime
     ) -> dict:
-        """Get diff stats for changes made during the session time window."""
-        # Normalize to naive datetimes for comparison
-        if start.tzinfo is not None:
-            start = start.replace(tzinfo=None)
-        if end.tzinfo is not None:
-            end = end.replace(tzinfo=None)
-        # Use reflog to find HEAD position at start time
-        start_str = start.strftime("%Y-%m-%dT%H:%M:%S")
-        end_str = end.strftime("%Y-%m-%dT%H:%M:%S")
+        """Get diff stats for changes made during the session time window.
 
-        # Try HEAD@{...} based on time
-        # First, find the closest reflog entry before start
+        Uses a multi-strategy approach:
+        1. Try reflog-based HEAD position matching with padded window
+        2. Fall back to commit-based diff if reflog yields no match
+        3. Fall back to wider reflog search if narrow window fails
+        """
+        start = self._normalize_dt(start)
+        end = self._normalize_dt(end)
+        padded_start = start - self.window_padding
+        padded_end = end + self.window_padding
+
+        # Strategy 1: reflog-based matching
         reflog = self._run([
             "reflog",
             "--format=%H|%gd|%ai",
-            "-n", "50",
+            "-n", "100",
         ])
-        if not reflog:
-            return self.get_diff_stats(start, end)
+        if reflog:
+            result = self._match_reflog(reflog, padded_start, padded_end)
+            if result and (result["lines_added"] > 0 or result["files_changed"] > 0):
+                return result
 
-        before_ref = "HEAD"
-        after_ref = "HEAD"
+        # Strategy 2: commit-based diff with padded window
+        result = self.get_diff_stats(padded_start, padded_end)
+        if result["lines_added"] > 0 or result["files_changed"] > 0:
+            return result
+
+        # Strategy 3: wider window (10 min padding) as last resort
+        wide_start = start - timedelta(minutes=10)
+        wide_end = end + timedelta(minutes=10)
+        return self.get_diff_stats(wide_start, wide_end)
+
+    def _match_reflog(
+        self, reflog: str, start: datetime, end: datetime
+    ) -> Optional[dict]:
+        """Find HEAD positions bracketing the session window from reflog."""
+        entries = []
         for line in reflog.split("\n"):
             parts = line.split("|")
             if len(parts) < 3:
                 continue
-            ref_date = parts[2].strip()
             try:
-                ref_dt = datetime.strptime(ref_date[:19], "%Y-%m-%d %H:%M:%S")
-                if ref_dt <= start and before_ref == "HEAD":
-                    before_ref = parts[0].strip()
-                if ref_dt <= end and after_ref == "HEAD":
-                    after_ref = parts[0].strip()
+                ref_dt = datetime.strptime(parts[2].strip()[:19], "%Y-%m-%d %H:%M:%S")
+                entries.append((parts[0].strip(), ref_dt))
             except ValueError:
                 continue
 
+        if not entries:
+            return None
+
+        before_ref = None
+        after_ref = None
+        for commit_hash, ref_dt in entries:
+            if ref_dt <= start and before_ref is None:
+                before_ref = commit_hash
+            if ref_dt >= end:
+                after_ref = commit_hash
+
+        if not before_ref or not after_ref:
+            # Use earliest and latest matching entries we can find
+            before_ref = entries[-1][0]  # oldest in reflog
+            after_ref = entries[0][0]    # newest in reflog
+
         if before_ref == after_ref:
-            return {"lines_added": 0, "lines_removed": 0, "files_changed": 0}
+            return None
 
         stat_output = self._run([
             "diff", "--stat", f"{before_ref}..{after_ref}",
         ])
         return self._parse_diff_stat(stat_output)
+
+    def get_session_output(self, start: datetime, end: datetime) -> dict:
+        """Get complete session output: commits, diff stats, and decision signals."""
+        commits = self.get_commits_in_window(start, end)
+        diff = self.get_session_diff(start, end)
+        decisions = self.extract_decision_signals(commits)
+
+        return {
+            "commits": commits,
+            "commits_count": len(commits),
+            "lines_added": diff["lines_added"],
+            "lines_removed": diff["lines_removed"],
+            "files_changed": diff["files_changed"],
+            "decision_signals": decisions,
+        }
 
     @staticmethod
     def _parse_diff_stat(stat_output: str) -> dict:
@@ -150,7 +198,6 @@ class GitLinker:
             return {"lines_added": 0, "lines_removed": 0, "files_changed": 0}
 
         lines = stat_output.strip().split("\n")
-        # Last line is summary: "X files changed, Y insertions(+), Z deletions(-)"
         summary = lines[-1] if lines else ""
         files_changed = 0
         lines_added = 0

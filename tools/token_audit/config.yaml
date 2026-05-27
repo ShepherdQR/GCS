@@ -30,35 +30,38 @@ alerts:
     per_30min: 1
 
 # 模型定价 (USD per 1M tokens)
+# 数据来源: 官网最新定价, 2026-05
+# Anthropic: https://docs.anthropic.com/en/docs/about-claude/pricing
+# DeepSeek: https://api-docs.deepseek.com/zh-cn/quick_start/pricing (2026-05-31 永久降价生效)
 pricing:
   anthropic:
     claude-opus-4-7:
-      input: 15.00
-      output: 75.00
-      cache_write: 30.00
-      cache_read: 1.50
+      input: 5.00
+      output: 25.00
+      cache_write: 6.25     # 1.25x input (5-min TTL)
+      cache_read: 0.50      # 90% off input
     claude-sonnet-4-6:
       input: 3.00
       output: 15.00
-      cache_write: 6.00
-      cache_read: 0.30
+      cache_write: 3.75     # 1.25x input (5-min TTL)
+      cache_read: 0.30      # 90% off input
     claude-haiku-4-5:
-      input: 0.80
-      output: 4.00
-      cache_write: 1.60
-      cache_read: 0.08
+      input: 1.00
+      output: 5.00
+      cache_write: 1.25     # 1.25x input (5-min TTL)
+      cache_read: 0.10      # 90% off input
     claude-sonnet-4-5:
       input: 3.00
       output: 15.00
-      cache_write: 6.00
+      cache_write: 3.75
       cache_read: 0.30
-  # Non-Anthropic models — estimated pricing, update as needed
+  # Non-Anthropic models
   other:
     deepseek-v4-pro:
-      input: 0.50
-      output: 2.00
-      cache_write: 0.50
-      cache_read: 0.05
+      input: 0.435         # 缓存未命中 (≈¥3.00/1M)
+      output: 0.87         # (≈¥6.00/1M)
+      cache_write: 0.435   # 无额外缓存写入费用
+      cache_read: 0.0035   # 缓存命中 (≈¥0.025/1M)
 
 # 项目 ROI 估算参数
 roi:
@@ -74,3 +77,4 @@ watch:
 report:
   default_format: markdown
   max_tool_results_chars: 500         # 工具结果截断长度
+  default_pricing_model: deepseek-v4-pro  # 报告默认计费模型 (deepseek-v4-pro / anthropic / 具体模型名)

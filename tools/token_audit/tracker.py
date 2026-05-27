@@ -215,7 +215,6 @@ class SessionTracker:
             "total_output_tokens": snap.tokens.output_tokens,
             "total_cache_read_tokens": snap.tokens.cache_read_tokens,
             "total_cache_creation_tokens": snap.tokens.cache_creation_tokens,
-            "total_cost_usd_micro": snap.cost_usd_micro,
             "lines_added": snap.lines_added,
             "lines_removed": snap.lines_removed,
             "files_touched": snap.files_touched,

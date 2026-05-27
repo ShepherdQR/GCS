@@ -4,7 +4,7 @@ import os
 import sys
 import time
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import click
@@ -163,33 +163,42 @@ def _fmt_tokens(n: int) -> str:
 @click.option("--format", "-fmt", "output_fmt", default="markdown",
               type=click.Choice(["markdown", "json"]))
 @click.option("--output", "-o", "output_path", default=None, help="Output file path")
+@click.option("--pricing", "-p", "pricing_model", default="",
+              help="Pricing model: deepseek (default), anthropic, or specific model name")
 @click.option("--this-week", is_flag=True, help="Generate weekly report")
 @click.option("--this-month", is_flag=True, help="Generate monthly report")
-def report(session_id, from_date, to_date, output_fmt, output_path, this_week, this_month):
-    """Generate session or time-range reports."""
+def report(session_id, from_date, to_date, output_fmt, output_path, pricing_model, this_week, this_month):
+    """Generate session or time-range reports.
+
+    Cost is computed at report time from raw token counts.
+    Default pricing: deepseek-v4-pro (configurable in config.yaml).
+    """
     db_conn = init_db()
     cost_model = CostModel()
     bei_engine = BEIEngine(db_conn=db_conn)
     git_linker = GitLinker()
 
+    if not pricing_model:
+        pricing_model = cost_model.default_model
+
     content = ""
 
     if this_week:
-        content = generate_weekly_report(db_conn)
+        content = generate_weekly_report(db_conn, pricing_model=pricing_model)
     elif this_month:
-        content = generate_monthly_report(db_conn)
+        content = generate_monthly_report(db_conn, pricing_model=pricing_model)
     elif from_date and to_date:
         days = (datetime.strptime(to_date, "%Y-%m-%d") - datetime.strptime(from_date, "%Y-%m-%d")).days
-        content = generate_trend_report(db_conn, days=max(days, 1))
+        content = generate_trend_report(db_conn, days=max(days, 1), pricing_model=pricing_model)
     elif session_id:
-        content = _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, output_fmt)
+        content = _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, output_fmt)
     else:
         # Latest session
         sess = get_latest_session(db_conn)
         if not sess:
             click.echo("No sessions in database. Run 'db import' first or specify --session.")
             return
-        content = _report_single_session(db_conn, sess["id"], bei_engine, git_linker, cost_model, output_fmt)
+        content = _report_single_session(db_conn, sess["id"], bei_engine, git_linker, cost_model, pricing_model, output_fmt)
 
     if output_path:
         Path(output_path).write_text(content, encoding="utf-8")
@@ -198,13 +207,13 @@ def report(session_id, from_date, to_date, output_fmt, output_path, this_week, t
         click.echo(content)
 
 
-def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, fmt):
-    """Generate a single-session report."""
+def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, fmt):
+    """Generate a single-session report. Cost is computed at report time."""
     sess = get_session(db_conn, session_id)
     if not sess:
         return f"Session {session_id} not found."
 
-    # Reconstruct snapshot from DB
+    # Reconstruct snapshot from DB — raw token counts only, no pre-computed cost
     snap = SessionSnapshot(
         session_id=sess["id"],
         project_name=sess["project_name"],
@@ -218,7 +227,6 @@ def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_mod
         cache_read_tokens=sess.get("total_cache_read_tokens", 0),
         cache_creation_tokens=sess.get("total_cache_creation_tokens", 0),
     )
-    snap.cost_usd_micro = sess.get("total_cost_usd_micro", 0)
     snap.lines_added = sess.get("lines_added", 0)
     snap.lines_removed = sess.get("lines_removed", 0)
     snap.files_touched = sess.get("files_touched", 0)
@@ -256,7 +264,7 @@ def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_mod
     # Calculate BEI
     bei = bei_engine.calculate(snap, snap.project_name)
 
-    return generate_session_report(snap, bei, cost_model, fmt)
+    return generate_session_report(snap, bei, cost_model, pricing_model, fmt)
 
 
 # ── trend ────────────────────────────────────────────────────
@@ -265,12 +273,14 @@ def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_mod
 @click.option("--days", "-d", default=7, help="Number of days to analyze")
 @click.option("--metric", "-m", default="bei_composite",
               type=click.Choice(["bei_composite", "cost_per_commit", "cache_hit_rate"]))
+@click.option("--pricing", "-p", "pricing_model", default="",
+              help="Pricing model: deepseek (default), anthropic, or specific model name")
 @click.option("--format", "-f", "output_fmt", default="markdown",
               type=click.Choice(["markdown", "json"]))
-def trend(days, metric, output_fmt):
+def trend(days, metric, pricing_model, output_fmt):
     """Show historical efficiency trends."""
     db_conn = init_db()
-    content = generate_trend_report(db_conn, days=days, fmt=output_fmt)
+    content = generate_trend_report(db_conn, days=days, pricing_model=pricing_model, fmt=output_fmt)
     click.echo(content)
 
 
@@ -342,8 +352,10 @@ def db():
 @db.command("import")
 @click.option("--all", "-a", "import_all", is_flag=True, help="Import all historical sessions")
 @click.option("--since", "-s", default=None, help="Import sessions since date (YYYY-MM-DD)")
-@click.option("--project", "-p", default=None, help="Filter by project name")
-def db_import(import_all, since, project):
+@click.option("--project", "-p", default=None,
+              help="Filter by project name (comma-separated for multiple, e.g. 'GCS-A,s009')")
+@click.option("--all-projects", is_flag=True, help="Import from all discovered projects")
+def db_import(import_all, since, project, all_projects):
     """Import session data from JSONL transcripts into the database."""
     db_conn = init_db()
     projects_dir = Path.home() / ".claude" / "projects"
@@ -351,6 +363,11 @@ def db_import(import_all, since, project):
     if not projects_dir.exists():
         click.echo("No Claude Code projects directory found.", err=True)
         return
+
+    # Resolve project filters
+    project_filter = None
+    if not all_projects and project:
+        project_filter = set(p.strip() for p in project.split(",") if p.strip())
 
     imported = 0
     skipped = 0
@@ -360,7 +377,7 @@ def db_import(import_all, since, project):
             continue
         proj_name = proj_dir.name.replace("C--Codes-AI-", "").replace("C--Users-QR-Documents-", "")
 
-        if project and project not in proj_name:
+        if project_filter and not any(p in proj_name for p in project_filter):
             continue
 
         for jsonl_file in proj_dir.glob("*.jsonl"):
@@ -396,9 +413,10 @@ def db_import(import_all, since, project):
 
 
 def _import_session(db_conn, jsonl_path, records, project_name):
-    """Import a single session from parsed records."""
+    """Import a single session from parsed records with git and BEI enrichment."""
     cost_model = CostModel()
-    parser = IncrementalJSONLParser(jsonl_path)
+    git_linker = GitLinker()
+    bei_engine = BEIEngine(db_conn=db_conn)
 
     sid = IncrementalJSONLParser.get_session_id(records)
     start_ts, end_ts = IncrementalJSONLParser.get_timestamps(records)
@@ -442,7 +460,25 @@ def _import_session(db_conn, jsonl_path, records, project_name):
                 if "docs/" in content and ".md" in content:
                     docs_touched.append(content[:200])
 
-    cost = cost_model.calculate(tokens, model_id or "claude-sonnet-4-6")
+    # Compute cost for BEI scoring only (not stored — cost is computed at report time)
+    cost_for_bei = cost_model.calculate(tokens, model_id or "claude-sonnet-4-6")
+
+    # Enrich with git data from session time window
+    lines_added = 0
+    lines_removed = 0
+    files_touched = 0
+    commits_count = 0
+    if start_ts and end_ts:
+        try:
+            s_dt = datetime.fromisoformat(start_ts.replace("Z", "+00:00"))
+            e_dt = datetime.fromisoformat(end_ts.replace("Z", "+00:00"))
+            session_output = git_linker.get_session_output(s_dt, e_dt)
+            lines_added = session_output["lines_added"]
+            lines_removed = session_output["lines_removed"]
+            files_touched = session_output["files_changed"]
+            commits_count = session_output["commits_count"]
+        except (ValueError, TypeError):
+            pass
 
     session_data = {
         "id": sid,
@@ -455,7 +491,10 @@ def _import_session(db_conn, jsonl_path, records, project_name):
         "total_output_tokens": tokens.output_tokens,
         "total_cache_read_tokens": tokens.cache_read_tokens,
         "total_cache_creation_tokens": tokens.cache_creation_tokens,
-        "total_cost_usd_micro": cost,
+        "lines_added": lines_added,
+        "lines_removed": lines_removed,
+        "files_touched": files_touched,
+        "commits_count": commits_count,
         "tool_calls_total": tool_count,
         "subagent_spawns": subagent_count,
         "skills_invoked": json.dumps(skills),
@@ -463,6 +502,38 @@ def _import_session(db_conn, jsonl_path, records, project_name):
         "docs_touched": json.dumps(docs_touched),
     }
     insert_session(db_conn, session_data)
+
+    # Calculate and store BEI scores
+    try:
+        snap = SessionSnapshot(
+            session_id=sid,
+            project_name=project_name,
+            started_at=start_ts or "",
+        )
+        snap.ended_at = end_ts or ""
+        snap.model_id = model_id
+        snap.tokens = tokens
+        snap.cost_usd_micro = cost_for_bei
+        snap.lines_added = lines_added
+        snap.lines_removed = lines_removed
+        snap.files_touched = files_touched
+        snap.commits_count = commits_count
+        snap.tool_calls_total = tool_count
+        snap.subagent_spawns = subagent_count
+        snap.skills_invoked = skills
+        snap.memory_entries = memory_entries
+        snap.docs_touched = docs_touched
+
+        bei = bei_engine.calculate(snap, project_name)
+        update_session(db_conn, sid,
+                       bei_output_score=bei.output,
+                       bei_quality_score=bei.quality,
+                       bei_decision_score=bei.decision,
+                       bei_knowledge_score=bei.knowledge,
+                       bei_efficiency_score=bei.efficiency,
+                       bei_composite=bei.composite)
+    except Exception:
+        pass  # BEI is best-effort, don't block import
 
     # Update daily summary
     if start_ts:
@@ -476,6 +547,15 @@ def db_stats_cmd():
     """Show database statistics."""
     db_conn = init_db()
     stats = db_stats(db_conn)
+    cm = CostModel()
+    from tools.token_audit.parser import TokenUsage
+    total_usage = TokenUsage(
+        input_tokens=stats["total_input_tokens"],
+        output_tokens=stats["total_output_tokens"],
+        cache_read_tokens=stats.get("total_cache_read_tokens", 0),
+        cache_creation_tokens=stats.get("total_cache_creation_tokens", 0),
+    )
+    cost_usd = cm.calculate_usd(total_usage, cm.default_model)
     click.echo("Database Statistics:")
     click.echo(f"  Sessions:    {stats['total_sessions']}")
     click.echo(f"  Turns:       {stats['total_turns']}")
@@ -484,7 +564,9 @@ def db_stats_cmd():
     click.echo(f"  Alerts:      {stats['total_alerts']}")
     click.echo(f"  Date Range:  {stats['earliest_session'] or 'N/A'} → {stats['latest_session'] or 'N/A'}")
     click.echo(f"  Total Tokens: {stats['total_tokens']:,} (in: {stats['total_input_tokens']:,} / out: {stats['total_output_tokens']:,})")
-    click.echo(f"  Total Cost:   ${stats['total_cost_usd']:.2f}")
+    click.echo(f"  Cache Read:   {stats.get('total_cache_read_tokens', 0):,}")
+    click.echo(f"  Cache Create: {stats.get('total_cache_creation_tokens', 0):,}")
+    click.echo(f"  Total Cost ({cm.default_model}): ${cost_usd:.2f}")
     db_conn.close()
 
 
