@@ -14,6 +14,7 @@ from tools.token_audit.db import (
     init_db, insert_session, update_session, get_session, list_sessions,
     get_latest_session, session_exists, close_session, db_stats,
     upsert_daily_summary, get_daily_summaries, insert_chapter, get_chapters,
+    get_project_summaries, get_daily_bei_series, calibrate_baselines,
 )
 from tools.token_audit.parser import (
     IncrementalJSONLParser, SessionSnapshot, TokenUsage,
@@ -86,7 +87,7 @@ def watch(interval, output_fmt, no_persist, session_id):
                 _render_status_line(snap, bei_engine)
 
             # Check alerts
-            alerts = alert_engine.evaluate(snap)
+            alerts = alert_engine.evaluate(snap, cost_ticks=tracker._cost_ticks)
             if alerts and db_conn:
                 tracker.flush_alerts(alerts)
                 for a in alerts:
@@ -611,57 +612,58 @@ def db_stats_cmd():
     db_conn.close()
 
 
-@db.command("calibrate")
-@click.option("--project", "-p", default="GCS-A", help="Project name for baseline calibration")
-def db_calibrate(project):
-    """Recalibrate BEI baselines from historical session data (P75/P90)."""
-    db_conn = init_db()
-    bei = BEIEngine(db_conn=db_conn)
-    changes = bei.recalibrate(project)
-    if changes:
-        click.echo(f"Baselines recalibrated for {project}:")
-        for key, delta in changes.items():
-            click.echo(f"  {key}: {delta['from']} -> {delta['to']}")
-    else:
-        click.echo(f"No baseline changes for {project} (insufficient data or already optimal).")
-    db_conn.close()
-
-
-@db.command("dashboard")
-@click.option("--port", default=8001, help="Port to serve on")
-@click.option("--open/--no-open", default=True, help="Open in browser")
-def db_dashboard(port, open):
-    """Launch an interactive web dashboard for the audit database."""
-    db_path = Path(__file__).parent / "audit.db"
-    if not db_path.exists():
-        click.echo("No audit database found. Run 'db import' first.", err=True)
-        return
-
-    url = f"http://localhost:{port}/"
-    if open:
-        import webbrowser
-        webbrowser.open(url)
-
-    click.echo(f"Starting dashboard at {url}")
-    click.echo(f"Database: {db_path}")
-    click.echo("Press Ctrl+C to stop.")
-
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "datasette", "serve", str(db_path),
-             "--port", str(port), "--setting", "default_page_size", "50"],
-            check=True,
-        )
-    except FileNotFoundError:
-        click.echo("datasette not installed. Run: pip install datasette", err=True)
-    except KeyboardInterrupt:
-        click.echo("\nDashboard stopped.")
-    except subprocess.CalledProcessError as e:
-        click.echo(f"Dashboard error: {e}", err=True)
+@db.command("vacuum")
+def db_vacuum():
     """Compact and optimize the database."""
     db_conn = init_db()
     db_conn.execute("VACUUM")
     click.echo("Database vacuumed.")
+    db_conn.close()
+
+
+# ── dashboard ─────────────────────────────────────────────────
+
+@main.command("dashboard")
+@click.option("--days", "-d", default=30, help="Days to aggregate")
+@click.option("--format", "-f", "output_fmt", default="terminal",
+              type=click.Choice(["terminal", "html", "markdown"]))
+@click.option("--output", "-o", "output_path", default=None, help="Output file path")
+def dashboard_cmd(days, output_fmt, output_path):
+    """Cross-project dashboard comparing all projects."""
+    db_conn = init_db()
+    cm = CostModel()
+    from tools.token_audit.reporter import generate_dashboard
+    content = generate_dashboard(db_conn, cm, days=days, fmt=output_fmt)
+    if output_path:
+        Path(output_path).write_text(content, encoding="utf-8")
+        click.echo(f"Dashboard saved to {output_path}")
+    else:
+        click.echo(content)
+    db_conn.close()
+
+
+# ── baseline ──────────────────────────────────────────────────
+
+@main.group()
+def baseline():
+    """BEI baseline calibration commands."""
+    pass
+
+
+@baseline.command("calibrate")
+@click.option("--project", "-p", default=None, help="Project name (default: all projects)")
+@click.option("--days", "-d", default=30, help="Window in days")
+def baseline_calibrate(project, days):
+    """Calibrate BEI baselines from historical data (P25/P50/P75)."""
+    db_conn = init_db()
+    metrics = calibrate_baselines(db_conn, project=project, window_days=days)
+    if metrics:
+        click.echo(f"Calibrated baselines ({days}d window):")
+        for metric, stats in sorted(metrics.items()):
+            click.echo(f"  {metric}:")
+            click.echo(f"    P25={stats['p25']:.2f}  P50={stats['p50']:.2f}  P75={stats['p75']:.2f}  n={stats['sample_size']}")
+    else:
+        click.echo("Insufficient data for calibration (need >=5 sessions per metric).")
     db_conn.close()
 
 

@@ -28,6 +28,17 @@ alerts:
   cooldown:
     per_session: 1
     per_30min: 1
+  # 燃尽速率预警
+  budgets:
+    per_session_usd: 2.00
+    per_session_critical_usd: 5.00
+    per_day_usd: 10.00
+    per_week_usd: 50.00
+  burn_rate:
+    window_ticks: 10             # 用于斜率计算的最大数据点
+    min_ticks_for_prediction: 5  # 启动预测所需的最小数据点
+    warning_minutes: 30          # 预计在 <30 分钟内超支时警告
+    critical_minutes: 10         # 预计在 <10 分钟内超支时严重警告
 
 # 模型定价 (USD per 1M tokens)
 # 数据来源: 官网最新定价, 2026-05

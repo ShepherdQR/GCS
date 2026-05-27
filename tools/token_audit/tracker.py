@@ -41,6 +41,7 @@ class SessionTracker:
         self._turn_index = 0
         self._seen_message_ids: set = set()
         self._recent_tools: list[ToolCall] = []  # For agent loop detection
+        self._cost_ticks: list[tuple[float, int]] = []  # [(elapsed_seconds, cost_micro)] for burn rate
 
     def find_active_session(self) -> Optional[str]:
         """Find the currently active JSONL transcript."""
@@ -150,6 +151,10 @@ class SessionTracker:
                 # Add cost
                 model_id = model or snap.model_id or "claude-sonnet-4-6"
                 snap.cost_usd_micro += self.cost_model.calculate(usage, model_id)
+                # Record tick for burn rate: (unix_timestamp, cumulative_cost_micro)
+                self._cost_ticks.append((time.time(), snap.cost_usd_micro))
+                if len(self._cost_ticks) > 20:
+                    self._cost_ticks = self._cost_ticks[-20:]
                 snap.turn_count += 1
                 self._turn_index += 1
 

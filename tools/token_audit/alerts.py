@@ -79,13 +79,18 @@ class AlertEngine:
         self._cooldowns[key] = now
         return False
 
-    def evaluate(self, snapshot: SessionSnapshot, history: list = None) -> list[Alert]:
+    def evaluate(self, snapshot: SessionSnapshot, history: list = None,
+                 cost_ticks: list = None) -> list[Alert]:
         """Evaluate all alert rules against current snapshot. Returns triggered alerts."""
         alerts = []
         sid = snapshot.session_id
 
         # Cost spike
         alerts.extend(self._check_cost_spike(snapshot, sid))
+
+        # Burn rate prediction
+        if cost_ticks and len(cost_ticks) >= 5:
+            alerts.extend(self._check_burn_rate(snapshot, cost_ticks, sid))
 
         # Efficiency drop (only after enough data)
         if snapshot.turn_count >= 5:
@@ -124,6 +129,66 @@ class AlertEngine:
                     f"Session cost ${cost_usd:.2f} exceeds budget (${max_cost:.2f})",
                     sid, {"cost_usd": cost_usd, "threshold": max_cost},
                 ))
+        return alerts
+
+    def _check_burn_rate(self, snapshot: SessionSnapshot, ticks: list, sid: str) -> list[Alert]:
+        """Predict budget exceedance from cost/time slope (linear regression).
+
+        ticks: list of (unix_timestamp, cumulative_cost_micro) from tracker.
+        """
+        if len(ticks) < 5:
+            return []
+
+        # Linear regression on last N ticks
+        n = len(ticks)
+        t0 = ticks[0][0]
+        sum_t = 0.0
+        sum_c = 0.0
+        sum_tt = 0.0
+        sum_tc = 0.0
+        for ts, cost_micro in ticks:
+            t = (ts - t0) / 60.0  # minutes since first tick
+            c = cost_micro / 1_000_000.0  # USD
+            sum_t += t
+            sum_c += c
+            sum_tt += t * t
+            sum_tc += t * c
+
+        denom = n * sum_tt - sum_t * sum_t
+        if abs(denom) < 1e-9:
+            return []
+        slope = (n * sum_tc - sum_t * sum_c) / denom  # USD/minute
+
+        if slope <= 0:
+            return []  # Cost not increasing
+
+        current_cost = ticks[-1][1] / 1_000_000.0
+        budget = self.alert_config.get("budgets", {}).get("per_session_usd", 2.00)
+        remaining = budget - current_cost
+        if remaining <= 0:
+            return [Alert(
+                AlertType.COST_SPIKE, AlertSeverity.CRITICAL,
+                f"Session cost ${current_cost:.2f} has exceeded budget ${budget:.2f}",
+                sid, {"cost_usd": current_cost, "budget": budget},
+            )]
+
+        minutes_to_budget = remaining / slope
+        warn_min = self.alert_config.get("burn_rate", {}).get("warning_minutes", 30)
+        crit_min = self.alert_config.get("burn_rate", {}).get("critical_minutes", 10)
+
+        alerts = []
+        if minutes_to_budget < crit_min:
+            alerts.append(Alert(
+                AlertType.COST_SPIKE, AlertSeverity.CRITICAL,
+                f"Burn rate ${slope*60:.2f}/hr — budget exceeded in {minutes_to_budget:.0f}m",
+                sid, {"burn_rate_hourly": slope * 60, "minutes_to_budget": minutes_to_budget},
+            ))
+        elif minutes_to_budget < warn_min:
+            alerts.append(Alert(
+                AlertType.COST_SPIKE, AlertSeverity.WARNING,
+                f"Burn rate ${slope*60:.2f}/hr — on track to exceed budget in {minutes_to_budget:.0f}m",
+                sid, {"burn_rate_hourly": slope * 60, "minutes_to_budget": minutes_to_budget},
+            ))
         return alerts
 
     def _check_efficiency_drop(self, snapshot: SessionSnapshot, sid: str) -> list[Alert]:
