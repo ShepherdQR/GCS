@@ -223,6 +223,136 @@ def get_chapters(conn: sqlite3.Connection, session_id: str) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+# ── Dashboard Aggregation ────────────────────────────────────
+
+def get_project_summaries(
+    conn: sqlite3.Connection, days: int = 30
+) -> list[dict]:
+    """Aggregate per-project metrics for the cross-project dashboard."""
+    rows = conn.execute(
+        """
+        SELECT
+            project_name,
+            COUNT(*) as sessions_count,
+            COALESCE(SUM(total_input_tokens), 0) as total_input_tokens,
+            COALESCE(SUM(total_output_tokens), 0) as total_output_tokens,
+            COALESCE(SUM(total_cache_read_tokens), 0) as total_cache_read_tokens,
+            COALESCE(SUM(lines_added), 0) as lines_added,
+            COALESCE(SUM(lines_removed), 0) as lines_removed,
+            COALESCE(SUM(commits_count), 0) as commits_count,
+            COALESCE(SUM(tool_calls_total), 0) as tool_calls,
+            COALESCE(AVG(bei_composite), 0) as avg_bei,
+            COALESCE(AVG(
+                CAST(total_cache_read_tokens AS REAL)
+                / NULLIF(total_cache_read_tokens + total_input_tokens, 0)
+            ), 0) as avg_cache_hit_rate
+        FROM sessions
+        WHERE date(started_at) >= date('now', ?)
+        GROUP BY project_name
+        ORDER BY sessions_count DESC
+        """,
+        (f"-{days} days",),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_daily_bei_series(
+    conn: sqlite3.Connection, project: str, days: int = 7
+) -> list[float]:
+    """Get daily BEI averages for a project (for sparkline)."""
+    rows = conn.execute(
+        """
+        SELECT COALESCE(AVG(bei_composite), 0) as bei
+        FROM sessions
+        WHERE project_name = ? AND date(started_at) >= date('now', ?)
+        GROUP BY date(started_at)
+        ORDER BY date(started_at)
+        """,
+        (project, f"-{days} days"),
+    ).fetchall()
+    return [r["bei"] for r in rows]
+
+
+# ── Baseline Calibration ─────────────────────────────────────
+
+def calibrate_baselines(
+    conn: sqlite3.Connection, project: str = None, window_days: int = 30
+) -> dict:
+    """Compute P25/P50/P75 baselines from historical sessions."""
+    from tools.token_audit.cost_model import CostModel
+    cm = CostModel()
+
+    project_filter = "AND project_name = ?" if project else ""
+    params = (project,) if project else ()
+
+    metrics = {}
+
+    # output_per_1M_tokens
+    rows = conn.execute(
+        f"""
+        SELECT (CAST(lines_added + lines_removed AS REAL) * 1000000.0)
+               / NULLIF(total_input_tokens + total_output_tokens, 0) as val
+        FROM sessions
+        WHERE total_input_tokens > 0
+          AND date(started_at) >= date('now', ?)
+          {project_filter}
+        ORDER BY val
+        """,
+        (f"-{window_days} days",) + params,
+    ).fetchall()
+    vals = [r[0] for r in rows if r[0] is not None]
+    if len(vals) >= 5:
+        metrics["output_per_1M_tokens"] = {
+            "p25": vals[int(len(vals) * 0.25)], "p50": vals[int(len(vals) * 0.50)],
+            "p75": vals[int(len(vals) * 0.75)], "sample_size": len(vals),
+        }
+
+    # cost_per_commit (computed with default pricing)
+    dp = cm.pricing["other"]["deepseek-v4-pro"]
+    rows = conn.execute(
+        f"""
+        SELECT (total_input_tokens * ? + total_output_tokens * ?
+                + total_cache_read_tokens * ? + total_cache_creation_tokens * ?
+               ) / 1000000.0 / NULLIF(commits_count, 0) as val
+        FROM sessions
+        WHERE commits_count > 0 AND total_input_tokens > 0
+          AND date(started_at) >= date('now', ?)
+          {project_filter}
+        ORDER BY val
+        """,
+        (dp["input"], dp["output"], dp["cache_read"], dp["cache_write"],
+         f"-{window_days} days") + params,
+    ).fetchall()
+    vals = [r[0] for r in rows if r[0] is not None]
+    if len(vals) >= 5:
+        metrics["cost_per_commit"] = {
+            "p25": vals[int(len(vals) * 0.25)], "p50": vals[int(len(vals) * 0.50)],
+            "p75": vals[int(len(vals) * 0.75)], "sample_size": len(vals),
+        }
+
+    # cache_hit_rate
+    rows = conn.execute(
+        f"""
+        SELECT CAST(total_cache_read_tokens AS REAL)
+               / NULLIF(total_cache_read_tokens + total_input_tokens, 0) as val
+        FROM sessions
+        WHERE total_input_tokens > 0
+          AND date(started_at) >= date('now', ?)
+          {project_filter}
+        ORDER BY val
+        """,
+        (f"-{window_days} days",) + params,
+    ).fetchall()
+    vals = [r[0] for r in rows if r[0] is not None]
+    if len(vals) >= 5:
+        metrics["cache_hit_rate"] = {
+            "p25": vals[int(len(vals) * 0.25)], "p50": vals[int(len(vals) * 0.50)],
+            "p75": vals[int(len(vals) * 0.75)], "sample_size": len(vals),
+        }
+
+    return metrics
+
+
 # ── Daily Summary ─────────────────────────────────────────────
 
 def upsert_daily_summary(conn: sqlite3.Connection, date_str: str = None) -> None:
@@ -322,6 +452,8 @@ def get_project_baseline(
         "cost_per_commit",
         "cache_hit_rate",
         "edit_rejection_rate",
+        "memory_entries_p90",
+        "skill_invocations_p90",
     }
     if metric not in valid_metrics:
         return None
@@ -338,11 +470,18 @@ def get_project_baseline(
             (project,),
         ).fetchall()
     elif metric == "cost_per_commit":
+        # Compute cost from raw tokens using default pricing, then per-commit.
+        # Default deepseek-v4-pro rates (USD/1M tokens) — matches config.yaml.
         rows = conn.execute(
             """
-            SELECT CAST(total_cost_usd_micro AS REAL) / 1000000.0 / NULLIF(commits_count, 0) as val
+            SELECT (total_input_tokens * 0.435
+                    + total_output_tokens * 0.87
+                    + total_cache_read_tokens * 0.0035
+                    + total_cache_creation_tokens * 0.435
+                   ) / 1000000.0 / NULLIF(commits_count, 0) as val
             FROM sessions
             WHERE project_name = ? AND commits_count > 0
+               AND total_input_tokens > 0
             ORDER BY val
             """,
             (project,),
@@ -369,6 +508,26 @@ def get_project_baseline(
             """,
             (project,),
         ).fetchall()
+    elif metric == "memory_entries_p90":
+        rows = conn.execute(
+            """
+            SELECT CAST(json_array_length(memory_entries) AS REAL) as val
+            FROM sessions
+            WHERE project_name = ? AND memory_entries IS NOT NULL
+            ORDER BY val
+            """,
+            (project,),
+        ).fetchall()
+    elif metric == "skill_invocations_p90":
+        rows = conn.execute(
+            """
+            SELECT CAST(json_array_length(skills_invoked) AS REAL) as val
+            FROM sessions
+            WHERE project_name = ? AND skills_invoked IS NOT NULL
+            ORDER BY val
+            """,
+            (project,),
+        ).fetchall()
     else:
         return None
 
@@ -379,9 +538,12 @@ def get_project_baseline(
     if not values:
         return None
 
-    # P75
+    # P75 for most metrics, P90 for thresholds (memory/skills)
     values.sort()
-    idx = int(len(values) * 0.75)
+    if "p90" in metric:
+        idx = int(len(values) * 0.90)
+    else:
+        idx = int(len(values) * 0.75)
     return values[min(idx, len(values) - 1)]
 
 

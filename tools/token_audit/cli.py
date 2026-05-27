@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import json
+import subprocess
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -610,8 +611,53 @@ def db_stats_cmd():
     db_conn.close()
 
 
-@db.command("vacuum")
-def db_vacuum():
+@db.command("calibrate")
+@click.option("--project", "-p", default="GCS-A", help="Project name for baseline calibration")
+def db_calibrate(project):
+    """Recalibrate BEI baselines from historical session data (P75/P90)."""
+    db_conn = init_db()
+    bei = BEIEngine(db_conn=db_conn)
+    changes = bei.recalibrate(project)
+    if changes:
+        click.echo(f"Baselines recalibrated for {project}:")
+        for key, delta in changes.items():
+            click.echo(f"  {key}: {delta['from']} -> {delta['to']}")
+    else:
+        click.echo(f"No baseline changes for {project} (insufficient data or already optimal).")
+    db_conn.close()
+
+
+@db.command("dashboard")
+@click.option("--port", default=8001, help="Port to serve on")
+@click.option("--open/--no-open", default=True, help="Open in browser")
+def db_dashboard(port, open):
+    """Launch an interactive web dashboard for the audit database."""
+    db_path = Path(__file__).parent / "audit.db"
+    if not db_path.exists():
+        click.echo("No audit database found. Run 'db import' first.", err=True)
+        return
+
+    url = f"http://localhost:{port}/"
+    if open:
+        import webbrowser
+        webbrowser.open(url)
+
+    click.echo(f"Starting dashboard at {url}")
+    click.echo(f"Database: {db_path}")
+    click.echo("Press Ctrl+C to stop.")
+
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "datasette", "serve", str(db_path),
+             "--port", str(port), "--setting", "default_page_size", "50"],
+            check=True,
+        )
+    except FileNotFoundError:
+        click.echo("datasette not installed. Run: pip install datasette", err=True)
+    except KeyboardInterrupt:
+        click.echo("\nDashboard stopped.")
+    except subprocess.CalledProcessError as e:
+        click.echo(f"Dashboard error: {e}", err=True)
     """Compact and optimize the database."""
     db_conn = init_db()
     db_conn.execute("VACUUM")

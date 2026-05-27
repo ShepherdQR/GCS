@@ -50,7 +50,11 @@ class BEIScores:
 
 
 class BEIEngine:
-    """Computes BEI scores for a session snapshot."""
+    """Computes BEI scores for a session snapshot.
+
+    Baselines are loaded from config.yaml and can be recalibrated
+    from historical DB data via recalibrate().
+    """
 
     def __init__(self, config_path: str = None, db_conn: sqlite3.Connection = None,
                  cost_model=None):
@@ -63,7 +67,9 @@ class BEIEngine:
             "output": 0.30, "quality": 0.25, "decision": 0.20,
             "knowledge": 0.10, "efficiency": 0.15,
         })
-        self.baselines = self.config.get("bei", {}).get("baselines", {})
+        # Start with config baselines; recalibrate() overwrites from DB
+        self.baselines = dict(self.config.get("bei", {}).get("baselines", {}))
+        self._baselines_calibrated = False
 
     @staticmethod
     def _load_config(path: str) -> dict:
@@ -71,6 +77,47 @@ class BEIEngine:
             with open(path, "r", encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
         return {}
+
+    def recalibrate(self, project: str = "GCS_A") -> dict:
+        """Recalibrate baselines from historical DB data (P75/P90).
+
+        Returns a dict of {metric: old_value -> new_value} for changed baselines.
+        Call this after importing new sessions to keep baselines current.
+        """
+        if not self.db_conn:
+            return {}
+
+        changes = {}
+        # Metrics that use P75 from history
+        p75_metrics = {
+            "output_per_1M_tokens": "output_per_1M_tokens",
+            "cost_per_commit": "ideal_cost_per_commit_usd",
+            "cache_hit_rate": "ideal_cache_hit_rate",
+            "edit_rejection_rate": "max_edit_rejection_rate",
+        }
+        for db_metric, baseline_key in p75_metrics.items():
+            hist = get_project_baseline(self.db_conn, project, db_metric)
+            if hist is not None and hist > 0:
+                old = self.baselines.get(baseline_key)
+                self.baselines[baseline_key] = round(hist, 4)
+                if old != self.baselines[baseline_key]:
+                    changes[baseline_key] = {"from": old, "to": self.baselines[baseline_key]}
+
+        # P90 for knowledge thresholds
+        p90_metrics = {
+            "memory_entries_p90": ("max_memory_entries", 3),
+            "skill_invocations_p90": ("max_skill_invocations", 5),
+        }
+        for db_metric, (baseline_key, default) in p90_metrics.items():
+            hist = get_project_baseline(self.db_conn, project, db_metric)
+            if hist is not None and hist > 0:
+                old = self.baselines.get(baseline_key, default)
+                self.baselines[baseline_key] = max(1, round(hist))
+                if old != self.baselines[baseline_key]:
+                    changes[baseline_key] = {"from": old, "to": self.baselines[baseline_key]}
+
+        self._baselines_calibrated = True
+        return changes
 
     def calculate(self, snapshot: SessionSnapshot, project: str = "GCS_A") -> BEIScores:
         """Calculate all five BEI dimensions."""
@@ -194,7 +241,21 @@ class BEIEngine:
         else:
             cost_per_commit = 999.0  # No commits — worst score
 
+        # Use DB-calibrated baseline if available, otherwise config fallback
         ideal_cost = self.baselines.get("ideal_cost_per_commit_usd", 0.50)
+        if self.db_conn:
+            hist = get_project_baseline(self.db_conn, project, "cost_per_commit")
+            if hist is not None and hist > 0:
+                ideal_cost = hist
+
         cost_eff = max(0.0, 1.0 - (cost_per_commit / max(ideal_cost, 0.01)))
 
-        return cache_rate * 0.4 + cost_eff * 0.6
+        # Cache hit rate: use DB P75 baseline if available
+        ideal_cache = self.baselines.get("ideal_cache_hit_rate", 0.85)
+        if self.db_conn:
+            hist = get_project_baseline(self.db_conn, project, "cache_hit_rate")
+            if hist is not None and hist > 0:
+                ideal_cache = hist
+        cache_eff = min(cache_rate / max(ideal_cache, 0.01), 1.0)
+
+        return cache_eff * 0.4 + cost_eff * 0.6
