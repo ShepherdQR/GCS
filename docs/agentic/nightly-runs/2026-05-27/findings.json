@@ -1,0 +1,93 @@
+{
+  "run_date": "2026-05-27",
+  "worktree": "C:\\Users\\QR\\.codex\\worktrees\\216a\\GCS",
+  "overall_status": "blocked",
+  "policy_status": "governing docs could not be read at runtime because local command execution was unavailable",
+  "repo_state": {
+    "branch": null,
+    "commit_sha": null,
+    "git_status_short_branch": null,
+    "capture_status": "blocked",
+    "capture_evidence": "windows sandbox: setup refresh failed with status exit code: 1"
+  },
+  "commands": [
+    {
+      "command": "Get-Location | Select-Object -ExpandProperty Path",
+      "status": "failed_before_execution",
+      "evidence": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "Get-Content -Raw 'docs/agentic/nightly-immune-diagnostics.md'",
+      "status": "failed_before_execution",
+      "evidence": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "Get-Content -Raw 'docs/agentic/pr-audit-governance.md'",
+      "status": "failed_before_execution",
+      "evidence": "windows sandbox: setup refresh failed with status exit code: 1"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py validate-docs",
+      "status": "not_executed",
+      "evidence": "blocked by sandbox setup failure before command launch"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py validate-inventory",
+      "status": "not_executed",
+      "evidence": "blocked by sandbox setup failure before command launch"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py validate-skills",
+      "status": "not_executed",
+      "evidence": "blocked by sandbox setup failure before command launch"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py check-dependencies",
+      "status": "not_executed",
+      "evidence": "blocked by sandbox setup failure before command launch"
+    },
+    {
+      "command": "python tools\\scene_generation\\tools.py list",
+      "status": "not_executed",
+      "evidence": "blocked by sandbox setup failure before command launch"
+    },
+    {
+      "command": "python -m unittest tests.tools.test_scene_generation_explorer",
+      "status": "not_executed",
+      "evidence": "blocked by sandbox setup failure before command launch"
+    },
+    {
+      "command": "python tools\\agentic_design\\agentic_toolkit.py run-quality-gates --skip-build --skip-ctest --skip-cli --continue-on-failure",
+      "status": "not_executed",
+      "evidence": "blocked by sandbox setup failure before command launch"
+    }
+  ],
+  "findings": [
+    {
+      "id": "nightly-2026-05-27-001",
+      "title": "Local execution sandbox blocked all diagnostics entrypoints",
+      "severity": "provisional-high",
+      "taxonomy": "provisional-environment-execution",
+      "actionability": "actionable",
+      "summary": "No required preflight or nightly diagnostic command could be launched in this run.",
+      "evidence": [
+        "windows sandbox: setup refresh failed with status exit code: 1",
+        "node_repl kernel exited unexpectedly with the same sandbox failure signature"
+      ],
+      "impact": [
+        "Branch, commit SHA, and git status capture were not possible.",
+        "All required nightly diagnostic commands were skipped.",
+        "The governing policy docs could not be read during the run."
+      ],
+      "minimal_repairs": [
+        "Restore local sandbox setup so PowerShell and Node REPL can launch commands.",
+        "Rerun the nightly workflow unchanged after command execution is available."
+      ],
+      "required_validation": [
+        "Record branch name, commit SHA, and git status at run start.",
+        "Execute each required nightly diagnostic command and classify results from command evidence."
+      ]
+    }
+  ],
+  "residual_uncertainty": "high"
+}
