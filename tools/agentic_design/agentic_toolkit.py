@@ -30,6 +30,7 @@ E002_EXPERIENCE_DIR = ROOT / "docs" / "agentic" / "experience" / "002-phase-step
 PR_AUDIT_SCHEMA_VERSION = "gcs.pr-audit.v1"
 PR_AUDIT_SCHEMA_PATH = ROOT / "docs" / "agentic" / "schemas" / "pr-audit.schema.json"
 NIGHTLY_RUNS_DIR = ROOT / "docs" / "agentic" / "nightly-runs"
+CURRENT_TASK_FILE = ROOT / ".claude" / "current-task"
 
 
 PR_CLASS_PRIORITY = {
@@ -86,6 +87,41 @@ def load_inventory(path: Path) -> dict[str, Any]:
 
 def repo_path(path: str | Path) -> Path:
     return ROOT / path
+
+
+def read_current_task() -> dict[str, str] | None:
+    """Read .claude/current-task; return None if absent or malformed."""
+    if not CURRENT_TASK_FILE.exists():
+        return None
+    try:
+        text = CURRENT_TASK_FILE.read_text(encoding="utf-8")
+        result: dict[str, str] = {}
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if ":" in line:
+                key, value = line.split(":", 1)
+                result[key.strip()] = value.strip()
+        return result if "task_card" in result else None
+    except Exception:
+        return None
+
+
+def write_current_task(task_card_path: str) -> None:
+    """Write .claude/current-task pointing to the given task card."""
+    CURRENT_TASK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    CURRENT_TASK_FILE.write_text(
+        f"task_card: {task_card_path}\n"
+        f"created: {_datetime.date.today().isoformat()}\n",
+        encoding="utf-8",
+    )
+
+
+def clear_current_task() -> None:
+    """Remove .claude/current-task."""
+    if CURRENT_TASK_FILE.exists():
+        CURRENT_TASK_FILE.unlink()
 
 
 def display_path(path: Path) -> str:
@@ -822,11 +858,15 @@ def new_task_card(args: argparse.Namespace) -> int:
     slug = re.sub(r"[^a-z0-9-]+", "-", args.slug.lower()).strip("-")
     if not slug:
         raise ValueError("--slug must contain at least one letter or number")
-    target = repo_path(args.output) if args.output else AGENTIC_TASK_DIR / f"{today}-{slug}.md"
+    task_id = f"{today}-{slug}"
+    target = repo_path(args.output) if args.output else AGENTIC_TASK_DIR / f"{task_id}.md"
     text = task_card_template(args)
     if args.write:
         write_text(target, text, args.force)
-        print(f"wrote {target.relative_to(ROOT)}")
+        task_card_rel = str(target.relative_to(ROOT)).replace("\\", "/")
+        write_current_task(task_card_rel)
+        print(f"wrote {task_card_rel}")
+        print(f"set current-task → {task_card_rel}")
     else:
         print(f"# target: {target.relative_to(ROOT)}")
         print(text)
@@ -2303,6 +2343,10 @@ def build_quality_gate_commands(args: argparse.Namespace,
             commands.append(GateCommand(f"agentic.{command}", [python, script, command]))
 
     task_card_includes = normalize_include_pathspecs(getattr(args, "include_task_cards", []))
+    if not task_card_includes:
+        current = read_current_task()
+        if current and "task_card" in current:
+            task_card_includes = [current["task_card"]]
     if task_card_includes:
         commands.append(GateCommand(
             "agentic.task-cards",
@@ -2458,6 +2502,16 @@ def run_quality_gates(args: argparse.Namespace) -> int:
     exe_name = "GCS.exe" if os.name == "nt" else "GCS"
     cli_exe = build_dir / exe_name
     results: list[GateResult] = []
+
+    require_card = getattr(args, "require_task_card", False)
+    if require_card:
+        explicit = normalize_include_pathspecs(getattr(args, "include_task_cards", []))
+        if not explicit:
+            current = read_current_task()
+            if not current:
+                print("\n[agentic.task-card] FAIL — --require-task-card set but no task card declared")
+                print("  Run 'new-task-card --write' to declare the current task, or use --include-task-cards.")
+                return 1
 
     commands = build_quality_gate_commands(args, script, python, build_dir, cli_exe)
 
@@ -2661,6 +2715,8 @@ def build_parser() -> argparse.ArgumentParser:
     gates.add_argument("--include-completed-reports", action="append", default=[])
     gates.add_argument("--include-fixture-library", action="store_true")
     gates.add_argument("--include-repository-audit", action="store_true")
+    gates.add_argument("--require-task-card", action="store_true",
+        help="Fail if no task card is declared (via --include-task-cards or .claude/current-task) for non-trivial work")
     gates.add_argument("--continue-on-failure", action="store_true")
 
     card = subparsers.add_parser("emit-design-card", help="Emit JSON design card for a module")

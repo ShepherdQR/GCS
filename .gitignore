@@ -86,3 +86,6 @@ display.html
 *_graph.txt
 display/web/*_graph.txt
 tools/token_audit/audit.db
+
+# Session-local task declaration (prevents parallel-session contamination)
+.claude/current-task

@@ -64,6 +64,18 @@ python tools\agentic_design\agentic_toolkit.py validate-completed-task-report do
 python tools\agentic_design\agentic_toolkit.py score-closure-report docs\completed-tasks\<task>\README.md --min-score 30
 ```
 
+## Task Card Requirement
+
+Before mutating files for non-trivial work, create a task card:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py new-task-card --slug <slug> --scope <scope> --risk <risk> --owner <skill> --request "<request>" --write
+python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\<task>.md
+```
+
+Skip only for typos, link fixes, formatting-only changes, or read-only answers.
+When uncertain, create the card. For multi-session work, one card spans the arc.
+
 ## Skill Invocation
 
 Claude Code auto-invokes skills based on description matching. Key skills:
@@ -81,7 +93,7 @@ Claude Code auto-invokes skills based on description matching. Key skills:
 ## Workspace Conventions
 
 - Use `git worktree` for parallel writing sessions
-- Create task cards for non-trivial work at `docs/agentic/tasks/`
+- Follow the task card requirement above for non-trivial work
 - Archive completed work at `docs/completed-tasks/<date-slug>/`
 - Stage only scoped files; commit with concise messages
 - Preserve unrelated dirty worktree changes
