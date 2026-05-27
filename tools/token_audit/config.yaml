@@ -1,0 +1,76 @@
+# GCS Token Audit — 默认配置
+# 可通过 python -m tools.token_audit config set <key> <value> 修改
+
+# BEI 权重配置
+bei:
+  weights:
+    output: 0.30
+    quality: 0.25
+    decision: 0.20
+    knowledge: 0.10
+    efficiency: 0.15
+
+  # 无历史数据时的默认 baseline
+  baselines:
+    output_per_1M_tokens: 200        # LoC per 1M tokens
+    ideal_cost_per_commit_usd: 0.50
+    max_memory_entries: 3
+    max_skill_invocations: 5
+
+# 告警阈值
+alerts:
+  max_cost_per_session_usd: 2.00
+  efficiency_drop_threshold: 0.5     # 50% below 7-day average
+  cache_drop_threshold: 0.7          # 70% of 7-day average
+  rejection_rate_threshold: 0.40     # 40%
+  agent_loop_min_repetition: 3
+  agent_loop_window_minutes: 10
+  cooldown:
+    per_session: 1
+    per_30min: 1
+
+# 模型定价 (USD per 1M tokens)
+pricing:
+  anthropic:
+    claude-opus-4-7:
+      input: 15.00
+      output: 75.00
+      cache_write: 30.00
+      cache_read: 1.50
+    claude-sonnet-4-6:
+      input: 3.00
+      output: 15.00
+      cache_write: 6.00
+      cache_read: 0.30
+    claude-haiku-4-5:
+      input: 0.80
+      output: 4.00
+      cache_write: 1.60
+      cache_read: 0.08
+    claude-sonnet-4-5:
+      input: 3.00
+      output: 15.00
+      cache_write: 6.00
+      cache_read: 0.30
+  # Non-Anthropic models — estimated pricing, update as needed
+  other:
+    deepseek-v4-pro:
+      input: 0.50
+      output: 2.00
+      cache_write: 0.50
+      cache_read: 0.05
+
+# 项目 ROI 估算参数
+roi:
+  avg_hours_per_commit_without_ai: 1.5
+  hourly_dev_rate_usd: 75.0
+
+# 实时监控
+watch:
+  default_interval_seconds: 5
+  session_idle_timeout_seconds: 120   # 超过此时间无新记录视为 session 结束
+
+# 报告
+report:
+  default_format: markdown
+  max_tool_results_chars: 500         # 工具结果截断长度

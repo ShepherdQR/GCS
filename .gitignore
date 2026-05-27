@@ -85,3 +85,4 @@ var/
 display.html
 *_graph.txt
 display/web/*_graph.txt
+tools/token_audit/audit.db
