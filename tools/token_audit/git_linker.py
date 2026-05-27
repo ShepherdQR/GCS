@@ -28,6 +28,11 @@ class GitLinker:
         self, start: datetime, end: datetime
     ) -> list[dict]:
         """Get commits between two timestamps."""
+        # Normalize to naive datetimes
+        if start.tzinfo is not None:
+            start = start.replace(tzinfo=None)
+        if end.tzinfo is not None:
+            end = end.replace(tzinfo=None)
         start_str = start.strftime("%Y-%m-%dT%H:%M:%S")
         end_str = end.strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -95,6 +100,11 @@ class GitLinker:
         self, start: datetime, end: datetime
     ) -> dict:
         """Get diff stats for changes made during the session time window."""
+        # Normalize to naive datetimes for comparison
+        if start.tzinfo is not None:
+            start = start.replace(tzinfo=None)
+        if end.tzinfo is not None:
+            end = end.replace(tzinfo=None)
         # Use reflog to find HEAD position at start time
         start_str = start.strftime("%Y-%m-%dT%H:%M:%S")
         end_str = end.strftime("%Y-%m-%dT%H:%M:%S")
