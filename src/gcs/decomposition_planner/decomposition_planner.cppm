@@ -70,6 +70,62 @@ struct UnsupportedPlanReport {
     std::string message;
 };
 
+// --- Spanning tree plan ---
+
+struct SpanningTreePatternId {
+    std::string value;
+};
+
+enum class SpanningTreeConstraintDisposition {
+    absorbed_by_tree_pattern,
+    closure_residual,
+    unsupported,
+};
+
+struct SpanningTreePatternMatch {
+    SpanningTreePatternId pattern_id;
+    kernel::RigidSetId parent_rigid_set_id;
+    kernel::RigidSetId child_rigid_set_id;
+    std::vector<kernel::ConstraintId> absorbed_constraint_ids;
+    std::vector<kernel::ConstraintId> closure_constraint_ids;
+    std::vector<kernel::ConstraintId> unsupported_constraint_ids;
+    int removed_rotational_dof = 0;
+    int removed_translational_dof = 0;
+    int weight = 0;
+    bool supported = false;
+    std::string unsupported_code;
+};
+
+struct RigidSetTreeEdge {
+    int edge_id = 0;
+    kernel::RigidSetId parent_rigid_set_id;
+    kernel::RigidSetId child_rigid_set_id;
+    SpanningTreePatternMatch pattern_match;
+};
+
+struct RigidSetSpanningForestPlan {
+    std::vector<kernel::RigidSetId> rigid_set_ids;
+    std::vector<RigidSetTreeEdge> selected_edges;
+    std::vector<kernel::ConstraintId> absorbed_constraint_ids;
+    std::vector<kernel::ConstraintId> closure_constraint_ids;
+    std::vector<kernel::ConstraintId> unsupported_constraint_ids;
+    kernel::StageReport report;
+};
+
+struct SpanningForestValidationReport {
+    bool valid = true;
+    bool every_active_constraint_partitioned_once = true;
+    bool tree_edges_acyclic = true;
+    bool selected_edges_have_supported_pattern = true;
+    bool unsupported_constraints_have_report_code = true;
+    bool no_same_rigid_set_tree_edges = true;
+    int absorbed_count = 0;
+    int closure_count = 0;
+    int unsupported_count = 0;
+    int total_active_constraints = 0;
+    std::vector<kernel::ReportMessage> messages;
+};
+
 struct PlannerOutput {
     CoverPlan cover_plan;
     std::vector<ContextSnapshot> overlap_contexts;
@@ -78,6 +134,7 @@ struct PlannerOutput {
     std::vector<SolveStep> solve_order;
     SolveDag solve_dag;
     GaugePolicy gauge_policy;
+    RigidSetSpanningForestPlan spanning_forest_plan;
     StageReport structural_report;
     UnsupportedPlanReport unsupported_report;
 };
@@ -115,6 +172,13 @@ struct SolveDagValidationReport {
 };
 
 PlannerOutput plan_decomposition(const PlannerInput& input);
+gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
+    const ModelSnapshot& model,
+    const graph::IncidenceIndices& incidence,
+    const SolveIntent& solve_intent);
+gcs::kernel::ContractResult<SpanningForestValidationReport> validate_spanning_forest(
+    const ModelSnapshot& model,
+    const RigidSetSpanningForestPlan& forest_plan);
 gcs::kernel::ContractResult<CoverValidationReport> validate_cover(
     const ModelSnapshot& model,
     const CoverPlan& cover_plan);

@@ -287,6 +287,49 @@ gcs::kernel::ContractResult<RigidBodyGraph> build_rigid_body_graph(
     return result;
 }
 
+gcs::kernel::ContractResult<RigidSetPairGroupingReport> build_rigid_set_pair_groups(
+    const ModelSnapshot& model,
+    const RigidBodyGraph& rigid_body_graph) {
+    kernel::ContractResult<RigidSetPairGroupingReport> result;
+    result.report = kernel::make_stage_report("incidence_graph.build_rigid_set_pair_groups");
+    append_report(result.report, rigid_body_graph.report);
+
+    for (const auto& edge : rigid_body_graph.edges) {
+        RigidSetPairConstraintGroup group;
+        group.first_rigid_set_id = edge.first_rigid_set_id;
+        group.second_rigid_set_id = edge.second_rigid_set_id;
+        group.constraint_ids = edge.constraint_ids;
+        result.payload.pair_group_count++;
+        result.payload.total_constraints_grouped +=
+            static_cast<int>(edge.constraint_ids.size());
+    }
+
+    // Count same-rigid-set constraints (constraints whose entities all belong to
+    // the same rigid set). These cannot become spanning-tree edges.
+    for (const auto& constraint : model.constraints) {
+        RigidSetId first_rs{};
+        bool first_set = true;
+        bool same_rs = true;
+        for (EntityId entity_id : constraint.entity_ids) {
+            if (const auto* entity = kernel::find_entity(model, entity_id)) {
+                if (first_set) {
+                    first_rs = entity->rigid_set_id;
+                    first_set = false;
+                } else if (!(entity->rigid_set_id == first_rs)) {
+                    same_rs = false;
+                    break;
+                }
+            }
+        }
+        if (same_rs && !first_set) {
+            result.payload.same_rigid_set_constraint_count++;
+        }
+    }
+
+    result.payload.report = result.report;
+    return result;
+}
+
 gcs::kernel::ContractResult<GraphDump> dump_graph(const IncidenceHypergraph& hypergraph,
                                                   GraphDumpRequest request) {
     kernel::ContractResult<GraphDump> result;

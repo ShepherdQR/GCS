@@ -22,7 +22,7 @@ are kept current and the known limitations are explicit.
 | --- | --- | --- | --- |
 | R0 internal checkpoint | Maintainers and local agents | Commit-level state with task cards, archives, and validations. | Active |
 | R1 researcher preview | Solver researchers | Can run CLI demos, inspect fixtures, inspect replay evidence, and read comparison plan. | Active local preview |
-| R2 reproducible research snapshot | Researchers and reviewers | Frozen fixtures, versioned outputs, benchmark candidate set, and cited comparison criteria. | Later |
+| R2 reproducible research snapshot | Researchers and reviewers | Frozen fixtures, versioned outputs, benchmark candidate set, reproducible build transcript, and cited comparison criteria. | Build transcript created; pending second-machine verification. |
 | R3 public tool release | Tool builders and users | Packaging, support boundaries, install path, and compatibility promises. | Later |
 
 ## Minimum R1 Gate
@@ -106,9 +106,10 @@ They should not cite:
 
 To reach R2:
 
-1. add a reproducible build transcript;
-2. wire the replay checker into a release gate;
-3. freeze a small B2 benchmark-candidate set;
-4. record expected status and report fields for each B2 candidate;
-5. produce a versioned release note that includes skipped and unsupported
+1. [x] add a reproducible build transcript (`docs/product/r2-build-transcript.md`);
+2. [ ] wire the replay checker into a release gate;
+3. [ ] freeze a small B2 benchmark-candidate set;
+4. [ ] record expected status and report fields for each B2 candidate;
+5. [ ] produce a versioned release note that includes skipped and unsupported
    checks.
+6. [ ] verify build transcript on a second machine by a different researcher.

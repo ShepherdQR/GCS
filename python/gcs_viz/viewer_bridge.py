@@ -1,3 +1,5 @@
+import json
+import os
 import re
 from typing import Iterable, Mapping, Optional
 
@@ -371,3 +373,110 @@ def apply_history_entry(replay_graph: GCSGraph, entry: Mapping) -> bool:
         return False
 
     return False
+
+
+def parse_replay_evidence_report(report_path: str) -> Optional[dict]:
+    """Parse a GCS replay evidence JSON report into a GUI-friendly summary.
+
+    Reads the structured report produced by ``GCS.exe --save-replay-evidence``
+    and extracts the fields most relevant for diagnostic display: status,
+    accepted flag, report codes, stage list, rank evidence, and residual
+    evidence.
+
+    Returns a dict with keys:
+        schema, accepted, status, committed, rolled_back,
+        base_version, final_version, report_codes,
+        stage_count, stages (list of {stage_name, status, durable_mutation}),
+        rank_evidence (nullable),
+        residual_evidence (nullable).
+    Returns None if the file cannot be read or parsed.
+    """
+    if not os.path.isfile(report_path):
+        return None
+    try:
+        with open(report_path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+    summary = {
+        "schema": data.get("schema", ""),
+        "accepted": data.get("accepted", False),
+        "status": data.get("status", "unknown"),
+        "committed": data.get("committed", False),
+        "rolled_back": data.get("rolled_back", False),
+        "base_version": data.get("base_version", 0),
+        "final_version": data.get("final_version", 0),
+        "report_codes": data.get("report_codes", []),
+    }
+
+    stages = data.get("stages") or []
+    summary["stage_count"] = len(stages)
+    summary["stages"] = []
+    for stage in stages:
+        summary["stages"].append({
+            "stage_name": stage.get("stage", "?"),
+            "status": stage.get("status", "?"),
+            "durable_mutation": stage.get("durable_mutation", False),
+        })
+
+    # Rank evidence from the report (may be nested)
+    rank = data.get("rank_evidence")
+    if rank is None:
+        for stage in stages:
+            rank = stage.get("rank_evidence")
+            if rank is not None:
+                break
+    summary["rank_evidence"] = rank
+
+    # Residual evidence
+    residual = data.get("residual_evidence")
+    if residual is None:
+        for stage in stages:
+            residual = stage.get("residual_evidence")
+            if residual is not None:
+                break
+    summary["residual_evidence"] = residual
+
+    return summary
+
+
+def format_evidence_summary(evidence: Optional[dict]) -> str:
+    """Render a parsed replay evidence dict as a human-readable text block."""
+    if evidence is None:
+        return "No replay evidence available."
+
+    lines = [
+        f"Schema: {evidence.get('schema', '?')}",
+        f"Status: {evidence.get('status', '?')}",
+        f"Accepted: {evidence.get('accepted', False)}",
+        f"Committed: {evidence.get('committed', False)}",
+        f"Version: {evidence.get('base_version', 0)} -> {evidence.get('final_version', 0)}",
+        f"Report codes: {', '.join(evidence.get('report_codes', []))}",
+        f"Stages ({evidence.get('stage_count', 0)}):",
+    ]
+    for stage in evidence.get("stages", []):
+        mutation_marker = " *" if stage.get("durable_mutation") else ""
+        lines.append(
+            f"  [{stage.get('status', '?')}] {stage.get('stage_name', '?')}{mutation_marker}"
+        )
+
+    rank = evidence.get("rank_evidence")
+    if rank:
+        lines.append(
+            f"Rank: variables={rank.get('variable_dimension', '?')} "
+            f"free={rank.get('free_variable_dimension', '?')} "
+            f"residuals={rank.get('residual_dimension', '?')} "
+            f"rank={rank.get('rank', '?')} "
+            f"nullity={rank.get('nullity', '?')}"
+        )
+
+    residual = evidence.get("residual_evidence")
+    if residual:
+        lines.append(
+            f"Residual: norm={residual.get('norm', '?')} "
+            f"max={residual.get('max_abs', residual.get('max', '?'))} "
+            f"tolerance={residual.get('tolerance', '?')}"
+        )
+
+    return "\n".join(lines)

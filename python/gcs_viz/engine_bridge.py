@@ -1,5 +1,7 @@
-import subprocess
+import json
 import os
+import subprocess
+import tempfile
 
 
 class EngineBridge:
@@ -24,6 +26,9 @@ class EngineBridge:
             if exe_path is None:
                 exe_path = os.path.normpath(candidates[1])
         self.exe_path = exe_path
+        self._repo_root = os.path.normpath(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+        )
 
     def is_available(self) -> bool:
         return os.path.isfile(self.exe_path)
@@ -57,3 +62,54 @@ class EngineBridge:
         if result.get("returncode") != 0:
             return {"error": f"GCS.exe returned code {result.get('returncode')}", "stderr": result.get("stderr", "")}
         return {"status": "completed", "output": result.get("stdout", "")}
+
+    def solve_with_evidence(self, input_path: str) -> dict:
+        """Run GCS.exe and also capture replay evidence as structured JSON.
+
+        Returns a dict with:
+            status: "completed" or "error"
+            output: stdout text from the solver
+            evidence: parsed replay evidence dict (or None)
+            evidence_path: path to the saved JSON file (or None)
+        """
+        result = self.run_pipeline(input_path)
+        if "error" in result:
+            return result
+        if result.get("returncode") != 0:
+            return {
+                "status": "error",
+                "error": f"GCS.exe returned code {result.get('returncode')}",
+                "stderr": result.get("stderr", ""),
+                "output": result.get("stdout", ""),
+            }
+
+        # Also run with --save-replay-evidence to capture structured evidence
+        replay_path = None
+        evidence = None
+        try:
+            abs_input = os.path.abspath(input_path)
+            fd, replay_path = tempfile.mkstemp(
+                suffix=".json", prefix="gcs_replay_"
+            )
+            os.close(fd)
+            replay_result = subprocess.run(
+                [self.exe_path, abs_input,
+                 "--save-replay-evidence", replay_path],
+                capture_output=True, text=True, timeout=30,
+                cwd=self._repo_root,
+            )
+            if replay_result.returncode == 0 and os.path.isfile(replay_path):
+                try:
+                    with open(replay_path, "r", encoding="utf-8") as fh:
+                        evidence = json.load(fh)
+                except (json.JSONDecodeError, OSError):
+                    evidence = None
+        except (subprocess.TimeoutExpired, OSError):
+            pass
+
+        return {
+            "status": "completed",
+            "output": result.get("stdout", ""),
+            "evidence": evidence,
+            "evidence_path": replay_path,
+        }

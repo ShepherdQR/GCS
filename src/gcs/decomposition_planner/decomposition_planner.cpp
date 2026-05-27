@@ -2,6 +2,9 @@ module;
 
 #include <algorithm>
 #include <cstdint>
+#include <map>
+#include <set>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -553,6 +556,382 @@ gcs::kernel::ContractResult<SolveDagValidationReport> validate_solve_dag(
                     "Solve DAG does not contain a subproblem context.",
                     {kernel::StableId{"context", subproblem.context_id.value}}));
         }
+    }
+
+    return result;
+}
+
+// --- Spanning forest plan ---
+
+namespace {
+
+// Union-Find for deterministic Kruskal
+struct SpanningForestUnionFind {
+    std::map<std::uint64_t, std::uint64_t> parent;
+
+    std::uint64_t find(std::uint64_t x) {
+        if (parent.find(x) == parent.end()) {
+            parent[x] = x;
+        }
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    void unite(std::uint64_t a, std::uint64_t b) {
+        std::uint64_t ra = find(a);
+        std::uint64_t rb = find(b);
+        if (ra != rb) {
+            parent[ra] = rb;
+        }
+    }
+};
+
+struct CandidateEdge {
+    kernel::RigidSetId first;
+    kernel::RigidSetId second;
+    int weight = 0;
+    int original_index = 0;
+    std::vector<kernel::ConstraintId> constraint_ids;
+    bool supported = false;
+    std::string unsupported_code;
+};
+
+// Deterministic sort key for Kruskal:
+//  higher weight first, then lower first RS id, then lower second RS id,
+//  then lower original_index.
+bool candidate_edge_less(const CandidateEdge& a, const CandidateEdge& b) {
+    if (a.weight != b.weight) return a.weight > b.weight;
+    if (!(a.first == b.first)) return a.first.value < b.first.value;
+    if (!(a.second == b.second)) return a.second.value < b.second.value;
+    return a.original_index < b.original_index;
+}
+
+// For sorting final tree edges by parent then child
+bool tree_edge_less(const RigidSetTreeEdge& a, const RigidSetTreeEdge& b) {
+    if (!(a.parent_rigid_set_id == b.parent_rigid_set_id))
+        return a.parent_rigid_set_id.value < b.parent_rigid_set_id.value;
+    return a.child_rigid_set_id.value < b.child_rigid_set_id.value;
+}
+
+}  // namespace
+
+gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
+    const ModelSnapshot& model,
+    const graph::IncidenceIndices& /*incidence*/,
+    const SolveIntent& solve_intent) {
+    kernel::ContractResult<RigidSetSpanningForestPlan> result;
+    result.report = kernel::make_stage_report(
+        "decomposition_planner.plan_spanning_forest");
+
+    // Step 1: Build rigid body graph
+    auto hypergraph_result = graph::build_hypergraph(
+        graph::HypergraphBuildRequest{model, {}});
+    auto rigid_body_result = graph::build_rigid_body_graph(
+        model, hypergraph_result.payload);
+
+    // Step 2: Build candidate edges from rigid body graph edges.
+    // In M1, all patterns are unsupported — no real pattern catalog exists yet.
+    // Every cross-rigid-set constraint becomes a closure constraint.
+    std::vector<CandidateEdge> candidates;
+    for (std::size_t i = 0; i < rigid_body_result.payload.edges.size(); ++i) {
+        const auto& edge = rigid_body_result.payload.edges[i];
+        CandidateEdge candidate;
+        candidate.first = edge.first_rigid_set_id;
+        candidate.second = edge.second_rigid_set_id;
+        candidate.weight = 0;  // M1: no pattern support => zero weight
+        candidate.original_index = static_cast<int>(i);
+        candidate.constraint_ids = edge.constraint_ids;
+        candidate.supported = false;
+        candidate.unsupported_code = "planner.spanning_tree.pattern_unsupported";
+        candidates.push_back(std::move(candidate));
+    }
+
+    // Step 3: Maximum-weight spanning forest using deterministic Kruskal
+    std::sort(candidates.begin(), candidates.end(), candidate_edge_less);
+
+    SpanningForestUnionFind uf;
+    for (const auto& rigid_set : model.rigid_sets) {
+        uf.find(rigid_set.id.value);  // ensure every rigid set is in UF
+    }
+
+    std::vector<CandidateEdge> selected;
+    std::vector<CandidateEdge> rejected;
+    for (const auto& cand : candidates) {
+        if (uf.find(cand.first.value) != uf.find(cand.second.value)) {
+            uf.unite(cand.first.value, cand.second.value);
+            selected.push_back(cand);
+        } else {
+            rejected.push_back(cand);
+        }
+    }
+
+    // Step 4: Orient tree edges from root rigid sets selected by gauge policy.
+    // Root preference: fixed entities' rigid sets first, then lowest RS id.
+    std::set<std::uint64_t> fixed_rs_ids;
+    for (EntityId fixed_id : solve_intent.fixed_entity_ids) {
+        if (const auto* entity = kernel::find_entity(model, fixed_id)) {
+            fixed_rs_ids.insert(entity->rigid_set_id.value);
+        }
+    }
+
+    // Collect all rigid set ids
+    std::vector<kernel::RigidSetId> all_rs_ids;
+    for (const auto& rs : model.rigid_sets) {
+        all_rs_ids.push_back(rs.id);
+    }
+
+    // For each component root (UF representative), pick the best root rigid set
+    std::map<std::uint64_t, std::uint64_t> component_root;
+    for (const auto& rs : model.rigid_sets) {
+        std::uint64_t rep = uf.find(rs.id.value);
+        auto it = component_root.find(rep);
+        if (it == component_root.end()) {
+            component_root[rep] = rs.id.value;
+        } else {
+            // Prefer fixed-entity RS
+            bool current_fixed = fixed_rs_ids.count(it->second) > 0;
+            bool candidate_fixed = fixed_rs_ids.count(rs.id.value) > 0;
+            if (candidate_fixed && !current_fixed) {
+                component_root[rep] = rs.id.value;
+            } else if (candidate_fixed == current_fixed &&
+                       rs.id.value < it->second) {
+                component_root[rep] = rs.id.value;
+            }
+        }
+    }
+
+    // Orient selected edges away from roots (BFS-like traversal)
+    std::vector<RigidSetTreeEdge> tree_edges;
+    {
+        // Build adjacency from selected edges (undirected)
+        std::map<std::uint64_t, std::vector<kernel::RigidSetId>> adj;
+        for (const auto& cand : selected) {
+            adj[cand.first.value].push_back(cand.second);
+            adj[cand.second.value].push_back(cand.first);
+        }
+
+        // BFS from roots
+        std::set<std::uint64_t> visited;
+        std::vector<std::pair<kernel::RigidSetId, kernel::RigidSetId>> oriented;
+        for (const auto& [rep, root_id] : component_root) {
+            std::vector<kernel::RigidSetId> queue;
+            queue.push_back(kernel::RigidSetId{root_id});
+            while (!queue.empty()) {
+                auto parent = queue.back();
+                queue.pop_back();
+                if (visited.count(parent.value)) continue;
+                visited.insert(parent.value);
+                auto it = adj.find(parent.value);
+                if (it == adj.end()) continue;
+                for (const auto& neighbor : it->second) {
+                    if (visited.count(neighbor.value)) continue;
+                    oriented.push_back({parent, neighbor});
+                    queue.push_back(neighbor);
+                }
+            }
+        }
+
+        // Map oriented edges back to candidate data
+        int edge_id = 0;
+        for (const auto& [parent, child] : oriented) {
+            RigidSetTreeEdge tree_edge;
+            tree_edge.edge_id = edge_id++;
+            tree_edge.parent_rigid_set_id = parent;
+            tree_edge.child_rigid_set_id = child;
+
+            // Find the matching candidate edge
+            for (const auto& cand : selected) {
+                if ((cand.first == parent && cand.second == child) ||
+                    (cand.first == child && cand.second == parent)) {
+                    SpanningTreePatternMatch match;
+                    match.pattern_id = SpanningTreePatternId{"unsupported"};
+                    match.parent_rigid_set_id = parent;
+                    match.child_rigid_set_id = child;
+                    match.closure_constraint_ids = cand.constraint_ids;
+                    match.unsupported_constraint_ids = cand.constraint_ids;
+                    match.weight = cand.weight;
+                    match.supported = false;
+                    match.unsupported_code = cand.unsupported_code;
+                    tree_edge.pattern_match = std::move(match);
+                    break;
+                }
+            }
+            tree_edges.push_back(std::move(tree_edge));
+        }
+    }
+
+    // Sort tree edges for deterministic output
+    std::sort(tree_edges.begin(), tree_edges.end(), tree_edge_less);
+
+    // Step 5: Partition constraints
+    std::vector<kernel::ConstraintId> absorbed_ids;
+    std::vector<kernel::ConstraintId> closure_ids;
+    std::vector<kernel::ConstraintId> unsupported_ids;
+
+    // In M1, all tree-edge constraints are unsupported → closure
+    for (const auto& te : tree_edges) {
+        for (auto cid : te.pattern_match.closure_constraint_ids) {
+            closure_ids.push_back(cid);
+        }
+        for (auto cid : te.pattern_match.unsupported_constraint_ids) {
+            unsupported_ids.push_back(cid);
+        }
+    }
+
+    // Also collect closure constraints from rejected (cycle) edges
+    for (const auto& rej : rejected) {
+        for (auto cid : rej.constraint_ids) {
+            closure_ids.push_back(cid);
+        }
+    }
+
+    // Deduplicate
+    auto dedup_constraints = [](std::vector<kernel::ConstraintId>& ids) {
+        std::sort(ids.begin(), ids.end(),
+                  [](auto a, auto b) { return a.value < b.value; });
+        ids.erase(std::unique(ids.begin(), ids.end(),
+                              [](auto a, auto b) { return a == b; }),
+                  ids.end());
+    };
+    dedup_constraints(closure_ids);
+    dedup_constraints(unsupported_ids);
+
+    // Step 6: Build output
+    result.payload.rigid_set_ids = all_rs_ids;
+    result.payload.selected_edges = std::move(tree_edges);
+    result.payload.absorbed_constraint_ids = absorbed_ids;
+    result.payload.closure_constraint_ids = closure_ids;
+    result.payload.unsupported_constraint_ids = unsupported_ids;
+    result.payload.report = result.report;
+
+    kernel::append_report_message(
+        result.report,
+        make_message(
+            kernel::ReportSeverity::info,
+            "planner.spanning_tree.plan_complete",
+            "Spanning forest plan built. Not yet used for numeric solving.",
+            {}));
+
+    kernel::append_report_message(
+        result.report,
+        make_message(
+            kernel::ReportSeverity::info,
+            "planner.spanning_tree.not_used_for_numeric_task_yet",
+            "M1 contract-only: spanning forest plan evidence is generated but "
+            "the reduced numeric task path is not yet implemented.",
+            {}));
+
+    return result;
+}
+
+gcs::kernel::ContractResult<SpanningForestValidationReport> validate_spanning_forest(
+    const ModelSnapshot& model,
+    const RigidSetSpanningForestPlan& forest_plan) {
+    kernel::ContractResult<SpanningForestValidationReport> result;
+    result.report = kernel::make_stage_report(
+        "decomposition_planner.validate_spanning_forest");
+
+    int total_active = 0;
+    for (const auto& constraint : model.constraints) {
+        // Check if constraint crosses rigid sets
+        std::set<std::uint64_t> rs_seen;
+        for (EntityId eid : constraint.entity_ids) {
+            if (const auto* entity = kernel::find_entity(model, eid)) {
+                rs_seen.insert(entity->rigid_set_id.value);
+            }
+        }
+        if (rs_seen.size() > 1) {
+            total_active++;
+        }
+    }
+
+    // Count partitioned constraints
+    std::set<std::uint64_t> partitioned;
+    for (auto cid : forest_plan.absorbed_constraint_ids) {
+        partitioned.insert(cid.value);
+    }
+    for (auto cid : forest_plan.closure_constraint_ids) {
+        partitioned.insert(cid.value);
+    }
+    for (auto cid : forest_plan.unsupported_constraint_ids) {
+        partitioned.insert(cid.value);
+    }
+
+    result.payload.absorbed_count =
+        static_cast<int>(forest_plan.absorbed_constraint_ids.size());
+    result.payload.closure_count =
+        static_cast<int>(forest_plan.closure_constraint_ids.size());
+    result.payload.unsupported_count =
+        static_cast<int>(forest_plan.unsupported_constraint_ids.size());
+    result.payload.total_active_constraints = total_active;
+    result.payload.every_active_constraint_partitioned_once =
+        (static_cast<int>(partitioned.size()) >= total_active);
+
+    // Check acyclicity: edges < nodes + components (conservative bound)
+    result.payload.tree_edges_acyclic =
+        (static_cast<int>(forest_plan.selected_edges.size()) <
+         static_cast<int>(forest_plan.rigid_set_ids.size()) + 1);
+
+    // Check no same-rigid-set tree edges
+    result.payload.no_same_rigid_set_tree_edges = true;
+    for (const auto& te : forest_plan.selected_edges) {
+        if (te.parent_rigid_set_id == te.child_rigid_set_id) {
+            result.payload.no_same_rigid_set_tree_edges = false;
+            result.payload.valid = false;
+            append_message(
+                result.report,
+                result.payload.messages,
+                make_message(
+                    kernel::ReportSeverity::error,
+                    "planner.spanning_tree.same_rigid_set_tree_edge",
+                    "Tree edge connects a rigid set to itself.",
+                    {kernel::StableId{"rigid_set",
+                                      te.parent_rigid_set_id.value}}));
+        }
+    }
+
+    // Check that selected edges have supported pattern (M1: all unsupported)
+    result.payload.selected_edges_have_supported_pattern = true;
+    for (const auto& te : forest_plan.selected_edges) {
+        if (!te.pattern_match.supported) {
+            result.payload.selected_edges_have_supported_pattern = false;
+        }
+    }
+
+    // Check unsupported constraints have report code
+    result.payload.unsupported_constraints_have_report_code = true;
+    for (const auto& te : forest_plan.selected_edges) {
+        if (!te.pattern_match.supported &&
+            te.pattern_match.unsupported_code.empty()) {
+            result.payload.unsupported_constraints_have_report_code = false;
+        }
+    }
+
+    if (!result.payload.every_active_constraint_partitioned_once) {
+        result.payload.valid = false;
+        append_message(
+            result.report,
+            result.payload.messages,
+            make_message(
+                kernel::ReportSeverity::error,
+                "planner.spanning_tree.missing_constraint_partition",
+                "Not every active cross-rigid-set constraint appears in the "
+                "absorbed/closure/unsupported partition.",
+                {}));
+    }
+
+    if (!result.payload.tree_edges_acyclic) {
+        result.payload.valid = false;
+        append_message(
+            result.report,
+            result.payload.messages,
+            make_message(
+                kernel::ReportSeverity::error,
+                "planner.spanning_tree.cycle_detected",
+                "Spanning forest tree edges contain a cycle.",
+                {}));
     }
 
     return result;

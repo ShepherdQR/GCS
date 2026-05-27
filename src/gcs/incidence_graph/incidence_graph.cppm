@@ -106,6 +106,21 @@ struct RigidBodyGraph {
     StageReport report;
 };
 
+// --- Spanning tree support ---
+
+struct RigidSetPairConstraintGroup {
+    RigidSetId first_rigid_set_id;
+    RigidSetId second_rigid_set_id;
+    std::vector<ConstraintId> constraint_ids;
+};
+
+struct RigidSetPairGroupingReport {
+    int pair_group_count = 0;
+    int total_constraints_grouped = 0;
+    int same_rigid_set_constraint_count = 0;
+    StageReport report;
+};
+
 struct GraphDumpRequest {
     bool include_malformed_edges = true;
 };
@@ -123,6 +138,9 @@ gcs::kernel::ContractResult<IncidenceIndices> build_indices(
 gcs::kernel::ContractResult<RigidBodyGraph> build_rigid_body_graph(
     const ModelSnapshot& model,
     const IncidenceHypergraph& hypergraph);
+gcs::kernel::ContractResult<RigidSetPairGroupingReport> build_rigid_set_pair_groups(
+    const ModelSnapshot& model,
+    const RigidBodyGraph& rigid_body_graph);
 gcs::kernel::ContractResult<GraphDump> dump_graph(const IncidenceHypergraph& hypergraph,
                                                   GraphDumpRequest request = {});
 
