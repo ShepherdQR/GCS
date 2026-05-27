@@ -51,6 +51,7 @@ boundary, or process domain in the GCS project.
 
 | Skill | Domain | Key trigger |
 |-------|--------|-------------|
+| [session-close-orchestrator](session-close-orchestrator/SKILL.md) | **Session close pipeline** | **Single entry point — sequences all close steps** |
 | [task-scoped-session-closer](task-scoped-session-closer/SKILL.md) | Session closure | Task archives, evidence bundles, commit/push handoff |
 
 ## Institutional Agents
