@@ -48,12 +48,14 @@ class Alert:
 class AlertEngine:
     """Evaluates alert rules against session state."""
 
-    def __init__(self, config_path: str = None, db_conn: sqlite3.Connection = None):
+    def __init__(self, config_path: str = None, db_conn: sqlite3.Connection = None,
+                 cost_model=None):
         if config_path is None:
             config_path = str(Path(__file__).parent / "config.yaml")
         cfg = self._load_config(config_path)
         self.alert_config = cfg.get("alerts", {})
         self.db_conn = db_conn
+        self.cost_model = cost_model
 
         # Cooldown tracking: (alert_type_value, session_id) -> last_fire_time
         self._cooldowns: dict[tuple, datetime] = {}
@@ -101,7 +103,12 @@ class AlertEngine:
         """Check if session cost exceeds thresholds."""
         alerts = []
         max_cost = self.alert_config.get("max_cost_per_session_usd", 2.00)
-        cost_usd = snapshot.cost_usd_micro / 1_000_000.0
+
+        cost_micro = snapshot.cost_usd_micro
+        if cost_micro == 0 and snapshot.tokens.total_tokens > 0 and self.cost_model:
+            cost_micro = self.cost_model.calculate(snapshot.tokens, self.cost_model.default_model)
+
+        cost_usd = cost_micro / 1_000_000.0
 
         if cost_usd > max_cost * 2:
             if not self._in_cooldown(AlertType.COST_SPIKE, sid):

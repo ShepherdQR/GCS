@@ -12,7 +12,7 @@ import click
 from tools.token_audit.db import (
     init_db, insert_session, update_session, get_session, list_sessions,
     get_latest_session, session_exists, close_session, db_stats,
-    upsert_daily_summary, get_daily_summaries,
+    upsert_daily_summary, get_daily_summaries, insert_chapter, get_chapters,
 )
 from tools.token_audit.parser import (
     IncrementalJSONLParser, SessionSnapshot, TokenUsage,
@@ -46,7 +46,7 @@ def watch(interval, output_fmt, no_persist, session_id):
     """Monitor an active Claude Code session in real time."""
     db_conn = None if no_persist else init_db()
     cost_model = CostModel()
-    alert_engine = AlertEngine(db_conn=db_conn)
+    alert_engine = AlertEngine(db_conn=db_conn, cost_model=cost_model)
     tracker = SessionTracker(db_conn=db_conn, alert_engine=alert_engine, cost_model=cost_model)
 
     # Find or specify session
@@ -69,7 +69,7 @@ def watch(interval, output_fmt, no_persist, session_id):
     snap = tracker.start_tracking(jsonl_path)
     click.echo(f"Session: {snap.session_id[:20]}... | Model: {snap.model_id or 'detecting...'}")
 
-    bei_engine = BEIEngine(db_conn=db_conn)
+    bei_engine = BEIEngine(db_conn=db_conn, cost_model=cost_model)
 
     try:
         while tracker.is_active():
@@ -175,7 +175,7 @@ def report(session_id, from_date, to_date, output_fmt, output_path, pricing_mode
     """
     db_conn = init_db()
     cost_model = CostModel()
-    bei_engine = BEIEngine(db_conn=db_conn)
+    bei_engine = BEIEngine(db_conn=db_conn, cost_model=cost_model)
     git_linker = GitLinker()
 
     if not pricing_model:
@@ -231,10 +231,15 @@ def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_mod
     snap.lines_removed = sess.get("lines_removed", 0)
     snap.files_touched = sess.get("files_touched", 0)
     snap.commits_count = sess.get("commits_count", 0)
+    try:
+        snap.commit_signals = json.loads(sess.get("commit_signals", "{}"))
+    except (json.JSONDecodeError, TypeError):
+        snap.commit_signals = {}
     snap.edit_accept_count = sess.get("edit_accept_count", 0)
     snap.edit_reject_count = sess.get("edit_reject_count", 0)
     snap.tool_calls_total = sess.get("tool_calls_total", 0)
     snap.subagent_spawns = sess.get("subagent_spawns", 0)
+    snap.chapters = get_chapters(db_conn, session_id)
     try:
         snap.skills_invoked = json.loads(sess.get("skills_invoked", "[]"))
         snap.memory_entries = json.loads(sess.get("memory_entries", "[]"))
@@ -297,7 +302,9 @@ def config_show():
     """Show current configuration."""
     config_path = Path(__file__).parent / "config.yaml"
     if config_path.exists():
-        click.echo(config_path.read_text(encoding="utf-8"))
+        content = config_path.read_text(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8") if hasattr(sys.stdout, "reconfigure") else None
+        click.echo(content)
     else:
         click.echo("No config.yaml found.")
 
@@ -355,7 +362,8 @@ def db():
 @click.option("--project", "-p", default=None,
               help="Filter by project name (comma-separated for multiple, e.g. 'GCS-A,s009')")
 @click.option("--all-projects", is_flag=True, help="Import from all discovered projects")
-def db_import(import_all, since, project, all_projects):
+@click.option("--force", is_flag=True, help="Re-import sessions already in the database")
+def db_import(import_all, since, project, all_projects, force):
     """Import session data from JSONL transcripts into the database."""
     db_conn = init_db()
     projects_dir = Path.home() / ".claude" / "projects"
@@ -371,6 +379,7 @@ def db_import(import_all, since, project, all_projects):
 
     imported = 0
     skipped = 0
+    updated = 0
 
     for proj_dir in projects_dir.iterdir():
         if not proj_dir.is_dir():
@@ -392,8 +401,18 @@ def db_import(import_all, since, project, all_projects):
                 continue
 
             if session_exists(db_conn, sid):
-                skipped += 1
-                continue
+                if force:
+                    # Delete old data before re-import
+                    db_conn.execute("DELETE FROM edits WHERE session_id = ?", (sid,))
+                    db_conn.execute("DELETE FROM tool_calls WHERE session_id = ?", (sid,))
+                    db_conn.execute("DELETE FROM turns WHERE session_id = ?", (sid,))
+                    db_conn.execute("DELETE FROM alert_log WHERE session_id = ?", (sid,))
+                    db_conn.execute("DELETE FROM sessions WHERE id = ?", (sid,))
+                    db_conn.commit()
+                    updated += 1
+                else:
+                    skipped += 1
+                    continue
 
             if since:
                 start_ts, _ = IncrementalJSONLParser.get_timestamps(records)
@@ -408,7 +427,7 @@ def db_import(import_all, since, project, all_projects):
             except Exception as e:
                 click.echo(f"  Error importing {jsonl_file.name}: {e}", err=True)
 
-    click.echo(f"\nDone: {imported} imported, {skipped} skipped")
+    click.echo(f"\nDone: {imported} imported, {updated} updated, {skipped} skipped")
     db_conn.close()
 
 
@@ -416,7 +435,7 @@ def _import_session(db_conn, jsonl_path, records, project_name):
     """Import a single session from parsed records with git and BEI enrichment."""
     cost_model = CostModel()
     git_linker = GitLinker()
-    bei_engine = BEIEngine(db_conn=db_conn)
+    bei_engine = BEIEngine(db_conn=db_conn, cost_model=cost_model)
 
     sid = IncrementalJSONLParser.get_session_id(records)
     start_ts, end_ts = IncrementalJSONLParser.get_timestamps(records)
@@ -429,6 +448,7 @@ def _import_session(db_conn, jsonl_path, records, project_name):
     skills = []
     memory_entries = []
     docs_touched = []
+    chapters_list = []
 
     for record in records:
         if record.get("type") == "assistant":
@@ -451,6 +471,11 @@ def _import_session(db_conn, jsonl_path, records, project_name):
                     skill_name = tc.input_data.get("skill", "") if tc.input_data else ""
                     if skill_name and skill_name not in skills:
                         skills.append(skill_name)
+                if IncrementalJSONLParser.is_chapter_marker(tc):
+                    chapter_info = IncrementalJSONLParser.extract_chapter_info(tc)
+                    chapter_info["start_turn"] = turn_count
+                    chapter_info["start_timestamp"] = record.get("timestamp", "")
+                    chapters_list.append(chapter_info)
 
         elif record.get("type") == "user":
             content = record.get("message", {}).get("content", "")
@@ -468,6 +493,7 @@ def _import_session(db_conn, jsonl_path, records, project_name):
     lines_removed = 0
     files_touched = 0
     commits_count = 0
+    commit_signals = {}
     if start_ts and end_ts:
         try:
             s_dt = datetime.fromisoformat(start_ts.replace("Z", "+00:00"))
@@ -477,6 +503,7 @@ def _import_session(db_conn, jsonl_path, records, project_name):
             lines_removed = session_output["lines_removed"]
             files_touched = session_output["files_changed"]
             commits_count = session_output["commits_count"]
+            commit_signals = session_output.get("decision_signals", {})
         except (ValueError, TypeError):
             pass
 
@@ -495,6 +522,7 @@ def _import_session(db_conn, jsonl_path, records, project_name):
         "lines_removed": lines_removed,
         "files_touched": files_touched,
         "commits_count": commits_count,
+        "commit_signals": json.dumps(commit_signals),
         "tool_calls_total": tool_count,
         "subagent_spawns": subagent_count,
         "skills_invoked": json.dumps(skills),
@@ -502,6 +530,17 @@ def _import_session(db_conn, jsonl_path, records, project_name):
         "docs_touched": json.dumps(docs_touched),
     }
     insert_session(db_conn, session_data)
+
+    # Insert chapter markers
+    for i, ch in enumerate(chapters_list):
+        insert_chapter(db_conn, {
+            "session_id": sid,
+            "chapter_index": i,
+            "title": ch["title"],
+            "summary": ch.get("summary", ""),
+            "start_turn": ch["start_turn"],
+            "start_timestamp": ch.get("start_timestamp", ""),
+        })
 
     # Calculate and store BEI scores
     try:
@@ -518,6 +557,7 @@ def _import_session(db_conn, jsonl_path, records, project_name):
         snap.lines_removed = lines_removed
         snap.files_touched = files_touched
         snap.commits_count = commits_count
+        snap.commit_signals = commit_signals
         snap.tool_calls_total = tool_count
         snap.subagent_spawns = subagent_count
         snap.skills_invoked = skills

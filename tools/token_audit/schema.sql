@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     files_touched       INTEGER DEFAULT 0,
     commits_count       INTEGER DEFAULT 0,
 
+    commit_signals      TEXT,
     edit_accept_count   INTEGER DEFAULT 0,
     edit_reject_count   INTEGER DEFAULT 0,
 
@@ -115,3 +116,25 @@ CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_project ON sessions(project_name);
 CREATE INDEX IF NOT EXISTS idx_turns_message_id ON turns(message_id);
 CREATE INDEX IF NOT EXISTS idx_alert_log_session ON alert_log(session_id);
+
+-- Chapter markers within a session
+CREATE TABLE IF NOT EXISTS chapters (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id      TEXT NOT NULL REFERENCES sessions(id),
+    chapter_index   INTEGER NOT NULL,
+    title           TEXT NOT NULL,
+    summary         TEXT,
+    start_turn      INTEGER NOT NULL,
+    start_timestamp TEXT,
+    end_turn        INTEGER,
+    end_timestamp   TEXT,
+    input_tokens    INTEGER DEFAULT 0,
+    output_tokens   INTEGER DEFAULT 0,
+    cache_read_tokens INTEGER DEFAULT 0,
+    tool_calls      INTEGER DEFAULT 0,
+    edits           INTEGER DEFAULT 0,
+
+    UNIQUE(session_id, chapter_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_chapters_session ON chapters(session_id);

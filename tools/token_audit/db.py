@@ -20,7 +20,18 @@ def init_db(path: str = None) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys=ON")
     schema = SCHEMA_PATH.read_text(encoding="utf-8")
     conn.executescript(schema)
+    _migrate(conn)
     return conn
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Apply schema migrations for existing databases."""
+    existing = {r[1] for r in conn.execute("PRAGMA table_info(sessions)").fetchall()}
+    if "commit_signals" not in existing:
+        conn.execute("ALTER TABLE sessions ADD COLUMN commit_signals TEXT")
+    if "total_cache_read_tokens" not in existing:
+        conn.execute("ALTER TABLE sessions ADD COLUMN total_cache_read_tokens INTEGER DEFAULT 0")
+        conn.execute("ALTER TABLE sessions ADD COLUMN total_cache_creation_tokens INTEGER DEFAULT 0")
 
 
 # ── Session CRUD ──────────────────────────────────────────────
@@ -186,6 +197,29 @@ def get_recent_alerts(
             "SELECT * FROM alert_log ORDER BY created_at DESC LIMIT ?",
             (limit,),
         ).fetchall()
+    return [dict(r) for r in rows]
+
+
+# ── Chapter CRUD ───────────────────────────────────────────────
+
+def insert_chapter(conn: sqlite3.Connection, chapter_data: dict) -> int:
+    """Insert a chapter record. Returns row id."""
+    cols = ", ".join(chapter_data.keys())
+    placeholders = ", ".join("?" for _ in chapter_data)
+    cur = conn.execute(
+        f"INSERT OR REPLACE INTO chapters ({cols}) VALUES ({placeholders})",
+        list(chapter_data.values()),
+    )
+    conn.commit()
+    return cur.lastrowid
+
+
+def get_chapters(conn: sqlite3.Connection, session_id: str) -> list[dict]:
+    """Get all chapters for a session, ordered by chapter_index."""
+    rows = conn.execute(
+        "SELECT * FROM chapters WHERE session_id = ? ORDER BY chapter_index",
+        (session_id,),
+    ).fetchall()
     return [dict(r) for r in rows]
 
 

@@ -52,11 +52,13 @@ class BEIScores:
 class BEIEngine:
     """Computes BEI scores for a session snapshot."""
 
-    def __init__(self, config_path: str = None, db_conn: sqlite3.Connection = None):
+    def __init__(self, config_path: str = None, db_conn: sqlite3.Connection = None,
+                 cost_model=None):
         if config_path is None:
             config_path = str(Path(__file__).parent / "config.yaml")
         self.config = self._load_config(config_path)
         self.db_conn = db_conn
+        self.cost_model = cost_model
         self.weights = self.config.get("bei", {}).get("weights", {
             "output": 0.30, "quality": 0.25, "decision": 0.20,
             "knowledge": 0.10, "efficiency": 0.15,
@@ -100,12 +102,56 @@ class BEIEngine:
         return min(raw / baseline, 1.0)
 
     def _quality_score(self, snapshot: SessionSnapshot) -> float:
-        """Quality dimension: 1 - edit rejection rate."""
+        """Quality dimension: edit acceptance + commit message signals.
+
+        Combines:
+        - Edit rejection rate (weight 0.5): 1 - rejection_rate
+        - Commit quality signals (weight 0.5): conventional commits, keywords
+        """
         total_edits = snapshot.edit_accept_count + snapshot.edit_reject_count
         if total_edits == 0:
-            return 0.5  # Neutral — no edit data
-        rejection_rate = snapshot.edit_reject_count / total_edits
-        return max(0.0, 1.0 - rejection_rate)
+            edit_score = 0.5  # Neutral — no edit data
+        else:
+            rejection_rate = snapshot.edit_reject_count / total_edits
+            edit_score = max(0.0, 1.0 - rejection_rate)
+
+        # Commit message quality
+        commit_score = self._commit_quality_score(snapshot)
+
+        return edit_score * 0.5 + commit_score * 0.5
+
+    def _commit_quality_score(self, snapshot: SessionSnapshot) -> float:
+        """Score commit message quality from git data attached to snapshot.
+
+        Signals:
+        - Has commits at all (0.0 → 0.3)
+        - Conventional commit format: type(scope): description
+        - Semantic keywords: fix, feat, refactor, perf, test, docs, chore
+        - Architecture/design keywords: extract, decouple, contract, etc.
+        """
+        commit_signals = getattr(snapshot, 'commit_signals', None)
+        if not commit_signals:
+            return 0.5  # No commit data — neutral
+
+        total = commit_signals.get("total_commits", 0)
+        if total == 0:
+            return 0.3  # Has edits but no commits — below neutral
+
+        # Conventional commit detection
+        conventional_count = commit_signals.get("conventional_commits", 0)
+        conv_rate = conventional_count / total
+
+        # Semantic keyword signals
+        semantic_count = commit_signals.get("semantic_signals", 0)
+        sem_rate = min(semantic_count / total, 1.0)
+
+        # Architecture/design signals (from git_linker)
+        arch_count = commit_signals.get("architecture_signals", 0)
+        arch_rate = min(arch_count / max(total, 1), 1.0)
+
+        # Composite: base 0.3 + up to 0.7 from signals
+        score = 0.3 + conv_rate * 0.3 + sem_rate * 0.2 + arch_rate * 0.2
+        return min(score, 1.0)
 
     def _decision_score(self, snapshot: SessionSnapshot) -> float:
         """Decision dimension: architecture signals + doc changes."""
@@ -138,9 +184,13 @@ class BEIEngine:
         """Efficiency dimension: cache hit rate + cost per commit."""
         cache_rate = snapshot.tokens.cache_hit_rate
 
-        # Cost per commit
-        if snapshot.commits_count > 0 and snapshot.cost_usd_micro > 0:
-            cost_per_commit = (snapshot.cost_usd_micro / 1_000_000.0) / snapshot.commits_count
+        # Compute cost per commit — use snapshot cost if available, otherwise compute from tokens
+        cost_micro = snapshot.cost_usd_micro
+        if cost_micro == 0 and snapshot.tokens.total_tokens > 0 and self.cost_model:
+            cost_micro = self.cost_model.calculate(snapshot.tokens, self.cost_model.default_model)
+
+        if snapshot.commits_count > 0 and cost_micro > 0:
+            cost_per_commit = (cost_micro / 1_000_000.0) / snapshot.commits_count
         else:
             cost_per_commit = 999.0  # No commits — worst score
 

@@ -119,6 +119,17 @@ def _session_report_markdown(
     cache_status = "Good" if cache_rate >= 0.30 else "Low"
     lines.append(f"| Cache Hit Rate | {cache_rate:.1%} | {cache_status}")
 
+    # Commit Quality
+    commit_signals = getattr(snap, 'commit_signals', None) or {}
+    if commit_signals.get("total_commits", 0) > 0:
+        lines.append("\n## Commit Quality\n")
+        lines.append("| Metric | Value |")
+        lines.append("|--------|-------|")
+        lines.append(f"| Total Commits | {commit_signals.get('total_commits', 0)}")
+        lines.append(f"| Conventional Commits | {commit_signals.get('conventional_commits', 0)}")
+        lines.append(f"| Semantic Signals | {commit_signals.get('semantic_signals', 0)}")
+        lines.append(f"| Architecture Signals | {commit_signals.get('architecture_signals', 0)}")
+
     # BEI Breakdown
     if bei:
         lines.append("\n## BEI Breakdown\n")
@@ -137,6 +148,15 @@ def _session_report_markdown(
         lines.append("\n## Skills Invoked\n")
         for s in snap.skills_invoked:
             lines.append(f"- {s}")
+
+    # Chapters
+    chapters = getattr(snap, 'chapters', None) or []
+    if chapters:
+        lines.append("\n## Chapter Breakdown\n")
+        lines.append("| # | Title | Start Turn |")
+        lines.append("|---|-------|-----------|")
+        for ch in chapters:
+            lines.append(f"| {ch.get('chapter_index', '?')} | {ch.get('title', '?')} | T+{ch.get('start_turn', 0)} |")
     if snap.memory_entries:
         lines.append("\n## Memory Activity\n")
         for m in snap.memory_entries[:5]:

@@ -229,25 +229,60 @@ class GitLinker:
         }
 
     def extract_decision_signals(self, commits: list[dict]) -> dict:
-        """Extract architecture/design decision signals from commit messages."""
-        keywords = {
+        """Extract architecture/design decision signals from commit messages.
+
+        Returns:
+            total_commits, conventional_commits, semantic_signals,
+            architecture_signals, signal_ratio
+        """
+        arch_keywords = {
             "architecture", "architectural", "design", "refactor", "extract",
             "introduce", "module", "boundary", "contract", "interface",
             "separate", "pattern", "abstract", "decouple", "restructure",
             "reorganize", "rename", "migrate", "consolidate", "split",
             "pipeline", "layer", "adapter", "bridge", "facade",
         }
+        semantic_keywords = {
+            "fix", "bug", "patch", "hotfix",
+            "feat", "feature", "add", "implement",
+            "refactor", "cleanup", "simplify",
+            "perf", "performance", "optimize", "speed",
+            "test", "testing", "verify",
+            "docs", "document", "readme",
+            "chore", "build", "ci", "cd", "release",
+            "style", "format", "lint",
+        }
 
         signal_count = 0
+        semantic_count = 0
+        conventional_count = 0
+
         for c in commits:
             msg_lower = c["message"].lower()
-            for kw in keywords:
+
+            # Conventional commit detection: type(scope): desc or type: desc
+            msg_stripped = c["message"].strip()
+            if ":" in msg_stripped:
+                prefix = msg_stripped.split(":", 1)[0].strip()
+                if " " not in prefix or ("(" in prefix and ")" in prefix):
+                    conventional_count += 1
+
+            # Architecture keywords
+            for kw in arch_keywords:
                 if kw in msg_lower:
                     signal_count += 1
                     break
 
+            # Semantic keywords
+            for kw in semantic_keywords:
+                if kw in msg_lower:
+                    semantic_count += 1
+                    break
+
         return {
             "total_commits": len(commits),
+            "conventional_commits": conventional_count,
+            "semantic_signals": semantic_count,
             "architecture_signals": signal_count,
             "signal_ratio": signal_count / max(len(commits), 1),
         }

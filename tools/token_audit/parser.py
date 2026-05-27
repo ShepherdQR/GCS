@@ -89,6 +89,7 @@ class SessionSnapshot:
         self.lines_removed: int = 0
         self.files_touched: int = 0
         self.commits_count: int = 0
+        self.commit_signals: dict = {}  # {total_commits, conventional_commits, semantic_signals, architecture_signals}
         self.edit_accept_count: int = 0
         self.edit_reject_count: int = 0
         self.tool_calls_total: int = 0
@@ -267,3 +268,16 @@ class IncrementalJSONLParser:
     def is_edit_tool(tool_call: ToolCall) -> bool:
         """Check if a tool call is a file edit operation."""
         return tool_call.name in ("Edit", "Write", "NotebookEdit")
+
+    @staticmethod
+    def is_chapter_marker(tool_call: ToolCall) -> bool:
+        """Check if a tool call is a CCD session chapter marker."""
+        return tool_call.name == "mcp__ccd_session__mark_chapter"
+
+    @staticmethod
+    def extract_chapter_info(tool_call: ToolCall) -> dict:
+        """Extract chapter title and summary from a mark_chapter tool call."""
+        return {
+            "title": tool_call.input_data.get("title", "Untitled"),
+            "summary": tool_call.input_data.get("summary", ""),
+        }
