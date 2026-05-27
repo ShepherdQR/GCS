@@ -137,6 +137,57 @@ Save the report to `docs/reports/token-audit/session-<date>.md`.
 
 ---
 
+### Step 1.5: Session Output Summary
+
+**What**: Create a top-level session output summary document that captures the
+closing summary shown to the user as a persistent, scannable artifact. This is
+the "总括性" (overview) document — a single-page digest of everything the
+session produced.
+
+**Output**: `docs/reports/session-output-summary-<date>.md`
+
+**Contents**:
+- One-sentence summary of the session.
+- Deliverables table: each with type, affected files, and status.
+- Verification gates table: what was tested and the result.
+- Remaining roadmap (if the work was part of a larger plan).
+- Narrative line impact: which lines moved and why.
+- Token benefit summary (inline from Step 1 report).
+- Final commit reference.
+
+**Template**:
+
+```markdown
+# Session Output Summary — <date>
+
+Session: <title>
+Date: <date>
+Status: closed
+
+## One-Sentence Summary
+<one sentence>
+
+## Deliverables
+| # | Deliverable | Type | Files | Status |
+
+## Verification Gates
+| Gate | Result |
+
+## Remaining Roadmap
+...
+
+## Narrative Line Impact
+| Narrative line | Before | After | Change |
+
+## Token Benefit
+| Metric | Value |
+
+## Commit
+`<hash> <message>`
+```
+
+---
+
 ### Step 2: Task Archive
 
 **What**: Create the completed-task archive.
@@ -250,12 +301,15 @@ At close, the following must exist on disk and be pushed:
 1. `.claude/current-task` — pointing to the current task card (Step 0)
 2. `docs/agentic/tasks/<date-slug>.md` — task card with `status: complete`
    and filled evidence (Step 0)
-3. `docs/completed-tasks/<date-slug>/README.md` — task archive with embedded
+3. `docs/reports/session-output-summary-<date>.md` — top-level session overview
+   with deliverables, verification gates, narrative impact, and token summary
+   (Step 1.5)
+4. `docs/completed-tasks/<date-slug>/README.md` — task archive with embedded
    token benefit summary (Step 2)
-4. `docs/reports/token-audit/session-<date>.md` — full token benefit report
+5. `docs/reports/token-audit/session-<date>.md` — full token benefit report
    (Step 1)
-5. If experience extracted: `docs/agentic/experience/<slug>/README.md` (Step 3)
-6. Commit on `master` containing all of the above (Step 5)
+6. If experience extracted: `docs/agentic/experience/<slug>/README.md` (Step 3)
+7. Commit on `master` containing all of the above (Step 5)
 
 ## Guardrails
 
