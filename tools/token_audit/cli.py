@@ -483,7 +483,8 @@ def db_stats_cmd():
     click.echo(f"  Edits:       {stats['total_edits']}")
     click.echo(f"  Alerts:      {stats['total_alerts']}")
     click.echo(f"  Date Range:  {stats['earliest_session'] or 'N/A'} → {stats['latest_session'] or 'N/A'}")
-    click.echo(f"  Total Cost:  ${stats['total_cost_usd']:.2f}")
+    click.echo(f"  Total Tokens: {stats['total_tokens']:,} (in: {stats['total_input_tokens']:,} / out: {stats['total_output_tokens']:,})")
+    click.echo(f"  Total Cost:   ${stats['total_cost_usd']:.2f}")
     db_conn.close()
 
 

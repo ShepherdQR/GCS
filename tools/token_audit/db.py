@@ -349,6 +349,15 @@ def db_stats(conn: sqlite3.Connection) -> dict:
         "latest_session": conn.execute(
             "SELECT MAX(started_at) FROM sessions"
         ).fetchone()[0],
+        "total_input_tokens": conn.execute(
+            "SELECT COALESCE(SUM(total_input_tokens), 0) FROM sessions"
+        ).fetchone()[0],
+        "total_output_tokens": conn.execute(
+            "SELECT COALESCE(SUM(total_output_tokens), 0) FROM sessions"
+        ).fetchone()[0],
+        "total_tokens": conn.execute(
+            "SELECT COALESCE(SUM(total_input_tokens + total_output_tokens), 0) FROM sessions"
+        ).fetchone()[0],
         "total_cost_usd": conn.execute(
             "SELECT COALESCE(SUM(total_cost_usd_micro), 0) / 1000000.0 FROM sessions"
         ).fetchone()[0],

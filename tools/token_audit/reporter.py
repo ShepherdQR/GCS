@@ -224,7 +224,15 @@ def _trend_report_markdown(summaries: list[dict], days: int) -> str:
     # Summary row
     total_cost = sum(s.get("total_cost_usd_micro", 0) for s in summaries) / 1_000_000.0
     total_sessions = sum(s["sessions_count"] for s in summaries)
-    lines.append(f"\n**Total**: {total_sessions} sessions, ${total_cost:.2f} cost")
+    total_tokens = sum(
+        s.get("total_input_tokens", 0) + s.get("total_output_tokens", 0)
+        for s in summaries
+    )
+    lines.append(
+        f"\n**Total**: {total_sessions} sessions, "
+        f"{total_tokens:,} tokens, "
+        f"${total_cost:.2f} cost"
+    )
 
     # ASCII trend of BEI
     if summaries and len(summaries) >= 3:
