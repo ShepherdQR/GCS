@@ -36,7 +36,16 @@ boundary, or process domain in the GCS project.
 | [gcs-contract-tools-steward](gcs-contract-tools-steward/SKILL.md) | Contract tools | Fixture builders, invariant checkers, golden reports |
 | [gcs-third-party-governance-steward](gcs-third-party-governance-steward/SKILL.md) | Third-party governance | Dependencies, licensing, CMake adapters, SBOM |
 | [gcs-ui-design-steward](gcs-ui-design-steward/SKILL.md) | UI design | Visual tokens, design-system conventions, visual QA |
+| [gcs-ui-qa-steward](gcs-ui-qa-steward/SKILL.md) | UI QA | Theme tokens, contrast ratios, GUI static analysis, headless render |
 | [gcs-scientific-figure-producer](gcs-scientific-figure-producer/SKILL.md) | Scientific figures | Figure specs, semantic composition, visual QA |
+
+## Audit and Demo Skills
+
+| Skill | Domain | Key trigger |
+|-------|--------|-------------|
+| [gcs-repository-audit-steward](gcs-repository-audit-steward/SKILL.md) | Repository audit | File classification, snapshots, diffs, trend reports, archive deltas |
+| [gcs-token-audit-steward](gcs-token-audit-steward/SKILL.md) | Token audit | Session token/cost tracking, BEI scoring, trend reports |
+| [gcs-product-demo-steward](gcs-product-demo-steward/SKILL.md) | Product demo | Smoke tests, diagnostic classification, replay evidence |
 
 ## Process Skills
 
@@ -58,6 +67,11 @@ Agent role definitions live in `.claude/agents/`:
 | [demo-producer](../agents/demo-producer.md) | Candidate | Product demo creation |
 | [benchmark-scout](../agents/benchmark-scout.md) | Candidate | External solver comparison |
 | [release-shepherd](../agents/release-shepherd.md) | Candidate | Release readiness |
+| [night-watch](../agents/night-watch.md) | Candidate | Nightly diagnostics and patrol |
+| [acceptance-officer](../agents/acceptance-officer.md) | Candidate | Independent evidence review before completion |
+| [collation-officer](../agents/collation-officer.md) | Candidate | Cross-read docs, code, tests for consistency |
+| [bookkeeper](../agents/bookkeeper.md) | Candidate | Token/cost/value budget tracking |
+| [gardener](../agents/gardener.md) | Candidate | Small friction, debt, and maintenance |
 
 ## Conversion Notes
 
