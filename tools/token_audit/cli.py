@@ -167,13 +167,16 @@ def _fmt_tokens(n: int) -> str:
 @click.option("--output", "-o", "output_path", default=None, help="Output file path")
 @click.option("--pricing", "-p", "pricing_model", default="",
               help="Pricing model: deepseek (default), anthropic, or specific model name")
+@click.option("--baseline/--no-baseline", default=True,
+              help="Show efficiency analysis vs calibrated baselines (default: on)")
 @click.option("--this-week", is_flag=True, help="Generate weekly report")
 @click.option("--this-month", is_flag=True, help="Generate monthly report")
-def report(session_id, from_date, to_date, output_fmt, output_path, pricing_model, this_week, this_month):
+def report(session_id, from_date, to_date, output_fmt, output_path, pricing_model, baseline, this_week, this_month):
     """Generate session or time-range reports.
 
     Cost is computed at report time from raw token counts.
     Default pricing: deepseek-v4-pro (configurable in config.yaml).
+    Includes one-sentence efficiency analysis vs calibrated baselines.
     """
     db_conn = init_db()
     cost_model = CostModel()
@@ -182,6 +185,14 @@ def report(session_id, from_date, to_date, output_fmt, output_path, pricing_mode
 
     if not pricing_model:
         pricing_model = cost_model.default_model
+
+    # Compute baselines for efficiency analysis
+    baselines = {}
+    if baseline:
+        try:
+            baselines = calibrate_baselines(db_conn, window_days=30)
+        except Exception:
+            pass  # Best-effort — report still works without baselines
 
     content = ""
 
@@ -193,14 +204,14 @@ def report(session_id, from_date, to_date, output_fmt, output_path, pricing_mode
         days = (datetime.strptime(to_date, "%Y-%m-%d") - datetime.strptime(from_date, "%Y-%m-%d")).days
         content = generate_trend_report(db_conn, days=max(days, 1), pricing_model=pricing_model)
     elif session_id:
-        content = _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, output_fmt)
+        content = _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, baselines, output_fmt)
     else:
         # Latest session
         sess = get_latest_session(db_conn)
         if not sess:
             click.echo("No sessions in database. Run 'db import' first or specify --session.")
             return
-        content = _report_single_session(db_conn, sess["id"], bei_engine, git_linker, cost_model, pricing_model, output_fmt)
+        content = _report_single_session(db_conn, sess["id"], bei_engine, git_linker, cost_model, pricing_model, baselines, output_fmt)
 
     if output_path:
         Path(output_path).write_text(content, encoding="utf-8")
@@ -209,7 +220,7 @@ def report(session_id, from_date, to_date, output_fmt, output_path, pricing_mode
         click.echo(content)
 
 
-def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, fmt):
+def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, baselines, fmt):
     """Generate a single-session report. Cost is computed at report time."""
     sess = get_session(db_conn, session_id)
     if not sess:
@@ -271,7 +282,7 @@ def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_mod
     # Calculate BEI
     bei = bei_engine.calculate(snap, snap.project_name)
 
-    return generate_session_report(snap, bei, cost_model, pricing_model, fmt)
+    return generate_session_report(snap, bei, cost_model, pricing_model, baselines, fmt)
 
 
 # ── trend ────────────────────────────────────────────────────

@@ -12,11 +12,77 @@ from tools.token_audit.cost_model import CostModel
 from tools.token_audit.db import get_session, list_sessions, get_daily_summaries, db_stats
 
 
+def generate_efficiency_analysis(
+    output_per_1M: float, cache_hit_rate: float,
+    baselines: dict = None
+) -> str:
+    """Generate a one-sentence efficiency analysis comparing to calibrated baselines.
+
+    Args:
+        output_per_1M: LoC per 1M tokens for this session
+        cache_hit_rate: cache hit rate (0.0-1.0)
+        baselines: dict with metric -> {p25, p50, p75, sample_size} from calibrate_baselines()
+
+    Returns a Chinese one-sentence analysis suitable for reports and skill output.
+    """
+    if not baselines:
+        baselines = {}
+
+    parts = []
+
+    # Output efficiency
+    output_bl = baselines.get("output_per_1M_tokens")
+    if output_bl:
+        p50 = output_bl["p50"]
+        p75 = output_bl["p75"]
+        if output_per_1M >= p75:
+            parts.append(f"产出效率位于历史前25%（{output_per_1M:.0f} LoC/1M tokens, P75={p75:.0f}）")
+        elif output_per_1M >= p50:
+            parts.append(f"产出效率高于历史中位数（{output_per_1M:.0f} LoC/1M tokens, P50={p50:.0f}）")
+        else:
+            parts.append(f"产出效率低于历史中位数（{output_per_1M:.0f} LoC/1M tokens, P50={p50:.0f}）")
+    else:
+        parts.append(f"产出效率 {output_per_1M:.0f} LoC/1M tokens")
+
+    # Cache efficiency
+    cache_bl = baselines.get("cache_hit_rate")
+    if cache_bl:
+        p50 = cache_bl["p50"]
+        p75 = cache_bl["p75"]
+        cache_pct = cache_hit_rate * 100
+        if cache_hit_rate >= p75:
+            parts.append(f"缓存命中率位于历史前25%（{cache_pct:.0f}%, P75={p75*100:.0f}%）")
+        elif cache_hit_rate >= p50:
+            parts.append(f"缓存命中率高于历史中位数（{cache_pct:.0f}%, P50={p50*100:.0f}%）")
+        else:
+            parts.append(f"缓存命中率低于历史中位数（{cache_pct:.0f}%, P50={p50*100:.0f}%）")
+    else:
+        parts.append(f"缓存命中率 {cache_hit_rate:.1%}")
+
+    # Compose
+    if not parts:
+        return "暂无基准数据可供比较。"
+
+    prefix = "本会话"
+    if output_bl and cache_bl:
+        if output_per_1M >= output_bl["p75"] and cache_hit_rate >= cache_bl["p75"]:
+            prefix += "表现优异："
+        elif output_per_1M >= output_bl["p50"] and cache_hit_rate >= cache_bl["p50"]:
+            prefix += "表现良好："
+        elif output_per_1M < output_bl["p50"] and cache_hit_rate < cache_bl["p50"]:
+            prefix += "有改进空间："
+        else:
+            prefix += "表现一般："
+
+    return prefix + "，".join(parts) + "。"
+
+
 def generate_session_report(
     snapshot: SessionSnapshot,
     bei_scores: Optional[BEIScores] = None,
     cost_model: Optional[CostModel] = None,
     pricing_model: str = "",
+    baselines: dict = None,
     fmt: str = "markdown",
 ) -> str:
     """Generate a single-session report.
@@ -25,8 +91,8 @@ def generate_session_report(
     pricing_model (defaults to config's report.default_pricing_model).
     """
     if fmt == "json":
-        return _session_report_json(snapshot, bei_scores, cost_model, pricing_model)
-    return _session_report_markdown(snapshot, bei_scores, cost_model, pricing_model)
+        return _session_report_json(snapshot, bei_scores, cost_model, pricing_model, baselines)
+    return _session_report_markdown(snapshot, bei_scores, cost_model, pricing_model, baselines)
 
 
 def _session_report_markdown(
@@ -34,12 +100,15 @@ def _session_report_markdown(
     bei: Optional[BEIScores],
     cm: Optional[CostModel],
     pricing_model: str = "",
+    baselines: dict = None,
 ) -> str:
     """Generate a Markdown session report."""
     if cm is None:
         cm = CostModel()
     if not pricing_model:
         pricing_model = cm.default_model
+    if baselines is None:
+        baselines = {}
 
     # Compute cost at report time from raw token counts
     model_for_cost = cm.resolve_model(pricing_model, snap.model_id or "")
@@ -82,6 +151,10 @@ def _session_report_markdown(
     else:
         lines.append("\n")
 
+    # Efficiency analysis (one-liner vs calibrated baselines)
+    analysis = generate_efficiency_analysis(output_per_1M, cache_rate, baselines)
+    lines.append(f"> {analysis}\n")
+
     # Token & Cost Summary
     lines.append("---\n\n## Token & Cost Summary\n")
     lines.append("| Metric | Value |")
@@ -108,16 +181,31 @@ def _session_report_markdown(
 
     # Efficiency Metrics
     lines.append("\n## Efficiency Metrics\n")
-    lines.append("| Metric | Value | Status |")
-    lines.append("|--------|-------|--------|")
-    op_status = "Good" if output_per_1M > 200 else "Low"
-    lines.append(f"| Output-per-1M-Tokens | {output_per_1M:.0f} LoC | {op_status}")
-    cpc_status = "Good" if cost_per_commit <= 0.50 else "High"
-    lines.append(f"| Cost-per-Commit | {cm.usd_display_f(cost_per_commit) if cost_per_commit != float('inf') else 'N/A'} | {cpc_status}")
+    lines.append("| Metric | Value | Status | vs Baseline (P50) |")
+    lines.append("|--------|-------|--------|-------------------|")
+
+    # Output-per-1M with baseline
+    op_bl = baselines.get("output_per_1M_tokens", {})
+    op_p50 = op_bl.get("p50", 200)
+    op_status = "Top 25%" if output_per_1M >= op_bl.get("p75", 999999) else ("Above median" if output_per_1M >= op_p50 else "Below median")
+    lines.append(f"| Output-per-1M-Tokens | {output_per_1M:.0f} LoC | {op_status} | P50={op_p50:.0f} |")
+
+    # Cost-per-commit with baseline
+    cpc_bl = baselines.get("cost_per_commit", {})
+    cpc_p50 = cpc_bl.get("p50", 0.50)
+    cpc_status = "Good" if cost_per_commit <= cpc_p50 else "High"
+    cpc_display = cm.usd_display_f(cost_per_commit) if cost_per_commit != float('inf') else 'N/A'
+    lines.append(f"| Cost-per-Commit | {cpc_display} | {cpc_status} | P50=${cpc_p50:.2f} |")
+
+    # Edit rejection
     rej_status = "Good" if rejection_rate <= 0.20 else "High"
-    lines.append(f"| Edit Rejection Rate | {rejection_rate:.1%} | {rej_status}")
-    cache_status = "Good" if cache_rate >= 0.30 else "Low"
-    lines.append(f"| Cache Hit Rate | {cache_rate:.1%} | {cache_status}")
+    lines.append(f"| Edit Rejection Rate | {rejection_rate:.1%} | {rej_status} | — |")
+
+    # Cache hit rate with baseline
+    cache_bl = baselines.get("cache_hit_rate", {})
+    cache_p50 = cache_bl.get("p50", 0.30)
+    cache_status = "Top 25%" if cache_rate >= cache_bl.get("p75", 0.99) else ("Above median" if cache_rate >= cache_p50 else "Below median")
+    lines.append(f"| Cache Hit Rate | {cache_rate:.1%} | {cache_status} | P50={cache_p50:.1%} |")
 
     # Commit Quality
     commit_signals = getattr(snap, 'commit_signals', None) or {}
@@ -171,15 +259,23 @@ def _session_report_json(
     bei: Optional[BEIScores],
     cm: Optional[CostModel],
     pricing_model: str = "",
+    baselines: dict = None,
 ) -> str:
     """Generate a JSON session report."""
     if cm is None:
         cm = CostModel()
     if not pricing_model:
         pricing_model = cm.default_model
+    if baselines is None:
+        baselines = {}
 
     model_for_cost = cm.resolve_model(pricing_model, snap.model_id or "")
     cost_usd = cm.calculate_usd(snap.tokens, model_for_cost)
+    output_per_1M = (
+        (snap.lines_added + snap.lines_removed) * 1_000_000.0 / snap.tokens.total_tokens
+        if snap.tokens.total_tokens > 0 else 0.0
+    )
+    analysis = generate_efficiency_analysis(output_per_1M, snap.tokens.cache_hit_rate, baselines)
 
     data = {
         "session_id": snap.session_id,
@@ -187,6 +283,8 @@ def _session_report_json(
         "model": snap.model_id,
         "started_at": snap.started_at,
         "ended_at": snap.ended_at,
+        "analysis": analysis,
+        "baselines": {k: {"p50": v["p50"], "p75": v["p75"]} for k, v in baselines.items()},
         "tokens": {
             "input": snap.tokens.input_tokens,
             "output": snap.tokens.output_tokens,

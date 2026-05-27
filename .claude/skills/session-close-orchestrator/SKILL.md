@@ -38,20 +38,100 @@ If a step fails, report the failure and continue to the next step.
 
 ---
 
+### Step 0: Task Card Gate
+
+**What**: Verify that a task card exists for the current session's work before
+proceeding with closeout. If no task card exists, auto-create one.
+
+**Check**:
+
+1. Read `.claude/current-task` if it exists. If it points to a valid file, go
+   to step 2.
+2. If `.claude/current-task` is missing or the file it points to does not exist,
+   auto-create a task card:
+
+   a. Classify the work from the session conversation:
+      - `scope`: `implementation` | `docs` | `tool` | `architecture` | `fixture` | `ci` | `review` | `maintenance`
+      - `risk`: `low` (docs/config only) | `medium` (tooling/quality gates) | `high` (solver/runtime/IO/viewer)
+      - `owner`: the best-fit steward skill from CLAUDE.md's skill table
+
+   b. Create the file at `docs/agentic/tasks/<today>-<slug>.md`:
+
+      ```markdown
+      ---
+      task_id: <today>-<slug>
+      status: complete
+      request: "<one-sentence summary of what was done>"
+      scope: <scope>
+      risk: <risk>
+      owning_agent: <owner>
+      specialist_agents:
+        - none
+      affected_contracts:
+        - none
+      affected_paths:
+        - <paths from git diff --stat>
+      required_evidence:
+        - validate-docs
+      human_gate_required: false
+      human_gate_reason: ""
+      ---
+
+      # <today>-<slug>
+
+      ## Scope
+
+      <one paragraph>
+
+      ## Evidence Bundle
+
+      <key commands run and their results>
+
+      ## Residual Risks
+
+      <remaining uncertainty>
+      ```
+
+   c. Write `.claude/current-task`:
+      ```
+      task_card: docs/agentic/tasks/<today>-<slug>.md
+      created: <today>
+      ```
+
+3. If the task card exists with `status: draft`, update it to `status: complete`
+   and fill the evidence bundle if it was still a planning skeleton.
+
+**Output**: A confirmed task card at `docs/agentic/tasks/<date>-<slug>.md` and
+an up-to-date `.claude/current-task`.
+
+**Rationale**: The task card is the "plan before act" contract. Auto-creating
+one on closeout prevents the "implement first, archive directly" drift pattern
+while keeping the pipeline fast — the card is filled from what actually
+happened.
+
+---
+
 ### Step 1: Token Audit — Import & Report
 
 **What**: Import the current session's JSONL transcript into the audit database,
-then generate the token benefit report.
+then generate the token benefit report with baseline comparison.
 
 ```bash
 # Import current session data
-python -m tools.token_audit db import --project GCS-A
+python -m tools.token_audit db import --project GCS-A --force
 
-# Generate benefit report
+# Generate benefit report with baseline comparison (default: on)
 python -m tools.token_audit report --format markdown
 ```
 
-**Output**: Token usage, cost, cache efficiency, BEI scores.
+**The report automatically includes**:
+- One-sentence efficiency analysis comparing this session to calibrated
+  P50/P75 baselines (e.g. "产出效率位于历史前25%，缓存命中率高于历史中位数")
+- Baseline comparison column in the Efficiency Metrics table
+- Token usage, cost, cache efficiency, BEI scores
+- Chapter breakdown (if CCD chapter markers were used)
+
+**Output**: Token usage, cost, cache efficiency, BEI scores, baseline comparison.
 
 Save the report to `docs/reports/token-audit/session-<date>.md`.
 
@@ -107,17 +187,27 @@ Embed the key table from Step 1's report:
 ```markdown
 ## Token Benefit Summary
 
+> <one-sentence efficiency analysis from report>
+
 | Metric | Value |
 |--------|-------|
 | Session Duration | <duration> |
 | Model | <model_id> |
 | Total Tokens | <total> (in: <input> / out: <output>) |
+| Cache Read Tokens | <cache_read> |
 | Cache Hit Rate | <rate> |
 | Estimated Cost | $<cost> |
 | Lines Changed | +<added>/-<removed> |
 | Commits | <count> |
 | BEI Composite | <score> (<rating>) |
 | Cost per Commit | $<cpc> |
+
+### Baseline Comparison
+
+| Metric | Session | P50 | P75 | Status |
+|--------|---------|-----|-----|--------|
+| LoC/1M tokens | <value> | <p50> | <p75> | Top 25% / Above median / Below median |
+| Cache Hit Rate | <value> | <p50> | <p75> | Top 25% / Above median / Below median |
 
 ### Key Findings
 
@@ -157,15 +247,20 @@ git push
 
 At close, the following must exist on disk and be pushed:
 
-1. `docs/completed-tasks/<date-slug>/README.md` — task archive with embedded
-   token benefit summary
-2. `docs/reports/token-audit/session-<date>.md` — full token benefit report
-   (if not already generated in Step 1)
-3. If experience extracted: `docs/agentic/experience/<slug>/README.md`
-4. Commit on `master` containing all of the above
+1. `.claude/current-task` — pointing to the current task card (Step 0)
+2. `docs/agentic/tasks/<date-slug>.md` — task card with `status: complete`
+   and filled evidence (Step 0)
+3. `docs/completed-tasks/<date-slug>/README.md` — task archive with embedded
+   token benefit summary (Step 2)
+4. `docs/reports/token-audit/session-<date>.md` — full token benefit report
+   (Step 1)
+5. If experience extracted: `docs/agentic/experience/<slug>/README.md` (Step 3)
+6. Commit on `master` containing all of the above (Step 5)
 
 ## Guardrails
 
+- Do not skip Step 0 (task card gate) — the task card is the plan-before-act
+  contract and every non-trivial session needs one.
 - Do not skip Step 1 (token import) — it is the data foundation.
 - Do not archive raw chat logs.
 - Do not fabricate BEI scores; mark "N/A" when git data is unavailable.
@@ -178,6 +273,8 @@ At close, the following must exist on disk and be pushed:
 ## Claude Code Integration
 
 When invoked:
+- Use `Read` to check `.claude/current-task` and any existing task card.
+- Use `Write` to create or update the task card and `.claude/current-task`.
 - Use `Bash` to run `python -m tools.token_audit` commands for token data.
 - Use `Bash` to run `git status`, `git diff`, `git log` for commit prep.
 - Use `Write` to create the archive README, token report, and experience docs.

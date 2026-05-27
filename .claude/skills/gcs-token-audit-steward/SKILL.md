@@ -14,11 +14,15 @@ reviewable engineering economics.
 
 ## Workflow
 
-1. **Watch** an active session with real-time token/cost tracking.
+1. **Watch** an active session with real-time token/cost tracking and burn rate alerts.
 2. **Import** historical sessions from JSONL transcripts into the database.
-3. **Report** on a single session or time range.
-4. **Trend** analysis over days/weeks/months.
-5. **Configure** BEI weights and alert thresholds.
+3. **Report** on a single session or time range — includes one-sentence efficiency
+   analysis comparing LoC/1M tokens and cache hit rate against calibrated P50/P75
+   baselines.
+4. **Calibrate** baselines from historical data for data-driven BEI scoring.
+5. **Dashboard** cross-project comparison with per-project metrics.
+6. **Trend** analysis over days/weeks/months.
+7. **Configure** BEI weights, alert thresholds, and pricing.
 
 ## Command Reference
 
@@ -29,11 +33,21 @@ python -m tools.token_audit watch
 # Import historical sessions
 python -m tools.token_audit db import --all
 python -m tools.token_audit db import --since 2026-05-01
+python -m tools.token_audit db import --force  # re-import existing sessions
 
-# Generate session report
+# Generate session report (includes baseline efficiency analysis)
 python -m tools.token_audit report --session <id>
 python -m tools.token_audit report --this-week
 python -m tools.token_audit report --this-month
+python -m tools.token_audit report --pricing anthropic  # switch pricing model
+
+# Baseline calibration
+python -m tools.token_audit baseline calibrate
+python -m tools.token_audit baseline calibrate --project GCS-A --days 30
+
+# Cross-project dashboard
+python -m tools.token_audit dashboard
+python -m tools.token_audit dashboard --format html -o dashboard.html
 
 # Trend analysis
 python -m tools.token_audit trend --days 30
@@ -77,6 +91,7 @@ Return a structured token report with:
 - session identification and duration;
 - input/output/cache token breakdown;
 - estimated cost in USD;
+- one-sentence efficiency analysis vs calibrated baseline (P50/P75);
 - BEI composite and dimension scores;
 - tools, skills, and edits breakdown;
 - trend comparison (when applicable).
