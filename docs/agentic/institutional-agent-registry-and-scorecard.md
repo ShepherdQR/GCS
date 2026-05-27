@@ -24,7 +24,7 @@ evals.
 
 | ID | Agent | Current maturity | Evidence package | Score | Next action |
 | --- | --- | --- | --- | ---: | --- |
-| I001 | Bladesmith: Quench-Forge | Practiced, promoted seed | Prompt, template, refusal eval, and 20+ examples under `001-bladesmith-quench-forge/`. | 9/10 | Keep as promoted institutional memory role; add periodic stale-rule review before future rule promotion. |
+| I001 | Bladesmith: Quench-Forge | Promoted | Prompt, template, refusal eval, and 20+ examples under `001-bladesmith-quench-forge/`. Promotion note: `promotion-20260527.md`. | 10/10 | Keep periodic stale-rule review; separate repeated pressure from one-off preference. |
 | I002 | Tailor: Stitch-Timeline | Practiced, promoted seed | Prompt, template, refusal eval, and 4 timeline examples under `002-tailor-stitch-timeline/`. | 8/10 | Add separate architecture, agentic-SE, and fixture timeline examples when those threads diverge. |
 | I003 | Atelier Steward: Calibrate-Review | Seed | Prompt, template, refusal eval, and one Figure 72 convention-fit example under `003-atelier-steward-calibrate-review/`. | 6/10 | Collect two more UI or figure reviews before promotion. |
 | I004 | Art Director: Frame-Judge | Seed | Prompt, template, refusal eval, and one Figure 72 visual-review example under `004-art-director-frame-judge/`. | 6/10 | Require rendered-artifact evidence for every new example; avoid approval without visual input. |

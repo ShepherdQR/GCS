@@ -1,7 +1,7 @@
 # GCS Agentic Metrics Dashboard
 
 Status: baseline
-Snapshot date: 2026-05-26
+Snapshot date: 2026-05-27
 
 ## Purpose
 
@@ -78,6 +78,25 @@ workflow health, and narrative maturity.
 | Figure 95 trend artifact | 1 | `docs/architecture/70-visualization/narrative-line-level-trend-20260526.md` |
 | Active metrics dashboard | 1 | This document |
 | Known unrelated dirty or untracked paths in current session | 3 | `docs/research/OpusTime/OpusTime.md`, `docs/reports/report_/`, and `docs/agentic/tasks/2026-05-26-institutional-process-ai-token-economics.md`; do not stage for narrative commits. |
+
+## Quality Gate Trend History
+
+| Date | Task | Trigger | Validate-docs | Python compile | Contract tests | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-05-27 | Weak-line short-term plan execution | Task closure (this batch) | PASS | PASS | Not run (docs-only batch) | E-GOV-001 validator candidate created; metrics trend history initiated. |
+| 2026-05-26 | Researcher evidence roadmap execution | Task closure | PASS | PASS | Not run (docs-only batch) | Narrative map v2, Figure 95 trend, D3 replay checker, D5 workbench package, exercised governance evidence. All doc validators passing. |
+| 2026-05-25 | Agentic PR governance nightly diagnostics | Task closure | PASS | PASS | Not run (docs-only batch) | Governance eval seeds, permission threat matrix, PR audit policy. First exercised-evidence entries recorded. |
+
+### Trend Reading
+
+Three data points, all docs-only batches. Validators pass consistently. The
+gaps are expected: contract tests and solver tests are not exercised by
+docs-only batches. When the next implementation batch closes, the trend table
+should include at least one row with contract-test and CTest results.
+
+### Next Trend Target
+
+Add a row with contract-test and CTest results after the next C++ solver change.
 
 ## Update Rule
 
