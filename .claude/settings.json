@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd C:/Codes/AI/GCS_A && /c/Softwares/miniconda3/python -m tools.token_audit db import --project GCS-A"
+          }
+        ]
+      }
+    ]
+  }
+}
