@@ -3,7 +3,7 @@
  - Date: 2026-05-24 22:50:51
  - Github: https://github.com/ShepherdQR
  - LastEditors: Qirong ZHANG
- - LastEditTime: 2026-05-25 23:23:21
+ - LastEditTime: 2026-05-26 19:21:45
  - Copyright (c) 2026 Qirong ZHANG. All rights reserved.
  - SPDX-License-Identifier: LGPL-3.0-or-later.
  --------------------------------------------------------->
@@ -26,4 +26,12 @@
 ## 20260519-1:00【首次使用codex，第1个问题】
 
 请分析世界上主流的商业GCS的架构，CDS, DCM2D, DCM3D, LGS，给出每个求解器的关键设计，每个总结为对应的md，放在合适的位置；对三者进行总结，放在合适位置。基于总结，更新我们的架构设计，对不满意的设计之处直接删除即可。代码实现方面，已有的较重的逻辑，若后续可能有用，可临时保留，你评估没有用的，直接删除即可。在模型方面，我们需要保留结构模型和行为模型的设计，可视化部分现有的基本代码可以先不处理。如果有更新的可视化设计，可以考虑。本阶段我们的可视化设计思路，还是本机/小巧/轻量，方便我们展示约束图的行为。
+
+
+
+# normal
+
+## 20260526【量化】
+
+我刚才做了当前仓库的内存统计，结果是：800 个文件，773 个文本文件，27 个二进制文件，约 143,583 行物理行。当前有 2 个 warning，没有 error：docs/current-model.md 和 python/requirements.txt 尚未被 artifact class 分类覆盖。
 
