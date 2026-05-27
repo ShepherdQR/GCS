@@ -273,6 +273,161 @@ def get_daily_bei_series(
     return [r["bei"] for r in rows]
 
 
+# ── Budget Tracking ─────────────────────────────────────────
+
+def get_today_cost(conn: sqlite3.Connection, cm) -> float:
+    """Get total cost for today's sessions in USD."""
+    from tools.token_audit.parser import TokenUsage
+    row = conn.execute(
+        """SELECT COALESCE(SUM(total_input_tokens), 0) as inp,
+                  COALESCE(SUM(total_output_tokens), 0) as outp,
+                  COALESCE(SUM(total_cache_read_tokens), 0) as cr,
+                  COALESCE(SUM(total_cache_creation_tokens), 0) as cc
+           FROM sessions WHERE date(started_at) = date('now')"""
+    ).fetchone()
+    usage = TokenUsage(input_tokens=row["inp"], output_tokens=row["outp"],
+                       cache_read_tokens=row["cr"], cache_creation_tokens=row["cc"])
+    return cm.calculate_usd(usage, cm.default_model)
+
+
+def get_week_cost(conn: sqlite3.Connection, cm) -> float:
+    """Get total cost for the current calendar week (Mon-Sun) in USD."""
+    from tools.token_audit.parser import TokenUsage
+    row = conn.execute(
+        """SELECT COALESCE(SUM(total_input_tokens), 0) as inp,
+                  COALESCE(SUM(total_output_tokens), 0) as outp,
+                  COALESCE(SUM(total_cache_read_tokens), 0) as cr,
+                  COALESCE(SUM(total_cache_creation_tokens), 0) as cc
+           FROM sessions
+           WHERE date(started_at) >= date('now', 'weekday 0', '-6 days')
+             AND date(started_at) <= date('now')"""
+    ).fetchone()
+    usage = TokenUsage(input_tokens=row["inp"], output_tokens=row["outp"],
+                       cache_read_tokens=row["cr"], cache_creation_tokens=row["cc"])
+    return cm.calculate_usd(usage, cm.default_model)
+
+
+def get_month_prediction(conn: sqlite3.Connection, cm) -> dict:
+    """Predict end-of-month cost based on daily average.
+
+    Returns {avg_daily_cost, month_to_date, remaining_days, predicted_total, predicted_remaining}.
+    All values in USD.
+    """
+    import calendar
+    from datetime import datetime
+    from tools.token_audit.parser import TokenUsage
+
+    today = datetime.utcnow()
+    day_of_month = today.day
+    total_days = calendar.monthrange(today.year, today.month)[1]
+    remaining = total_days - day_of_month
+
+    row = conn.execute(
+        """SELECT COALESCE(SUM(total_input_tokens), 0) as inp,
+                  COALESCE(SUM(total_output_tokens), 0) as outp,
+                  COALESCE(SUM(total_cache_read_tokens), 0) as cr,
+                  COALESCE(SUM(total_cache_creation_tokens), 0) as cc
+           FROM sessions
+           WHERE strftime('%Y-%m', started_at) = strftime('%Y-%m', 'now')"""
+    ).fetchone()
+    usage = TokenUsage(input_tokens=row["inp"], output_tokens=row["outp"],
+                       cache_read_tokens=row["cr"], cache_creation_tokens=row["cc"])
+    mtd_cost = cm.calculate_usd(usage, cm.default_model)
+    avg_daily = mtd_cost / max(day_of_month, 1)
+    predicted_remaining = avg_daily * remaining
+    predicted_total = mtd_cost + predicted_remaining
+
+    return {
+        "avg_daily_cost": round(avg_daily, 4),
+        "month_to_date": round(mtd_cost, 2),
+        "remaining_days": remaining,
+        "predicted_remaining": round(predicted_remaining, 2),
+        "predicted_total": round(predicted_total, 2),
+    }
+
+
+# ── Routing Optimization ─────────────────────────────────────
+
+def get_routing_candidates(
+    conn: sqlite3.Connection, cm, days: int = 90
+) -> list[dict]:
+    """Find sessions where a cheaper model could have been used.
+
+    Classifies sessions by pattern (edit ratio as proxy) and output complexity.
+    Returns candidates sorted by potential savings (highest first).
+    """
+    from tools.token_audit.parser import TokenUsage
+
+    rows = conn.execute(
+        """SELECT id, project_name, model_id, started_at,
+                  total_input_tokens, total_output_tokens,
+                  total_cache_read_tokens, total_cache_creation_tokens,
+                  tool_calls_total, edit_accept_count, edit_reject_count
+           FROM sessions
+           WHERE date(started_at) >= date('now', ?)
+             AND total_input_tokens > 0
+             AND (model_id LIKE '%sonnet%' OR model_id LIKE '%opus%')
+           ORDER BY started_at DESC""",
+        (f"-{days} days",),
+    ).fetchall()
+
+    candidates = []
+    for row in rows:
+        row = dict(row)
+        usage = TokenUsage(
+            input_tokens=row["total_input_tokens"],
+            output_tokens=row["total_output_tokens"],
+            cache_read_tokens=row["total_cache_read_tokens"],
+            cache_creation_tokens=row["total_cache_creation_tokens"],
+        )
+        total_edits = row["edit_accept_count"] + row["edit_reject_count"]
+        tool_total = max(row["tool_calls_total"], 1)
+        edit_ratio = total_edits / tool_total
+
+        if edit_ratio > 0.3:
+            pattern = "editing-heavy"
+        elif edit_ratio < 0.1 and row["tool_calls_total"] > 5:
+            pattern = "reading-heavy"
+        else:
+            pattern = "mixed"
+
+        actual_model = row["model_id"] or "claude-sonnet-4-6"
+        recommended = _recommend_model(pattern, actual_model)
+        if recommended == actual_model:
+            continue
+
+        actual_cost = cm.calculate_usd(usage, actual_model)
+        recommended_cost = cm.calculate_usd(usage, recommended)
+        savings = actual_cost - recommended_cost
+        if savings <= 0:
+            continue
+
+        candidates.append({
+            "session_id": row["id"][:20],
+            "project": row["project_name"],
+            "started_at": row["started_at"][:19] if row["started_at"] else "",
+            "actual_model": actual_model,
+            "recommended_model": recommended,
+            "actual_cost": round(actual_cost, 4),
+            "recommended_cost": round(recommended_cost, 4),
+            "savings_usd": round(savings, 4),
+            "pattern": pattern,
+        })
+
+    return sorted(candidates, key=lambda c: c["savings_usd"], reverse=True)
+
+
+def _recommend_model(pattern: str, actual_model: str) -> str:
+    """Recommend a cheaper model based on session pattern."""
+    if "haiku" in actual_model.lower():
+        return actual_model
+    if pattern == "reading-heavy":
+        return "claude-haiku-4-5"
+    if pattern == "mixed":
+        return "claude-haiku-4-5"
+    return actual_model  # editing-heavy: keep current
+
+
 # ── Baseline Calibration ─────────────────────────────────────
 
 def calibrate_baselines(

@@ -83,6 +83,9 @@ def generate_session_report(
     cost_model: Optional[CostModel] = None,
     pricing_model: str = "",
     baselines: dict = None,
+    compare: bool = False,
+    batch: bool = False,
+    cache_ttl: str = "5min",
     fmt: str = "markdown",
 ) -> str:
     """Generate a single-session report.
@@ -91,8 +94,8 @@ def generate_session_report(
     pricing_model (defaults to config's report.default_pricing_model).
     """
     if fmt == "json":
-        return _session_report_json(snapshot, bei_scores, cost_model, pricing_model, baselines)
-    return _session_report_markdown(snapshot, bei_scores, cost_model, pricing_model, baselines)
+        return _session_report_json(snapshot, bei_scores, cost_model, pricing_model, baselines, compare, batch, cache_ttl)
+    return _session_report_markdown(snapshot, bei_scores, cost_model, pricing_model, baselines, compare, batch, cache_ttl)
 
 
 def _session_report_markdown(
@@ -101,6 +104,9 @@ def _session_report_markdown(
     cm: Optional[CostModel],
     pricing_model: str = "",
     baselines: dict = None,
+    compare: bool = False,
+    batch: bool = False,
+    cache_ttl: str = "5min",
 ) -> str:
     """Generate a Markdown session report."""
     if cm is None:
@@ -112,7 +118,7 @@ def _session_report_markdown(
 
     # Compute cost at report time from raw token counts
     model_for_cost = cm.resolve_model(pricing_model, snap.model_id or "")
-    cost_usd = cm.calculate_usd(snap.tokens, model_for_cost)
+    cost_usd = cm.calculate_usd(snap.tokens, model_for_cost, batch=batch, cache_ttl=cache_ttl)
     cache_rate = snap.tokens.cache_hit_rate
     total_tokens = snap.tokens.total_tokens
     total_edits = snap.edit_accept_count + snap.edit_reject_count
@@ -165,7 +171,12 @@ def _session_report_markdown(
     lines.append(f"| Cache Read Tokens | {snap.tokens.cache_read_tokens:,}")
     lines.append(f"| Cache Creation Tokens | {snap.tokens.cache_creation_tokens:,}")
     lines.append(f"| Cache Hit Rate | {cache_rate:.1%}")
-    lines.append(f"| Estimated Cost ({model_for_cost}) | {cm.usd_display_f(cost_usd)}")
+    if compare:
+        multi = cm.calculate_multi_usd(snap.tokens, batch=batch, cache_ttl=cache_ttl)
+        cost_str = cm.format_comparison(cost_usd, multi, model_for_cost)
+    else:
+        cost_str = cm.usd_display_f(cost_usd)
+    lines.append(f"| Estimated Cost ({model_for_cost}) | {cost_str}")
 
     # Output Summary
     lines.append("\n## Output Summary\n")
@@ -260,6 +271,9 @@ def _session_report_json(
     cm: Optional[CostModel],
     pricing_model: str = "",
     baselines: dict = None,
+    compare: bool = False,
+    batch: bool = False,
+    cache_ttl: str = "5min",
 ) -> str:
     """Generate a JSON session report."""
     if cm is None:
@@ -270,7 +284,7 @@ def _session_report_json(
         baselines = {}
 
     model_for_cost = cm.resolve_model(pricing_model, snap.model_id or "")
-    cost_usd = cm.calculate_usd(snap.tokens, model_for_cost)
+    cost_usd = cm.calculate_usd(snap.tokens, model_for_cost, batch=batch, cache_ttl=cache_ttl)
     output_per_1M = (
         (snap.lines_added + snap.lines_removed) * 1_000_000.0 / snap.tokens.total_tokens
         if snap.tokens.total_tokens > 0 else 0.0
@@ -421,23 +435,40 @@ def generate_dashboard(
         days: aggregation window
         fmt: terminal, html, or markdown
     """
-    from tools.token_audit.db import get_project_summaries, get_daily_bei_series
+    from tools.token_audit.db import get_project_summaries, get_daily_bei_series, get_today_cost, get_week_cost, get_month_prediction
     from tools.token_audit.parser import TokenUsage
 
     projects = get_project_summaries(db_conn, days=days)
     if not projects:
         return "No data available. Run 'db import' first."
 
+    # Budget & prediction data
+    budgets = cm.config.get("alerts", {}).get("budgets", {})
+    per_day = budgets.get("per_day_usd", 10.00)
+    per_week = budgets.get("per_week_usd", 50.00)
+    today_cost = get_today_cost(db_conn, cm)
+    week_cost = get_week_cost(db_conn, cm)
+    prediction = get_month_prediction(db_conn, cm)
+
+    budget_info = {
+        "today_cost": today_cost, "week_cost": week_cost,
+        "per_day": per_day, "per_week": per_week,
+        "prediction": prediction,
+    }
+
     if fmt == "html":
-        return _dashboard_html(projects, cm, days)
+        return _dashboard_html(projects, cm, days, budget_info)
     if fmt == "markdown":
-        return _dashboard_markdown(projects, cm, days)
-    return _dashboard_terminal(projects, cm, days)
+        return _dashboard_markdown(projects, cm, days, budget_info)
+    return _dashboard_terminal(projects, cm, days, budget_info)
 
 
-def _dashboard_terminal(projects: list[dict], cm, days: int) -> str:
+def _dashboard_terminal(projects: list[dict], cm, days: int, budget_info: dict = None) -> str:
     """Terminal dashboard with table and sparklines."""
     from tools.token_audit.parser import TokenUsage
+
+    if budget_info is None:
+        budget_info = {}
 
     # Compute per-project cost
     for p in projects:
@@ -471,6 +502,20 @@ def _dashboard_terminal(projects: list[dict], cm, days: int) -> str:
     lines.append(f"  GCS Token Audit - Cross-Project Dashboard    {datetime.now().strftime('%Y-%m-%d')}")
     lines.append("=" * 78)
     lines.append(f"  Period: last {days}d    Cost: ${total_cost:.2f}    Tokens: {total_tokens:,}    Sessions: {total_sessions}")
+    # Budget tracking
+    td = budget_info.get("today_cost", 0)
+    tw = budget_info.get("week_cost", 0)
+    pd = budget_info.get("per_day", 10)
+    pw = budget_info.get("per_week", 50)
+    tp = td / pd * 100 if pd > 0 else 0
+    wp = tw / pw * 100 if pw > 0 else 0
+    lines.append(f"  Budget: Today ${td:.2f} / ${pd:.2f} ({tp:.0f}%)  |  Week ${tw:.2f} / ${pw:.2f} ({wp:.0f}%)")
+    # Month prediction
+    pred = budget_info.get("prediction", {})
+    if pred:
+        lines.append(f"  Month: ${pred.get('month_to_date', 0):.2f} MTD  |  "
+                     f"Predicted: ${pred.get('predicted_total', 0):.2f} "
+                     f"(${pred.get('avg_daily_cost', 0):.2f}/day x {pred.get('remaining_days', 0)}d remaining)")
     lines.append("-" * 78)
     header = f"  {'Project':<12} {'Sess':>4} {'Tokens':>10} {'Cost':>8} {'LoC':>8} {'BEI':>6} {'Cache':>6}"
     lines.append(header)
@@ -501,9 +546,11 @@ def _fmt_dash(n: int) -> str:
     return str(n)
 
 
-def _dashboard_markdown(projects: list[dict], cm, days: int) -> str:
+def _dashboard_markdown(projects: list[dict], cm, days: int, budget_info: dict = None) -> str:
     """Markdown dashboard."""
     from tools.token_audit.parser import TokenUsage
+    if budget_info is None:
+        budget_info = {}
     for p in projects:
         usage = TokenUsage(input_tokens=p["total_input_tokens"], output_tokens=p["total_output_tokens"],
                            cache_read_tokens=p.get("total_cache_read_tokens", 0))
@@ -516,6 +563,13 @@ def _dashboard_markdown(projects: list[dict], cm, days: int) -> str:
 
     lines = [f"# Cross-Project Dashboard ({days}d)\n"]
     lines.append(f"**Pricing**: {cm.default_model} | **Total**: ${total_cost:.2f}, {total_tokens:,} tokens\n")
+    td = budget_info.get("today_cost", 0); tw = budget_info.get("week_cost", 0)
+    pd = budget_info.get("per_day", 10); pw = budget_info.get("per_week", 50)
+    pred = budget_info.get("prediction", {})
+    lines.append(f"**Budget**: Today ${td:.2f} / ${pd:.2f} | Week ${tw:.2f} / ${pw:.2f}")
+    if pred:
+        lines.append(f" | Month ${pred.get('month_to_date', 0):.2f} MTD, Predicted ${pred.get('predicted_total', 0):.2f}")
+    lines.append("")
     lines.append("| Project | Sessions | Tokens | Cost | LoC | BEI | Cache |")
     lines.append("|---------|----------|--------|------|-----|-----|-------|")
     for p in projects:
@@ -528,9 +582,11 @@ def _dashboard_markdown(projects: list[dict], cm, days: int) -> str:
     return "\n".join(lines)
 
 
-def _dashboard_html(projects: list[dict], cm, days: int) -> str:
+def _dashboard_html(projects: list[dict], cm, days: int, budget_info: dict = None) -> str:
     """Self-contained HTML dashboard with Chart.js trends and session filtering."""
     from tools.token_audit.parser import TokenUsage
+    if budget_info is None:
+        budget_info = {}
 
     for p in projects:
         usage = TokenUsage(input_tokens=p["total_input_tokens"], output_tokens=p["total_output_tokens"],
@@ -707,3 +763,49 @@ new Chart(document.getElementById('costChart'), {{
 </script>
 </body>
 </html>"""
+
+
+def generate_routing_report(
+    candidates: list[dict], days: int = 90, fmt: str = "markdown"
+) -> str:
+    """Generate a model routing optimization report."""
+    if not candidates:
+        return "No routing optimization candidates found."
+
+    if fmt == "json":
+        import json
+        return json.dumps(candidates, indent=2, ensure_ascii=False)
+
+    short = {"claude-sonnet-4-6": "Sonnet", "claude-opus-4-7": "Opus",
+             "claude-haiku-4-5": "Haiku", "deepseek-v4-pro": "DeepSeek"}
+    total_savings = sum(c["savings_usd"] for c in candidates)
+
+    lines = [f"# Model Routing Optimization Report ({days}d)\n"]
+    lines.append(f"**Potential Savings**: ${total_savings:.2f} across {len(candidates)} sessions\n")
+    lines.append("| Session | Project | Date | Pattern | Actual | Rec | Actual $ | Rec'd $ | Savings |")
+    lines.append("|---------|---------|------|---------|--------|-----|----------|---------|---------|")
+
+    for c in candidates[:50]:
+        actual_short = short.get(c["actual_model"], c["actual_model"])
+        rec_short = short.get(c["recommended_model"], c["recommended_model"])
+        lines.append(
+            f"| {c['session_id']}... | {c['project']} | {c['started_at']} | "
+            f"{c['pattern']} | {actual_short} | {rec_short} | "
+            f"${c['actual_cost']:.2f} | ${c['recommended_cost']:.2f} | ${c['savings_usd']:.2f} |"
+        )
+
+    # Summary by pattern
+    lines.append("\n## Savings by Pattern\n")
+    by_pattern = {}
+    for c in candidates:
+        by_pattern.setdefault(c["pattern"], {"count": 0, "savings": 0.0})
+        by_pattern[c["pattern"]]["count"] += 1
+        by_pattern[c["pattern"]]["savings"] += c["savings_usd"]
+
+    lines.append("| Pattern | Sessions | Total Savings |")
+    lines.append("|---------|----------|--------------|")
+    for pattern, stats in sorted(by_pattern.items()):
+        lines.append(f"| {pattern} | {stats['count']} | ${stats['savings']:.2f} |")
+
+    lines.append(f"\n---\n*Generated by GCS Token Audit*")
+    return "\n".join(lines)

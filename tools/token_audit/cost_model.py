@@ -92,7 +92,8 @@ class CostModel:
                     return rates
         return None
 
-    def calculate(self, usage: TokenUsage, model_id: str) -> int:
+    def calculate(self, usage: TokenUsage, model_id: str, batch: bool = False,
+                  cache_ttl: str = "5min") -> int:
         """Calculate cost in microdollars (1/1,000,000 USD).
 
         Rates are USD/1M tokens. Since tokens * (USD/1M) = microdollars,
@@ -102,27 +103,46 @@ class CostModel:
         if rates is None:
             rates = {"input": 3.00, "output": 15.00, "cache_write": 3.75, "cache_read": 0.30}
 
+        input_rate = rates.get("batch_input", rates["input"]) if batch else rates["input"]
+        output_rate = rates.get("batch_output", rates["output"]) if batch else rates["output"]
+        cache_write_rate = self._resolve_cache_write(rates, cache_ttl)
+
         cost = (
-            usage.input_tokens * rates["input"]
-            + usage.output_tokens * rates["output"]
-            + usage.cache_creation_tokens * rates.get("cache_write", rates["input"] * 1.25)
+            usage.input_tokens * input_rate
+            + usage.output_tokens * output_rate
+            + usage.cache_creation_tokens * cache_write_rate
             + usage.cache_read_tokens * rates.get("cache_read", rates["input"] * 0.1)
         )
         return int(cost)
 
-    def calculate_usd(self, usage: TokenUsage, model_id: str) -> float:
+    def calculate_usd(self, usage: TokenUsage, model_id: str, batch: bool = False,
+                      cache_ttl: str = "5min") -> float:
         """Calculate cost in USD (float)."""
         rates = self._find_rate(model_id)
         if rates is None:
             rates = {"input": 3.00, "output": 15.00, "cache_write": 3.75, "cache_read": 0.30}
 
+        input_rate = rates.get("batch_input", rates["input"]) if batch else rates["input"]
+        output_rate = rates.get("batch_output", rates["output"]) if batch else rates["output"]
+        cache_write_rate = self._resolve_cache_write(rates, cache_ttl)
+
         cost = (
-            usage.input_tokens * rates["input"]
-            + usage.output_tokens * rates["output"]
-            + usage.cache_creation_tokens * rates.get("cache_write", rates["input"] * 1.25)
+            usage.input_tokens * input_rate
+            + usage.output_tokens * output_rate
+            + usage.cache_creation_tokens * cache_write_rate
             + usage.cache_read_tokens * rates.get("cache_read", rates["input"] * 0.1)
         ) / 1_000_000.0
         return cost
+
+    @staticmethod
+    def _resolve_cache_write(rates: dict, cache_ttl: str) -> float:
+        """Resolve cache write rate by TTL. Backward-compatible with 'cache_write' key."""
+        ttl_key = f"cache_write_{cache_ttl}" if cache_ttl in ("5min", "1hour") else "cache_write_5min"
+        if ttl_key in rates:
+            return rates[ttl_key]
+        if "cache_write" in rates:
+            return rates["cache_write"]
+        return rates.get("input", 3.00) * 1.25
 
     @staticmethod
     def usd_display(microdollars: int) -> str:
@@ -133,3 +153,36 @@ class CostModel:
     def usd_display_f(usd: float) -> str:
         """Format float USD as display string."""
         return f"${usd:.2f}"
+
+    # Models to compare in multi-model reports
+    COMPARISON_MODELS = ["deepseek-v4-pro", "claude-sonnet-4-6", "claude-opus-4-7"]
+
+    SHORT_NAMES = {
+        "deepseek-v4-pro": "DeepSeek", "claude-sonnet-4-6": "Sonnet",
+        "claude-opus-4-7": "Opus", "claude-haiku-4-5": "Haiku",
+    }
+
+    def calculate_multi_usd(self, usage: TokenUsage, batch: bool = False,
+                            cache_ttl: str = "5min") -> dict[str, float]:
+        """Calculate cost under all COMPARISON_MODELS. Returns {model_id: usd_float}."""
+        results = {}
+        for model_id in self.COMPARISON_MODELS:
+            try:
+                results[model_id] = self.calculate_usd(usage, model_id, batch=batch, cache_ttl=cache_ttl)
+            except Exception:
+                results[model_id] = 0.0
+        return results
+
+    @staticmethod
+    def format_comparison(primary_cost: float, multi_costs: dict[str, float],
+                          primary_model: str) -> str:
+        """Format inline comparison: '$0.10 (vs Sonnet $2.81, Opus $4.69)'."""
+        parts = []
+        for mid, cost in multi_costs.items():
+            if mid == primary_model:
+                continue
+            name = CostModel.SHORT_NAMES.get(mid, mid)
+            parts.append(f"{name} ${cost:.2f}")
+        if not parts:
+            return f"${primary_cost:.2f}"
+        return f"${primary_cost:.2f} (vs {', '.join(parts)})"

@@ -169,9 +169,15 @@ def _fmt_tokens(n: int) -> str:
               help="Pricing model: deepseek (default), anthropic, or specific model name")
 @click.option("--baseline/--no-baseline", default=True,
               help="Show efficiency analysis vs calibrated baselines (default: on)")
+@click.option("--compare/--no-compare", default=False,
+              help="Show multi-model cost comparison (DeepSeek + Sonnet + Opus)")
+@click.option("--batch/--no-batch", default=False,
+              help="Use Anthropic Batch API pricing (50% off input/output)")
+@click.option("--cache-ttl", default="5min", type=click.Choice(["5min", "1hour"]),
+              help="Cache TTL for cache write pricing (default: 5min)")
 @click.option("--this-week", is_flag=True, help="Generate weekly report")
 @click.option("--this-month", is_flag=True, help="Generate monthly report")
-def report(session_id, from_date, to_date, output_fmt, output_path, pricing_model, baseline, this_week, this_month):
+def report(session_id, from_date, to_date, output_fmt, output_path, pricing_model, baseline, compare, batch, cache_ttl, this_week, this_month):
     """Generate session or time-range reports.
 
     Cost is computed at report time from raw token counts.
@@ -206,14 +212,14 @@ def report(session_id, from_date, to_date, output_fmt, output_path, pricing_mode
         days = (datetime.strptime(to_date, "%Y-%m-%d") - datetime.strptime(from_date, "%Y-%m-%d")).days
         content = generate_trend_report(db_conn, days=max(days, 1), pricing_model=pricing_model)
     elif session_id:
-        content = _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, baselines, output_fmt)
+        content = _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, baselines, compare, batch, cache_ttl, output_fmt)
     else:
         # Latest session
         sess = get_latest_session(db_conn)
         if not sess:
             click.echo("No sessions in database. Run 'db import' first or specify --session.")
             return
-        content = _report_single_session(db_conn, sess["id"], bei_engine, git_linker, cost_model, pricing_model, baselines, output_fmt)
+        content = _report_single_session(db_conn, sess["id"], bei_engine, git_linker, cost_model, pricing_model, baselines, compare, batch, cache_ttl, output_fmt)
 
     if output_path:
         Path(output_path).write_text(content, encoding="utf-8")
@@ -222,7 +228,7 @@ def report(session_id, from_date, to_date, output_fmt, output_path, pricing_mode
         click.echo(content)
 
 
-def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, baselines, fmt):
+def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_model, pricing_model, baselines, compare, batch, cache_ttl, fmt):
     """Generate a single-session report. Cost is computed at report time."""
     sess = get_session(db_conn, session_id)
     if not sess:
@@ -284,7 +290,7 @@ def _report_single_session(db_conn, session_id, bei_engine, git_linker, cost_mod
     # Calculate BEI
     bei = bei_engine.calculate(snap, snap.project_name)
 
-    return generate_session_report(snap, bei, cost_model, pricing_model, baselines, fmt)
+    return generate_session_report(snap, bei, cost_model, pricing_model, baselines, compare, batch, cache_ttl, fmt=fmt)
 
 
 # ── trend ────────────────────────────────────────────────────
@@ -658,6 +664,31 @@ def dashboard_cmd(days, output_fmt, output_path):
     if output_path:
         Path(output_path).write_text(content, encoding="utf-8")
         click.echo(f"Dashboard saved to {output_path}")
+    else:
+        click.echo(content)
+    db_conn.close()
+
+
+# ── routing ─────────────────────────────────────────────────
+
+@main.command("routing")
+@click.option("--days", "-d", default=90, help="Days of history to analyze")
+@click.option("--format", "-f", "output_fmt", default="markdown",
+              type=click.Choice(["markdown", "json"]))
+@click.option("--output", "-o", "output_path", default=None, help="Output file path")
+def routing_cmd(days, output_fmt, output_path):
+    """Analyze model routing: find sessions where a cheaper model could be used."""
+    db_conn = init_db()
+    cm = CostModel()
+    from tools.token_audit.db import get_routing_candidates
+    from tools.token_audit.reporter import generate_routing_report
+
+    candidates = get_routing_candidates(db_conn, cm, days=days)
+    content = generate_routing_report(candidates, days=days, fmt=output_fmt)
+
+    if output_path:
+        Path(output_path).write_text(content, encoding="utf-8")
+        click.echo(f"Routing report saved to {output_path}")
     else:
         click.echo(content)
     db_conn.close()
