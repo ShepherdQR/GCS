@@ -15,9 +15,10 @@ from tools.token_audit.db import (
     get_latest_session, session_exists, close_session, db_stats,
     upsert_daily_summary, get_daily_summaries, insert_chapter, get_chapters,
     get_project_summaries, get_daily_bei_series, calibrate_baselines,
+    insert_turn, insert_tool_call, insert_edit,
 )
 from tools.token_audit.parser import (
-    IncrementalJSONLParser, SessionSnapshot, TokenUsage,
+    IncrementalJSONLParser, SessionSnapshot, TokenUsage, ToolCall,
 )
 from tools.token_audit.cost_model import CostModel
 from tools.token_audit.git_linker import GitLinker
@@ -454,11 +455,13 @@ def db_import(import_all, since, project, all_projects, force):
 
 
 def _import_session(db_conn, jsonl_path, records, project_name):
-    """Import a single session from parsed records with git and BEI enrichment."""
+    """Import a single session from parsed records with git and BEI enrichment.
+
+    Populates sessions, turns, tool_calls, edits, and chapters tables.
+    """
     cost_model = CostModel()
     git_linker = GitLinker()
     bei_engine = BEIEngine(db_conn=db_conn, cost_model=cost_model)
-    # Load calibrated baselines for accurate BEI scoring
     try:
         baselines = calibrate_baselines(db_conn, window_days=30)
         if baselines:
@@ -478,9 +481,20 @@ def _import_session(db_conn, jsonl_path, records, project_name):
     memory_entries = []
     docs_touched = []
     chapters_list = []
+    edit_accept_count = 0
+    edit_reject_count = 0
+    tool_use_queue: dict[str, dict] = {}  # tool_use_id → pending tool info
+
+    # Collect detail rows before inserting (FK constraint requires session row first)
+    pending_turns: list[dict] = []
+    pending_tool_calls: list[dict] = []
+    pending_edits: list[dict] = []
 
     for record in records:
-        if record.get("type") == "assistant":
+        rtype = record.get("type", "")
+        rts = record.get("timestamp", "")
+
+        if rtype == "assistant":
             m = IncrementalJSONLParser.extract_model(record)
             if m and not model_id:
                 model_id = m
@@ -492,6 +506,22 @@ def _import_session(db_conn, jsonl_path, records, project_name):
                     tokens += usage
                     turn_count += 1
 
+                    # Queue turn record for later insert
+                    msg = record.get("message", {})
+                    pending_turns.append({
+                        "session_id": sid,
+                        "turn_index": turn_count,
+                        "role": "assistant",
+                        "timestamp": rts,
+                        "message_id": msg.get("id", ""),
+                        "input_tokens": usage.input_tokens,
+                        "output_tokens": usage.output_tokens,
+                        "cache_read_tokens": usage.cache_read_tokens,
+                        "cache_creation_tokens": usage.cache_creation_tokens,
+                        "model_id": m or model_id,
+                    })
+
+            # Queue tool uses for later matching with results
             for tc in IncrementalJSONLParser.extract_tool_uses(record):
                 tool_count += 1
                 if IncrementalJSONLParser.is_subagent_spawn(tc):
@@ -503,10 +533,18 @@ def _import_session(db_conn, jsonl_path, records, project_name):
                 if IncrementalJSONLParser.is_chapter_marker(tc):
                     chapter_info = IncrementalJSONLParser.extract_chapter_info(tc)
                     chapter_info["start_turn"] = turn_count
-                    chapter_info["start_timestamp"] = record.get("timestamp", "")
+                    chapter_info["start_timestamp"] = rts
                     chapters_list.append(chapter_info)
 
-        elif record.get("type") == "user":
+                tool_use_queue[tc.tool_use_id] = {
+                    "name": tc.name,
+                    "input": tc.input_data,
+                    "timestamp": rts,
+                    "turn_index": turn_count,
+                }
+
+        elif rtype == "user":
+            # Extract memory/docs hints from user message content
             content = record.get("message", {}).get("content", "")
             if isinstance(content, str):
                 if ".claude/memory" in content or "MEMORY.md" in content:
@@ -514,7 +552,86 @@ def _import_session(db_conn, jsonl_path, records, project_name):
                 if "docs/" in content and ".md" in content:
                     docs_touched.append(content[:200])
 
-    # Compute cost for BEI scoring only (not stored — cost is computed at report time)
+            # Match tool results with queued tool uses
+            for result in IncrementalJSONLParser.extract_tool_results(record):
+                tuid = result["tool_use_id"]
+                pending = tool_use_queue.pop(tuid, None)
+                if pending is None:
+                    continue
+
+                is_error = result.get("is_error", False)
+                result_str = _truncate_result(result.get("content", ""))
+
+                # Queue tool_call record for later insert
+                pending_tool_calls.append({
+                    "session_id": sid,
+                    "turn_index": pending["turn_index"],
+                    "tool_name": pending["name"],
+                    "tool_input": json.dumps(pending["input"]) if pending["input"] else "",
+                    "tool_result": result_str,
+                    "success": 0 if is_error else 1,
+                    "timestamp": pending["timestamp"],
+                })
+
+                # Insert edit record for edit-type tools
+                if IncrementalJSONLParser.is_edit_tool(
+                    ToolCall(name=pending["name"], tool_use_id=tuid, input_data=pending["input"])
+                ):
+                    lines_added, lines_removed = IncrementalJSONLParser.count_edit_lines(
+                        pending["name"], pending["input"]
+                    )
+                    accepted = 0 if is_error else 1
+                    if accepted:
+                        edit_accept_count += 1
+                    else:
+                        edit_reject_count += 1
+
+                    file_path = pending["input"].get("file_path", "")
+                    if not file_path:
+                        file_path = pending["input"].get("notebook_path", "")
+
+                    pending_edits.append({
+                        "session_id": sid,
+                        "turn_index": pending["turn_index"],
+                        "file_path": file_path,
+                        "lines_added": lines_added,
+                        "lines_removed": lines_removed,
+                        "accepted": accepted,
+                        "timestamp": pending["timestamp"],
+                    })
+
+    # Flush unmatched tool uses (no result received yet — session may be partial)
+    for tuid, pending in tool_use_queue.items():
+        pending_tool_calls.append({
+            "session_id": sid,
+            "turn_index": pending["turn_index"],
+            "tool_name": pending["name"],
+            "tool_input": json.dumps(pending["input"]) if pending["input"] else "",
+            "tool_result": "",
+            "success": 1,
+            "timestamp": pending["timestamp"],
+        })
+        if IncrementalJSONLParser.is_edit_tool(
+            ToolCall(name=pending["name"], tool_use_id=tuid, input_data=pending["input"])
+        ):
+            lines_added, lines_removed = IncrementalJSONLParser.count_edit_lines(
+                pending["name"], pending["input"]
+            )
+            file_path = pending["input"].get("file_path", "")
+            if not file_path:
+                file_path = pending["input"].get("notebook_path", "")
+            pending_edits.append({
+                "session_id": sid,
+                "turn_index": pending["turn_index"],
+                "file_path": file_path,
+                "lines_added": lines_added,
+                "lines_removed": lines_removed,
+                "accepted": 1,
+                "timestamp": pending["timestamp"],
+            })
+            edit_accept_count += 1
+
+    # Compute cost for BEI scoring only
     cost_for_bei = cost_model.calculate(tokens, model_id or "claude-sonnet-4-6")
 
     # Enrich with git data from session time window
@@ -557,8 +674,18 @@ def _import_session(db_conn, jsonl_path, records, project_name):
         "skills_invoked": json.dumps(skills),
         "memory_entries": json.dumps(memory_entries),
         "docs_touched": json.dumps(docs_touched),
+        "edit_accept_count": edit_accept_count,
+        "edit_reject_count": edit_reject_count,
     }
     insert_session(db_conn, session_data)
+
+    # Bulk insert detail rows (FK requires session row to exist first)
+    for t in pending_turns:
+        insert_turn(db_conn, t)
+    for tc in pending_tool_calls:
+        insert_tool_call(db_conn, tc)
+    for e in pending_edits:
+        insert_edit(db_conn, e)
 
     # Insert chapter markers
     for i, ch in enumerate(chapters_list):
@@ -592,6 +719,8 @@ def _import_session(db_conn, jsonl_path, records, project_name):
         snap.skills_invoked = skills
         snap.memory_entries = memory_entries
         snap.docs_touched = docs_touched
+        snap.edit_accept_count = edit_accept_count
+        snap.edit_reject_count = edit_reject_count
 
         bei = bei_engine.calculate(snap, project_name)
         update_session(db_conn, sid,
@@ -602,13 +731,26 @@ def _import_session(db_conn, jsonl_path, records, project_name):
                        bei_efficiency_score=bei.efficiency,
                        bei_composite=bei.composite)
     except Exception:
-        pass  # BEI is best-effort, don't block import
+        pass
 
     # Update daily summary
     if start_ts:
         upsert_daily_summary(db_conn, start_ts[:10])
 
     return sid
+
+
+def _truncate_result(content, max_chars: int = 500) -> str:
+    """Truncate tool result content for storage."""
+    if isinstance(content, str):
+        return content[:max_chars]
+    if isinstance(content, list):
+        text = "".join(
+            (c.get("text", "") if isinstance(c, dict) else str(c))
+            for c in content
+        )
+        return text[:max_chars]
+    return str(content)[:max_chars]
 
 
 @db.command("stats")

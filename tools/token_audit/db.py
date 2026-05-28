@@ -66,6 +66,52 @@ def get_session(conn: sqlite3.Connection, session_id: str) -> Optional[dict]:
     return dict(row) if row else None
 
 
+# ── Detail table inserts ─────────────────────────────────────
+
+def insert_turn(conn: sqlite3.Connection, turn_data: dict) -> int:
+    """Insert a turn record. Returns row id."""
+    cur = conn.execute(
+        """INSERT OR REPLACE INTO turns
+           (session_id, turn_index, role, timestamp, message_id,
+            input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens, model_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (turn_data["session_id"], turn_data["turn_index"], turn_data["role"],
+         turn_data["timestamp"], turn_data.get("message_id", ""),
+         turn_data.get("input_tokens", 0), turn_data.get("output_tokens", 0),
+         turn_data.get("cache_read_tokens", 0), turn_data.get("cache_creation_tokens", 0),
+         turn_data.get("model_id", "")),
+    )
+    return cur.lastrowid
+
+
+def insert_tool_call(conn: sqlite3.Connection, tc_data: dict) -> int:
+    """Insert a tool_call record. Returns row id."""
+    cur = conn.execute(
+        """INSERT INTO tool_calls
+           (session_id, turn_index, tool_name, tool_input, tool_result,
+            duration_ms, success, timestamp)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+        (tc_data["session_id"], tc_data["turn_index"], tc_data["tool_name"],
+         tc_data.get("tool_input", ""), tc_data.get("tool_result", ""),
+         tc_data.get("duration_ms", 0), tc_data.get("success", 1),
+         tc_data["timestamp"]),
+    )
+    return cur.lastrowid
+
+
+def insert_edit(conn: sqlite3.Connection, edit_data: dict) -> int:
+    """Insert an edit record. Returns row id."""
+    cur = conn.execute(
+        """INSERT INTO edits
+           (session_id, turn_index, file_path, lines_added, lines_removed, accepted, timestamp)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (edit_data["session_id"], edit_data["turn_index"], edit_data["file_path"],
+         edit_data.get("lines_added", 0), edit_data.get("lines_removed", 0),
+         edit_data.get("accepted", 1), edit_data["timestamp"]),
+    )
+    return cur.lastrowid
+
+
 def list_sessions(
     conn: sqlite3.Connection,
     project: str = None,

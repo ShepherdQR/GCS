@@ -28,8 +28,25 @@ class TokenUsage:
 
     @property
     def cache_hit_rate(self) -> float:
+        """M1 (legacy formula): cache_read / (cache_read + input_tokens).
+
+        Note: This formula predates the v2 metric system. For the correct
+        raw hit rate (reads / (reads + writes)), use cache_hit_rate_raw.
+        """
         denom = self.cache_read_tokens + self.input_tokens
         return self.cache_read_tokens / denom if denom > 0 else 0.0
+
+    @property
+    def cache_hit_rate_raw(self) -> float:
+        """M1 corrected: cache_read / (cache_read + cache_creation)."""
+        denom = self.cache_read_tokens + self.cache_creation_tokens
+        return self.cache_read_tokens / denom if denom > 0 else 0.0
+
+    @property
+    def uncached_input_tokens(self) -> int:
+        """Tokens that were neither read from nor written to cache."""
+        uncached = self.input_tokens - self.cache_read_tokens - self.cache_creation_tokens
+        return max(uncached, 0)
 
     def __add__(self, other: "TokenUsage") -> "TokenUsage":
         return TokenUsage(
@@ -99,6 +116,16 @@ class SessionSnapshot:
         self.docs_touched: list = []
         self.turn_count: int = 0
         self.record_count: int = 0
+        # v2 fields
+        self.cache_ttl_setting: str = "5min"
+        self.workload_category: str = ""
+        self.task_type: str = ""
+        self.task_risk_level: str = "medium"
+        self.task_outcome: str = ""
+        self.estimated_overhead_tokens: int = 0
+        self.staleness_events: int = 0
+        self.verification_tokens_estimate: int = 0
+        self.tool_definition_tokens_estimate: int = 0
 
 
 class IncrementalJSONLParser:
@@ -213,6 +240,7 @@ class IncrementalJSONLParser:
                 results.append({
                     "tool_use_id": block.get("tool_use_id", ""),
                     "content": block.get("content", ""),
+                    "is_error": block.get("is_error", False),
                 })
         return results
 
@@ -281,3 +309,21 @@ class IncrementalJSONLParser:
             "title": tool_call.input_data.get("title", "Untitled"),
             "summary": tool_call.input_data.get("summary", ""),
         }
+
+    @staticmethod
+    def count_edit_lines(tool_name: str, input_data: dict) -> tuple[int, int]:
+        """Count lines added/removed from an edit tool input.
+
+        Returns (lines_added, lines_removed).
+        """
+        if tool_name == "Edit":
+            old = input_data.get("old_string", "") or ""
+            new = input_data.get("new_string", "") or ""
+            return new.count("\n"), old.count("\n")
+        elif tool_name == "Write":
+            content = input_data.get("content", "") or ""
+            return content.count("\n") + (1 if content else 0), 0
+        elif tool_name == "NotebookEdit":
+            new_source = input_data.get("new_source", "") or ""
+            return new_source.count("\n") + (1 if new_source else 0), 0
+        return 0, 0
