@@ -40,7 +40,18 @@ CREATE TABLE IF NOT EXISTS sessions (
 
     tags                TEXT,
     notes               TEXT,
-    created_at          TEXT DEFAULT (datetime('now'))
+    created_at          TEXT DEFAULT (datetime('now')),
+
+    -- v2 token economic evaluation columns
+    cache_ttl_setting           TEXT DEFAULT '5min',
+    workload_category           TEXT DEFAULT '',
+    task_type                   TEXT DEFAULT '',
+    task_risk_level             TEXT DEFAULT 'medium',
+    task_outcome                TEXT DEFAULT '',
+    estimated_overhead_tokens   INTEGER DEFAULT 0,
+    staleness_events            INTEGER DEFAULT 0,
+    verification_tokens_estimate INTEGER DEFAULT 0,
+    tool_definition_tokens_estimate INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS turns (
@@ -95,7 +106,15 @@ CREATE TABLE IF NOT EXISTS daily_summary (
     lines_removed           INTEGER DEFAULT 0,
     commits_count           INTEGER DEFAULT 0,
     avg_cache_hit_rate      REAL,
-    avg_bei_composite       REAL
+    avg_bei_composite       REAL,
+
+    -- v2 token economic evaluation columns
+    avg_hr_effective        REAL DEFAULT 0,
+    avg_cwar                REAL DEFAULT 0,
+    total_staleness_events  INTEGER DEFAULT 0,
+    avg_sclor               REAL DEFAULT 0,
+    avg_tlr                 REAL DEFAULT 0,
+    atei                    REAL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS alert_log (

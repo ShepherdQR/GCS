@@ -33,6 +33,45 @@ def _migrate(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE sessions ADD COLUMN total_cache_read_tokens INTEGER DEFAULT 0")
         conn.execute("ALTER TABLE sessions ADD COLUMN total_cache_creation_tokens INTEGER DEFAULT 0")
 
+    # v2 migrations — token economic evaluation system
+    _migrate_v2_sessions(conn, existing)
+
+    daily_existing = {r[1] for r in conn.execute("PRAGMA table_info(daily_summary)").fetchall()}
+    _migrate_v2_daily_summary(conn, daily_existing)
+
+
+def _migrate_v2_sessions(conn: sqlite3.Connection, existing: set) -> None:
+    """Phase 1 v2 columns for sessions table."""
+    v2_columns = [
+        ("cache_ttl_setting", "TEXT DEFAULT '5min'"),
+        ("workload_category", "TEXT DEFAULT ''"),
+        ("task_type", "TEXT DEFAULT ''"),
+        ("task_risk_level", "TEXT DEFAULT 'medium'"),
+        ("task_outcome", "TEXT DEFAULT ''"),
+        ("estimated_overhead_tokens", "INTEGER DEFAULT 0"),
+        ("staleness_events", "INTEGER DEFAULT 0"),
+        ("verification_tokens_estimate", "INTEGER DEFAULT 0"),
+        ("tool_definition_tokens_estimate", "INTEGER DEFAULT 0"),
+    ]
+    for col_name, col_def in v2_columns:
+        if col_name not in existing:
+            conn.execute(f"ALTER TABLE sessions ADD COLUMN {col_name} {col_def}")
+
+
+def _migrate_v2_daily_summary(conn: sqlite3.Connection, existing: set) -> None:
+    """Phase 1 v2 columns for daily_summary table."""
+    v2_columns = [
+        ("avg_hr_effective", "REAL DEFAULT 0"),
+        ("avg_cwar", "REAL DEFAULT 0"),
+        ("total_staleness_events", "INTEGER DEFAULT 0"),
+        ("avg_sclor", "REAL DEFAULT 0"),
+        ("avg_tlr", "REAL DEFAULT 0"),
+        ("atei", "REAL DEFAULT 0"),
+    ]
+    for col_name, col_def in v2_columns:
+        if col_name not in existing:
+            conn.execute(f"ALTER TABLE daily_summary ADD COLUMN {col_name} {col_def}")
+
 
 # ── Session CRUD ──────────────────────────────────────────────
 

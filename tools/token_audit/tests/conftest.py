@@ -22,9 +22,9 @@ def sample_telemetry():
     """Standard RawTelemetry for derived metrics testing."""
     from tools.token_audit.metrics_engine import RawTelemetry
     return RawTelemetry(
-        input_tokens=50000,
+        input_tokens=85000,
         output_tokens=4000,
-        cache_read_tokens=32000,
+        cache_read_tokens=860000,
         cache_creation_tokens=0,
         session_duration_seconds=1800.0,
         turn_count=24,
