@@ -199,8 +199,19 @@ class BEIEngine:
 
     def _knowledge_score(self, snapshot: SessionSnapshot) -> float:
         """Knowledge accumulation dimension — with DB-baseline-aware thresholds."""
-        max_memory = self._config_baselines.get("max_memory_entries", 3)
-        max_skill = self._config_baselines.get("max_skill_invocations", 5)
+        # Prefer DB-calibrated P90 baselines, fall back to config hardcoded values
+        mem_bl = self.baselines.get("memory_entries_p90")
+        skill_bl = self.baselines.get("skill_invocations_p90")
+
+        if mem_bl and mem_bl.get("p90", 0) > 0:
+            max_memory = mem_bl["p90"]
+        else:
+            max_memory = self._config_baselines.get("max_memory_entries", 3)
+
+        if skill_bl and skill_bl.get("p90", 0) > 0:
+            max_skill = skill_bl["p90"]
+        else:
+            max_skill = self._config_baselines.get("max_skill_invocations", 5)
 
         memory_sig = min(len(snapshot.memory_entries) / max(max_memory, 1), 1.0)
         skill_sig = min(len(snapshot.skills_invoked) / max(max_skill, 1), 1.0)

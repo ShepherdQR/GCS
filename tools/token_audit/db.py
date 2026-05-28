@@ -479,10 +479,11 @@ def calibrate_baselines(
          f"-{window_days} days") + params,
     ).fetchall()
     vals = [r[0] for r in rows if r[0] is not None]
-    if len(vals) >= 5:
+    if len(vals) >= 3:
         metrics["cost_per_commit"] = {
             "p25": vals[int(len(vals) * 0.25)], "p50": vals[int(len(vals) * 0.50)],
             "p75": vals[int(len(vals) * 0.75)], "sample_size": len(vals),
+            "confidence": "low" if len(vals) < 5 else "normal",
         }
 
     # cache_hit_rate
@@ -503,6 +504,48 @@ def calibrate_baselines(
         metrics["cache_hit_rate"] = {
             "p25": vals[int(len(vals) * 0.25)], "p50": vals[int(len(vals) * 0.50)],
             "p75": vals[int(len(vals) * 0.75)], "sample_size": len(vals),
+        }
+
+    # memory_entries_p90 — P90 of memory entries per session
+    rows = conn.execute(
+        f"""
+        SELECT CAST(json_array_length(memory_entries) AS REAL) as val
+        FROM sessions
+        WHERE memory_entries IS NOT NULL AND memory_entries != '[]'
+          AND date(started_at) >= date('now', ?)
+          {project_filter}
+        ORDER BY val
+        """,
+        (f"-{window_days} days",) + params,
+    ).fetchall()
+    vals = [r[0] for r in rows if r[0] is not None and r[0] > 0]
+    if len(vals) >= 5:
+        p90_idx = min(int(len(vals) * 0.90), len(vals) - 1)
+        metrics["memory_entries_p90"] = {
+            "p25": vals[int(len(vals) * 0.25)], "p50": vals[int(len(vals) * 0.50)],
+            "p75": vals[int(len(vals) * 0.75)], "p90": vals[p90_idx],
+            "sample_size": len(vals),
+        }
+
+    # skill_invocations_p90 — P90 of skill invocations per session
+    rows = conn.execute(
+        f"""
+        SELECT CAST(json_array_length(skills_invoked) AS REAL) as val
+        FROM sessions
+        WHERE skills_invoked IS NOT NULL AND skills_invoked != '[]'
+          AND date(started_at) >= date('now', ?)
+          {project_filter}
+        ORDER BY val
+        """,
+        (f"-{window_days} days",) + params,
+    ).fetchall()
+    vals = [r[0] for r in rows if r[0] is not None and r[0] > 0]
+    if len(vals) >= 5:
+        p90_idx = min(int(len(vals) * 0.90), len(vals) - 1)
+        metrics["skill_invocations_p90"] = {
+            "p25": vals[int(len(vals) * 0.25)], "p50": vals[int(len(vals) * 0.50)],
+            "p75": vals[int(len(vals) * 0.75)], "p90": vals[p90_idx],
+            "sample_size": len(vals),
         }
 
     return metrics

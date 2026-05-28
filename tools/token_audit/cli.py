@@ -712,10 +712,12 @@ def baseline_calibrate(project, days):
     if metrics:
         click.echo(f"Calibrated baselines ({days}d window):")
         for metric, stats in sorted(metrics.items()):
-            click.echo(f"  {metric}:")
+            conf = stats.get("confidence", "normal")
+            conf_str = " [LOW CONFIDENCE]" if conf == "low" else ""
+            click.echo(f"  {metric}:{conf_str}")
             click.echo(f"    P25={stats['p25']:.2f}  P50={stats['p50']:.2f}  P75={stats['p75']:.2f}  n={stats['sample_size']}")
     else:
-        click.echo("Insufficient data for calibration (need >=5 sessions per metric).")
+        click.echo("Insufficient data for calibration (need >=3 sessions per metric).")
     db_conn.close()
 
 
@@ -727,7 +729,9 @@ def baseline_calibrate(project, days):
               type=click.Choice(["text", "json"]))
 @click.option("--pricing", "-p", "pricing_model", default="",
               help="Pricing model for cost display")
-def snap(session_id, output_fmt, pricing_model):
+@click.option("--trend/--no-trend", default=False,
+              help="Compare vs 7-day average (BEI, cost, tokens, cache)")
+def snap(session_id, output_fmt, pricing_model, trend):
     """Quick one-shot session summary — no JSONL scanning, DB-only.
 
     Much faster than 'report' for a quick check. Shows tokens, cost,
@@ -763,6 +767,11 @@ def snap(session_id, output_fmt, pricing_model):
     cpc = cost_usd / commits if commits > 0 else float("inf")
     loc = (sess.get("lines_added", 0) or 0) + (sess.get("lines_removed", 0) or 0)
 
+    # Compute 7-day averages for trend comparison
+    trend_data = {}
+    if trend:
+        trend_data = _compute_7day_averages(db_conn, cost_model, model_for_cost)
+
     if output_fmt == "json":
         data = {
             "session_id": sess["id"][:20],
@@ -781,6 +790,8 @@ def snap(session_id, output_fmt, pricing_model):
             "cost_per_commit": round(cpc, 4) if cpc != float("inf") else None,
             "lines_changed": loc,
         }
+        if trend_data:
+            data["trend"] = trend_data
         click.echo(json.dumps(data, indent=2))
     else:
         click.echo(f"Session: {sess['id'][:20]}...  {sess.get('started_at', '?')[:19]}")
@@ -792,7 +803,86 @@ def snap(session_id, output_fmt, pricing_model):
         click.echo(f"Output:  {loc} lines  {commits} commits  "
                    f"CPC=${cpc:.2f}" if cpc != float("inf") else f"Output:  {loc} lines  {commits} commits")
 
+        if trend_data:
+            click.echo(f"\n── vs 7-day average (n={trend_data.get('sample_size', 0)}) ──")
+            for label, key, fmt_fn, invert in [
+                ("BEI", "avg_bei", lambda v: f"{v:.2f}", False),
+                ("Cost", "avg_cost", lambda v: f"${v:.2f}", True),
+                ("Tokens", "avg_tokens", lambda v: f"{v:,.0f}", True),
+                ("Cache", "avg_cache", lambda v: f"{v:.1%}", False),
+            ]:
+                avg = trend_data.get(key)
+                if avg is None:
+                    continue
+                if key == "avg_bei":
+                    cur = bei
+                elif key == "avg_cost":
+                    cur = cost_usd
+                elif key == "avg_tokens":
+                    cur = float(total_tokens)
+                elif key == "avg_cache":
+                    cur = cache_rate
+                else:
+                    continue
+
+                if avg > 0:
+                    delta = (cur - avg) / avg * 100
+                    arrow = _trend_arrow(delta, invert)
+                    click.echo(f"  {label}: {fmt_fn(cur)} vs {fmt_fn(avg)}  {arrow} {abs(delta):.0f}%")
+
     db_conn.close()
+
+
+def _compute_7day_averages(db_conn, cost_model, pricing_model) -> dict:
+    """Compute 7-day averages for key metrics from the sessions table."""
+    from tools.token_audit.parser import TokenUsage
+
+    rows = db_conn.execute(
+        """SELECT
+            COALESCE(AVG(bei_composite), 0) as avg_bei,
+            COALESCE(AVG(total_input_tokens + total_output_tokens), 0) as avg_tokens,
+            COALESCE(AVG(
+                CAST(total_cache_read_tokens AS REAL)
+                / NULLIF(total_cache_read_tokens + total_input_tokens, 0)
+            ), 0) as avg_cache,
+            COALESCE(SUM(total_input_tokens), 0) as sum_input,
+            COALESCE(SUM(total_output_tokens), 0) as sum_output,
+            COALESCE(SUM(total_cache_read_tokens), 0) as sum_cache_read,
+            COALESCE(SUM(total_cache_creation_tokens), 0) as sum_cache_create,
+            COUNT(*) as n
+        FROM sessions
+        WHERE date(started_at) >= date('now', '-7 days')
+          AND date(started_at) < date('now')"""
+    ).fetchone()
+
+    if not rows or rows["n"] == 0:
+        return {}
+
+    usage = TokenUsage(
+        input_tokens=rows["sum_input"],
+        output_tokens=rows["sum_output"],
+        cache_read_tokens=rows["sum_cache_read"],
+        cache_creation_tokens=rows["sum_cache_create"],
+    )
+    avg_cost = cost_model.calculate_usd(usage, pricing_model) / rows["n"]
+
+    return {
+        "avg_bei": round(rows["avg_bei"], 3),
+        "avg_tokens": round(rows["avg_tokens"], 0),
+        "avg_cache": round(rows["avg_cache"], 3),
+        "avg_cost": round(avg_cost, 4),
+        "sample_size": rows["n"],
+    }
+
+
+def _trend_arrow(delta_pct: float, invert: bool) -> str:
+    """Return trend arrow indicator. invert=True means lower is better (cost, tokens)."""
+    is_up = delta_pct > 0
+    if invert:
+        is_up = not is_up
+    if abs(delta_pct) < 3:
+        return "→"
+    return "↑" if is_up else "↓"
 
 
 if __name__ == "__main__":
