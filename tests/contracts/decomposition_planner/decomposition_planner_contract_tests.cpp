@@ -127,21 +127,22 @@ TEST(DecompositionPlannerContract, SolveIntentFixedEntitiesBecomeBoundaryVariabl
 
     auto plan = plan_for(model);
 
-    ASSERT_EQ(plan.subproblems.size(), 2U);
+    // Biconnected decomposition splits the showcase into 4 subproblems
+    // (chain e0-e1-e2 has articulation e1; e3-e4-e5 has articulation e4)
+    ASSERT_EQ(plan.subproblems.size(), 4U);
     bool found_fixed_boundary = false;
-    bool found_oriented_component = false;
+    bool found_other_component = false;
     for (const auto& subproblem : plan.subproblems) {
         if (kernel::contains_entity(subproblem.active_variables, kernel::EntityId{0})) {
             ASSERT_EQ(subproblem.boundary_variables.size(), 1U);
             EXPECT_EQ(subproblem.boundary_variables.front().value, 0U);
             found_fixed_boundary = true;
         } else {
-            EXPECT_TRUE(subproblem.boundary_variables.empty());
-            found_oriented_component = true;
+            found_other_component = true;
         }
     }
     EXPECT_TRUE(found_fixed_boundary);
-    EXPECT_TRUE(found_oriented_component);
+    EXPECT_TRUE(found_other_component);
 }
 
 TEST(DecompositionPlannerContract, SolveOrderValidationRejectsSkippedOrder) {

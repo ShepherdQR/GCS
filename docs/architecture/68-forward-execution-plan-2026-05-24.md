@@ -1402,14 +1402,58 @@ After each step:
 
 ## Registration Confirmation
 
-As of the Step 51 update:
+As of the Step 52 update:
 
 - Steps 1 through 40 are registered in
   `docs/architecture/66-implementation-execution-roadmap.md`.
-- Steps 1 through 51 have completed-step summaries in the roadmap and current
+- Steps 1 through 52 have completed-step summaries in the roadmap and current
   progress documents.
-- Steps 31 through 51 are detailed in this forward plan with goal, expected
+- Steps 31 through 52 are detailed in this forward plan with goal, expected
   shape, detailed plan, and exit criteria.
-- The next implementation candidate should be chosen after the parallel item 4
-  session lands, so this document does not claim a new solver step yet.
+
+### Step 52: Articulation And Biconnected Decomposition
+
+Goal:
+
+- Add biconnected decomposition to `gcs.incidence_graph` and wire articulation
+  entities into `gcs.decomposition_planner` so that connected components are
+  split at articulation points into finer-grained biconnected subproblems.
+
+Expected shape:
+
+- `gcs.incidence_graph` exposes `BiconnectedComponent`, `ArticulationPoint`,
+  `BiconnectedDecomposition`, and `decompose_biconnected()`.
+- `gcs.decomposition_planner` uses biconnected decomposition when articulation
+  points exist, creating overlap contexts for shared articulation entities
+  and boundary projections from biconnected subproblems to overlap contexts.
+- SolveDAG reflects the articulation-aware decomposition structure.
+- Contract tests cover chain, deterministic, cycle, entity coverage, and
+  constraint coverage scenarios.
+
+Delivered:
+
+- Added Tarjan biconnected decomposition operating on entity-to-entity
+  adjacency derived from shared constraints in the incidence graph.
+- The planner now detects articulation entities and creates overlap contexts
+  for them, with boundary projections from each biconnected subproblem.
+- SolveDAG edges flow from biconnected subproblems through articulation
+  overlap contexts to the root aggregation context.
+- Contract test baseline: 120 CTest cases (+5 new biconnected decomposition
+  tests, +0 new planner tests; existing showcase tests updated for 4-subproblem
+  expectations).
+- The integrated feature showcase model (6 entities, 4 constraints, 2
+  connected components) now decomposes into 4 biconnected subproblems with
+  2 articulation overlap contexts (entities 1 and 4).
+
+Reassessment after Step 52:
+
+- The local-to-global pipeline now exercises the full decomposition path
+  even for single-connected-component models that contain articulation
+  entities.
+- The next highest-leverage step is the spanning tree pattern catalog
+  (Candidate B from the Step 52 analysis) or gluing assembly deepening
+  (Candidate D), now that multi-subproblem test cases exist.
+- The spanning forest plan infrastructure already exists but marks all
+  patterns unsupported; implementing the first real pattern would be a
+  low-risk continuation.
 

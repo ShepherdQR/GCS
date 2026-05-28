@@ -678,5 +678,34 @@ criteria in the forward plan.
 
 ## Next Candidate
 
-Choose the next implementation candidate after the parallel item 4 session
-lands. This current-status document intentionally does not claim that work.
+Choose the next implementation candidate after Step 52 completes.
+This current-status document intentionally does not claim that work.
+
+## Completed Step 52
+
+Step 52 added articulation and biconnected decomposition to the incidence
+graph and decomposition planner. The goal was to make the local-to-global
+architecture real by splitting connected components at articulation entities
+where multiple biconnected subgraphs share a common vertex.
+
+Delivered:
+
+- Add `BiconnectedComponent`, `ArticulationPoint`, `BiconnectedDecomposition`
+  types and `decompose_biconnected()` function to `gcs.incidence_graph`.
+- Implement Tarjan biconnected components and articulation point detection
+  operating on the entity-to-entity adjacency derived from shared constraints.
+- Wire biconnected decomposition into `gcs.decomposition_planner` so that
+  connected components containing articulation entities are split into
+  finer-grained biconnected subproblems.
+- Create overlap contexts for articulation entities with shared constraints
+  and boundary projections from each biconnected subproblem to its overlap
+  context(s).
+- Build SolveDAG edges from biconnected subproblems through articulation
+  overlap contexts to the root aggregation context.
+- Add contract tests for chain, deterministic, cycle, entity coverage, and
+  constraint coverage biconnected decomposition scenarios.
+- Update existing showcase and fixed-entity-boundary tests to expect 4
+  subproblems (previously 2 connected-component subproblems) for the
+  integrated showcase model whose two components each contain an
+  articulation entity.
+- Contract test baseline increased from 109 to 120.

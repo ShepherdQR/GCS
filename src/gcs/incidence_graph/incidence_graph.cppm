@@ -146,4 +146,28 @@ gcs::kernel::ContractResult<GraphDump> dump_graph(const IncidenceHypergraph& hyp
 
 IncidenceIndices build_incidence_indices(const IncidenceInput& input);
 
+// --- Biconnected decomposition ---
+
+struct BiconnectedComponent {
+    int index = 0;
+    std::vector<EntityId> entity_ids;
+    std::vector<ConstraintId> constraint_ids;
+};
+
+struct ArticulationPoint {
+    EntityId entity_id;
+    std::vector<int> biconnected_component_indices;
+};
+
+struct BiconnectedDecomposition {
+    std::vector<BiconnectedComponent> components;
+    std::vector<ArticulationPoint> articulation_points;
+    bool is_biconnected = true;
+    StageReport report;
+};
+
+gcs::kernel::ContractResult<BiconnectedDecomposition> decompose_biconnected(
+    const ModelSnapshot& model,
+    const IncidenceIndices& incidence);
+
 }

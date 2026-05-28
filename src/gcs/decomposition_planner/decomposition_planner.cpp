@@ -179,67 +179,184 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
     ContextSnapshot root = kernel::make_whole_model_context(input.model, ContextId{0});
     output.cover_plan.contexts.push_back(root);
 
-    const bool split_into_components = input.incidence.connected_components.size() > 1;
-    if (!split_into_components) {
-        append_component_subproblem(output, input.model, root, 0, input.solve_intent);
-        append_dag_node(output, root.id, 0, true, false);
-        auto cover_validation = validate_cover(input.model, output.cover_plan);
-        auto order_validation = validate_solve_order(output);
-        auto dag_validation = validate_solve_dag(output);
-        for (auto message : cover_validation.report.messages) {
-            kernel::append_report_message(output.structural_report, std::move(message));
-        }
-        for (auto message : order_validation.report.messages) {
-            kernel::append_report_message(output.structural_report, std::move(message));
-        }
-        for (auto message : dag_validation.report.messages) {
-            kernel::append_report_message(output.structural_report, std::move(message));
-        }
-        return output;
-    }
+    // Check for articulation-based decomposition first
+    auto biconnected_result = graph::decompose_biconnected(input.model, input.incidence);
+    const bool has_articulation = !biconnected_result.payload.articulation_points.empty();
 
-    std::uint64_t next_context_id = 1;
-    int subproblem_id = 0;
-    for (const auto& component : input.incidence.connected_components) {
-        ContextSnapshot context;
-        context.id = ContextId{next_context_id++};
-        context.kind = kernel::ContextKind::connected_component;
-        context.state_version = input.model.state_version;
-        context.entity_ids = component.entity_ids;
-        context.constraint_ids = component.constraint_ids;
-        context.rigid_set_ids = component.rigid_set_ids;
-        output.cover_plan.contexts.push_back(context);
+    if (has_articulation) {
+        // Build fine-grained subproblems from biconnected components
+        std::uint64_t next_context_id = 1;
+        int subproblem_id = 0;
 
-        auto projection = make_component_projection(
-            context,
-            output.cover_plan.root_context_id,
-            static_cast<std::uint64_t>(output.boundary_projections.size() + 1));
-        output.boundary_projections.push_back(projection);
-        append_dag_edge(output, projection);
-        append_component_subproblem(
+        // Create overlap contexts for articulation entities
+        // Each articulation entity becomes its own overlap context
+        std::vector<ContextSnapshot> articulation_overlap_contexts;
+        for (const auto& ap : biconnected_result.payload.articulation_points) {
+            ContextSnapshot overlap_ctx;
+            overlap_ctx.id = ContextId{next_context_id++};
+            overlap_ctx.kind = kernel::ContextKind::connected_component;
+            overlap_ctx.state_version = input.model.state_version;
+            overlap_ctx.entity_ids.push_back(ap.entity_id);
+            // Find constraints that involve this articulation entity
+            for (const auto& constraint_inc : input.incidence.constraint_incidence) {
+                if (!constraint_inc.valid) continue;
+                bool involves_articulation = false;
+                for (EntityId eid : constraint_inc.entity_ids) {
+                    if (eid == ap.entity_id) {
+                        involves_articulation = true;
+                        break;
+                    }
+                }
+                if (involves_articulation) {
+                    if (!kernel::contains_constraint(overlap_ctx.constraint_ids,
+                                                     constraint_inc.constraint_id)) {
+                        overlap_ctx.constraint_ids.push_back(constraint_inc.constraint_id);
+                    }
+                }
+            }
+            // Find rigid sets for the articulation entity
+            if (const auto* entity = kernel::find_entity(input.model, ap.entity_id)) {
+                overlap_ctx.rigid_set_ids.push_back(entity->rigid_set_id);
+            }
+            articulation_overlap_contexts.push_back(std::move(overlap_ctx));
+            output.cover_plan.contexts.push_back(articulation_overlap_contexts.back());
+        }
+
+        // Create subproblems for each biconnected component
+        for (const auto& comp : biconnected_result.payload.components) {
+            ContextSnapshot comp_ctx;
+            comp_ctx.id = ContextId{next_context_id++};
+            comp_ctx.kind = kernel::ContextKind::connected_component;
+            comp_ctx.state_version = input.model.state_version;
+            comp_ctx.entity_ids = comp.entity_ids;
+            comp_ctx.constraint_ids = comp.constraint_ids;
+            // Collect rigid sets
+            for (EntityId eid : comp.entity_ids) {
+                if (const auto* entity = kernel::find_entity(input.model, eid)) {
+                    if (!kernel::contains_rigid_set(comp_ctx.rigid_set_ids,
+                                                    entity->rigid_set_id)) {
+                        comp_ctx.rigid_set_ids.push_back(entity->rigid_set_id);
+                    }
+                }
+            }
+            output.cover_plan.contexts.push_back(comp_ctx);
+
+            // Create boundary projections from this component to root and to its
+            // articulation overlap contexts
+            auto root_projection = make_component_projection(
+                comp_ctx,
+                output.cover_plan.root_context_id,
+                static_cast<std::uint64_t>(output.boundary_projections.size() + 1));
+            output.boundary_projections.push_back(root_projection);
+            append_dag_edge(output, root_projection);
+
+            // Also project to articulation overlap contexts where the component
+            // shares the articulation entity
+            for (const auto& overlap_ctx : articulation_overlap_contexts) {
+                if (overlap_ctx.entity_ids.empty()) continue;
+                EntityId articulation_entity = overlap_ctx.entity_ids.front();
+                if (kernel::contains_entity(comp.entity_ids, articulation_entity)) {
+                    BoundaryProjection ap_projection;
+                    ap_projection.id = kernel::ProjectionId{
+                        static_cast<std::uint64_t>(output.boundary_projections.size() + 1)};
+                    ap_projection.source_context_id = comp_ctx.id;
+                    ap_projection.target_context_id = overlap_ctx.id;
+                    ap_projection.entity_ids.push_back(articulation_entity);
+                    // Include shared constraints involving the articulation entity
+                    for (ConstraintId cid : comp.constraint_ids) {
+                        if (kernel::contains_constraint(overlap_ctx.constraint_ids, cid)) {
+                            ap_projection.constraint_ids.push_back(cid);
+                        }
+                    }
+                    output.boundary_projections.push_back(ap_projection);
+                    append_dag_edge(output, ap_projection);
+                }
+            }
+
+            append_component_subproblem(
+                output,
+                input.model,
+                comp_ctx,
+                subproblem_id,
+                input.solve_intent);
+            append_dag_node(output, comp_ctx.id, subproblem_id, true, false);
+            ++subproblem_id;
+        }
+
+        // Add DAG nodes for articulation overlap contexts
+        for (const auto& overlap_ctx : articulation_overlap_contexts) {
+            append_dag_node(output, overlap_ctx.id, subproblem_id, false, true);
+            ++subproblem_id;
+        }
+
+        // Add root aggregation node
+        append_dag_node(
             output,
-            input.model,
-            context,
+            output.cover_plan.root_context_id,
             subproblem_id,
-            input.solve_intent);
-        append_dag_node(output, context.id, subproblem_id, true, false);
-        ++subproblem_id;
-    }
-    output.cover_plan.boundary_projections = output.boundary_projections;
-    append_dag_node(
-        output,
-        output.cover_plan.root_context_id,
-        subproblem_id,
-        false,
-        true);
+            false,
+            true);
 
-    if (output.subproblems.empty()) {
-        kernel::append_report_message(
-            output.structural_report,
-            make_message(
-                kernel::ReportSeverity::warning,
-                "planner.empty_model",
-                "No subproblems were produced for an empty model."));
+        if (output.subproblems.empty()) {
+            kernel::append_report_message(
+                output.structural_report,
+                make_message(
+                    kernel::ReportSeverity::warning,
+                    "planner.empty_model",
+                    "No subproblems were produced for an empty model."));
+        }
+        output.cover_plan.boundary_projections = output.boundary_projections;
+    } else {
+        // No articulation points — use existing connected-component or whole-model logic
+        const bool split_into_components = input.incidence.connected_components.size() > 1;
+        if (!split_into_components) {
+            append_component_subproblem(output, input.model, root, 0, input.solve_intent);
+            append_dag_node(output, root.id, 0, true, false);
+        } else {
+            std::uint64_t next_context_id = 1;
+            int subproblem_id = 0;
+            for (const auto& component : input.incidence.connected_components) {
+                ContextSnapshot context;
+                context.id = ContextId{next_context_id++};
+                context.kind = kernel::ContextKind::connected_component;
+                context.state_version = input.model.state_version;
+                context.entity_ids = component.entity_ids;
+                context.constraint_ids = component.constraint_ids;
+                context.rigid_set_ids = component.rigid_set_ids;
+                output.cover_plan.contexts.push_back(context);
+
+                auto projection = make_component_projection(
+                    context,
+                    output.cover_plan.root_context_id,
+                    static_cast<std::uint64_t>(output.boundary_projections.size() + 1));
+                output.boundary_projections.push_back(projection);
+                append_dag_edge(output, projection);
+                append_component_subproblem(
+                    output,
+                    input.model,
+                    context,
+                    subproblem_id,
+                    input.solve_intent);
+                append_dag_node(output, context.id, subproblem_id, true, false);
+                ++subproblem_id;
+            }
+            output.cover_plan.boundary_projections = output.boundary_projections;
+            append_dag_node(
+                output,
+                output.cover_plan.root_context_id,
+                subproblem_id,
+                false,
+                true);
+
+            if (output.subproblems.empty()) {
+                kernel::append_report_message(
+                    output.structural_report,
+                    make_message(
+                        kernel::ReportSeverity::warning,
+                        "planner.empty_model",
+                        "No subproblems were produced for an empty model."));
+            }
+        }
     }
 
     auto cover_validation = validate_cover(input.model, output.cover_plan);

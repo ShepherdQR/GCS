@@ -105,3 +105,94 @@ TEST(IncidenceGraphContract, GraphDumpIsCanonical) {
     EXPECT_NE(first.payload.canonical_text.find("c=7 missing=999"),
               std::string::npos);
 }
+
+// --- Biconnected decomposition contract tests ---
+
+TEST(IncidenceGraphContract, BiconnectedDecompositionChainHasTwoComponentsAndOneArticulation) {
+    // A 3-entity chain: e0 --(c0)--> e1 --(c1)--> e2
+    // e1 is the articulation point, two biconnected components
+    auto model = gcs::tools::make_separator_chain_distance_model();
+    auto indices = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto result = graph::decompose_biconnected(model, indices);
+
+    EXPECT_EQ(result.report.status, kernel::StageStatus::ok);
+    EXPECT_FALSE(result.payload.is_biconnected);
+    EXPECT_EQ(result.payload.components.size(), 2U);
+    EXPECT_EQ(result.payload.articulation_points.size(), 1U);
+    EXPECT_EQ(result.payload.articulation_points.front().entity_id.value, 1U);  // e1 is separator
+    EXPECT_EQ(result.payload.articulation_points.front().biconnected_component_indices.size(), 2U);
+}
+
+TEST(IncidenceGraphContract, BiconnectedDecompositionDeterministicOutput) {
+    auto model = gcs::tools::make_separator_chain_distance_model();
+    auto indices = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto first = graph::decompose_biconnected(model, indices);
+    auto second = graph::decompose_biconnected(model, indices);
+
+    EXPECT_EQ(first.payload.components.size(), second.payload.components.size());
+    EXPECT_EQ(first.payload.articulation_points.size(), second.payload.articulation_points.size());
+    for (std::size_t i = 0; i < first.payload.components.size(); ++i) {
+        EXPECT_EQ(first.payload.components[i].entity_ids.size(),
+                  second.payload.components[i].entity_ids.size());
+        EXPECT_EQ(first.payload.components[i].constraint_ids.size(),
+                  second.payload.components[i].constraint_ids.size());
+    }
+    for (std::size_t i = 0; i < first.payload.articulation_points.size(); ++i) {
+        EXPECT_EQ(first.payload.articulation_points[i].entity_id,
+                  second.payload.articulation_points[i].entity_id);
+    }
+}
+
+TEST(IncidenceGraphContract, BiconnectedDecompositionCycleIsBiconnected) {
+    // A 3-entity triangle: e0, e1, e2 with 3 distance constraints (c0, c1, c2)
+    // This should be one biconnected component with no articulation points
+    auto model = gcs::tools::make_two_component_distance_model();
+    // That model has two separate components, each is just a single edge (biconnected trivially)
+    auto indices = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto result = graph::decompose_biconnected(model, indices);
+
+    EXPECT_EQ(result.report.status, kernel::StageStatus::ok);
+    // Two separate components in the model → each is biconnected (single edge)
+    EXPECT_EQ(result.payload.components.size(), 2U);
+    EXPECT_EQ(result.payload.articulation_points.size(), 0U);
+}
+
+TEST(IncidenceGraphContract, BiconnectedDecompositionEveryEntityInAtLeastOneComponent) {
+    auto model = gcs::tools::make_separator_chain_distance_model();
+    auto indices = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto result = graph::decompose_biconnected(model, indices);
+
+    for (const auto& entity_inc : indices.entity_incidence) {
+        bool found = false;
+        for (const auto& comp : result.payload.components) {
+            if (kernel::contains_entity(comp.entity_ids, entity_inc.entity_id)) {
+                found = true;
+                break;
+            }
+        }
+        EXPECT_TRUE(found) << "Entity " << entity_inc.entity_id.value << " not in any component";
+    }
+}
+
+TEST(IncidenceGraphContract, BiconnectedDecompositionEveryConstraintInAtLeastOneComponent) {
+    auto model = gcs::tools::make_separator_chain_distance_model();
+    auto indices = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto result = graph::decompose_biconnected(model, indices);
+
+    for (const auto& constraint_inc : indices.constraint_incidence) {
+        if (!constraint_inc.valid) continue;
+        bool found = false;
+        for (const auto& comp : result.payload.components) {
+            if (kernel::contains_constraint(comp.constraint_ids, constraint_inc.constraint_id)) {
+                found = true;
+                break;
+            }
+        }
+        EXPECT_TRUE(found) << "Constraint " << constraint_inc.constraint_id.value << " not in any component";
+    }
+}

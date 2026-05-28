@@ -229,11 +229,15 @@ Status legend: `done`, `in_progress`, `pending`.
     diagnostics consumer is justified.
 51. `done` - turn promoted milestone and counterexample scene fixtures into
     a repeatable fixture-library gate with explicit expected CLI outcomes.
+52. `done` - add articulation and biconnected decomposition to
+    `gcs.incidence_graph` and wire it into `gcs.decomposition_planner` so
+    that connected components with articulation entities are split into
+    finer-grained biconnected subproblems with overlap contexts.
 
 Next registered candidate:
 
-- Choose the next implementation candidate after the parallel item 4 session
-  lands; do not overwrite that session's work from this roadmap update.
+- Choose the next implementation candidate after Step 52 lands and the
+  full quality gate passes with biconnected decomposition evidence.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 

@@ -3,6 +3,7 @@ module;
 #include <algorithm>
 #include <cstddef>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -389,6 +390,243 @@ IncidenceIndices build_incidence_indices(const IncidenceInput& input) {
     }
     indices.payload.report = indices.report;
     return indices.payload;
+}
+
+// --- Biconnected decomposition ---
+
+namespace {
+
+// Tarjan biconnected components and articulation points on the entity constraint graph.
+// Operates on entity-to-entity adjacency derived from shared constraints.
+
+struct BiconnectedContext {
+    const ModelSnapshot& model;
+    const IncidenceIndices& incidence;
+    std::vector<int> discovery;   // DFS discovery time per entity, -1 = unvisited
+    std::vector<int> low;         // lowest discovery reachable via back edges
+    std::vector<int> parent;      // parent entity index in DFS tree, -1 = root
+    std::vector<bool> is_articulation;
+    std::vector<int> entity_comp; // which biconnected component each entity belongs to, -1 = unassigned
+    int time = 0;
+    // Edge stack stores (u_index, v_index) pairs
+    std::vector<std::pair<int, int>> edge_stack;
+    std::vector<BiconnectedComponent> components;
+};
+
+int find_entity_index(const IncidenceIndices& incidence, EntityId entity_id) {
+    for (int i = 0; i < static_cast<int>(incidence.entity_incidence.size()); ++i) {
+        if (incidence.entity_incidence[static_cast<std::size_t>(i)].entity_id == entity_id)
+            return i;
+    }
+    return -1;
+}
+
+// Get all entities adjacent to entity_index through shared constraints
+std::vector<int> adjacent_entity_indices(
+    const IncidenceIndices& incidence,
+    int entity_index,
+    const ModelSnapshot& model) {
+    std::vector<int> result;
+    const auto& entity_inc = incidence.entity_incidence[static_cast<std::size_t>(entity_index)];
+    for (ConstraintId constraint_id : entity_inc.constraint_ids) {
+        // Find this constraint in constraint_incidence
+        for (const auto& constraint_inc : incidence.constraint_incidence) {
+            if (constraint_inc.constraint_id == constraint_id && constraint_inc.valid) {
+                for (EntityId other_entity_id : constraint_inc.entity_ids) {
+                    int other_index = find_entity_index(incidence, other_entity_id);
+                    if (other_index >= 0 && other_index != entity_index) {
+                        // Deduplicate
+                        bool already = false;
+                        for (int existing : result) {
+                            if (existing == other_index) { already = true; break; }
+                        }
+                        if (!already) result.push_back(other_index);
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+
+void tarjan_dfs(BiconnectedContext& ctx, int u_index) {
+    ctx.discovery[static_cast<std::size_t>(u_index)] = ctx.low[static_cast<std::size_t>(u_index)] = ++ctx.time;
+    int children = 0;
+
+    auto neighbors = adjacent_entity_indices(ctx.incidence, u_index, ctx.model);
+    for (int v_index : neighbors) {
+        if (ctx.discovery[static_cast<std::size_t>(v_index)] == -1) {
+            // Tree edge
+            children++;
+            ctx.parent[static_cast<std::size_t>(v_index)] = u_index;
+            ctx.edge_stack.push_back({u_index, v_index});
+            tarjan_dfs(ctx, v_index);
+            ctx.low[static_cast<std::size_t>(u_index)] = std::min(
+                ctx.low[static_cast<std::size_t>(u_index)],
+                ctx.low[static_cast<std::size_t>(v_index)]);
+
+            // Articulation condition: low[v] >= disc[u]
+            if (ctx.low[static_cast<std::size_t>(v_index)] >= ctx.discovery[static_cast<std::size_t>(u_index)]) {
+                // u is articulation (unless root with < 2 children)
+                if (ctx.parent[static_cast<std::size_t>(u_index)] != -1 || children > 1) {
+                    ctx.is_articulation[static_cast<std::size_t>(u_index)] = true;
+                }
+                // Pop edges from stack until (u, v) to form a biconnected component
+                BiconnectedComponent comp;
+                comp.index = static_cast<int>(ctx.components.size());
+                std::set<std::uint64_t> entity_set;
+                while (!ctx.edge_stack.empty()) {
+                    auto [eu, ev] = ctx.edge_stack.back();
+                    ctx.edge_stack.pop_back();
+                    entity_set.insert(ctx.incidence.entity_incidence[static_cast<std::size_t>(eu)].entity_id.value);
+                    entity_set.insert(ctx.incidence.entity_incidence[static_cast<std::size_t>(ev)].entity_id.value);
+                    if (eu == u_index && ev == v_index) break;
+                }
+                for (auto eid_val : entity_set) {
+                    EntityId eid{eid_val};
+                    if (!kernel::contains_entity(comp.entity_ids, eid))
+                        comp.entity_ids.push_back(eid);
+                }
+                // Sort entity IDs for determinism
+                std::sort(comp.entity_ids.begin(), comp.entity_ids.end(),
+                          [](EntityId a, EntityId b) { return a.value < b.value; });
+                ctx.components.push_back(std::move(comp));
+            }
+        } else if (v_index != ctx.parent[static_cast<std::size_t>(u_index)] &&
+                   ctx.discovery[static_cast<std::size_t>(v_index)] < ctx.discovery[static_cast<std::size_t>(u_index)]) {
+            // Back edge to an ancestor
+            ctx.edge_stack.push_back({u_index, v_index});
+            ctx.low[static_cast<std::size_t>(u_index)] = std::min(
+                ctx.low[static_cast<std::size_t>(u_index)],
+                ctx.discovery[static_cast<std::size_t>(v_index)]);
+        }
+    }
+}
+
+// Assign constraints to biconnected components based on entity membership
+void assign_constraints_to_components(
+    BiconnectedDecomposition& result,
+    const ModelSnapshot& model,
+    const IncidenceIndices& incidence) {
+    for (auto& comp : result.components) {
+        for (const auto& constraint_inc : incidence.constraint_incidence) {
+            if (!constraint_inc.valid) continue;
+            // A constraint belongs to this component if ALL its entities are in the component
+            bool all_in = true;
+            for (EntityId entity_id : constraint_inc.entity_ids) {
+                if (!kernel::contains_entity(comp.entity_ids, entity_id)) {
+                    all_in = false;
+                    break;
+                }
+            }
+            if (all_in && !kernel::contains_constraint(comp.constraint_ids, constraint_inc.constraint_id)) {
+                comp.constraint_ids.push_back(constraint_inc.constraint_id);
+            }
+        }
+        // Sort constraint IDs for determinism
+        std::sort(comp.constraint_ids.begin(), comp.constraint_ids.end(),
+                  [](ConstraintId a, ConstraintId b) { return a.value < b.value; });
+    }
+}
+
+// Assign unassigned entities (isolated vertices) to their own single-vertex components
+void assign_isolated_entities(
+    BiconnectedDecomposition& result,
+    const IncidenceIndices& incidence) {
+    std::set<std::uint64_t> assigned;
+    for (const auto& comp : result.components) {
+        for (EntityId eid : comp.entity_ids) {
+            assigned.insert(eid.value);
+        }
+    }
+    for (const auto& entity_inc : incidence.entity_incidence) {
+        if (assigned.count(entity_inc.entity_id.value) == 0) {
+            BiconnectedComponent comp;
+            comp.index = static_cast<int>(result.components.size());
+            comp.entity_ids.push_back(entity_inc.entity_id);
+            result.components.push_back(std::move(comp));
+        }
+    }
+    // Re-index components
+    for (int i = 0; i < static_cast<int>(result.components.size()); ++i) {
+        result.components[static_cast<std::size_t>(i)].index = i;
+    }
+}
+
+}  // namespace
+
+gcs::kernel::ContractResult<BiconnectedDecomposition> decompose_biconnected(
+    const ModelSnapshot& model,
+    const IncidenceIndices& incidence) {
+    kernel::ContractResult<BiconnectedDecomposition> result;
+    result.report = kernel::make_stage_report("incidence_graph.decompose_biconnected");
+
+    int entity_count = static_cast<int>(incidence.entity_incidence.size());
+
+    BiconnectedContext ctx{model, incidence};
+    ctx.discovery.assign(static_cast<std::size_t>(entity_count), -1);
+    ctx.low.assign(static_cast<std::size_t>(entity_count), -1);
+    ctx.parent.assign(static_cast<std::size_t>(entity_count), -1);
+    ctx.is_articulation.assign(static_cast<std::size_t>(entity_count), false);
+    ctx.entity_comp.assign(static_cast<std::size_t>(entity_count), -1);
+
+    // Run Tarjan DFS from each unvisited entity
+    for (int i = 0; i < entity_count; ++i) {
+        if (ctx.discovery[static_cast<std::size_t>(i)] == -1) {
+            tarjan_dfs(ctx, i);
+        }
+    }
+
+    // Edge stack may have remaining edges for last component
+    if (!ctx.edge_stack.empty()) {
+        BiconnectedComponent comp;
+        comp.index = static_cast<int>(ctx.components.size());
+        std::set<std::uint64_t> entity_set;
+        while (!ctx.edge_stack.empty()) {
+            auto [eu, ev] = ctx.edge_stack.back();
+            ctx.edge_stack.pop_back();
+            entity_set.insert(ctx.incidence.entity_incidence[static_cast<std::size_t>(eu)].entity_id.value);
+            entity_set.insert(ctx.incidence.entity_incidence[static_cast<std::size_t>(ev)].entity_id.value);
+        }
+        for (auto eid_val : entity_set) {
+            EntityId eid{eid_val};
+            if (!kernel::contains_entity(comp.entity_ids, eid))
+                comp.entity_ids.push_back(eid);
+        }
+        std::sort(comp.entity_ids.begin(), comp.entity_ids.end(),
+                  [](EntityId a, EntityId b) { return a.value < b.value; });
+        ctx.components.push_back(std::move(comp));
+    }
+
+    result.payload.components = std::move(ctx.components);
+
+    // Build articulation points
+    for (int i = 0; i < entity_count; ++i) {
+        if (ctx.is_articulation[static_cast<std::size_t>(i)]) {
+            ArticulationPoint ap;
+            ap.entity_id = incidence.entity_incidence[static_cast<std::size_t>(i)].entity_id;
+            result.payload.articulation_points.push_back(std::move(ap));
+        }
+    }
+
+    // Map which components each articulation belongs to
+    for (auto& ap : result.payload.articulation_points) {
+        for (const auto& comp : result.payload.components) {
+            if (kernel::contains_entity(comp.entity_ids, ap.entity_id)) {
+                ap.biconnected_component_indices.push_back(comp.index);
+            }
+        }
+    }
+
+    // Assign constraints to components
+    assign_constraints_to_components(result.payload, model, incidence);
+
+    // Assign isolated entities
+    assign_isolated_entities(result.payload, incidence);
+
+    result.payload.is_biconnected = result.payload.components.size() <= 1;
+    result.payload.report = result.report;
+    return result;
 }
 
 }
