@@ -135,6 +135,16 @@ python -m tools.token_audit report --format markdown
 
 Save the report to `docs/reports/token-audit/session-<date>.md`.
 
+**v2 Diagnostic** (if session has a session_id in the database):
+
+```bash
+# Generate v2 token economic diagnostic
+python -m tools.token_audit diagnose --session <session-id>
+```
+
+Include the diagnostic card output in the completed-task archive README
+under a `## Token Economic Diagnostic` section.
+
 ---
 
 ### Step 1.5: Session Output Summary

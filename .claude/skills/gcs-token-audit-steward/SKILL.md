@@ -52,6 +52,10 @@ python -m tools.token_audit dashboard --format html -o dashboard.html
 # Trend analysis
 python -m tools.token_audit trend --days 30
 
+# v2 Token economic diagnostics
+python -m tools.token_audit diagnose --session <id>
+python -m tools.token_audit cache-health --days 30
+
 # Database statistics
 python -m tools.token_audit db stats
 

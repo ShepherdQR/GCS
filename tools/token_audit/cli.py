@@ -1027,5 +1027,170 @@ def _trend_arrow(delta_pct: float, invert: bool) -> str:
     return "↑" if is_up else "↓"
 
 
+# ── diagnose (v2) ──────────────────────────────────────────────
+
+@main.command()
+@click.option("--session", "-s", "session_id", required=True, help="Session ID to diagnose")
+@click.option("--format", "-f", "output_fmt", default="text",
+              type=click.Choice(["text", "json"]))
+def diagnose(session_id, output_fmt):
+    """Generate a full v2 token economic diagnostic for a session."""
+    db_conn = init_db()
+    sess = get_session(db_conn, session_id)
+    if not sess:
+        click.echo(f"Session {session_id} not found.")
+        return
+
+    from tools.token_audit.metrics_engine import (
+        RawTelemetry, MetricsEngine, CACHEABLE_PREFIX_ESTIMATE,
+    )
+    from tools.token_audit.composite_indices import CompositeIndexEngine
+    from tools.token_audit.decision_engine import DecisionEngine
+    from tools.token_audit.reporter import generate_session_diagnostic_card
+
+    # Build RawTelemetry from DB session
+    raw = RawTelemetry(
+        input_tokens=sess.get("total_input_tokens", 0),
+        output_tokens=sess.get("total_output_tokens", 0),
+        cache_read_tokens=sess.get("total_cache_read_tokens", 0),
+        cache_creation_tokens=sess.get("total_cache_creation_tokens", 0),
+        turn_count=sess.get("turn_count", 0),
+        tool_call_count=sess.get("tool_calls_total", 0),
+        task_outcome=sess.get("task_outcome", "") or "",
+        task_type=sess.get("task_type", "") or "",
+        task_risk_level=sess.get("task_risk_level", "medium") or "medium",
+        model_id=sess.get("model_id", "") or "",
+        cache_ttl_setting=sess.get("cache_ttl_setting", "5min") or "5min",
+        estimated_overhead_tokens=sess.get("estimated_overhead_tokens", 0) or CACHEABLE_PREFIX_ESTIMATE,
+        staleness_events=sess.get("staleness_events", 0),
+        verification_tokens_estimate=sess.get("verification_tokens_estimate", 0),
+        tool_definition_tokens_estimate=sess.get("tool_definition_tokens_estimate", 0),
+        lines_added=sess.get("lines_added", 0),
+        lines_removed=sess.get("lines_removed", 0),
+        commits_count=sess.get("commits_count", 0),
+        session_id=session_id,
+    )
+
+    engine = MetricsEngine()
+    m = engine.compute(raw)
+
+    cie = CompositeIndexEngine()
+    ci = cie.compute_all(m, raw)
+
+    de = DecisionEngine()
+    historical = _load_historical_atei(db_conn)
+    alerts = de.evaluate(m, ci, raw, historical)
+
+    if output_fmt == "json":
+        import json as _json
+        result = {
+            "session_id": session_id,
+            "derived_metrics": {
+                "hr_raw": m.hr_raw, "hr_effective": m.hr_effective, "cwar": m.cwar,
+                "sclor": m.sclor, "clae": m.clae, "tlr": m.tlr, "twr": m.twr,
+                "usr": m.usr, "stes": m.stes, "vcr": m.vcr, "cgr": m.cgr, "tdor": m.tdor,
+            },
+            "composite_indices": {
+                "ths": ci.ths, "cti": ci.cti, "ser": ci.ser,
+                "workload": ci.workload, "cache_health_state": ci.cache_health_state,
+            },
+            "alerts": [{"rule": a.rule_id, "severity": a.severity.value, "message": a.message}
+                       for a in alerts],
+        }
+        click.echo(_json.dumps(result, indent=2, ensure_ascii=False))
+    else:
+        card = generate_session_diagnostic_card(raw, m, ci, alerts)
+        click.echo(card)
+
+
+# ── cache-health (v2) ──────────────────────────────────────────
+
+@main.command()
+@click.option("--days", "-d", default=30, help="Number of days to analyze")
+@click.option("--format", "-f", "output_fmt", default="text",
+              type=click.Choice(["text", "json"]))
+def cache_health(days, output_fmt):
+    """Generate a cache health deep-dive report across recent sessions."""
+    db_conn = init_db()
+    from tools.token_audit.metrics_engine import (
+        RawTelemetry, MetricsEngine, CACHEABLE_PREFIX_ESTIMATE,
+    )
+    from tools.token_audit.composite_indices import CompositeIndexEngine
+    from tools.token_audit.cost_model import CostModel
+
+    cm = CostModel()
+    engine = MetricsEngine()
+    cie = CompositeIndexEngine()
+
+    sessions = list_sessions(db_conn, limit=200)
+    results = []
+    for sess in sessions:
+        raw = RawTelemetry(
+            input_tokens=sess.get("total_input_tokens", 0),
+            output_tokens=sess.get("total_output_tokens", 0),
+            cache_read_tokens=sess.get("total_cache_read_tokens", 0),
+            cache_creation_tokens=sess.get("total_cache_creation_tokens", 0),
+            turn_count=sess.get("turn_count", 0),
+            task_type=sess.get("task_type", "") or "",
+            task_risk_level=sess.get("task_risk_level", "medium") or "medium",
+            model_id=sess.get("model_id", "") or "",
+            cache_ttl_setting=sess.get("cache_ttl_setting", "5min") or "5min",
+            estimated_overhead_tokens=sess.get("estimated_overhead_tokens", 0) or CACHEABLE_PREFIX_ESTIMATE,
+            staleness_events=sess.get("staleness_events", 0),
+            verification_tokens_estimate=sess.get("verification_tokens_estimate", 0),
+            session_id=sess.get("id", ""),
+        )
+        m = engine.compute(raw)
+        ci = cie.compute_all(m, raw)
+        results.append({
+            "session_id": sess.get("id", ""),
+            "date": (sess.get("started_at", "") or "")[:10],
+            "model": raw.model_id,
+            "hr_raw": m.hr_raw,
+            "hr_effective": m.hr_effective,
+            "cwar": m.cwar,
+            "usr": m.usr,
+            "cti": ci.cti,
+            "state": ci.cache_health_state,
+        })
+
+    if output_fmt == "json":
+        import json as _json
+        click.echo(_json.dumps(results, indent=2, ensure_ascii=False))
+        return
+
+    # Text report
+    states = {}
+    for r in results:
+        states.setdefault(r["state"], 0)
+        states[r["state"]] += 1
+
+    avg_cti = sum(r["cti"] for r in results) / max(len(results), 1)
+    avg_cwar = sum(r["cwar"] for r in results if r["cwar"] != float('inf')) / max(len(results), 1)
+    total_usr = sum(r["usr"] for r in results)
+
+    click.echo(f"Cache Health Report ({days}d)")
+    click.echo(f"  Sessions analyzed: {len(results)}")
+    click.echo(f"  Avg CTI: {avg_cti:.2f}  |  Avg CWAR: {avg_cwar:.1f}  |  Total USR events: {total_usr:.0f}")
+    click.echo(f"  State distribution:")
+    for state in ["Ideal", "Wasteful", "Dangerous", "Inefficient", "Broken"]:
+        count = states.get(state, 0)
+        if count > 0:
+            bar = "#" * max(count, 1)
+            click.echo(f"    {state:<14} {count:>3}  {bar}")
+
+
+def _load_historical_atei(db_conn) -> dict:
+    """Load ATEI historical baselines from daily_summary."""
+    try:
+        summaries_7d = get_daily_summaries(db_conn, 7)
+        summaries_14d = get_daily_summaries(db_conn, 14)
+        atei_7d = sum(s.get("atei", 0) or 0 for s in summaries_7d) / max(len(summaries_7d), 1)
+        atei_14d = sum(s.get("atei", 0) or 0 for s in summaries_14d) / max(len(summaries_14d), 1)
+        return {"atei_7d": atei_7d, "atei_14d": atei_14d}
+    except Exception:
+        return {}
+
+
 if __name__ == "__main__":
     main()

@@ -17,6 +17,14 @@ class AlertType(Enum):
     CACHE_DROP = "cache_drop"
     REJECTION_SPIKE = "rejection_spike"
     AGENT_LOOP = "agent_loop"
+    # v2 token economic evaluation alert types
+    CACHE_DECEPTION = "cache_deception"
+    CONTEXT_BLOAT = "context_bloat"
+    VERIFICATION_GAP = "verification_gap"
+    COLD_LOAD_DOMINANCE = "cold_load_dominance"
+    WRITE_PREMIUM_LOSS = "write_premium_loss"
+    ATEI_DECLINE = "atei_decline"
+    TASK_COST_ANOMALY = "task_cost_anomaly"
 
 
 class AlertSeverity(Enum):

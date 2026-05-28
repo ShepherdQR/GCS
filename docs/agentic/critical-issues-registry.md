@@ -49,7 +49,9 @@ The `cache_creation_input_tokens` field is present in the API response but alway
 ### CI-2026-05-28-2: No Test Infrastructure for Token Audit Module
 
 - **Date**: 2026-05-28
-- **Status**: open
+- **Status**: resolved
+- **Resolved date**: 2026-05-28
+- **Resolution**: pytest 9.0.3 installed. Created conftest.py (5 fixtures: sample_token_usage, sample_telemetry, sample_telemetry_abandoned, sample_telemetry_stale, temp_db). Created test_parser.py (11 tests) and test_metrics_engine.py (30 tests). All 41 tests pass. Retroactive coverage established for parser.py TokenUsage/SessionSnapshot and metrics_engine.py M1-M13.
 - **Severity**: HIGH — no regression safety net for planned ~1,530 lines of new code
 - **Discovered by**: token-econ-metric-system-v2 pre-execution audit
 - **Scope**: `tools/token_audit/tests/` (only `__init__.py` exists)
