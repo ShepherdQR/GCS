@@ -28,6 +28,7 @@ evals.
 | I002 | Tailor: Stitch-Timeline | Practiced, promoted seed | Prompt, template, refusal eval, and 4 timeline examples under `002-tailor-stitch-timeline/`. | 8/10 | Add separate architecture, agentic-SE, and fixture timeline examples when those threads diverge. |
 | I003 | Atelier Steward: Calibrate-Review | Seed | Prompt, template, refusal eval, and one Figure 72 convention-fit example under `003-atelier-steward-calibrate-review/`. | 6/10 | Collect two more UI or figure reviews before promotion. |
 | I004 | Art Director: Frame-Judge | Seed | Prompt, template, refusal eval, and one Figure 72 visual-review example under `004-art-director-frame-judge/`. | 6/10 | Require rendered-artifact evidence for every new example; avoid approval without visual input. |
+| I005 | Acceptance Officer: Evidence-Gate | Seed | Prompt (`005-acceptance-officer/README.md`), gate template (`templates/acceptance-report-template.md`), refusal eval (`evals/refuse-evidence-free-acceptance.md`). | 5/10 | Collect two real acceptance reviews on completed tasks before promotion. |
 
 ## Score Dimensions
 
@@ -94,14 +95,33 @@ Next useful eval:
 - refuse final approval when only source text or a figure description is
   provided.
 
+### I005 Acceptance Officer
+
+The Acceptance Officer is the independent evidence gate. It inspects completed
+work against its own claims and refuses evidence-free completion. Its seed
+package (prompt, gate template, refusal eval) was created 2026-05-28. It has
+not yet been exercised on a real task — the first real acceptance review is
+the next milestone.
+
+Next useful eval:
+
+- refuse acceptance when git diff includes files outside the task card's
+  affected paths (scope mismatch).
+
 ## Candidate Backlog
 
 | Candidate | Trigger | Evidence needed before seed |
 | --- | --- | --- |
 | Governance Sentinel | Permission, PR audit, or automation claims are changing. | One prompt, one review template, and refusal eval for unauthorized approval or merge. |
+| Git Session Steward | Git branch, worktree, push, or session-ownership operations. | Pre-mutation checklist template, refusal eval for pushing master with unrelated ahead commits, and one real push-safety intervention. |
 | Demo Producer | A product demo package is created or refreshed. | Demo-package template, command-transcript standard, and one demo archive. |
 | Benchmark Scout | External solver comparison or benchmark candidates are proposed. | Comparison criteria, source-citation standard, and one rejected weak benchmark example. |
 | Release Shepherd | Release readiness or packaging docs become active. | Release checklist, distribution non-goals, and evidence gate mapping. |
+| Night-Watch | Nightly diagnostics, repository health checks, or scheduled patrol. | Real nightly run with findings, dated run directory, and one refusal eval for unauthorized commit/push. |
+| Acceptance Officer | A non-trivial task claims completion and is ready for archive. | One prompt, gate template, and refusal eval for evidence-free acceptance. |
+| Collation Officer | Documentation and implementation may have diverged; consistency audit needed. | One prompt, consistency report template, and one real cross-read with specific citations. |
+| Bookkeeper | Cost-benefit questions arise or session efficiency needs analysis. | Budget ledger template, one real cost-vs-value report, and directional cost estimates. |
+| Gardener | Small frictions accumulate; stale references need batch cleanup. | Maintenance record template, one real batch with before/after verification, and escalation criteria. |
 
 ## Promotion Rule
 

@@ -46,6 +46,7 @@ boundary, or process domain in the GCS project.
 | [gcs-repository-audit-steward](gcs-repository-audit-steward/SKILL.md) | Repository audit | File classification, snapshots, diffs, trend reports, archive deltas |
 | [gcs-token-audit-steward](gcs-token-audit-steward/SKILL.md) | Token audit | Session token/cost tracking, BEI scoring, trend reports |
 | [gcs-product-demo-steward](gcs-product-demo-steward/SKILL.md) | Product demo | Smoke tests, diagnostic classification, replay evidence |
+| [gcs-benchmark-steward](gcs-benchmark-steward/SKILL.md) | Benchmark execution | External solver comparison, benchmark fixtures, reproducibility standards |
 
 ## Process Skills
 
@@ -53,6 +54,7 @@ boundary, or process domain in the GCS project.
 |-------|--------|-------------|
 | [session-close-orchestrator](session-close-orchestrator/SKILL.md) | **Session close pipeline** | **Single entry point — sequences all close steps** |
 | [task-scoped-session-closer](task-scoped-session-closer/SKILL.md) | Session closure | Task archives, evidence bundles, commit/push handoff |
+| [git-session-branch-steward](git-session-branch-steward/SKILL.md) | Git session governance | Branch/worktree safety, push payload scoping, dirty-file protection |
 
 ## Institutional Agents
 
@@ -60,10 +62,11 @@ Agent role definitions live in `.claude/agents/`:
 
 | Agent | Maturity | Purpose |
 |-------|----------|---------|
-| [bladesmith-quench-forge](../agents/bladesmith-quench-forge.md) | Practiced | Extract reusable operational lessons |
+| [bladesmith-quench-forge](../agents/bladesmith-quench-forge.md) | Promoted | Extract reusable operational lessons |
 | [tailor-stitch-timeline](../agents/tailor-stitch-timeline.md) | Practiced | Maintain multi-session timelines |
 | [atelier-steward-calibrate-review](../agents/atelier-steward-calibrate-review.md) | Seed | Review UI against design conventions |
 | [art-director-frame-judge](../agents/art-director-frame-judge.md) | Seed | Independent visual judgment |
+| [acceptance-officer](../agents/acceptance-officer.md) | Seed | Independent evidence review before completion |
 | [governance-sentinel](../agents/governance-sentinel.md) | Candidate | Permission and audit governance |
 | [demo-producer](../agents/demo-producer.md) | Candidate | Product demo creation |
 | [benchmark-scout](../agents/benchmark-scout.md) | Candidate | External solver comparison |
@@ -73,6 +76,7 @@ Agent role definitions live in `.claude/agents/`:
 | [collation-officer](../agents/collation-officer.md) | Candidate | Cross-read docs, code, tests for consistency |
 | [bookkeeper](../agents/bookkeeper.md) | Candidate | Token/cost/value budget tracking |
 | [gardener](../agents/gardener.md) | Candidate | Small friction, debt, and maintenance |
+| [git-session-steward](../agents/git-session-steward.md) | Candidate | Git session state, branch/worktree hygiene, push safety |
 
 ## Conversion Notes
 
@@ -89,5 +93,11 @@ changes from the originals:
    `docs/agentic/institutional-agents/` to `.claude/agents/` with Claude Code
    frontmatter
 
-The original `.codex/skills/` files remain intact as the authoritative source.
-These `.claude/skills/` files are the operational Claude Code interface layer.
+The original `.codex/skills/` files remain intact as the authoritative source
+for the 20 solver, boundary, and quality skills they cover. Five Claude Code-only
+skills (`gcs-repository-audit-steward`, `gcs-ui-qa-steward`,
+`gcs-product-demo-steward`, `gcs-token-audit-steward`, `session-close-orchestrator`)
+exist only in this directory — they are operational skills built for the Claude
+Code agentic-SE layer and do not have `.codex` counterparts. If a Claude-only
+skill stabilizes into a general contract, backport it to `.codex/skills/`. These
+`.claude/skills/` files are the operational Claude Code interface layer.

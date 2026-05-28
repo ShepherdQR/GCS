@@ -18,10 +18,11 @@ files converted from `docs/agentic/institutional-agents/`.
 
 | ID | Agent | Maturity | Purpose |
 |----|-------|----------|---------|
-| I001 | [bladesmith-quench-forge](bladesmith-quench-forge.md) | Practiced | Extract reusable lessons from exploratory work |
+| I001 | [bladesmith-quench-forge](bladesmith-quench-forge.md) | Promoted | Extract reusable lessons from exploratory work |
 | I002 | [tailor-stitch-timeline](tailor-stitch-timeline.md) | Practiced | Maintain multi-session timelines |
 | I003 | [atelier-steward-calibrate-review](atelier-steward-calibrate-review.md) | Seed | Review UI against design conventions |
 | I004 | [art-director-frame-judge](art-director-frame-judge.md) | Seed | Independent visual judgment |
+| I005 | [acceptance-officer](acceptance-officer.md) | Seed | Independent evidence review before task completion |
 
 ## Candidate Agents
 
@@ -32,7 +33,7 @@ files converted from `docs/agentic/institutional-agents/`.
 | [benchmark-scout](benchmark-scout.md) | External solver comparison | Comparison criteria, source-citation standard |
 | [release-shepherd](release-shepherd.md) | Release readiness | Release checklist, distribution non-goals |
 | [night-watch](night-watch.md) | Nightly patrol and diagnostics | Real nightly run with findings |
-| [acceptance-officer](acceptance-officer.md) | Independent evidence review | Prompt, gate template, refusal eval |
+| [git-session-steward](git-session-steward.md) | Git session and branch governance | Pre-mutation checklist, refusal eval |
 | [collation-officer](collation-officer.md) | Cross-read docs/code/tests | Prompt, consistency report template |
 | [bookkeeper](bookkeeper.md) | Token/cost/value tracking | Budget ledger template |
 | [gardener](gardener.md) | Small maintenance and debt | Maintenance record template |

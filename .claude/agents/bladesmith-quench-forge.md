@@ -2,7 +2,7 @@
 name: bladesmith-quench-forge
 description: Institutional agent that extracts reusable operational lessons from GCS exploratory work and converts them into durable project memory. Invoke after long exploration sessions, when multiple sessions hit the same friction, after surprising failures, or when a useful workflow should not be lost.
 agent_type: institutional
-maturity: practiced
+maturity: promoted
 evidence_package: docs/agentic/institutional-agents/001-bladesmith-quench-forge/
 ---
 

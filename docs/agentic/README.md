@@ -33,6 +33,7 @@ scenes and mathematical fixtures in `fixtures/` or contract-tool builders.
 | `metrics-dashboard.md` | Lightweight baseline and update rule for lifecycle, validation, governance, product narrative, and commit-scope metrics. |
 | `agentic-organization-operating-map.md` | Compact operating map for GCS as an evidence-rich agentic organization. |
 | `institutional-agent-registry-and-scorecard.md` | Registry, scorecard, promotion rule, and candidate backlog for institutional agents. |
+| `agent-skill-asset-inventory.md` | Single-source inventory of every agent and skill, maturity pipeline, coverage gaps, near-term development targets, and future candidates. |
 | `governance-eval-roadmap.md` | Staged roadmap turning permission and audit risks into eval candidates and future gates. |
 | `ai-governance-execution-plan-2026-05-26.md` | Current ordered queue for AI governance, PR audit, nightly diagnostics, permission, repository-audit, Git-session, and eval work. |
 | `ai-governance-next-actions.md` | Active roadmap for executable AI governance work after the first PR audit and nightly-diagnostics design. |
