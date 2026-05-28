@@ -12,7 +12,8 @@ def run(cmd: list[str]) -> str:
 
 
 def main() -> None:
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    now_local = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M")
     days = sys.argv[1] if len(sys.argv) > 1 else "7"
 
     # Recent commits
@@ -30,7 +31,7 @@ def main() -> None:
     # Branch
     branch = run(["git", "branch", "--show-current"])
 
-    print(f"# GCS 活动摘要 — {now}")
+    print(f"# GCS 活动摘要 — {now_utc} / {now_local}")
     print(f"  分支: {branch}")
     print(f"  近 {days} 天: {count} 次提交, {diff_count} 个文件变更")
     if dirty:
