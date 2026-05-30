@@ -47,6 +47,14 @@ docs/agentic/
       When to read: Planning any multi-agent infrastructure work
       Key finding: 9-15 sessions, 1.5M-3.2M tokens to reach full autonomy;
                   Phase 1 (dispatch wiring) is the critical path
+  │
+  └── autonomous-agent-scheduling-pipeline-research.md [TRIGGERS]
+      What: US/European production systems, Claude Code Routines, external
+            schedulers, 5 trigger taxonomy, GCS integration plan
+      When to read: Solving the "first push" problem — how to auto-start agents
+      Key finding: 5 trigger types (cron, webhook, GitHub event, telemetry,
+                  inter-agent message); Routines is the native solution;
+                  GCS checkpoint system is ahead of most surveyed systems
 ```
 
 ## Reading Paths
@@ -69,6 +77,11 @@ docs/agentic/
 1. Start: `gcs-multi-agent-system-baseline-2026-05-29.md` — the current state
 2. Then: `../agentic/multi-agent-development-roadmap.md` — the 6-phase plan
 3. Reference: `orchestrator-design-principles.md` — principles governing each phase
+
+### Path E: "How do we auto-start agents without human intervention?"
+1. Start: `autonomous-agent-scheduling-pipeline-research.md` — 5 trigger types, all surveyed systems
+2. Then: Claude Code Routines docs — the native implementation path
+3. Action: Create a Routine for night-watch patrol or PR code review
 
 ## Key Numbers at a Glance
 
