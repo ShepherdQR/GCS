@@ -23,6 +23,7 @@ if TOOL_DIR not in sys.path:
     sys.path.insert(0, TOOL_DIR)
 
 from gcs_scene_generation import contracts as scene_contracts
+from gcs_scene_generation import enumerator as enumerator_module
 from gcs_scene_generation import explorer as explorer_module
 from gcs_scene_generation import gcs_model
 from gcs_scene_generation import parameterization
@@ -101,6 +102,10 @@ def _read_json_file(path: str) -> dict:
 
 def _exploration_root(exploration_id: str) -> str:
     return _store_adapter().exploration_root(exploration_id)
+
+
+def _enumeration_root(enumeration_id: str) -> str:
+    return _store_adapter().enumeration_root(enumeration_id)
 
 
 def _promotion_root(promotion_id: str) -> str:
@@ -814,6 +819,16 @@ def tool_explore_scene_space(params: dict) -> dict:
     return explorer_module.explore_scene_space(params, _make_explorer_services())
 
 
+def tool_enumerate_scene_space(params: dict) -> dict:
+    """Enumerate all valid constraint graphs for fixed small parameters."""
+    services = enumerator_module.EnumeratorServices(
+        store=_store_adapter(),
+        save_graph=save_graph,
+        load_graph=load_graph,
+    )
+    return enumerator_module.enumerate_scene_space(params, services)
+
+
 # ---------------------------------------------------------------------------
 # Command: promote_candidate
 # ---------------------------------------------------------------------------
@@ -913,6 +928,7 @@ TOOLS = {
     "serialize_gcs_graph": tool_serialize_gcs_graph,
     "generate_graph_report": tool_generate_graph_report,
     "explore_scene_space": tool_explore_scene_space,
+    "enumerate_scene_space": tool_enumerate_scene_space,
     "promote_candidate": tool_promote_candidate,
 }
 

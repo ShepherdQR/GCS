@@ -47,6 +47,9 @@ class SceneGenerationStore:
     def candidate_slot(self, candidate_id: str) -> str:
         return candidate_slot(candidate_id)
 
+    def enumeration_root(self, enumeration_id: str) -> str:
+        return enumeration_root(self.store_dir, enumeration_id)
+
     def candidate_root(self, exploration_id: str, candidate_id: str) -> str:
         return candidate_root(self.store_dir, exploration_id, candidate_id)
 
@@ -135,6 +138,10 @@ def exploration_root(store_dir: str, exploration_id: str) -> str:
 
 def promotion_root(store_dir: str, promotion_id: str) -> str:
     return os.path.join(store_dir, "promotions", safe_store_id(promotion_id, "promotion_id"))
+
+
+def enumeration_root(store_dir: str, enumeration_id: str) -> str:
+    return os.path.join(store_dir, "enumerations", safe_store_id(enumeration_id, "enumeration_id"))
 
 
 def candidate_slot(candidate_id: str) -> str:
