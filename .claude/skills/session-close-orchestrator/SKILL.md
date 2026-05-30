@@ -13,13 +13,14 @@ exclusive: false
 Use this skill at the end of every non-trivial GCS session. It runs the full
 close pipeline so no step is forgotten and all outputs land in the right place.
 
-**One invocation covers all five requirements:**
+**One invocation covers all six requirements:**
 
 1. Session history → persistent archive md
 2. Experience extraction → experience doc
 3. Skill/agent promotion evaluation → candidate decision
 4. Token benefit report → data-driven efficiency analysis
-5. Git commit + push → durable handoff
+5. Output existence verification → mechanical gate before commit
+6. Git commit + push → durable handoff
 
 ## Entry Rule
 
@@ -368,6 +369,54 @@ python -m tools.token_audit trend --days 7
 
 ---
 
+### Step 4.5: Output Existence Check
+
+**What**: Before committing, verify every required output from Steps 0-4 actually
+exists on disk. This is a mechanical gate — do not skip.
+
+**Dispatch**: Direct `Bash` existence checks.
+
+**Checklist** (each item must return `true`):
+
+| # | Required file | Step | Blocking? |
+|---|--------------|------|:---------:|
+| 1 | `.claude/current-task` | 0 | yes |
+| 2 | `docs/agentic/tasks/<date-slug>.md` | 0 | yes |
+| 3 | `docs/reports/token-audit/session-<date>.md` | 1 | yes |
+| 4 | `docs/reports/session-output-summary-<date>.md` | 1.5 | yes |
+| 5 | `docs/completed-tasks/<date-slug>/README.md` | 2 | yes |
+| 6 | `docs/agentic/experience/<slug>/README.md` | 3 | if candidate identified |
+
+**Content checks** (Read the archive README and verify):
+
+| # | Content requirement | Blocking? |
+|---|--------------------|:---------:|
+| C1 | Archive README has `## Narrative Line Impact` section | yes |
+| C2 | Archive README has `## Evidence` section with at least one command/result | yes |
+| C3 | Experience/Skill/Agent evaluation table is present (Step 3 stage 3a) | yes |
+| C4 | All three rows answered (experience, skill, agent — even if "no") | yes |
+| C5 | If experience "yes" or "candidate", `docs/agentic/experience/<slug>/` exists | yes |
+
+```bash
+# Existence check (run for each file)
+ls -la <file-path>
+
+# Content check (grep for required sections)
+grep -c "## Narrative Line Impact" docs/completed-tasks/<date-slug>/README.md
+grep -c "## Evidence" docs/completed-tasks/<date-slug>/README.md
+grep -c "| Experience |" docs/completed-tasks/<date-slug>/README.md
+```
+
+**Decision**:
+
+- ALL blocking checks pass → proceed to Step 5
+- Any blocking check fails → **STOP**. Report which check failed and what is
+  missing. Do NOT proceed to commit. Fix the missing output, then re-check.
+
+**Error capture**: Record the check results (pass/fail for each item) in the
+pipeline output. If blocked, write the block reason to the archive README
+under `## Pipeline Block Log`.
+
 ### Step 5: Commit & Push
 
 **What**: Stage only scoped files, commit with a concise message, push.
@@ -454,6 +503,8 @@ At close, the following must exist on disk and be pushed:
 - Do not skip the experience/skill/agent evaluation table — "no" still needs a
   one-sentence reason.
 - Do not proceed to commit if git-session-branch-steward returns BLOCKED.
+- Do not skip Step 4.5 (output existence check) — if any blocking file is
+  missing, stop and fix before commit.
 - Do not retry a failed skill dispatch — record failure and continue (orchestrator handles retry).
 
 ## Claude Code Integration

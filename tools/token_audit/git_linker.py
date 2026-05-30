@@ -19,6 +19,8 @@ class GitLinker:
                 ["git", "-C", self.repo_path] + args,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=30,
             )
             return result.stdout.strip()
@@ -27,14 +29,15 @@ class GitLinker:
 
     @staticmethod
     def _normalize_dt(dt: datetime) -> datetime:
-        """Convert a datetime to a naive UTC datetime for git comparison.
+        """Convert a datetime to naive local time for git comparison.
 
-        Git log dates are in local time without timezone markers.
-        We convert aware datetimes to UTC then strip tzinfo so comparisons
-        against git output (parsed as naive local) are consistent.
+        Git log/reflog dates (--format=%ai) are in local time. Session
+        timestamps from JSONL are UTC-aware. We convert to local time
+        and strip tzinfo so comparisons against git output (parsed as
+        naive local) are consistent.
         """
         if dt.tzinfo is not None:
-            dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+            dt = dt.astimezone().replace(tzinfo=None)
         return dt
 
     def get_commits_in_window(

@@ -631,8 +631,9 @@ def _import_session(db_conn, jsonl_path, records, project_name):
             })
             edit_accept_count += 1
 
-    # Compute cost for BEI scoring only
+    # Compute cost for BEI scoring and storage
     cost_for_bei = cost_model.calculate(tokens, model_id or "claude-sonnet-4-6")
+    total_cost_usd_micro = int(cost_for_bei * 1_000_000)
 
     # Enrich with git data from session time window
     lines_added = 0
@@ -664,6 +665,7 @@ def _import_session(db_conn, jsonl_path, records, project_name):
         "total_output_tokens": tokens.output_tokens,
         "total_cache_read_tokens": tokens.cache_read_tokens,
         "total_cache_creation_tokens": tokens.cache_creation_tokens,
+        "total_cost_usd_micro": total_cost_usd_micro,
         "lines_added": lines_added,
         "lines_removed": lines_removed,
         "files_touched": files_touched,
