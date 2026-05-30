@@ -53,10 +53,25 @@ REPAIR_STRATEGIES = {
         "description": "Angle value should be in [0, pi]. Wrap to range.",
         "apply": "_repair_angle_range",
     },
+    "invalid_parameter_value": {
+        "auto_fix": True,
+        "description": "Constraint parameter outside schema range. Apply corrective bounds.",
+        "apply": "_repair_negative_distance",
+    },
     "degenerate_geometry": {
         "auto_fix": True,
         "description": "Perturb geometry parameters to avoid degeneracy.",
         "apply": "_repair_degenerate_geometry",
+    },
+    "gluing_boundary_mismatch": {
+        "auto_fix": False,
+        "description": "Local sections disagree on boundary projection after small perturbation. Indicates decomposition sensitivity.",
+        "recommended_action": "Investigate decomposition boundary stability. Small value perturbations should not break gluing. Check if decomposition is too aggressive for near-degenerate configurations.",
+    },
+    "numerically_singular": {
+        "auto_fix": False,
+        "description": "System became numerically singular after mutation. May indicate under-constraint or rank deficiency.",
+        "recommended_action": "Check if the mutated constraint value creates a degenerate configuration. Consider adding regularization or constraint redundancy.",
     },
     "solver_crash": {
         "auto_fix": False,

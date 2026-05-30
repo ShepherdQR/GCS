@@ -82,6 +82,14 @@ def _is_vertex_biconnected(vertices: list[int], edges: list[tuple]) -> bool:
     return num_components == 1 and not articulation_points
 
 
+def _is_connected(vertices: list[int], edges: list[tuple]) -> bool:
+    if len(vertices) < 2:
+        return True
+    edge_list = [[u, v] for u, v in edges]
+    _, _, num_components = tarjan_articulation_bcc(vertices, edge_list)
+    return num_components == 1
+
+
 def _constraint_canonical_key(gcs: dict) -> str:
     """Deterministic key for deduplication based on sorted constraint structure."""
     geometries = sorted(gcs.get("geometries", []), key=lambda g: g["id"])
@@ -160,7 +168,8 @@ def enumerate_scene_space(params: dict, services) -> dict:
         enumeration_id, num_geometries, num_constraints, num_rigid_sets
     Optional:
         geometry_types (default all), constraint_types (default all),
-        seed (default 0), max_graphs (default 10000), max_seconds (default 0=unlimited)
+        seed (default 0), max_graphs (default 10000), max_seconds (default 0=unlimited),
+        require_biconnected (default True, set False for connectivity-only)
     """
     store: SceneGenerationStore = services.store
     enumeration_id = safe_store_id(params.get("enumeration_id", f"enum_{int(time.time())}"), "enumeration_id")
@@ -172,6 +181,7 @@ def enumerate_scene_space(params: dict, services) -> dict:
     seed = int(params.get("seed", 0))
     max_graphs = int(params.get("max_graphs", 10000))
     max_seconds = float(params.get("max_seconds", 0.0))
+    require_biconnected = bool(params.get("require_biconnected", True))
 
     unknown_geom = [g for g in allowed_geom_types if g not in GEOMETRY_TYPES]
     if unknown_geom:
@@ -220,9 +230,14 @@ def enumerate_scene_space(params: dict, services) -> dict:
 
                 stats["edge_subsets_checked"] += 1
 
-                if not _is_vertex_biconnected(vertices, edge_subset):
-                    stats["skipped_not_biconnected"] += 1
-                    continue
+                if require_biconnected:
+                    if not _is_vertex_biconnected(vertices, edge_subset):
+                        stats["skipped_not_biconnected"] += 1
+                        continue
+                else:
+                    if not _is_connected(vertices, edge_subset):
+                        stats["skipped_not_connected"] += 1
+                        continue
 
                 valid_ctypes_per_edge = []
                 for u, v in edge_subset:
@@ -293,6 +308,7 @@ def enumerate_scene_space(params: dict, services) -> dict:
             "num_geometries": num_geometries,
             "num_constraints": num_constraints,
             "num_rigid_sets": num_rigid_sets,
+            "require_biconnected": require_biconnected,
             "geometry_types": allowed_geom_types,
             "constraint_types": allowed_constraint_types,
         },
@@ -301,7 +317,8 @@ def enumerate_scene_space(params: dict, services) -> dict:
             "graphs_constructed": stats["graphs_constructed"],
             "accepted": len(accepted),
             "duplicates_discarded": stats["skipped_duplicate"],
-            "biconnectivity_rejected": stats["skipped_not_biconnected"],
+            "biconnectivity_rejected": stats.get("skipped_not_biconnected", 0),
+            "connectivity_rejected": stats.get("skipped_not_connected", 0),
             "parameterization_rejected": stats["skipped_parameterization_failed"],
             "other_rejected": stats["skipped_insufficient_cross_pairs"] + stats["skipped_no_valid_constraint_type"],
         },

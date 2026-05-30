@@ -112,13 +112,25 @@ def classify_defect(original: SolveResult, mutated: SolveResult) -> tuple[str, s
     if mutated.status == "timeout":
         return "crash", "solver_timeout"
 
+    combined = (mutated.stdout + " " + mutated.stderr).lower()
+
     if original.status == "solved" and mutated.status == "failed":
-        if "negative" in mutated.stderr.lower() or "distance" in mutated.stderr.lower():
-            return "wrong_result", "negative_distance"
-        if "angle" in mutated.stderr.lower():
-            return "wrong_result", "invalid_angle_range"
-        if "degenerate" in mutated.stderr.lower():
+        if "invalid_parameter_value" in combined or "outside its schema range" in combined:
+            if "distance" in combined or "negative" in combined:
+                return "wrong_result", "negative_distance"
+            if "angle" in combined:
+                return "wrong_result", "invalid_angle_range"
+            return "wrong_result", "invalid_parameter_value"
+        if "boundary_projection_mismatch" in combined:
+            return "wrong_result", "gluing_boundary_mismatch"
+        if "numericallysingular" in combined:
+            return "wrong_result", "numerically_singular"
+        if "degenerate" in combined:
             return "wrong_result", "degenerate_geometry"
+        if "negative" in combined or "distance" in combined:
+            return "wrong_result", "negative_distance"
+        if "angle" in combined:
+            return "wrong_result", "invalid_angle_range"
         return "wrong_result", "solver_failed"
 
     if original.status == "solved" and mutated.status == "solved":
