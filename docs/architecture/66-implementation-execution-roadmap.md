@@ -237,10 +237,17 @@ Status legend: `done`, `in_progress`, `pending`.
     (point-to-point distance) in `gcs.decomposition_planner` so that
     cross-rigid-set distance constraints are classified as absorbed by
     a tree pattern instead of all unsupported.
+54. `done` - add parallel and perpendicular spanning tree patterns so
+    that oriented constraints (line-line, plane-plane, line-plane)
+    are classified as absorbed with 1 rotational DOF removed.
+55. `done` - wire spanning forest plan computation into
+    `plan_decomposition()` so that `PlannerOutput::spanning_forest_plan`
+    is populated with pattern-based DOF absorption evidence.
 
 Next registered candidate:
 
-- Choose the next implementation candidate after Step 53.
+- Wire spanning forest absorption into numeric task construction so
+  that absorbed constraints are excluded from active equations.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 
