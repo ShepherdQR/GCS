@@ -78,6 +78,8 @@ Skip when:
 **If uncertain, invoke.** The cost of misclassification (using multi-agent for sequential work) is higher
 than the cost of analysis (a few hundred tokens to think about task structure).
 
+**Session start resume**: At session start, if `.claude/current-task` points to a task card with `status: in_progress` and a `.checkpoint` field containing `workers_pending`, read the checkpoint and resume from the last completed phase. This enables cross-session continuity (Phase 7.2).
+
 ---
 
 ## Phase 1: Task Structure Analysis
@@ -133,6 +135,28 @@ Apply the diversity principle and manager-quality constraint:
 
 **Hard constraint: The orchestrator model MUST be ≥ the strongest worker model.**
 Never dispatch an Opus worker from a Sonnet orchestrator.
+
+### Step 1.5: Model Availability Check (Phase 7.4 — Degradation)
+
+Before dispatching workers, check which models are available:
+
+| Tier | Condition | Max Workers | Extra Verification | Warning |
+|---|---|---|---|---|
+| **Tier 1** | Opus available | 5 | Standard | None |
+| **Tier 2** | Opus unavailable → Sonnet orchestrator | 3 | All worker outputs get extra Acceptance Officer review | "Degraded mode — Opus unavailable. Quality may be reduced." |
+| **Tier 3** | Only Haiku available | 1 (abort multi-agent) | N/A — single agent only | "Severely degraded — falling back to single-agent mode." |
+
+Record the tier in the task card metadata. Tier 2 tasks are flagged for human review in the archive.
+
+### Step 1.6: Token Budget Check (Phase 7.5 — Cost Governance)
+
+Read `token_budget` from the task card (set by task-intake based on risk: low=200K, medium=500K, high=1M).
+
+- Before each worker dispatch: check `budget_consumed + worker_max` against `max_total`. If insufficient, skip the worker and flag as "budget-excluded".
+- Before Phase 4 (Synthesis): if >80% budget consumed, produce minimal synthesis (one paragraph, no detailed merge).
+- If budget exceeded: write partial results to task card, set `status: "budget-exceeded"`, STOP.
+
+**Hard constraint: No headless task exceeds its token budget.** Budget caps are enforced per-task.
 
 ---
 
@@ -241,6 +265,20 @@ Cascading retries are the mechanism behind coordination collapse.
 
 **Circuit breaker:** If the same worker type fails 3 or more times in a single session, stop dispatching to that worker type for the remainder of the session. Record the circuit-break in the orchestration record.
 
+### Step 3.4: Architecture Rollback Triggers (Phase 7.6)
+
+If verification reveals systemic issues, roll back the architecture choice:
+
+| Trigger | Evidence | Action |
+|---|---|---|
+| **Hidden dependencies** | Cross-worker consistency check reveals contradictions requiring sequential resolution | Abort remaining parallel workers; re-dispatch as sequential chain |
+| **Related failures** | ≥2 workers fail with errors suggesting shared-state dependency | Abort all workers; re-dispatch as single agent with full context |
+| **Coverage gap** | Worker outputs miss >20% of subtasks | Spawn gap-filling worker. If gap >50%, re-plan and re-dispatch all. |
+
+**Rollback cost tracking**: Record original architecture, rollback reason, and tokens wasted. Feed into the decision quality audit (Phase 4.4). If the same task type triggers rollback 3 times, blacklist that architecture for that task type.
+
+**Circuit breaker:** If the same worker type fails 3 or more times in a single session, stop dispatching to that worker type for the remainder of the session. Record the circuit-break in the orchestration record.
+
 ---
 
 ## Phase 4: Synthesis
@@ -273,6 +311,30 @@ Include in the output:
 If the project has an experience directory (`{project_root}/docs/agentic/experience/` or configured
 `experience_dir`), append a one-paragraph note recording what architecture was used, whether it
 worked, and any surprises. This builds the evidence base for future architecture selection.
+
+### Step 4.4: Decision Quality Audit (Phase 7.3)
+
+After each task, self-assess the architecture decision:
+
+```yaml
+.audit:
+  architecture_chosen: "<topology>"
+  architecture_actual: "<topology>"     # determined post-hoc from evidence
+  classification_correct: true|false
+  misclassification_indicators: []      # signals of wrong choice
+  rollback_triggered: true|false
+  rollback_reason: ""
+  tokens_wasted_on_rollback: 0
+```
+
+**Misclassification indicators:**
+- Cross-worker consistency check found hidden dependencies → task was not truly parallel
+- Synthesis phase discovered subtasks were not independent → tree/judge as independent
+- Multiple workers produced overlapping outputs → over-decomposition
+
+**Quality tracking:** Session-close-orchestrator aggregates audit data into a running quality dashboard at `docs/agentic/quality/orchestrator-decision-audit.md`.
+
+**Safe fallback:** If misclassification rate exceeds 20% over the last 20 tasks, the orchestrator defaults to single-agent mode (safest architecture).
 
 ---
 
@@ -335,6 +397,36 @@ Output a one-paragraph summary of:
    - Write minimal archive directly (task card + changed files + one-paragraph summary)
    - Flag: "Orchestrated closeout failed — minimal archive created. Full closeout deferred."
 
+### Step 5.5: Checkpoint Serialization (Phase 7.2)
+
+After EACH phase completes, write orchestrator state to the task card `.checkpoint` field for cross-session resume:
+
+```yaml
+.checkpoint:
+  last_phase: <N>                    # 1-5
+  phase_status: "complete"
+  workers_dispatched:                # all workers sent (completed or pending)
+    - {agent: "<name>", status: "complete|pending|failed", output: "<path or error>"}
+  workers_pending:                   # subset still to run (next session)
+    - {agent: "<name>", brief: "<task description>"}
+  evidence_verified: ["<path>", ...] # outputs that passed Phase 3 verification
+  architecture:                      # from Phase 1
+    topology: "<topology>"
+    reasoning: "<why chosen>"
+  budget:
+    max_total: <N>
+    budget_consumed: <N>
+  degradation_tier: <1|2|3>
+```
+
+**Resume logic (Phase 1):** If task card has `.checkpoint` with `workers_pending`:
+1. Skip completed phases
+2. Re-verify completed worker outputs (do NOT assume valid across sessions)
+3. Re-dispatch pending workers
+4. Continue from `last_phase + 1`
+
+**Hard constraint: Completed worker outputs from a previous session are re-verified, not assumed valid.** State can drift between sessions.
+
 ---
 
 ## Guardrails
@@ -348,6 +440,8 @@ Output a one-paragraph summary of:
 5. **Max 1 retry per failed worker** — never retry a worker more than once
 6. **Circuit breaker: 3 consecutive failures from the same worker type -> stop dispatching to that type for this session.**
 7. **Workers produce evidence; orchestrator verifies evidence; only verified outputs enter synthesis**
+8. **Token budget: never exceed task card token_budget.max_total. Abort and flag if exceeded.**
+9. **Degradation: if Opus unavailable, drop to Tier 2 (Sonnet orchestrator, 3 max workers). If only Haiku available, abort multi-agent (Tier 3).**
 
 ### Soft Guidelines (SHOULD follow)
 

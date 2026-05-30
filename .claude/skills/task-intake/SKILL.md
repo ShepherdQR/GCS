@@ -176,6 +176,18 @@ Additional flags based on classification:
 - `--evidence "<requirement>"` — if specific evidence requirements are known upfront
 - `--narrative-line "<line>"` — if the task is tied to a narrative line
 
+### Step 2.2b: Set Token Budget (Phase 7.5)
+
+Set `token_budget.max_total` in the task card based on risk classification:
+
+| Risk | Budget | Rationale |
+|---|---|---|
+| `low` | 200,000 | Single file, docs, config — minimal exploration needed |
+| `medium` | 500,000 | Multi-file, tooling, quality gates — moderate exploration |
+| `high` | 1,000,000 | Solver, runtime, IO, viewer — substantial exploration expected |
+
+The orchestrator enforces this budget (see Step 1.6 of orchestrator SKILL.md). If a task legitimately needs more, the task card can be manually edited to increase the budget before re-dispatching.
+
 ### Step 2.3: Validate the Card
 
 After creation, run validation:
@@ -224,7 +236,7 @@ required_evidence:
 human_gate_required: <true|false>
 human_gate_reason: "<reason if true, empty if false>"
 token_budget:
-  max_total: 500000
+  max_total: <200000|500000|1000000>   # low=200K, medium=500K, high=1M
   budget_consumed: 0
 ---
 
@@ -420,7 +432,7 @@ required_evidence:
 human_gate_required: false
 human_gate_reason: ""
 token_budget:
-  max_total: 500000
+  max_total: <200000|500000|1000000>   # low=200K, medium=500K, high=1M
   budget_consumed: 0
 ---
 
