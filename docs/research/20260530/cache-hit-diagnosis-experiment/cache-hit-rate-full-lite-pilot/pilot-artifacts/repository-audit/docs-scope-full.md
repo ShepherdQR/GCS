@@ -8,7 +8,7 @@ Controller task card: `docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs
 
 ## Context Read
 
-- `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md`
 - `docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs.md`
 - `.agents/skills/gcs-repository-audit-steward/SKILL.md`
 - `docs/agentic/experience/005-repository-audit-value-loop/README.md`

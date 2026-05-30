@@ -20,7 +20,7 @@ prompts below should be recorded in `experiment-runs.csv`.
 4. Do not record the row from inside a background worktree. The controller
    imports telemetry and appends the row after the run finishes.
 5. Keep artifacts under
-   `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/`.
+   `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/`.
 6. Commit only the files created for that run if the run makes a commit.
 7. Record failures honestly. A failed validation is still useful evidence.
 
@@ -73,7 +73,7 @@ CACHE_HIT_EXPERIMENT_RUN docs-index-1-full docs-index-1 Full
 You are executing a Full lane cache-hit pilot run in C:\Codes\AI\GCS_A.
 Use the existing controller task card docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs.md; do not create a new task card unless the scope unexpectedly expands.
 
-Task: index docs/architecture/30-contracts/ into docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/docs-index/contracts-index-full.md.
+Task: index docs/architecture/30-contracts/ into docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/docs-index/contracts-index-full.md.
 
 Full lane rules: read the relevant experiment runbook and enough architecture/contract context to make the artifact auditable; invoke applicable GCS stewardship if triggered; include validation evidence and residual risk.
 
@@ -88,7 +88,7 @@ CACHE_HIT_EXPERIMENT_RUN docs-index-1-lite docs-index-1 Lite
 You are executing a Lite lane cache-hit pilot run in C:\Codes\AI\GCS_A.
 Use the existing controller task card docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs.md; do not create a new task card unless the scope unexpectedly expands.
 
-Task: index docs/architecture/20-solver-pipeline/ into docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/docs-index/pipeline-index-lite.md.
+Task: index docs/architecture/20-solver-pipeline/ into docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/docs-index/pipeline-index-lite.md.
 
 Lite lane rules: read only the target files and minimal command output needed; keep the artifact compact; include the smallest command evidence that proves the file set was inspected.
 
@@ -102,7 +102,7 @@ CACHE_HIT_EXPERIMENT_RUN token-diagnostic-1-lite token-diagnostic-1 Lite
 
 Execute a Lite lane cache-hit pilot run. Use only tools/token_audit/cache_hit_experiment.py list-sessions --limit 5 --format json plus minimal local inspection.
 
-Task: choose one recent session from the command output and write a compact diagnostic to docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/token-diagnostics/recent-lite.md.
+Task: choose one recent session from the command output and write a compact diagnostic to docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/token-diagnostics/recent-lite.md.
 
 Do not append experiment-runs.csv. Final response must include suggested audit_score_0_5, validation_passed, rework_turns, defect_or_reopen_count, and changed files.
 ```
@@ -114,7 +114,7 @@ CACHE_HIT_EXPERIMENT_RUN token-diagnostic-1-full token-diagnostic-1 Full
 
 Execute a Full lane cache-hit pilot run. Read the experiment runbook, baseline, and first-pass diagnostic before acting.
 
-Task: choose one recent high-cache session from token-audit DB inspection and write an auditable diagnostic to docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/token-diagnostics/high-cache-full.md.
+Task: choose one recent high-cache session from token-audit DB inspection and write an auditable diagnostic to docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/token-diagnostics/high-cache-full.md.
 
 Include token ratios, interpretation, caveats, and command evidence. Do not append experiment-runs.csv. Final response must include suggested audit_score_0_5, validation_passed, rework_turns, defect_or_reopen_count, and changed files.
 ```
@@ -127,7 +127,7 @@ template:
 ```text
 CACHE_HIT_EXPERIMENT_RUN <run_id> <task_pair> <Full|Lite>
 
-Execute the <Full|Lite> lane exactly as defined in docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md.
+Execute the <Full|Lite> lane exactly as defined in docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md.
 Use the existing controller task card docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs.md.
 Create only the artifact path named in the Pair Matrix for <run_id>.
 Run the listed acceptance command or the smallest equivalent command.
@@ -146,7 +146,7 @@ Desktop sessions:
 
 ```bat
 python tools\token_audit\cache_hit_experiment.py record-jsonl --jsonl C:\Users\QR\.codex\sessions\YYYY\MM\DD\rollout-<timestamp>-<thread-id>.jsonl --run-id <run-id> --task-pair <task-pair> --mode <Full|Lite> --task-type <docs|audit|fixture|tool> --risk low --audit-score <0-5> --validation-passed <true|false> --rework-turns <n> --defect-or-reopen-count <n> --files-touched <n> --notes "<short note>"
-python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
+python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
 ```
 
 The `record-jsonl` command reads cumulative `token_count` events and uses
@@ -160,7 +160,7 @@ For legacy Claude transcript imports that are already present in
 python -m tools.token_audit db import --all
 python tools\token_audit\cache_hit_experiment.py list-sessions --limit 12 --format json
 python tools\token_audit\cache_hit_experiment.py record --session-id <session-id> --run-id <run-id> --task-pair <task-pair> --mode <Full|Lite> --task-type <docs|audit|fixture|tool> --risk low --audit-score <0-5> --validation-passed <true|false> --rework-turns <n> --defect-or-reopen-count <n> --notes "<short note>"
-python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
+python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
 ```
 
 ## Scoring Defaults

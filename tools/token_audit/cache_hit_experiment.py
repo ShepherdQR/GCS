@@ -26,6 +26,7 @@ DEFAULT_RUNS = (
     / "research"
     / "20260530"
     / "cache-hit-diagnosis-experiment"
+    / "cache-hit-rate-full-lite-pilot"
     / "experiment-runs.csv"
 )
 DEFAULT_REPORT = (

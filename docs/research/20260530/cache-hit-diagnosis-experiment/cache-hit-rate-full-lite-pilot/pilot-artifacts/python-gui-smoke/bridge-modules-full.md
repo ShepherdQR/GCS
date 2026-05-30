@@ -17,8 +17,8 @@ Inspected context:
 
 - `.codex/skills/gcs-python-gui-builder/SKILL.md`
 - `.codex/skills/gcs-python-gui-builder/references/python-gui-map.md`
-- `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
-- `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md`
 - `python/gcs_viz/viewer_bridge.py`
 - `python/gcs_viz/engine_bridge.py`
 - `python/gcs_viz/platform_gui.py`
@@ -100,4 +100,4 @@ replay projection in `viewer_bridge.py`, and figure drawing in `visualizer.py`.
 - `validation_passed`: true
 - `rework_turns`: 0
 - `defect_or_reopen_count`: 0
-- Changed files: `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/python-gui-smoke/bridge-modules-full.md`
+- Changed files: `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/python-gui-smoke/bridge-modules-full.md`

@@ -49,23 +49,26 @@ agreement with the actual data.
 6. Updated the project progress report and completed-task index.
 7. Recorded residual risk around the Python GUI Lite failure, manual scoring,
    experimental BEI proxy, and lack of second-reviewer sampling.
+8. Added an orchestration audit for the multi-worker session shape and recorded
+   the reusable lesson as candidate experience E007.
 
 ## Files And Artifacts
 
 | File | Type | Status |
 |---|---|---|
-| `docs/research/20260530/cache-hit-diagnosis-experiment/experiment-runs.csv` | pilot data | 16 runs, 8 complete pairs |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-runs.csv` | pilot data | 16 runs, 8 complete pairs |
 | `docs/reports/token-audit/cache-hit-diagnosis-20260530/pilot-summary.md` | generated report | refreshed |
 | `docs/reports/token-audit/cache-hit-diagnosis-20260530/pilot-summary.json` | generated data | refreshed |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/fixture-inventory/basic-fixtures-lite.md` | run artifact | added |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/fixture-inventory/json-fixtures-full.md` | run artifact | added |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/python-gui-smoke/screens-lite.md` | run artifact | added |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/python-gui-smoke/bridge-modules-full.md` | run artifact | added |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/cpp-module-map/io-session-lite.md` | run artifact | added |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/cpp-module-map/kernel-numeric-full.md` | run artifact | added |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/fixture-inventory/basic-fixtures-lite.md` | run artifact | added |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/fixture-inventory/json-fixtures-full.md` | run artifact | added |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/python-gui-smoke/screens-lite.md` | run artifact | added |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/python-gui-smoke/bridge-modules-full.md` | run artifact | added |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/cpp-module-map/io-session-lite.md` | run artifact | added |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/cpp-module-map/kernel-numeric-full.md` | run artifact | added |
 | `docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs.md` | task card | complete |
 | `docs/reports/project-progress-summary-2026-05-31.md` | progress report | updated |
 | `docs/completed-tasks/2026-05-31-cache-hit-pilot-eight-pairs/README.md` | archive | added |
+| `docs/completed-tasks/2026-05-31-cache-hit-pilot-eight-pairs/orchestration-audit.md` | orchestration audit | added |
 | `docs/completed-tasks/README.md` | index | updated |
 
 ## Evidence
@@ -73,7 +76,7 @@ agreement with the actual data.
 Pilot summary:
 
 ```bat
-python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
+python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
 ```
 
 Result: passed before closure. The generated report records `Complete pairs:
@@ -86,7 +89,7 @@ python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\t
 python tools\agentic_design\agentic_toolkit.py validate-completed-task-report docs\completed-tasks\2026-05-31-cache-hit-pilot-eight-pairs\README.md
 python tools\agentic_design\agentic_toolkit.py score-closure-report docs\completed-tasks\2026-05-31-cache-hit-pilot-eight-pairs\README.md --min-score 30
 python -m py_compile tools\token_audit\cache_hit_experiment.py
-git diff --check -- docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv docs\research\20260530\cache-hit-diagnosis-experiment\pilot-artifacts
+git diff --check -- docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\pilot-artifacts
 ```
 
 Result: passed during closure. The completed-task validator passed, and the
@@ -126,6 +129,17 @@ Pair classifications:
 | Keep BEI as an experimental proxy | Rows use `bei=experimental_proxy`; the token-audit cost and BEI model still needs calibration before becoming a gate. |
 | Preserve artifact-level evidence rather than raw chat logs | The run artifacts and CSV rows are sufficient to replay the pilot without transcript reconstruction. |
 
+## Orchestration Audit
+
+This session used a merge architecture: independent worker sessions produced
+scoped artifacts, and the controller owned JSONL telemetry import, CSV row
+recording, summary generation, and closure. The dedicated audit is stored at
+`docs/completed-tasks/2026-05-31-cache-hit-pilot-eight-pairs/orchestration-audit.md`.
+
+The main orchestration lesson is that shared ledger writes must remain
+controller-owned. This prevented CSV conflicts and made it possible to reject a
+duplicate archive Lite worker while preserving the valid first run.
+
 ## Skipped Checks And Risks
 
 **Skipped checks**:
@@ -150,7 +164,7 @@ Pair classifications:
 
 | Material | Decision | Reason / Evidence |
 |---|---|---|
-| Experience | candidate | The eight-pair Full/Lite pilot provides a reusable pattern for calibrating agentic process overhead by task class. |
+| Experience | candidate | The eight-pair Full/Lite pilot provides a reusable pattern for calibrating agentic process overhead by task class; recorded as E007 parallel experiment worker orchestration. |
 | Skill | no | Existing `gcs-token-audit-steward` and `task-scoped-session-closer` cover the workflow; no new skill is justified from this pilot alone. |
 | Agent | no | No new institutional agent is needed; the next move is policy review and second-reviewer calibration. |
 
@@ -178,9 +192,9 @@ Pair classifications:
 - Task card:
   `docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs.md`
 - Runbook:
-  `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`
+  `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md`
 - Pilot data:
-  `docs/research/20260530/cache-hit-diagnosis-experiment/experiment-runs.csv`
+  `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-runs.csv`
 - Pilot summary:
   `docs/reports/token-audit/cache-hit-diagnosis-20260530/pilot-summary.md`
 - Current promotion state: experience candidate only; no skill or agent

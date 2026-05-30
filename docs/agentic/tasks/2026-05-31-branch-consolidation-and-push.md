@@ -17,7 +17,7 @@ affected_contracts:
 affected_paths:
   - docs/agentic/
   - docs/reports/
-  - docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/
+  - docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/
   - .gitignore
 required_evidence:
   - validate-docs
@@ -80,8 +80,8 @@ python tools\agentic_design\agentic_toolkit.py check-dependencies
   - `ef13734 merge: consolidate cache-hit diagnosis run2`
 - Resolved run2 conflicts in:
   - `docs/completed-tasks/README.md`
-  - `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
-  - `docs/research/20260530/cache-hit-diagnosis-experiment/experiment-runs.csv`
+  - `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
+  - `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-runs.csv`
 - `python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-31-branch-consolidation-and-push.md` - passed.
 - `python tools\agentic_design\agentic_toolkit.py validate-docs` - passed.
 - `python tools\agentic_design\agentic_toolkit.py validate-inventory` - passed.

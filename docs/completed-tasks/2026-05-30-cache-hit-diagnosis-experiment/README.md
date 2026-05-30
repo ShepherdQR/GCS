@@ -66,8 +66,8 @@ the current `master` head before scoped staging.
 | `docs/reports/token-audit/cache-hit-diagnosis-20260530/repository-audit-baseline.json` | repository snapshot | generated |
 | `docs/reports/token-audit/cache-hit-diagnosis-20260530/first-pass-diagnostic.md` | diagnostic report | complete |
 | `docs/reports/token-audit/cache-hit-diagnosis-20260530/first-pass-diagnostic.json` | diagnostic data | complete |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/README.md` | experiment plan | complete |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/experiment-runs.csv` | pilot template | complete |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md` | experiment plan | complete |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-runs.csv` | pilot template | complete |
 | `docs/completed-tasks/2026-05-30-cache-hit-diagnosis-experiment/README.md` | archive | complete |
 | `docs/completed-tasks/README.md` | index | updated |
 
@@ -170,7 +170,7 @@ Token baseline result:
 - Baseline report:
   `docs/reports/token-audit/cache-hit-diagnosis-20260530/baseline.md`
 - Experiment plan:
-  `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
+  `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
 - Related experience: candidate only; revisit after paired-run evidence.
 - Skill, agent, eval, fixture, or tool update needed: no immediate promotion;
   future work should repair token-audit CLI dependencies and cost normalization.

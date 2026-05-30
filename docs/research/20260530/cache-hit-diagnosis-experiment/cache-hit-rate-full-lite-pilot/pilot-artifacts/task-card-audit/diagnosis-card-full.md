@@ -14,8 +14,8 @@ Controller card:
 
 ## Sources Read
 
-- `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
-- `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md`
 - `docs/agentic/lifecycle-runbook.md`
 - `docs/agentic/task-to-archive-checklist.md`
 - `docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs.md`
@@ -81,4 +81,4 @@ defect_or_reopen_count: 0
 
 ## Changed Files
 
-- `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/task-card-audit/diagnosis-card-full.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/task-card-audit/diagnosis-card-full.md`

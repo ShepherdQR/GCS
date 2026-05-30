@@ -16,9 +16,9 @@ source.
 
 ## Architecture Context Read
 
-- `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md`
   defines this Full-lane run and acceptance gate.
-- `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
   defines the Full/Lite experiment scoring model and guardrails.
 - `docs/architecture/README.md` names `kernel` and `numeric_engine` as target
   vocabulary.
@@ -152,4 +152,4 @@ for `kernel`, `numeric_engine`, and `module_dependency`.
 - `rework_turns`: 0
 - `defect_or_reopen_count`: 0
 - Changed files:
-  - `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-artifacts/cpp-module-map/kernel-numeric-full.md`
+  - `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-artifacts/cpp-module-map/kernel-numeric-full.md`

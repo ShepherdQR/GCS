@@ -50,7 +50,7 @@ under `tools/token_audit/`.
 | File | Type | Status |
 |---|---|---|
 | `tools/token_audit/cache_hit_experiment.py` | tool | compiled and smoke-tested |
-| `docs/research/20260530/cache-hit-diagnosis-experiment/README.md` | plan docs | updated |
+| `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md` | plan docs | updated |
 | `docs/reports/token-audit/cache-hit-diagnosis-20260530/pilot-summary.md` | generated report | complete |
 | `docs/reports/token-audit/cache-hit-diagnosis-20260530/pilot-summary.json` | generated data | complete |
 | `docs/agentic/tasks/2026-05-30-cache-hit-experiment-implementation.md` | task card | validated |
@@ -85,7 +85,7 @@ python tools\token_audit\cache_hit_experiment.py list-sessions --limit 3 --forma
 Result: passed and returned the three most recent sessions.
 
 ```bat
-python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
+python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
 ```
 
 Result: passed. Current real pilot state is `needs paired data` because only

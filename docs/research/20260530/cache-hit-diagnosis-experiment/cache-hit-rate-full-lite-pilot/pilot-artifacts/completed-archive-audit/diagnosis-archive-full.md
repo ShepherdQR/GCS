@@ -17,8 +17,8 @@ conclusion.
 
 ## Context Read
 
-- `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
-- `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md`
 - `docs/agentic/tasks/2026-05-31-cache-hit-pilot-eight-pairs.md`
 - `.codex/skills/task-scoped-session-closer/SKILL.md`
 - `docs/agentic/lifecycle-runbook.md`

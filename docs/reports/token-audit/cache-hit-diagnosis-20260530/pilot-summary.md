@@ -1,6 +1,6 @@
 # Cache-Hit Full/Lite Pilot Summary
-Generated: `2026-05-30T17:57:10.541149+00:00`
-Runs file: `docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv`
+Generated: `2026-05-30T18:13:16.021902+00:00`
+Runs file: `docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv`
 
 ## Aggregate
 - Complete pairs: 8 / 8

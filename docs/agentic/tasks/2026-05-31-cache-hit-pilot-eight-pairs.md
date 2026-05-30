@@ -49,7 +49,7 @@ evidence with setup overhead, and close the task with durable archive evidence.
 
 ## Context To Read
 
-- `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
 - `docs/reports/token-audit/cache-hit-diagnosis-20260530/first-pass-diagnostic.md`
 - `.agents/skills/gcs-token-audit-steward/SKILL.md`
 - Owning skill: `task-scoped-session-closer`
@@ -70,18 +70,18 @@ evidence with setup overhead, and close the task with durable archive evidence.
 python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-31-cache-hit-pilot-eight-pairs.md
 python -m py_compile tools\token_audit\cache_hit_experiment.py
 python tools\token_audit\cache_hit_experiment.py record-jsonl --help
-python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
+python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
 ```
 
 ## Evidence Bundle
 
 - `python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-31-cache-hit-pilot-eight-pairs.md` passed.
 - `python -m py_compile tools\token_audit\cache_hit_experiment.py` passed.
-- `python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json` passed.
+- `python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json` passed.
 - `python tools\agentic_design\agentic_toolkit.py validate-completed-task-report docs\completed-tasks\2026-05-31-cache-hit-pilot-eight-pairs\README.md` passed.
 - `python tools\agentic_design\agentic_toolkit.py score-closure-report docs\completed-tasks\2026-05-31-cache-hit-pilot-eight-pairs\README.md --min-score 30` passed with closure score `34/40`.
 - `git diff --check` over the scoped cache-hit closure files passed.
-- Eight paired Full/Lite pilot tasks were defined in `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`.
+- Eight paired Full/Lite pilot tasks were defined in `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md`.
 - `python tools\token_audit\cache_hit_experiment.py record-jsonl --help` passed.
 - All 16 dedicated run rows were recorded from Codex Desktop JSONL `token_count` telemetry.
 - Final pilot result: `8 / 8` pairs complete; aggregate classification `redundant-overhead`.

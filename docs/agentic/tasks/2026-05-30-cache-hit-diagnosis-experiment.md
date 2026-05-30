@@ -67,7 +67,7 @@ python tools\repository_audit\repository_audit.py check
 - `python tools\repository_audit\repository_audit.py collect --revision HEAD --output docs\reports\token-audit\cache-hit-diagnosis-20260530\repository-audit-baseline.json` passed: 1202 files, 226211 text lines, 71 findings.
 - Read-only SQLite baseline query persisted `docs/reports/token-audit/cache-hit-diagnosis-20260530/baseline.md` and `token-cache-baseline.json`.
 - First-pass telemetry diagnostic persisted `docs/reports/token-audit/cache-hit-diagnosis-20260530/first-pass-diagnostic.md` and `first-pass-diagnostic.json`.
-- Experiment plan persisted at `docs/research/20260530/cache-hit-diagnosis-experiment/README.md` with `experiment-runs.csv` template.
+- Experiment plan persisted at `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md` with `experiment-runs.csv` template.
 - `python tools\agentic_design\agentic_toolkit.py validate-completed-task-report docs\completed-tasks\2026-05-30-cache-hit-diagnosis-experiment\README.md` passed.
 - `python tools\agentic_design\agentic_toolkit.py score-closure-report docs\completed-tasks\2026-05-30-cache-hit-diagnosis-experiment\README.md --min-score 30` passed with 35/40.
 

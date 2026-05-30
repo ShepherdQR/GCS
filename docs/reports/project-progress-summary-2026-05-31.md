@@ -1,4 +1,4 @@
-# GCS Project Progress Report â€” 2026-05-31
+# GCS Project Progress Report â€?2026-05-31
 #gen:2026-05-31T20:30:00Z #snapshot
 
 ## Executive Summary
@@ -18,10 +18,10 @@ needs Full-lane context. Focused verification gates continue to pass.
 | Metric | Value |
 |--------|-------|
 | Active branch | `master` (consolidated) |
-| HEAD | `65544cd` â€” `docs: record branch consolidation evidence` (2026-05-31) |
+| HEAD | `65544cd` â€?`docs: record branch consolidation evidence` (2026-05-31) |
 | Current cache-hit task card | `2026-05-31-cache-hit-pilot-eight-pairs` (complete) |
-| Current task cards (complete) | 2 â€” `branch-consolidation-and-push`, `add-gpt-contributor` |
-| Working tree | Dirty â€” `reverent-kepler-c6eee1` worktree with skill/agent definition files |
+| Current task cards (complete) | 2 â€?`branch-consolidation-and-push`, `add-gpt-contributor` |
+| Working tree | Dirty â€?`reverent-kepler-c6eee1` worktree with skill/agent definition files |
 | C++ source lines | 8,259 (11 modules across `src/gcs/` + `apps/gcs_cli/`) |
 | C++ test files | 13 |
 | CTest tests | 128 |
@@ -29,9 +29,9 @@ needs Full-lane context. Focused verification gates continue to pass.
 
 ---
 
-## 2. Activity Since Last Report (prior snapshot â†’ now)
+## 2. Activity Since Last Report (prior snapshot â†?now)
 
-### 2.1 Branch Consolidation and Push â€” COMPLETE
+### 2.1 Branch Consolidation and Push â€?COMPLETE
 Task card: `2026-05-31-branch-consolidation-and-push` (status: complete)
 
 Five child branches merged into `master` in sequence:
@@ -46,14 +46,14 @@ Five child branches merged into `master` in sequence:
 
 Conflict resolution was required in three files:
 `docs/completed-tasks/README.md`,
-`docs/research/20260530/cache-hit-diagnosis-experiment/README.md`,
-and `docs/research/20260530/cache-hit-diagnosis-experiment/experiment-runs.csv`.
+`docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`,
+and `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-runs.csv`.
 
 All agentic toolkit validations passed (validate-docs, validate-inventory,
 check-dependencies). Push to origin executed. Detached worktree commits were
 protected with named branches before merging.
 
-### 2.2 Cache-Hit Pilot â€” Eight Pairs Complete
+### 2.2 Cache-Hit Pilot â€?Eight Pairs Complete
 Task card: `2026-05-31-cache-hit-pilot-eight-pairs` (status: complete)
 
 The eight-pair runbook (`pilot-runbook-8-pairs.md`) defines paired Full/Lite
@@ -71,7 +71,7 @@ and cpp-module-map.
 | BEI proxy avg | 0.712 | 0.653 | Lite down 8.3% |
 | Validation pass rate | 100.0% | 87.5% | Lite had one failed validation |
 | Defect/reopen | 0 | 1 | Lite had one defect |
-| Classification | â€” | â€” | `redundant-overhead` aggregate |
+| Classification | â€?| â€?| `redundant-overhead` aggregate |
 
 Pair classifications: 3 `redundant-overhead`, 1
 `healthy-institutionalization`, and 4 `mixed-or-inconclusive`.
@@ -82,7 +82,7 @@ map tasks that met thresholds; Full remains required for GUI or
 environment-sensitive validation after `python-gui-smoke-1-lite` failed on a
 missing `matplotlib` dependency.
 
-### 2.3 Add GPT Contributor â€” COMPLETE
+### 2.3 Add GPT Contributor â€?COMPLETE
 Task card: `2026-05-31-add-gpt-contributor` (status: complete)
 
 Contributor documentation updated. Low-risk docs-only change.
@@ -145,7 +145,7 @@ validation-heavy or environment-sensitive work still needs Full-lane context.
 
 | Workstream | Task Cards | Commits | Status |
 |------------|-----------|---------|--------|
-| Solver â€” Steps 52-55 (articulation + spanning trees) | 3 | ~7 | Complete |
+| Solver â€?Steps 52-55 (articulation + spanning trees) | 3 | ~7 | Complete |
 | 10-Pipeline Quality Infrastructure | 1 | ~10 | Complete |
 | Token Economics v2 (BEI + alerts + dashboard) | 1 | ~10 | Complete |
 | Open-Source Phase 0/1 | 1 | ~5 | Complete; Phase 2 blocked |

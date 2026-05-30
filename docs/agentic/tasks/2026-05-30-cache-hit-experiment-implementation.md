@@ -47,7 +47,7 @@ the currently dependency-blocked `python -m tools.token_audit` CLI.
 
 ## Context To Read
 
-- `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
 - `docs/reports/token-audit/cache-hit-diagnosis-20260530/baseline.md`
 - `docs/reports/token-audit/cache-hit-diagnosis-20260530/first-pass-diagnostic.md`
 - `tools/token_audit/schema.sql`
@@ -67,7 +67,7 @@ the currently dependency-blocked `python -m tools.token_audit` CLI.
 python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-30-cache-hit-experiment-implementation.md
 python -m py_compile tools\token_audit\cache_hit_experiment.py
 python tools\token_audit\cache_hit_experiment.py inspect-db --format json
-python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
+python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
 ```
 
 ## Evidence Bundle
@@ -76,7 +76,7 @@ python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\
 - `python -m py_compile tools\token_audit\cache_hit_experiment.py` passed.
 - `python tools\token_audit\cache_hit_experiment.py inspect-db --format json` passed: 38 sessions, 1210 turns, 1548 tool calls, legacy cache hit 98.67%, estimated raw hit 99.55%.
 - `python tools\token_audit\cache_hit_experiment.py list-sessions --limit 3 --format json` passed.
-- `python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json` passed.
+- `python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\cache-hit-rate-full-lite-pilot\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json` passed.
 - Temporary Full/Lite record smoke in `%TEMP%\cache-hit-runs-smoke.csv` passed and produced a complete pair classification.
 
 ## Residual Risks

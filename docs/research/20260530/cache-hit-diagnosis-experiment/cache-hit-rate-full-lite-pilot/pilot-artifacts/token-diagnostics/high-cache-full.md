@@ -16,8 +16,8 @@ historical transcripts.
 
 ## Source Context Read
 
-- `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
-- `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/experiment-plan.md`
+- `docs/research/20260530/cache-hit-diagnosis-experiment/cache-hit-rate-full-lite-pilot/pilot-runbook-8-pairs.md`
 - `docs/reports/token-audit/cache-hit-diagnosis-20260530/baseline.md`
 - `docs/reports/token-audit/cache-hit-diagnosis-20260530/first-pass-diagnostic.md`
 - `.agents/skills/gcs-token-audit-steward/SKILL.md`

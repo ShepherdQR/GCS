@@ -46,3 +46,4 @@ templates, and agent-facing instructions.
 | E004 | [AI governance queue control](004-ai-governance-queue-control/README.md) | candidate experience |
 | E005 | [Repository audit value loop](005-repository-audit-value-loop/README.md) | candidate experience |
 | E006 | [Parallel agent pipeline implementation](006-parallel-agent-pipeline-implementation/README.md) | candidate experience |
+| E007 | [Parallel experiment worker orchestration](007-parallel-experiment-worker-orchestration/README.md) | candidate experience |
