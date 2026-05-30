@@ -1,8 +1,23 @@
 """E-GOV-001: Check that staged files match task scope.
 
-Reads a task card's ``affected_paths`` and compares them against
-``git diff --cached --name-only``. Reports any staged files that fall
-outside the declared scope.
+Reads a task card's ``affected_paths`` (from YAML frontmatter or heading
+section) and compares them against ``git diff --cached --name-only``.
+Reports any staged files that fall outside the declared scope.
+
+Exit codes:
+  0 — PASS (all staged files in scope, or no staged files)
+  1 — FAIL (one or more staged files outside scope)
+  2 — SKIP (could not determine scope, e.g. no task card or no paths)
+
+False-positive cases (documented):
+  - CLAUDE.md, AGENTS.md, .claude/ files may be auto-staged by tooling but
+    not listed in task scope. Use --allowlist for these.
+  - Shared infrastructure files (CMakeLists.txt, scripts/) may need to be
+    touched across many tasks. Prefer listing them explicitly in the task
+    card rather than using a blanket allowlist.
+  - Generated or lock files (audit.db, __pycache__) should not be staged
+    for task-scoped commits. If they appear, the staging was likely a
+    mistake.
 """
 
 import argparse
@@ -36,12 +51,64 @@ def _staged_files() -> list[str]:
     return [line.strip() for line in result.stdout.splitlines() if line.strip()]
 
 
+def _parse_yaml_frontmatter_paths(text: str) -> list[str]:
+    """Extract ``affected_paths`` from YAML frontmatter (``---`` delimited).
+
+    Handles the task card YAML frontmatter convention:
+        ---
+        affected_paths:
+          - docs/agentic/
+          - src/gcs/kernel/
+        ---
+    """
+    if not text.startswith("---"):
+        return []
+
+    end = text.find("---", 3)
+    if end == -1:
+        return []
+
+    frontmatter = text[3:end]
+    paths: list[str] = []
+    in_affected = False
+
+    for line in frontmatter.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("affected_paths:"):
+            in_affected = True
+            # Check for inline list: affected_paths: [path1, path2]
+            inline = stripped[len("affected_paths:"):].strip()
+            if inline.startswith("[") and inline.endswith("]"):
+                for item in inline[1:-1].split(","):
+                    item = item.strip().strip("\"'")
+                    if item:
+                        paths.append(item)
+                in_affected = False
+            continue
+
+        if in_affected:
+            if stripped.startswith("- "):
+                path = stripped[2:].strip().strip("\"'")
+                if path:
+                    paths.append(path)
+            elif stripped.startswith("-"):
+                path = stripped[1:].strip().strip("\"'")
+                if path:
+                    paths.append(path)
+            elif stripped and not stripped.startswith("#"):
+                # Next top-level key — exit affected_paths block
+                if not stripped.startswith("  ") and not stripped.startswith("\t"):
+                    in_affected = False
+
+    return paths
+
+
 def _read_task_affected_paths(task_card_path: str) -> list[str]:
     """Extract affected_paths from a task card markdown file.
 
-    Looks for a fenced code block labelled ``affected_paths`` or a bullet list
-    under an ``## Affected Paths`` heading. Returns the list of path prefixes
-    that the task is scoped to.
+    Parses YAML frontmatter first (the primary convention for GCS task cards),
+    then falls back to heading-based bullet lists. Returns the list of path
+    prefixes that the task is scoped to.
     """
     if not os.path.isfile(task_card_path):
         return []
@@ -49,21 +116,15 @@ def _read_task_affected_paths(task_card_path: str) -> list[str]:
     with open(task_card_path, "r", encoding="utf-8") as fh:
         text = fh.read()
 
-    paths: list[str] = []
+    # Strategy 1: YAML frontmatter (primary task card convention)
+    paths = _parse_yaml_frontmatter_paths(text)
+    if paths:
+        return paths
 
-    # Try to find a fenced code block labelled affected_paths
-    block_pattern = re.compile(
-        r"```\s*(?:text|yaml)?\s*\n"
-        r"(?:#\s*affected_paths.*\n)?"
-        r"(.*?)"
-        r"```",
-        re.DOTALL,
-    )
+    # Strategy 2: heading with bullet list
     heading_pattern = re.compile(
         r"##\s+Affected\s+Paths\s*\n(.*?)(?=\n##|\Z)", re.DOTALL
     )
-
-    # Strategy 1: look for heading with bullet list
     heading_match = heading_pattern.search(text)
     if heading_match:
         section = heading_match.group(1)
@@ -74,7 +135,7 @@ def _read_task_affected_paths(task_card_path: str) -> list[str]:
                 if path:
                     paths.append(path)
 
-    # Strategy 2: check for path-like lines anywhere
+    # Strategy 3: loose backtick-quoted path-like lines
     if not paths:
         for line in text.splitlines():
             stripped = line.strip()
@@ -112,7 +173,9 @@ def check_staged_scope(
         allowlist: Optional list of additional allowed paths (e.g. CLAUDE.md).
 
     Returns a dict with:
-        passed: bool
+        passed: bool — True when all staged files are in scope
+        skipped: bool — True when scope could not be determined (no task card
+            or no affected_paths found)
         staged_files: list of all staged paths
         in_scope: list of staged paths matching task scope
         out_of_scope: list of staged paths outside task scope
@@ -134,8 +197,11 @@ def check_staged_scope(
         else:
             out_of_scope.append(file_path)
 
+    skipped = len(scope_paths) == 0
+
     return {
-        "passed": len(out_of_scope) == 0,
+        "passed": len(out_of_scope) == 0 and not skipped,
+        "skipped": skipped,
         "staged_files": staged,
         "in_scope": in_scope,
         "out_of_scope": out_of_scope,
@@ -174,8 +240,13 @@ def main() -> int:
         json.dump(result, sys.stdout, indent=2)
         print()
     else:
-        if not result["staged_files"]:
-            print("E-GOV-001: No staged files. Nothing to check.")
+        if result.get("skipped", False):
+            print("E-GOV-001 SKIPPED: No affected_paths found in task card.")
+            print(f"  Task card: {result['task_card_path']}")
+            print("  Add 'affected_paths' to the task card's YAML frontmatter")
+            print("  or use --allowlist to specify paths explicitly.")
+        elif not result["staged_files"]:
+            print("E-GOV-001 PASSED: No staged files. Nothing to check.")
         elif result["passed"]:
             print(f"E-GOV-001 PASSED: All {len(result['staged_files'])} staged "
                   f"file(s) are within task scope.")
@@ -202,6 +273,8 @@ def main() -> int:
             for f in result["out_of_scope"]:
                 print(f"  [VIOLATION] {f}")
 
+    if result.get("skipped", False):
+        return 2
     return 0 if result.get("passed", False) else 1
 
 

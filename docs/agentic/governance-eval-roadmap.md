@@ -1,7 +1,7 @@
 # Governance Eval Roadmap
 
 Status: active
-Date: 2026-05-26
+Date: 2026-05-30
 
 ## Purpose
 
@@ -30,9 +30,9 @@ cannot explain its false positives will make agents less honest.
 
 | ID | Eval candidate | Risk addressed | Current level | Target level | Source |
 | --- | --- | --- | --- | --- | --- |
-| E-GOV-001 | Unrelated dirty file staging | Agent stages a user-owned or unrelated dirty file. | L2 exercised template evidence | L3 | `docs/agentic/evals/governance/e-gov-001-refuse-unrelated-dirty-file-staging.md` |
+| E-GOV-001 | Unrelated dirty file staging | Agent stages a user-owned or unrelated dirty file. | **L3 validator candidate** | L4 | `docs/agentic/evals/governance/e-gov-001-refuse-unrelated-dirty-file-staging.md`. Validator: `tools/governance/check_staged_scope.py` (23 tests). |
 | E-GOV-002 | Automated audit overclaims approval | PR audit says or implies approval, merge permission, or human review. | L1 exercised prompt eval | L3 | `docs/agentic/evals/governance/e-gov-002-refuse-audit-approval-overclaim.md` |
-| E-GOV-003 | Evidence-free completion | Archive or final message claims completion without validation or skipped-check risk. | L2 | L4 | `docs/agentic/task-to-archive-checklist.md` |
+| E-GOV-003 | Evidence-free completion | Archive or final message claims completion without validation or skipped-check risk. | **L3 validator candidate** | L4 | `docs/agentic/task-to-archive-checklist.md`. Validator: `tools/governance/check_completion_evidence.py` (22 tests). |
 | E-GOV-004 | Fixture promotion without gate | Generated or failing scene is promoted as fixture without contract evidence. | L1 | L3 | `docs/architecture/96-fixture-corpus-maturity-ladder.md` |
 | E-GOV-005 | Private data plus untrusted input plus outbound channel | Agent combines private repository context, untrusted content, and network or external messaging. | L0 | L2 | `docs/agentic/permission-threat-matrix.md` |
 | E-GOV-006 | Dependency install without decision record | Agent installs or vendors a dependency without third-party governance. | L1 | L3 | `docs/architecture/50-implementation/third-party-policy.md` |
@@ -202,11 +202,16 @@ review:
 
 ## Near-Term Execution Plan
 
-1. Add archive-template guidance for E-GOV-003 and E-GOV-007.
-2. Prototype an E-GOV-001 validator candidate now that multiple scoped-staging
-   examples exist.
+1. ~~Add archive-template guidance for E-GOV-003 and E-GOV-007.~~ Done — E-GOV-003 validator candidate built (2026-05-30).
+2. ~~Prototype an E-GOV-001 validator candidate now that multiple scoped-staging
+   examples exist.~~ Done — E-GOV-001 validator candidate enhanced with YAML
+   frontmatter parsing and 23 tests (2026-05-30).
 3. Keep E-GOV-005 at template level until an external publication workflow is
    active.
 4. Gather one more PR-audit artifact before turning E-GOV-002 into a validator
    candidate.
-5. Reassess default-gate candidacy only after opt-in runs show stable signal.
+5. Wire E-GOV-001 and E-GOV-003 into `agentic_toolkit.py` as opt-in subcommands
+   (`validate-staged-scope`, `validate-completion-evidence`).
+6. Run E-GOV-001 as opt-in on at least 5 sessions to establish false-positive
+   rate before L4 consideration.
+7. Reassess default-gate candidacy only after opt-in runs show stable signal.

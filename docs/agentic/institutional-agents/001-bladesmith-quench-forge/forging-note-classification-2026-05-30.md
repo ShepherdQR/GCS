@@ -29,6 +29,20 @@ Source: `docs/agentic/institutional-agents/001-bladesmith-quench-forge/examples/
 | `superseded` | 0 |
 | `still_open` | 0 |
 
+## Closed-Loop Demonstration (2026-05-30)
+
+A new forging note was written about the E-GOV-001/003 validator candidate
+work (`2026-05-30-e-gov-001-003-validator-candidates-forging-note.md`). That
+note's Recommended Promotion ("update governance eval roadmap") was
+immediately executed: `docs/agentic/governance-eval-roadmap.md` was updated
+to mark E-GOV-001 and E-GOV-003 as **L3 validator candidate** (was L2), and
+the near-term execution plan was refreshed.
+
+This is the first formally documented instance of the full loop: **forging
+note → recommended action → roadmap/document update → verified change**.
+It demonstrates that the bladesmith pipeline can produce actionable lessons
+and drive them into governance artifacts within the same session.
+
 ## Still-Open Items Older Than 2 Weeks
 
 None. The 10 most recent notes span 2026-05-24 to 2026-05-25. All are within 1 week of today (2026-05-30). No `still_open` classifications were assigned.

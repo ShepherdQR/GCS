@@ -25,7 +25,7 @@ evals.
 | ID | Agent | Current maturity | Evidence package | Score | Next action |
 | --- | --- | --- | --- | ---: | --- |
 | I001 | Bladesmith: Quench-Forge | Promoted | Prompt, template, refusal eval, and 20+ examples under `001-bladesmith-quench-forge/`. Promotion note: `promotion-20260527.md`. | 10/10 | Keep periodic stale-rule review; separate repeated pressure from one-off preference. |
-| I002 | Tailor: Stitch-Timeline | Practiced, promoted seed | Prompt, template, refusal eval, and 4 timeline examples under `002-tailor-stitch-timeline/`. | 8/10 | Add separate architecture, agentic-SE, and fixture timeline examples when those threads diverge. |
+| I002 | Tailor: Stitch-Timeline | **Promoted** | Prompt, template, refusal eval, and 6 timeline examples under `002-tailor-stitch-timeline/`. Promotion note: `promotion-20260530.md`. | **10/10** | Exercise refusal eval on a real ambiguous timeline situation to harden invented-causality boundary. |
 | I003 | Atelier Steward: Calibrate-Review | Seed | Prompt, template, refusal eval, and one Figure 72 convention-fit example under `003-atelier-steward-calibrate-review/`. | 6/10 | Collect two more UI or figure reviews before promotion. |
 | I004 | Art Director: Frame-Judge | Seed | Prompt, template, refusal eval, and one Figure 72 visual-review example under `004-art-director-frame-judge/`. | 6/10 | Require rendered-artifact evidence for every new example; avoid approval without visual input. |
 | I005 | Acceptance Officer: Evidence-Gate | Seed | Prompt (`005-acceptance-officer/README.md`), gate template (`templates/acceptance-report-template.md`), refusal eval (`evals/refuse-evidence-free-acceptance.md`). | 5/10 | Collect two real acceptance reviews on completed tasks before promotion. |
