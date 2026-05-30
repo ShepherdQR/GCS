@@ -1,0 +1,664 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-05-30T13:43:37.410576+00:00",
+  "thresholds": {
+    "high_cache_legacy_min": 0.95,
+    "low_tlr_max": 0.02,
+    "high_tlr_min": 0.05,
+    "short_high_overhead_sclor_min": 0.5,
+    "cacheable_prefix_estimate": 39000
+  },
+  "buckets": [
+    {
+      "bucket": "high_cache_high_tlr",
+      "sessions": 15,
+      "input_tokens": 3199724,
+      "output_tokens": 1085151,
+      "cache_read_tokens": 320744064,
+      "legacy_cache_hit_rate": 0.9901225949731748,
+      "token_leverage_ratio": 0.3391389382334226,
+      "avg_bei": 0.4547627371159971,
+      "task_types": {
+        "process": 5,
+        "feature": 2,
+        "unclassified": 8
+      },
+      "session_ids": [
+        "5ef057dc-41f8-4221-a1d9-e19ca27b4828",
+        "06f4a709-8bd5-40de-b7dd-c249018496c7",
+        "2c1ce6de-670e-4c00-b2ed-b4c6c104ef1d",
+        "a9a060a6-1d2f-4f5c-a4bb-48060f380b9c",
+        "c1e0ef99-8dff-4c8f-961f-99fa8f7533da",
+        "0e964a5f-85c2-49a1-93a7-f5cf8eec5c95",
+        "6581e456-68f8-4b3b-8c56-231c86f2af72",
+        "2792b768-485a-4f69-a848-fd8a705dbed3"
+      ]
+    },
+    {
+      "bucket": "mixed_or_mid",
+      "sessions": 3,
+      "input_tokens": 351118,
+      "output_tokens": 34842,
+      "cache_read_tokens": 3155200,
+      "legacy_cache_hit_rate": 0.8998613360225741,
+      "token_leverage_ratio": 0.09923159735473544,
+      "avg_bei": 0.4122978644507602,
+      "task_types": {
+        "feature": 2,
+        "unclassified": 1
+      },
+      "session_ids": [
+        "c6793ef2-4c36-4191-84d5-35d5378fab87",
+        "3869a3ac-cf79-4c31-be76-1a9da0125b4a",
+        "dc7ee16f-e754-4c31-a144-1ef4c4dbae40"
+      ]
+    },
+    {
+      "bucket": "short_high_overhead",
+      "sessions": 10,
+      "input_tokens": 513498,
+      "output_tokens": 19906,
+      "cache_read_tokens": 2181504,
+      "legacy_cache_hit_rate": 0.8094628501203338,
+      "token_leverage_ratio": 0.038765486915236284,
+      "avg_bei": 0.27032735699470345,
+      "task_types": {
+        "feature": 2,
+        "research": 1,
+        "unclassified": 7
+      },
+      "session_ids": [
+        "56d953de-bf37-4251-94d1-c40e4f8e7455",
+        "8dabe90d-e471-447c-9c43-e798d5c5a587",
+        "af7cbd96-e101-4d3b-bb9d-7bfa0c264cf9",
+        "86b2e531-6283-413d-bb7a-120175f81870",
+        "fbeb9d0c-232b-4a4a-9b87-36ea94407a13",
+        "226f9a20-9450-43bf-b0a8-21edca0e5006",
+        "c8de06ed-af2d-4d4a-8bc2-b78c839d662f",
+        "75ca672a-0561-4410-83f2-b12faabcf73d"
+      ]
+    },
+    {
+      "bucket": "zero_cache_low_tlr",
+      "sessions": 10,
+      "input_tokens": 315779,
+      "output_tokens": 578,
+      "cache_read_tokens": 0,
+      "legacy_cache_hit_rate": 0.0,
+      "token_leverage_ratio": 0.0018303940414023732,
+      "avg_bei": 0.1890710657399151,
+      "task_types": {
+        "ops": 8,
+        "research": 2
+      },
+      "session_ids": [
+        "928b4c3c-7cde-4e48-a1c8-686910125775",
+        "ecd81022-0ed0-4cbc-9d44-95d87250d098",
+        "b5c0f1c7-c7b1-48ac-9833-4b808a98076e",
+        "23242ea3-b576-47d7-99be-ddee501637e3",
+        "4928d224-cad8-429a-885c-ea42eac0d426",
+        "a4e18adc-6104-4d44-9d17-d9103382be31",
+        "7ef953ac-1d59-485b-aa55-3d328ca6f5cd",
+        "2a4953bb-ec1e-41c5-b7e1-b234283320b3"
+      ]
+    }
+  ],
+  "tool_summary": [
+    {
+      "tool_name": "Bash",
+      "calls": 513,
+      "failures": 55,
+      "failure_rate": 0.10721247563352826
+    },
+    {
+      "tool_name": "Read",
+      "calls": 327,
+      "failures": 7,
+      "failure_rate": 0.021406727828746176
+    },
+    {
+      "tool_name": "Edit",
+      "calls": 212,
+      "failures": 20,
+      "failure_rate": 0.09433962264150944
+    },
+    {
+      "tool_name": "Write",
+      "calls": 125,
+      "failures": 6,
+      "failure_rate": 0.048
+    },
+    {
+      "tool_name": "TaskUpdate",
+      "calls": 101,
+      "failures": 0,
+      "failure_rate": 0.0
+    },
+    {
+      "tool_name": "Glob",
+      "calls": 75,
+      "failures": 2,
+      "failure_rate": 0.02666666666666667
+    },
+    {
+      "tool_name": "Grep",
+      "calls": 57,
+      "failures": 2,
+      "failure_rate": 0.03508771929824561
+    },
+    {
+      "tool_name": "TaskCreate",
+      "calls": 51,
+      "failures": 0,
+      "failure_rate": 0.0
+    },
+    {
+      "tool_name": "Agent",
+      "calls": 32,
+      "failures": 0,
+      "failure_rate": 0.0
+    },
+    {
+      "tool_name": "WebSearch",
+      "calls": 26,
+      "failures": 0,
+      "failure_rate": 0.0
+    },
+    {
+      "tool_name": "mcp__ccd_session__mark_chapter",
+      "calls": 13,
+      "failures": 0,
+      "failure_rate": 0.0
+    },
+    {
+      "tool_name": "WebFetch",
+      "calls": 5,
+      "failures": 0,
+      "failure_rate": 0.0
+    },
+    {
+      "tool_name": "ExitPlanMode",
+      "calls": 4,
+      "failures": 0,
+      "failure_rate": 0.0
+    },
+    {
+      "tool_name": "EnterPlanMode",
+      "calls": 3,
+      "failures": 0,
+      "failure_rate": 0.0
+    },
+    {
+      "tool_name": "Skill",
+      "calls": 3,
+      "failures": 1,
+      "failure_rate": 0.3333333333333333
+    },
+    {
+      "tool_name": "mcp__ccd_session__spawn_task",
+      "calls": 1,
+      "failures": 0,
+      "failure_rate": 0.0
+    }
+  ],
+  "repeated_read_sessions_top10": [
+    {
+      "session_id": "2792b768-485a-4f69-a848-fd8a705dbed3",
+      "repeated_read_calls": 39,
+      "max_same_file_reads": 16,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\src\\gcs\\decomposition_planner\\decomposition_planner.cpp",
+          "reads": 16
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tests\\contracts\\decomposition_planner\\decomposition_planner_contract_tests.cpp",
+          "reads": 12
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\architecture\\68-forward-execution-plan-2026-05-24.md",
+          "reads": 4
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\architecture\\66-implementation-execution-roadmap.md",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\src\\gcs\\incidence_graph\\incidence_graph.cpp",
+          "reads": 3
+        }
+      ]
+    },
+    {
+      "session_id": "71b7db16-6608-4a49-ad67-33250e1a4469",
+      "repeated_read_calls": 17,
+      "max_same_file_reads": 10,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\agentic_design\\agentic_toolkit.py",
+          "reads": 10
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\git_linker.py",
+          "reads": 6
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\cli.py",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\parser.py",
+          "reads": 2
+        }
+      ]
+    },
+    {
+      "session_id": "a7c06921-1ccc-461f-8a17-b2b30f58584f",
+      "repeated_read_calls": 16,
+      "max_same_file_reads": 8,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\.claude\\skills\\orchestrator\\SKILL.md",
+          "reads": 8
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\research\\README.md",
+          "reads": 4
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\.claude\\skills\\session-close-orchestrator\\SKILL.md",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\.claude\\skills\\task-intake\\SKILL.md",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\agentic\\experience\\002-phase-step-summary-update-commit-continue\\research\\01-session-agent-patterns-report.md",
+          "reads": 2
+        }
+      ]
+    },
+    {
+      "session_id": "40e84a78-abe5-48ff-836e-a6b8cc297a6c",
+      "repeated_read_calls": 13,
+      "max_same_file_reads": 4,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\agentic\\institutional-agents\\README.md",
+          "reads": 4
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\agentic\\institutional-agent-registry-and-scorecard.md",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\.claude\\skills\\README.md",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\db.py",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\cli.py",
+          "reads": 3
+        }
+      ]
+    },
+    {
+      "session_id": "8cdebe5a-500b-4d6b-8d33-e8240d89fed1",
+      "repeated_read_calls": 10,
+      "max_same_file_reads": 4,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\cli.py",
+          "reads": 4
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\reporter.py",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\parser.py",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\db.py",
+          "reads": 2
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\token_audit\\schema.sql",
+          "reads": 2
+        }
+      ]
+    },
+    {
+      "session_id": "0a9b2907-ee20-481e-a65a-ce591c0ae7ff",
+      "repeated_read_calls": 5,
+      "max_same_file_reads": 4,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\scene_generation\\gcs_scene_generation\\enumerator.py",
+          "reads": 4
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tools\\scene_generation\\tools.py",
+          "reads": 2
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\agentic\\tasks\\2026-05-30-defect-discovery-2rs-5g-5c-20260530.md",
+          "reads": 2
+        }
+      ]
+    },
+    {
+      "session_id": "5cc71ca0-85ef-427e-aa1c-31b60ecb4b63",
+      "repeated_read_calls": 4,
+      "max_same_file_reads": 3,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\tests\\tools\\test_check_staged_scope.py",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\narrative-lines\\09-institutional-agents-learning\\development-plan.md",
+          "reads": 2
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\agentic\\institutional-agent-registry-and-scorecard.md",
+          "reads": 2
+        }
+      ]
+    },
+    {
+      "session_id": "88501de0-0ded-4210-9e36-1a0bdcf90e43",
+      "repeated_read_calls": 4,
+      "max_same_file_reads": 3,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\narrative-lines\\14-business-open-source-strategy\\development-plan.md",
+          "reads": 3
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\agentic\\narrative-weakness-development-plan-20260530.md",
+          "reads": 2
+        },
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\README.md",
+          "reads": 2
+        }
+      ]
+    },
+    {
+      "session_id": "dc7ee16f-e754-4c31-a144-1ef4c4dbae40",
+      "repeated_read_calls": 1,
+      "max_same_file_reads": 2,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\docs\\agentic\\agentic-organization-operating-map.md",
+          "reads": 2
+        }
+      ]
+    },
+    {
+      "session_id": "fbeb9d0c-232b-4a4a-9b87-36ea94407a13",
+      "repeated_read_calls": 1,
+      "max_same_file_reads": 2,
+      "top_paths": [
+        {
+          "path": "C:\\Codes\\AI\\GCS_A\\.claude\\settings.local.json",
+          "reads": 2
+        }
+      ]
+    }
+  ],
+  "repeated_bash_sessions_top10": [
+    {
+      "session_id": "2792b768-485a-4f69-a848-fd8a705dbed3",
+      "repeated_bash_commands": 22,
+      "top_commands": [
+        {
+          "command": "cd C:/Codes/AI/GCS_A && C:/Softwares/Cmake/cmake_4_3_2/bin/cmake.exe --build --preset clang-ninja 2>&1",
+          "runs": 12
+        },
+        {
+          "command": "git status --short",
+          "runs": 4
+        },
+        {
+          "command": "cd C:/Codes/AI/GCS_A && ctest --test-dir out/build/clang-ninja -j8 2>&1 | tail -10",
+          "runs": 4
+        },
+        {
+          "command": "python tools/agentic_design/agentic_toolkit.py validate-task-card \"docs/agentic/tasks/2026-05-28-2026-05-28-step-52-articulation-biconnected-decomposition.md\" 2",
+          "runs": 2
+        },
+        {
+          "command": "cd C:/Codes/AI/GCS_A && ctest --test-dir out/build/clang-ninja -j8 2>&1 | tail -15",
+          "runs": 2
+        }
+      ]
+    },
+    {
+      "session_id": "40e84a78-abe5-48ff-836e-a6b8cc297a6c",
+      "repeated_bash_commands": 12,
+      "top_commands": [
+        {
+          "command": "cd \"C:\\Codes\\AI\\GCS_A\" && python -m tools.token_audit db import --project GCS-A --force 2>&1",
+          "runs": 4
+        },
+        {
+          "command": "cd \"C:\\Codes\\AI\\GCS_A\" && git status --short",
+          "runs": 3
+        },
+        {
+          "command": "cd \"C:\\Codes\\AI\\GCS_A\" && git push",
+          "runs": 3
+        },
+        {
+          "command": "cd \"C:\\Codes\\AI\\GCS_A\" && git diff --stat",
+          "runs": 2
+        },
+        {
+          "command": "cd \"C:\\Codes\\AI\\GCS_A\" && git diff --cached --stat",
+          "runs": 2
+        }
+      ]
+    },
+    {
+      "session_id": "8cdebe5a-500b-4d6b-8d33-e8240d89fed1",
+      "repeated_bash_commands": 12,
+      "top_commands": [
+        {
+          "command": "python -m pytest tools/token_audit/tests/ -v 2>&1",
+          "runs": 8
+        },
+        {
+          "command": "python tools/agentic_design/agentic_toolkit.py validate-task-card docs/agentic/tasks/2026-05-28-token-econ-metric-system-v2.md 2>&1",
+          "runs": 3
+        },
+        {
+          "command": "git status --short",
+          "runs": 2
+        },
+        {
+          "command": "git push origin master 2>&1",
+          "runs": 2
+        },
+        {
+          "command": "python -m tools.token_audit cache-health --days 30 2>&1",
+          "runs": 2
+        }
+      ]
+    },
+    {
+      "session_id": "88501de0-0ded-4210-9e36-1a0bdcf90e43",
+      "repeated_bash_commands": 7,
+      "top_commands": [
+        {
+          "command": "git diff --cached --name-status",
+          "runs": 4
+        },
+        {
+          "command": "git status -sb",
+          "runs": 2
+        },
+        {
+          "command": "git diff --cached --name-status 2>&1",
+          "runs": 2
+        },
+        {
+          "command": "git diff --cached --name-only | grep narrative",
+          "runs": 2
+        },
+        {
+          "command": "git push origin master 2>&1",
+          "runs": 2
+        }
+      ]
+    },
+    {
+      "session_id": "71b7db16-6608-4a49-ad67-33250e1a4469",
+      "repeated_bash_commands": 6,
+      "top_commands": [
+        {
+          "command": "python -m unittest tests.tools.test_agentic_toolkit 2>&1",
+          "runs": 2
+        },
+        {
+          "command": "rm -f .claude/current-task && python -m unittest tests.tools.test_agentic_toolkit 2>&1",
+          "runs": 2
+        },
+        {
+          "command": "git log origin/master..HEAD --oneline",
+          "runs": 2
+        },
+        {
+          "command": "python -m tools.token_audit snap 2>&1",
+          "runs": 2
+        },
+        {
+          "command": "python -m tools.token_audit trend --days 7 2>&1",
+          "runs": 2
+        }
+      ]
+    },
+    {
+      "session_id": "0a9b2907-ee20-481e-a65a-ce591c0ae7ff",
+      "repeated_bash_commands": 5,
+      "top_commands": [
+        {
+          "command": "cd C:/Codes/AI/GCS_A && git push 2>&1",
+          "runs": 4
+        },
+        {
+          "command": "cd C:/Codes/AI/GCS_A && python tools/agentic_design/agentic_toolkit.py validate-task-card docs/agentic/tasks/2026-05-30-defect-discovery-3rs-5g-5c-20260530.md 2",
+          "runs": 2
+        },
+        {
+          "command": "cd C:/Codes/AI/GCS_A && git status 2>&1",
+          "runs": 2
+        }
+      ]
+    },
+    {
+      "session_id": "5cc71ca0-85ef-427e-aa1c-31b60ecb4b63",
+      "repeated_bash_commands": 4,
+      "top_commands": [
+        {
+          "command": "cd C:/Codes/AI/GCS_A && python -m pytest tests/tools/test_check_completion_evidence.py -v 2>&1",
+          "runs": 3
+        },
+        {
+          "command": "python tools/governance/check_completion_evidence.py --all 2>&1",
+          "runs": 3
+        }
+      ]
+    },
+    {
+      "session_id": "a7c06921-1ccc-461f-8a17-b2b30f58584f",
+      "repeated_bash_commands": 3,
+      "top_commands": [
+        {
+          "command": "git push",
+          "runs": 2
+        },
+        {
+          "command": "git diff --cached --stat",
+          "runs": 2
+        },
+        {
+          "command": "git checkout master && git merge codex-cache-hit-diagnosis-experiment --no-edit && git push origin master",
+          "runs": 2
+        }
+      ]
+    },
+    {
+      "session_id": "86b2e531-6283-413d-bb7a-120175f81870",
+      "repeated_bash_commands": 1,
+      "top_commands": [
+        {
+          "command": "python tools/recent-summary.py 14",
+          "runs": 2
+        }
+      ]
+    }
+  ],
+  "task_class_summary": [
+    {
+      "task_type": "feature",
+      "sessions": 6,
+      "legacy_cache_hit_rate": 0.9829744787795809,
+      "tlr": 0.24790160086129384,
+      "high_overhead_count": 2,
+      "low_tlr_count": 0,
+      "avg_input_tokens": 99540.16666666667
+    },
+    {
+      "task_type": "ops",
+      "sessions": 8,
+      "legacy_cache_hit_rate": 0.0,
+      "tlr": 0.0009716968504132191,
+      "high_overhead_count": 5,
+      "low_tlr_count": 8,
+      "avg_input_tokens": 25213.625
+    },
+    {
+      "task_type": "process",
+      "sessions": 5,
+      "legacy_cache_hit_rate": 0.9889960507854566,
+      "tlr": 0.2785885408503683,
+      "high_overhead_count": 0,
+      "low_tlr_count": 0,
+      "avg_input_tokens": 267978.0
+    },
+    {
+      "task_type": "research",
+      "sessions": 3,
+      "legacy_cache_hit_rate": 0.4441523381460202,
+      "tlr": 0.012389864340838875,
+      "high_overhead_count": 3,
+      "low_tlr_count": 2,
+      "avg_input_tokens": 52435.333333333336
+    },
+    {
+      "task_type": "unclassified",
+      "sessions": 16,
+      "legacy_cache_hit_rate": 0.9879631356897541,
+      "tlr": 0.29606765538708996,
+      "high_overhead_count": 7,
+      "low_tlr_count": 1,
+      "avg_input_tokens": 130248.3125
+    }
+  ],
+  "interpretation": {
+    "primary_result": "mixed",
+    "reason": "High-cache sessions include productive high-TLR feature/process/unclassified work, while ops and some research sessions show low TLR and high cold-load overhead. This supports a paired Full/Lite pilot rather than immediate process cuts.",
+    "recommended_pilot_focus": [
+      "ops and docs-like microtasks for Lite-lane savings",
+      "process/audit tasks for audit-score sensitivity",
+      "medium-risk implementation tasks as Full-lane control"
+    ]
+  }
+}
