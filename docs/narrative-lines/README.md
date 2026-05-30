@@ -36,6 +36,30 @@ records current level, gap, next moves, evidence artifact, and promotion gate.
 | Arc 3: Agentic Organization | 05-10 | Make the repository a bounded, evidence-rich human-agent engineering organization |
 | Arc 4: Product And Adoption | 11-14 | Make the project understandable and useful to an external human |
 
+## Task Coverage
+
+Task cards can declare narrative-line impact via the `narrative_lines` frontmatter
+field (format: `NN:level` where level is `primary`, `secondary`, or `incidental`).
+Completed-task reports carry `narrative_lines_claimed` and a `## Narrative Line
+Impact` section that evaluates actual impact against the claim.
+
+Generate a coverage report:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py validate-narrative-coverage
+```
+
+This produces a matrix showing how many task cards and completed reports hit
+each narrative line at each impact level, and flags lines with zero primary
+tasks.
+
+At task creation time:
+
+```bat
+python tools\agentic_design\agentic_toolkit.py new-task-card \
+  --slug "my-task" --request "..." --narrative-line "06:primary" --narrative-line "09:secondary" --write
+```
+
 ## Update Rule
 
 When a narrative line's level changes or its next move completes, update that

@@ -575,6 +575,28 @@ def validate_task_card_file(path: Path) -> list[CheckResult]:
         if known_skills and specialist not in known_skills:
             results.append(CheckResult(False, f"{path}: specialist_agent {specialist!r} is not a known .codex skill"))
 
+    narrative_lines = normalize_list(data.get("narrative_lines"))
+    if narrative_lines:
+        for entry in narrative_lines:
+            if not re.match(r"^\d{2}:(primary|secondary|incidental)$", entry):
+                results.append(CheckResult(
+                    False,
+                    f"{path}: narrative_lines entry {entry!r} must be NN:level (e.g. '01:primary') with valid line number and level",
+                ))
+                continue
+            line_num = int(entry[:2])
+            if line_num < 1 or line_num > 14:
+                results.append(CheckResult(
+                    False,
+                    f"{path}: narrative_lines line number {line_num} must be 01-14",
+                ))
+        has_primary = any("primary" in entry for entry in narrative_lines)
+        if not has_primary:
+            results.append(CheckResult(
+                False,
+                f"{path}: narrative_lines should include at least one primary line",
+            ))
+
     evidence = normalize_list(data.get("required_evidence"))
     if not evidence:
         results.append(CheckResult(False, f"{path}: required_evidence must name at least one gate"))
@@ -795,6 +817,8 @@ def task_card_template(args: argparse.Namespace) -> str:
     specialist_lines = "\n".join(f"  - {item}" for item in specialists)
     if not specialist_lines:
         specialist_lines = "  - none"
+    narrative_lines = getattr(args, "narrative_line", None) or ["00:primary"]
+    narrative_lines_entries = "\n".join(f'  - "{entry}"' for entry in narrative_lines)
 
     return f"""---
 task_id: {task_id}
@@ -805,6 +829,8 @@ risk: {args.risk}
 owning_agent: {args.owner}
 specialist_agents:
 {specialist_lines}
+narrative_lines:
+{narrative_lines_entries}
 affected_contracts:
   - none
 affected_paths:
@@ -917,6 +943,8 @@ def worktree_task_card_template(args: argparse.Namespace, values: dict[str, Any]
     target_display = display_path(values["target"])
     root_arg = quote_for_powershell(ROOT)
     worktree_arg = quote_for_powershell(values["worktree_path"])
+    narrative_lines = getattr(args, "narrative_line", None) or ["00:primary"]
+    narrative_lines_entries = "\n".join(f'  - "{entry}"' for entry in narrative_lines)
 
     return f"""---
 task_id: {values["task_id"]}
@@ -927,6 +955,8 @@ risk: {args.risk}
 owning_agent: {args.owner}
 specialist_agents:
 {yaml_lines(specialists)}
+narrative_lines:
+{narrative_lines_entries}
 affected_contracts:
   - none
 affected_paths:
@@ -1098,6 +1128,8 @@ def completed_task_report_template(args: argparse.Namespace) -> str:
     experience_lines = "\n".join(f"  - {item}" for item in experience_links)
     if not experience_lines:
         experience_lines = "  - none"
+    narrative_lines_claimed = getattr(args, "narrative_line", None) or ["00:primary"]
+    narrative_lines_entries = "\n".join(f'  - "{entry}"' for entry in narrative_lines_claimed)
 
     return f"""---
 task_id: {task_id}
@@ -1106,6 +1138,8 @@ session_goal: "{session_goal}"
 archive_target: {archive_target}
 experience_links:
 {experience_lines}
+narrative_lines_claimed:
+{narrative_lines_entries}
 ---
 
 # {args.title or task_id}
@@ -1142,6 +1176,13 @@ Summarize the important turns without copying raw chat logs.
 <command or check>
 <pass/fail summary>
 ```
+
+## Narrative Line Impact
+
+For each narrative line claimed in `narrative_lines_claimed`, record whether the
+task actually moved that line and what evidence supports the assessment.
+
+- `00:primary`: [actual impact — advanced / contributed / did not move] — <evidence>
 
 ## Decisions
 
@@ -1243,6 +1284,21 @@ def validate_completed_task_report_file(path: Path,
 
     if re.search(r"^\s*(User|Assistant|Tool):", text, flags=re.MULTILINE):
         results.append(CheckResult(False, f"{display_path(path)}: raw chat transcript marker appears in report"))
+
+    narrative_claimed = normalize_list(data.get("narrative_lines_claimed"))
+    if narrative_claimed:
+        for entry in narrative_claimed:
+            if not re.match(r"^\d{2}:(primary|secondary|incidental)$", entry):
+                results.append(CheckResult(
+                    False,
+                    f"{display_path(path)}: narrative_lines_claimed entry {entry!r} must be NN:level (e.g. '01:primary')",
+                ))
+        impact_section = section_body(text, "## Narrative Line Impact")
+        if not impact_section:
+            results.append(CheckResult(
+                False,
+                f"{display_path(path)}: narrative_lines_claimed present but missing ## Narrative Line Impact section",
+            ))
 
     for link in normalize_list(data.get("experience_links")):
         if link.lower() == "none":
@@ -1841,6 +1897,140 @@ def nightly_index_markdown(runs_dir: Path, generated_at: str | None = None) -> s
     return "\n".join(lines)
 
 
+def narrative_coverage_report(task_dir: Path, completed_dir: Path) -> str:
+    """Scan task cards and completed reports, produce a narrative-line coverage matrix."""
+    narrative_line_names = {
+        1: "Scientific solver thesis",
+        2: "Module contract architecture",
+        3: "Implementation roadmap",
+        4: "Fixture and counterexample corpus",
+        5: "Runtime/history/replay evidence",
+        6: "Agentic-SE operating layer",
+        7: "Quality gates and evidence",
+        8: "UI/viewer/scientific figures",
+        9: "Institutional agents and learning",
+        10: "Git/worktree/PR governance",
+        11: "Product/user/market story",
+        12: "Release/packaging/onboarding",
+        13: "External benchmark/comparison",
+        14: "Business/open-source strategy",
+    }
+
+    task_stats: dict[int, dict[str, int]] = {
+        num: {"primary": 0, "secondary": 0, "incidental": 0} for num in range(1, 15)
+    }
+    completed_stats: dict[int, dict[str, int]] = {
+        num: {"primary": 0, "secondary": 0, "incidental": 0} for num in range(1, 15)
+    }
+    task_count = 0
+    completed_count = 0
+
+    if task_dir.exists():
+        for path in sorted(task_dir.glob("*.md")):
+            text = read_text(path)
+            data = parse_frontmatter_values(text)
+            lines = normalize_list(data.get("narrative_lines"))
+            if not lines:
+                continue
+            task_count += 1
+            for entry in lines:
+                match = re.match(r"^(\d{2}):(primary|secondary|incidental)$", entry)
+                if not match:
+                    continue
+                num = int(match.group(1))
+                level = match.group(2)
+                if 1 <= num <= 14:
+                    task_stats[num][level] += 1
+
+    if completed_dir.exists():
+        for candidate in sorted(completed_dir.glob("*/README.md")):
+            text = read_text(candidate)
+            data = parse_frontmatter_values(text)
+            lines = normalize_list(data.get("narrative_lines_claimed"))
+            if not lines:
+                continue
+            completed_count += 1
+            for entry in lines:
+                match = re.match(r"^(\d{2}):(primary|secondary|incidental)$", entry)
+                if not match:
+                    continue
+                num = int(match.group(1))
+                level = match.group(2)
+                if 1 <= num <= 14:
+                    completed_stats[num][level] += 1
+
+    lines: list[str] = []
+    lines.append("# Narrative Line Task Coverage")
+    lines.append("")
+    lines.append(f"Task cards scanned: {task_count} with narrative_lines")
+    lines.append(f"Completed reports scanned: {completed_count} with narrative_lines_claimed")
+    lines.append("")
+    lines.append("## Task Cards (Claimed Impact)")
+    lines.append("")
+    lines.append("| # | Narrative Line | Primary | Secondary | Incidental | Total |")
+    lines.append("| --- | --- | ---: | ---: | ---: | ---: |")
+    for num in range(1, 15):
+        stats = task_stats[num]
+        total = stats["primary"] + stats["secondary"] + stats["incidental"]
+        if total == 0:
+            continue
+        name = narrative_line_names[num]
+        lines.append(
+            f"| {num:02d} | {name} | {stats['primary']} | "
+            f"{stats['secondary']} | {stats['incidental']} | {total} |"
+        )
+    lines.append("")
+
+    lines.append("## Completed Reports (Claimed Impact)")
+    lines.append("")
+    lines.append("| # | Narrative Line | Primary | Secondary | Incidental | Total |")
+    lines.append("| --- | --- | ---: | ---: | ---: | ---: |")
+    any_completed = False
+    for num in range(1, 15):
+        stats = completed_stats[num]
+        total = stats["primary"] + stats["secondary"] + stats["incidental"]
+        if total == 0:
+            continue
+        any_completed = True
+        name = narrative_line_names[num]
+        lines.append(
+            f"| {num:02d} | {name} | {stats['primary']} | "
+            f"{stats['secondary']} | {stats['incidental']} | {total} |"
+        )
+    if not any_completed:
+        lines.append("No completed reports with narrative_lines_claimed found.")
+    lines.append("")
+
+    lines.append("## Uncovered Lines")
+    lines.append("")
+    uncovered = [
+        num for num in range(1, 15)
+        if task_stats[num]["primary"] == 0 and completed_stats[num]["primary"] == 0
+    ]
+    if uncovered:
+        for num in uncovered:
+            lines.append(f"- {num:02d} {narrative_line_names[num]}: no primary tasks")
+    else:
+        lines.append("All narrative lines have at least one primary task.")
+    lines.append("")
+
+    return "\n".join(lines)
+
+
+def validate_narrative_coverage_command(args: argparse.Namespace) -> int:
+    task_dir = resolve_repo_or_absolute(args.task_dir or "docs/agentic/tasks")
+    completed_dir = resolve_repo_or_absolute(args.completed_dir or "docs/completed-tasks")
+    report = narrative_coverage_report(task_dir, completed_dir)
+
+    if args.output:
+        target = resolve_repo_or_absolute(args.output)
+        write_text(target, report + "\n", args.force)
+        print(f"wrote {display_path(target)}")
+    else:
+        print(report)
+    return 0
+
+
 def update_nightly_index_command(args: argparse.Namespace) -> int:
     runs_dir = resolve_repo_or_absolute(args.runs_dir)
     output = resolve_repo_or_absolute(args.output)
@@ -1922,6 +2112,31 @@ def closure_score_dimensions(path: Path) -> list[ScoreDimension]:
     if links and "needed" in archive.lower():
         learning_score = 4
     dimensions.append(ScoreDimension("learning_promotion", learning_score, "experience or promotion analysis"))
+
+    narrative_impact = section_body(text, "## Narrative Line Impact")
+    narrative_claimed = normalize_list(data.get("narrative_lines_claimed"))
+    narrative_score = 0
+    if narrative_claimed:
+        if narrative_impact:
+            body_len = len(narrative_impact)
+            has_advanced = "advanced" in narrative_impact.lower()
+            has_contributed = "contributed" in narrative_impact.lower()
+            has_not_moved = "did not move" in narrative_impact.lower()
+            if body_len >= 120 and has_advanced:
+                narrative_score = 4
+            elif body_len >= 80 and (has_advanced or has_contributed):
+                narrative_score = 3
+            elif body_len >= 40:
+                narrative_score = 2
+            else:
+                narrative_score = 1
+        else:
+            narrative_score = 0
+    dimensions.append(ScoreDimension(
+        "narrative_line_coverage",
+        narrative_score,
+        "claimed lines evaluated with evidence of actual impact",
+    ))
 
     follow_up_score = score_from_body(follow_up)
     if "future" in follow_up.lower() or "follow" in follow_up.lower():
@@ -2570,6 +2785,7 @@ def build_parser() -> argparse.ArgumentParser:
     new_task.add_argument("--owner", default="gcs-architecture-steward")
     new_task.add_argument("--specialist", action="append", default=[])
     new_task.add_argument("--evidence", action="append", default=[])
+    new_task.add_argument("--narrative-line", dest="narrative_line", action="append", default=[])
     new_task.add_argument("--human-gate", action="store_true")
     new_task.add_argument("--human-gate-reason", default="")
     new_task.add_argument("--date", default="")
@@ -2589,6 +2805,7 @@ def build_parser() -> argparse.ArgumentParser:
     new_worktree.add_argument("--specialist", action="append", default=[])
     new_worktree.add_argument("--affected-path", action="append", default=[])
     new_worktree.add_argument("--evidence", action="append", default=[])
+    new_worktree.add_argument("--narrative-line", dest="narrative_line", action="append", default=[])
     new_worktree.add_argument("--human-gate", action="store_true")
     new_worktree.add_argument("--human-gate-reason", default="")
     new_worktree.add_argument("--date", default="")
@@ -2610,6 +2827,7 @@ def build_parser() -> argparse.ArgumentParser:
     new_completed.add_argument("--title", default="")
     new_completed.add_argument("--status", default="complete")
     new_completed.add_argument("--experience-link", action="append", default=[])
+    new_completed.add_argument("--narrative-line", dest="narrative_line", action="append", default=[])
     new_completed.add_argument("--date", default="")
     new_completed.add_argument("--output", default="")
     new_completed.add_argument("--write", action="store_true")
@@ -2700,6 +2918,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     show_next.add_argument("path")
 
+    narrative_coverage = subparsers.add_parser(
+        "validate-narrative-coverage",
+        help="Scan task cards and completed reports to produce a narrative-line coverage matrix",
+    )
+    narrative_coverage.add_argument("--task-dir", default="")
+    narrative_coverage.add_argument("--completed-dir", default="")
+    narrative_coverage.add_argument("--output", default="")
+    narrative_coverage.add_argument("--force", action="store_true")
+
     gates = subparsers.add_parser(
         "run-quality-gates",
         help="Run CI-ready build, test, scene, and architecture quality gates",
@@ -2776,6 +3003,8 @@ def main(argv: list[str]) -> int:
         return validate_phase_step_plan_command(args)
     if args.command == "show-next-step":
         return show_next_step(args)
+    if args.command == "validate-narrative-coverage":
+        return validate_narrative_coverage_command(args)
     if args.command == "run-quality-gates":
         return run_quality_gates(args)
     if args.command == "emit-design-card":
