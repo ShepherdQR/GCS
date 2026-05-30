@@ -1,5 +1,5 @@
 # Cache-Hit Full/Lite Pilot Summary
-Generated: `2026-05-30T14:18:21.228926+00:00`
+Generated: `2026-05-30T16:20:14.750024+00:00`
 Runs file: `docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv`
 
 ## Aggregate

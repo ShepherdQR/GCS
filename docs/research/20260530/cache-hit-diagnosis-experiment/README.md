@@ -97,6 +97,10 @@ Lite mode is not no-governance mode. It is a reduced-context lane.
 Run 6 to 8 small, matched tasks. Use paired tasks rather than repeating the
 same task twice, so the second run does not benefit from solution memory.
 
+The first eight-pair execution matrix is stored at:
+
+- `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`
+
 Recommended pairs:
 
 | Pair | Full task | Lite task | Acceptance style |
