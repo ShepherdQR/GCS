@@ -27,6 +27,16 @@ The task `README.md` should answer:
 Do not store raw chat logs here. Preserve decisions, outputs, acceptance
 evidence, and links to project files.
 
+## Task Index
+
+- [2026-05-31-pipeline-experiments-fix-cycle](2026-05-31-pipeline-experiments-fix-cycle/README.md) — 3-round pipeline experiment cycle, 8 bugs fixed, defect register established
+- [2026-05-31-cache-hit-pilot-eight-pairs](2026-05-31-cache-hit-pilot-eight-pairs/README.md) — Cache-hit diagnosis pilot closeout with eight Full/Lite pairs
+- [2026-05-30-cache-hit-diagnosis-experiment](2026-05-30-cache-hit-diagnosis-experiment/README.md) — Cache-hit experiment setup and initial runs
+- [2026-05-30-cache-hit-experiment-implementation](2026-05-30-cache-hit-experiment-implementation/README.md) — Cache-hit experiment runner implementation
+- [2026-05-30-10-pipeline-quality-infrastructure](2026-05-30-10-pipeline-quality-infrastructure/README.md) — 10-pipeline quality infrastructure setup
+- [2026-05-30-open-source-phase-0-1](2026-05-30-open-source-phase-0-1/README.md) — Open-source preparation phase 0-1
+- [2026-05-30-steps-52-55-articulation-spanning-tree](2026-05-30-steps-52-55-articulation-spanning-tree/README.md) — Spanning tree articulation steps 52-55
+
 ## Legacy Validation Policy
 
 Completed-task reports use the S2-04 policy in
