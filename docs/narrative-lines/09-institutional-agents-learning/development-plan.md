@@ -7,8 +7,59 @@ Baseline: `docs/architecture/70-visualization/narrative-line-level-baseline-2026
 
 ## Current Level
 
-**Developing (3.0)** — lowest in Arc 3; agentic-SE operating layer (5.0) and
-governance (4.0) bracket it on both sides.
+**Strong but split (3.5)** — raised from Developing (3.0) on 2026-05-30.
+
+Six "Strong (4.0)" conditions were defined. Four are now met, two remain:
+
+| Condition | Status |
+|-----------|:------:|
+| 1+ agent at Institutional with ownership and review cadence | ✅ I001 |
+| 2+ governance evals at L3 with passing tests | ✅ E-GOV-001 (23 tests), E-GOV-003 (22 tests) |
+| Closed learning loop: forging note → verified change | ✅ demonstrated |
+| 3+ candidates advanced to seed with real exercise | ✅ I006/I007/I008 |
+| 3+ agents at Promoted or higher with distributed evidence | ❌ 2/3 (I001 Institutional, I002 Promoted) |
+| 1+ agent integrated into automated trigger | ❌ none yet |
+
+The line graduates to Strong (4.0) when either a third agent reaches Promoted
+or an automated trigger is wired — plus closure of any remaining Phase 4 items.
+
+## Progress Since Baseline (2026-05-30, single session)
+
+### Evidence Distribution
+
+| Agent | Before | After |
+|-------|--------|-------|
+| I001 Bladesmith | Promoted, 20+ examples | **Institutional**, 21+ examples, 2 refusal evals, ownership/cadence defined |
+| I002 Tailor | Practiced, 6 examples | **Promoted (10/10)**, formal promotion review |
+| I003 Atelier Steward | Seed, 1 example | Seed, **2 examples** (Figure 72 + figure95 trend) |
+| I004 Art Director | Seed, 2 examples | Seed, **3 examples** (Figure 72 ×2 + figure95 trend) |
+| I005 Acceptance Officer | Seed, 0 reviews | Seed, 0 reviews (unchanged) |
+| I006 Bookkeeper | Candidate | **Seed**, full package (README + template + eval) |
+| I007 Collation Officer | Candidate | **Seed**, full package |
+| I008 Gardener | Candidate | **Seed**, full package |
+| Night-Watch | Candidate, 0 runs | Candidate, **1 calibration run** + refusal eval |
+| 5 others | Candidate, 0 evidence | Candidate, 0 evidence (unchanged) |
+
+Candidate bottleneck: 9 → **6**.
+
+### Governance Evals
+
+| Eval | Before | After |
+|------|--------|-------|
+| E-GOV-001 | L2 exercised | **L3 validator candidate** (check_staged_scope.py, 23 tests) |
+| E-GOV-003 | L2 | **L3 validator candidate** (check_completion_evidence.py, 22 tests) |
+
+### Cross-Cutting
+
+| Item | Before | After |
+|------|--------|-------|
+| Forging loop | Documented, never demonstrated | **Closed loop demonstrated** (note → roadmap update) |
+| Night-watch | Spec, never run | **Calibration run** with findings artifact |
+| Agent trigger registry | Did not exist | **Exists** in asset inventory §8 |
+| B2 expected outputs | Did not exist | **2 files** for B2-01/B2-02 |
+| External adapter | Undecided | **Decided**: FreeCAD Sketcher, B2-02 scope |
+| R2 build transcript | Did not exist | **Recorded** (128/128 tests) |
+| I003/I004 | 1/2 examples each | **2/3 examples** each |
 
 ## Root Cause: The Infrastructure-Execution Gap
 

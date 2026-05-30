@@ -1,0 +1,59 @@
+{
+  "generated_at_utc": "2026-05-30T16:31:37.840012+00:00",
+  "runs_file": "docs\\research\\20260530\\cache-hit-diagnosis-experiment\\experiment-runs.csv",
+  "runs_count": 2,
+  "complete_pairs_count": 1,
+  "pairs": [
+    {
+      "task_pair": "docs-index-1",
+      "status": "complete",
+      "full_runs": 1,
+      "lite_runs": 1,
+      "full": {
+        "input_tokens": 282340.0,
+        "output_tokens": 5105.0,
+        "token_leverage_ratio": 0.018081,
+        "legacy_cache_hit_rate": 0.438701,
+        "estimated_raw_cache_hit_rate": 0.849811,
+        "estimated_cold_load_overhead_ratio": 0.138131,
+        "bei_composite": 0.780032,
+        "audit_score_0_5": 5.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "lite": {
+        "input_tokens": 348914.0,
+        "output_tokens": 3303.0,
+        "token_leverage_ratio": 0.009467,
+        "legacy_cache_hit_rate": 0.468211,
+        "estimated_raw_cache_hit_rate": 0.887348,
+        "estimated_cold_load_overhead_ratio": 0.111775,
+        "bei_composite": 0.765754,
+        "audit_score_0_5": 5.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "delta": {
+        "lite_input_savings_pct": -0.23579372387901112,
+        "lite_audit_delta_pct": 0.0,
+        "lite_bei_delta_pct": -0.018304377256317565,
+        "lite_rework_delta": 0.0,
+        "lite_defect_delta": 0.0,
+        "lite_validation_delta": 0.0
+      },
+      "classification": "mixed-or-inconclusive"
+    }
+  ],
+  "aggregate": {
+    "classification_counts": {
+      "redundant-overhead": 0,
+      "healthy-institutionalization": 0,
+      "mixed-or-inconclusive": 1,
+      "needs paired data": 0
+    },
+    "overall_classification": "mixed-or-inconclusive",
+    "recommendation": "Do not promote policy until 6 to 8 paired runs are complete."
+  }
+}
