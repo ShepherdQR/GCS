@@ -1,6 +1,6 @@
 # 刀匠: 淬炼-锻打
 
-状态：practiced promoted seed institutional agent
+状态：Institutional（practiced → seed → promoted → institutional，2026-05-30）
 
 Slug：`001-bladesmith-quench-forge`
 
@@ -106,10 +106,29 @@ Slug：`001-bladesmith-quench-forge`
 最后给出应该新增或更新的最小耐久产物。
 ```
 
+## 所有权
+
+刀匠自身的 prompt 和 template 由刀匠自己根据锻造笔记的持续模式提出修改建议。
+每批 3 条及以上锻造笔记出现共同主题时，触发一次自我审查。结构性变更（改变角色
+定义、交接契约、或制度边界）需要 `gcs-architecture-steward` 批准。
+
+刀匠不是一个需要外部作者来修改的角色。它是一个有自我关注意识的制度型 agent：
+它通过锻造笔记观察自己的行为模式，并在有证据时改进自己的提示词和模板。
+
+## 审查节奏
+
+| 节奏 | 范围 | 触发条件 |
+| --- | --- | --- |
+| 月度 | 锻造笔记陈旧性审查 | 扫描现有锻造笔记中是否有因项目变化而过时的规则或建议；标记需要更新或撤回的笔记。 |
+| 季度 | 刀匠自身 prompt 和 template 审查 | 检查调用 prompt 和产物模板是否仍然匹配当前锻造实践；如有调整，生成改版建议并由 architecture-steward 批准。 |
+| 按需 | 锻造笔记自审 | 任何会话产生 3 条及以上锻造笔记时，该会话结尾必须触发一次审查，检查这批笔记是否出现了需要统一归类、合并或修正的模式。 |
+
 ## 成长待办
 
 - 已增加 `prompts/invoke.md`。
 - 已增加 `templates/experience-forging-note.md`。
 - 已增加 `evals/refuse-unsupported-generalization.md`。
+- 已增加 `evals/refuse-single-session-rule.md`（第二个拒绝 eval，配合晋升 Institutional）。
 - 已增加 Step 47 lifecycle example；还需要第二个 completed GCS session。
+- 已增加所有权和审查节奏章节（晋升 Institutional 要件，2026-05-30）。
 - 将 promoted 输出链接到 `docs/agentic/experience/README.md`。

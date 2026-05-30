@@ -24,7 +24,7 @@ evals.
 
 | ID | Agent | Current maturity | Evidence package | Score | Next action |
 | --- | --- | --- | --- | ---: | --- |
-| I001 | Bladesmith: Quench-Forge | Promoted | Prompt, template, refusal eval, and 20+ examples under `001-bladesmith-quench-forge/`. Promotion note: `promotion-20260527.md`. | 10/10 | Keep periodic stale-rule review; separate repeated pressure from one-off preference. |
+| I001 | Bladesmith: Quench-Forge | **Institutional** | Prompt, template, two refusal evals, ownership and review-cadence docs, and 20+ examples under `001-bladesmith-quench-forge/`. Promotion notes: `promotion-20260527.md` (Promoted), `promotion-institutional-20260530.md` (Institutional). | 10/10 | Maintain monthly stale-note review cadence; add automation hook via lifecycle runbook; score ceiling reached — metric shifts to cadence maintenance and evidence freshness. |
 | I002 | Tailor: Stitch-Timeline | **Promoted** | Prompt, template, refusal eval, and 6 timeline examples under `002-tailor-stitch-timeline/`. Promotion note: `promotion-20260530.md`. | **10/10** | Exercise refusal eval on a real ambiguous timeline situation to harden invented-causality boundary. |
 | I003 | Atelier Steward: Calibrate-Review | Seed | Prompt, template, refusal eval, and one Figure 72 convention-fit example under `003-atelier-steward-calibrate-review/`. | 6/10 | Collect two more UI or figure reviews before promotion. |
 | I004 | Art Director: Frame-Judge | Seed | Prompt, template, refusal eval, and one Figure 72 visual-review example under `004-art-director-frame-judge/`. | 6/10 | Require rendered-artifact evidence for every new example; avoid approval without visual input. |
@@ -52,16 +52,20 @@ rank the roles by importance.
 
 ### I001 Bladesmith
 
-The Bladesmith is the strongest role by evidence volume. It captures reusable
-lessons from completed tasks, visual pipeline work, gate policy, replay
-evidence, and cleanup sessions. Its main governance risk is over-promotion:
-because it has many examples, it must still separate repeated pressure from
-one-off preference.
+The Bladesmith is the first GCS institutional agent to reach the Institutional
+tier (2026-05-30). It captures reusable lessons from completed tasks, visual
+pipeline work, gate policy, replay evidence, and cleanup sessions. It has 20+
+forging notes, two refusal evals, documented ownership, and a defined review
+cadence (monthly stale-note scan, quarterly self-review, on-demand review at
+3+ notes per session). Its main governance risk is over-promotion: because it
+has many examples, it must still separate repeated pressure from one-off
+preference. Both refusal evals directly address this risk.
 
 Next useful eval:
 
-- refuse turning a single successful shortcut into a project rule without a
-  second example or explicit provisional label.
+- automation hook eval: test that the bladesmith can be triggered automatically
+  by the lifecycle runbook when a session produces 3+ forging notes, rather
+  than relying on manual invocation.
 
 ### I002 Tailor
 

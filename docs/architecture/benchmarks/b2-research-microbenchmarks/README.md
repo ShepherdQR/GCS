@@ -46,6 +46,16 @@ When the solver report format changes:
 3. Record the solver version and date in the expected output's `migration_policy` field.
 4. If a research claim is no longer valid, document why in the B2 README.
 
+## Expected Outputs
+
+Expected-output files are at `expected/` with solver version and date recorded in each file.
+Current files:
+
+| File | Solver version | Date |
+|------|---------------|------|
+| `expected/b2-01-well-constrained.json` | `61a35760` | 2026-05-30 |
+| `expected/b2-02-under-constrained.json` | `61a35760` | 2026-05-30 |
+
 ## Non-Goals
 
 - B2 is not an external benchmark. External comparison requires an adapter
