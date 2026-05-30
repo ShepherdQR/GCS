@@ -30,8 +30,23 @@ docs/research/
   │   Key finding: Simple beats complex (Independent Ensemble, Sequential Pipeline
   │                dominate Pareto frontier); execution grounding is strongest signal
   │
+  ├── gcs-multi-agent-system-baseline-2026-05-29.md [BASELINE]
+  │   What: Current-state audit of GCS's 28 skills, 14 agents, dispatch wiring,
+  │         autonomy capability, and maturity pipeline
+  │   When to read: Understanding where we are today — the starting point
+  │   Key finding: Documentation layer is complete; programmatic wiring is near-zero
+  │                (1/28 skills use explicit dispatch); 0 agents at Institutional maturity
+  │
   └── (this file)                                   [INDEX]
       Cross-reference map and reading guide
+
+docs/agentic/
+  │
+  └── multi-agent-development-roadmap.md           [ROADMAP]
+      What: 6-phase development plan from "disconnected" to "autonomous"
+      When to read: Planning any multi-agent infrastructure work
+      Key finding: 9-15 sessions, 1.5M-3.2M tokens to reach full autonomy;
+                  Phase 1 (dispatch wiring) is the critical path
 ```
 
 ## Reading Paths
@@ -49,6 +64,11 @@ docs/research/
 1. Start: `orchestrator-design-principles.md` — the full 13 principles
 2. Then: `.claude/skills/orchestrator/SKILL.md` — the portable implementation
 3. Reference: `3-5-agent-orchestration-patterns.md` — architecture-specific guardrails
+
+### Path D: "Where are we now, and how do we get to autonomy?"
+1. Start: `gcs-multi-agent-system-baseline-2026-05-29.md` — the current state
+2. Then: `../agentic/multi-agent-development-roadmap.md` — the 6-phase plan
+3. Reference: `orchestrator-design-principles.md` — principles governing each phase
 
 ## Key Numbers at a Glance
 
