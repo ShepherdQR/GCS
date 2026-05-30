@@ -4,6 +4,7 @@
 |---|------|----|-------|--------|
 | 1 | 2026-05-31 | `001-10-pipeline-parallel-smoke` | 10-Pipeline Parallel Smoke Test | done |
 | 2 | 2026-05-31 | `002-10-pipeline-post-fix-smoke` | 10-Pipeline Post-Fix Smoke Test | done |
+| 3 | 2026-05-31 | `003-10-pipeline-stable-smoke` | 10-Pipeline Stable Smoke Test | done |
 
 See also: [Defect Register](defect-register.md) — tracks known unfixed issues.
 
