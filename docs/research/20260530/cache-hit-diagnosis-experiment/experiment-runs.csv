@@ -1,0 +1,2 @@
+run_id,date,task_pair,mode,task_type,risk,input_tokens,output_tokens,cache_read_tokens,estimated_cache_write_tokens,legacy_cache_hit_rate,estimated_raw_cache_hit_rate,token_leverage_ratio,estimated_cold_load_overhead_ratio,bei_composite,audit_score_0_5,validation_passed,rework_turns,defect_or_reopen_count,skills_invoked,files_touched,notes
+example,2026-05-30,docs-1,Full,docs,low,,,,,,,,,,,,,,,,"template row only"
