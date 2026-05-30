@@ -408,18 +408,34 @@ class ContractCompliancePipeline:
 
         Top-level module -> set of allowed top-level import targets.
         """
+        # Standard library modules commonly used across the codebase.
+        _stdlib = {
+            "argparse", "ast", "calendar", "collections", "copy", "csv",
+            "dataclasses", "datetime", "enum", "glob", "hashlib", "html",
+            "importlib", "itertools", "json", "math", "os", "pathlib",
+            "platform", "random", "re", "shutil", "sqlite3", "statistics",
+            "struct", "subprocess", "sys", "tempfile", "threading", "time",
+            "typing", "xml", "yaml",
+        }
+        # Third-party dependencies vetted for GCS.
+        _third_party = {
+            "click", "matplotlib", "mpl_toolkits", "networkx", "numpy", "PIL",
+            "pytest", "rich", "textual", "tkinter",
+        }
+        _external = _stdlib | _third_party
+
         return {
-            # gcs_scene_generation may import from its own submodules only
-            "gcs_scene_generation": {"gcs_scene_generation"},
+            # gcs_scene_generation may import from its own submodules + externals
+            "gcs_scene_generation": {"gcs_scene_generation"} | _external,
 
-            # solver_testing may import from its own submodules + gcs_scene_generation
-            "solver_testing": {"solver_testing", "gcs_scene_generation"},
+            # solver_testing may import from its own submodules + gcs_scene_generation + externals
+            "solver_testing": {"solver_testing", "gcs_scene_generation"} | _external,
 
-            # gcs_viz may import from gcs_viz only
-            "gcs_viz": {"gcs_viz"},
+            # gcs_viz may import from gcs_viz only + externals
+            "gcs_viz": {"gcs_viz"} | _external,
 
-            # tools may import from gcs_scene_generation, solver_testing
-            "tools": {"gcs_scene_generation", "solver_testing"},
+            # tools may import from gcs_scene_generation, solver_testing + externals
+            "tools": {"gcs_scene_generation", "solver_testing"} | _external,
 
             # C++ modules — each may import its own sub-area
             "gcs_kernel": {"gcs_kernel"},

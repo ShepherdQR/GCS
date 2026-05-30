@@ -61,7 +61,7 @@ _ALTERNATE_CODES: dict[str, list[str]] = {
     "constraint.invalid_parameter_value": ["invalidmodel", "invalid_parameter_value"],
     "InvalidModel": ["invalidmodel", "invalid_parameter_value"],
     "degenerate": ["degenerate", "invalidmodel"],
-    "NumericallySingular": ["numericallysingular", "over_constrained", "under_constrained"],
+    "NumericallySingular": ["numericallysingular", "over_constrained", "under_constrained", "invalidmodel", "failed"],
 }
 
 
@@ -76,6 +76,7 @@ def _extract_code_from_output(combined: str) -> str:
         ("over_constrained", "over_constrained"),
         ("under_constrained", "under_constrained"),
         ("degenerate", "degenerate"),
+        ("Failed", "failed"),
     ]
     for label, token in candidates:
         if token in lower:

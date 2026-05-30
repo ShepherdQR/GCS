@@ -336,7 +336,7 @@ class SceneGenPipeline:
         for category_name, targets_dict, current_counter in [
             ("geometry_types", targets.geometry_types, current_geometry),
             ("constraint_types", targets.constraint_types, current_constraint),
-            ("rigid_set_counts", targets.rigid_sets, current_rigid_sets),
+            ("rigid_set_counts", targets.rigid_set_counts, current_rigid_sets),
         ]:
             for key, target in sorted(targets_dict.items()):
                 current = current_counter.get(key, 0)

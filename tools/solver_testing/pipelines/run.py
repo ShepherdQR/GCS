@@ -43,6 +43,7 @@ PIPELINE_REGISTRY = {
         "description": "Run solver on fixture corpus, compare against baseline, detect regressions.",
         "config_keys": ["corpus_path", "baseline_path", "tolerance", "solver_command", "timeout"],
         "estimated_runtime": "5min (typical corpus)",
+        "default_config": {"corpus_path": "fixtures/scene/basic"},
     },
     "numeric-stability": {
         "id": "numeric-stability",
@@ -52,6 +53,7 @@ PIPELINE_REGISTRY = {
         "description": "Test solver under extreme values — logspace sweeps, near-zero, boundary conditions.",
         "config_keys": ["scene_path", "constraint_index", "sweep_spec", "solver_command", "timeout_seconds"],
         "estimated_runtime": "10min (20-step sweep)",
+        "default_config": {"scene_path": "fixtures/scene/json/current_two_point.gcs.json", "constraint_index": 0, "sweep_spec": {"param": "value", "start": 1e-6, "end": 1e6, "steps": 5}},
     },
     "diagnostic-certification": {
         "id": "diagnostic-certification",
@@ -79,6 +81,7 @@ PIPELINE_REGISTRY = {
         "description": "Verify scene data survives JSON/text serialization round-trips losslessly.",
         "config_keys": ["fixture_paths", "formats", "solver_command", "solve_check", "timeout_seconds"],
         "estimated_runtime": "5min",
+        "default_config": {"fixture_paths": ["fixtures/scene/json"]},
     },
     "scene-generation": {
         "id": "scene-generation",
@@ -97,6 +100,7 @@ PIPELINE_REGISTRY = {
         "description": "Measure solver performance, store in SQLite trend DB, detect regressions.",
         "config_keys": ["corpus_path", "db_path", "solver_command", "warmup", "runs", "threshold"],
         "estimated_runtime": "15min (typical corpus)",
+        "default_config": {"corpus_path": "fixtures/scene/basic", "db_path": "out/benchmark_trend.db"},
     },
     "cross-solver-compare": {
         "id": "cross-solver-compare",
@@ -106,6 +110,7 @@ PIPELINE_REGISTRY = {
         "description": "Compare GCS solver results against external solvers on shared benchmarks.",
         "config_keys": ["benchmark_dir", "external_spec_path", "solver_command", "timeout_seconds"],
         "estimated_runtime": "10min",
+        "default_config": {"benchmark_dir": "fixtures/scene/basic", "external_spec_path": "fixtures/benchmark/external_solver_spec.json"},
     },
     "repository-audit": {
         "id": "repository-audit",
@@ -163,11 +168,11 @@ def cmd_run(args):
     info = PIPELINE_REGISTRY[pipeline_id]
     pipeline_cls = _get_pipeline_class(pipeline_id)
 
-    # Determine config
-    config = {}
+    # Determine config: start from registry defaults, then overlay --config file
+    config = dict(info.get("default_config", {}))
     if args.config:
         with open(args.config, "r", encoding="utf-8") as f:
-            config = json.load(f)
+            config.update(json.load(f))
 
     print()
     print(f"Running: {info['name']} ({pipeline_id})")
@@ -187,7 +192,7 @@ def cmd_run(args):
         elif pipeline_id == "diagnostic-certification":
             pipeline = pipeline_cls()
             result = pipeline.run(**config)
-        elif pipeline_id == "stability":
+        elif pipeline_id == "numeric-stability":
             pipeline = pipeline_cls()
             result = pipeline.run(**config)
         elif pipeline_id == "contract-compliance":
@@ -206,13 +211,13 @@ def cmd_run(args):
             budget = config.pop("budget", {"max_candidates": 100})
             strategies = config.pop("strategies", ["explore", "enumerate"])
             result = pipeline.run(spec, budget, strategies)
-        elif pipeline_id == "benchmark":
+        elif pipeline_id == "performance-benchmark":
             pipeline = pipeline_cls()
             result = pipeline.run(**config)
-        elif pipeline_id == "regression":
+        elif pipeline_id == "solver-regression":
             pipeline = pipeline_cls()
             result = pipeline.run(**config)
-        elif pipeline_id == "roundtrip":
+        elif pipeline_id == "io-round-trip":
             pipeline = pipeline_cls()
             result = pipeline.run(**config)
         elif pipeline_id == "cross-solver-compare":

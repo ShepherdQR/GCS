@@ -150,6 +150,40 @@ class AuditReport:
     snapshot: RepoSnapshot
     generated_at: str
 
+    def summary(self) -> str:
+        lines = []
+        lines.append("=" * 60)
+        lines.append("REPOSITORY AUDIT REPORT")
+        lines.append("=" * 60)
+        cls = self.classification
+        lines.append(f"  total_files:          {cls.total_files()}")
+        for cat, count in sorted(cls.counts.items()):
+            if count > 0:
+                lines.append(f"    {cat:20s}  {count}")
+        lines.append(f"  flagged_files:        {len(cls.flagged_files)}")
+        lines.append(f"  directory_violations: {len(self.directory_violations)}")
+        lines.append(f"  stale_files:          {len(self.stale_files)}")
+        snap = self.snapshot
+        lines.append(f"  snapshot_total_lines: {snap.total_lines}")
+        lines.append(f"  generated_at:         {self.generated_at}")
+        lines.append("-" * 60)
+        # Show top 5 largest files
+        if snap.largest_files:
+            lines.append("  Largest files:")
+            for lf in snap.largest_files[:5]:
+                lines.append(f"    {lf['size_bytes']:>10_d} bytes  {lf['path']}")
+        # Show directory violations
+        if self.directory_violations:
+            lines.append("  Directory issues:")
+            for dv in self.directory_violations[:10]:
+                lines.append(f"    [{dv.violation_type}] {dv.path}: {dv.message}")
+        # Show stale files
+        if self.stale_files:
+            lines.append("  Stale files (>{}d):".format(90))
+            for sf in self.stale_files[:10]:
+                lines.append(f"    {sf.path} ({sf.age_days:.0f}d)")
+        return "\n".join(lines)
+
 
 # ---------------------------------------------------------------------------
 # RepoAuditPipeline
