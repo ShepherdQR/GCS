@@ -110,3 +110,8 @@ When invoked:
   in completed-task archives.
 - Use `Bash` with `python -m tools.token_audit db import` after each
   significant session to keep the database current.
+
+## Error Handling
+
+- **DB import failure**: Retry once. If retry fails, fallback to manual token count from session transcript (Read the JSONL and count tokens directly).
+- **Report generation failure**: If the markdown report fails, output a minimal JSON summary with key metrics only.

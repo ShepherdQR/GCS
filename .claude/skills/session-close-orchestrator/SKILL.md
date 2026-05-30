@@ -42,7 +42,7 @@ Each step uses explicit tool dispatch — no prose-only handoffs.
 
 **Error handling per step:**
 - If a step fails: capture the error, write it to the step output, continue to next step
-- If a dispatched skill/agent fails: record failure reason, do NOT retry (orchestrator handles retry)
+- If a dispatched skill/agent fails: record failure reason, retry once with reduced scope; escalate on second failure
 - All step outputs are written to disk before proceeding to the next step
 
 ---
@@ -149,7 +149,7 @@ python -m tools.token_audit report --format markdown
 - Token usage, cost, cache efficiency, BEI scores
 - Chapter breakdown (if CCD chapter markers were used)
 
-**Error capture**: If `db import` fails, skip to `report` (may use cached data). If `report` fails, create a minimal manual report with token counts from the session transcript.
+**Error capture**: If `db import` fails, retry once with `--force` flag. If retry also fails, skip to `report` (may use cached data). If `report` fails, create a minimal manual report with token counts from the session transcript.
 
 **Output**: Token usage, cost, cache efficiency, BEI scores, baseline comparison.
 
@@ -250,7 +250,7 @@ Skill({
 
 **Verification**: After the skill completes, `Read` the archive README to verify it exists and has all required sections (Scope, Evidence Bundle, Decisions, Residual Risks, Follow-up).
 
-**Error capture**: If the skill fails, create a minimal archive README with the session output summary embedded and a note: "Minimal archive — task-scoped-session-closer dispatch failed: <reason>".
+**Error capture**: If task-scoped-session-closer dispatch fails, retry once. If retry also fails, create a minimal archive README with the session output summary embedded and a note: "Minimal archive — task-scoped-session-closer dispatch failed: <reason>".
 
 ---
 
@@ -505,7 +505,7 @@ At close, the following must exist on disk and be pushed:
 - Do not proceed to commit if git-session-branch-steward returns BLOCKED.
 - Do not skip Step 4.5 (output existence check) — if any blocking file is
   missing, stop and fix before commit.
-- Do not retry a failed skill dispatch — record failure and continue (orchestrator handles retry).
+- Retry a failed skill dispatch once with reduced scope. If retry also fails, record failure and continue.
 
 ## Claude Code Integration
 

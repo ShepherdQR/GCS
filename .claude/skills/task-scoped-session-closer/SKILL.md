@@ -126,3 +126,9 @@ When invoked for session closure:
 - For commit: stage only scoped files, use a concise message, and push only
   when authorized.
 - Do NOT create a completed-task archive for chat-only/typo work.
+
+## Error Handling
+
+- **Archive creation failure**: Retry once with reduced scope (one-paragraph summary + file list instead of full archive). If retry also fails, write failure note to task card and escalate.
+- **Score computation failure**: Skip scoring; mark "N/A" in archive. Scoring is informational, not blocking.
+- **Git operation failure**: Retry once. If retry fails, record failure in archive; commits remain local.

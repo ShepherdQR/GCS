@@ -1,6 +1,8 @@
 ---
 name: gcs-ui-qa-steward
 description: UI quality assurance automation for GCS. Invoke when running or designing UI QA checks — theme token validation, contrast ratio enforcement, GUI static analysis, fixture coverage verification, headless render smoke tests, screenshot baselines, text overflow detection, overlap/contrast gates, or visual integrity gate execution.
+priority: 65
+exclusive: false
 ---
 
 # GCS UI QA Steward

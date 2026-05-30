@@ -1,6 +1,8 @@
 ---
 name: gcs-architecture-steward
 description: Cross-module architecture steward for GCS. Invoke when changing architecture docs, planning or reviewing cross-module refactors, naming target modules, deciding dependency direction, mapping current code to target vocabulary, reviewing solver/runtime/IO/viewer boundaries, or when any structural change touches multiple modules.
+priority: 85
+exclusive: false
 ---
 
 # GCS Architecture Steward

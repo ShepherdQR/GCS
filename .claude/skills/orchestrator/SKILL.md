@@ -239,6 +239,8 @@ This is the centralized verification step that reduces error amplification from 
 **Hard constraint: Maximum 1 retry per worker. Never retry a worker more than once.**
 Cascading retries are the mechanism behind coordination collapse.
 
+**Circuit breaker:** If the same worker type fails 3 or more times in a single session, stop dispatching to that worker type for the remainder of the session. Record the circuit-break in the orchestration record.
+
 ---
 
 ## Phase 4: Synthesis
@@ -344,22 +346,23 @@ Output a one-paragraph summary of:
 3. **ALWAYS run cross-worker consistency check** before synthesis in parallel architectures
 4. **ALWAYS use orchestrator model ≥ strongest worker model**
 5. **Max 1 retry per failed worker** — never retry a worker more than once
-6. **Workers produce evidence; orchestrator verifies evidence; only verified outputs enter synthesis**
+6. **Circuit breaker: 3 consecutive failures from the same worker type -> stop dispatching to that type for this session.**
+7. **Workers produce evidence; orchestrator verifies evidence; only verified outputs enter synthesis**
 
 ### Soft Guidelines (SHOULD follow)
 
-7. Prefer heterogeneous models over homogeneous (diversity beats quantity)
-8. Prefer 2–3 agents over 4–5 when task decomposability is uncertain
-9. Record architecture decisions for future learning
-10. If a worker fails, report the failure honestly — do not fabricate a replacement output
-11. If verification reveals contradictions, flag them — do not silently pick one side
+8. Prefer heterogeneous models over homogeneous (diversity beats quantity)
+9. Prefer 2–3 agents over 4–5 when task decomposability is uncertain
+10. Record architecture decisions for future learning
+11. If a worker fails, report the failure honestly — do not fabricate a replacement output
+12. If verification reveals contradictions, flag them — do not silently pick one side
 
 ### Anti-Patterns (NEVER do)
 
-12. Role-based splitting ("let's have a planner, coder, tester, reviewer") — split at context boundaries, not roles
-13. LLM routing for fixed control flow — if the sequence is known, hardcode it
-14. Parallel dispatch when subtasks share state — if workers must read each other's output, use sequential chaining
-15. Delegating synthesis to a worker — the orchestrator owns synthesis
+13. Role-based splitting ("let's have a planner, coder, tester, reviewer") — split at context boundaries, not roles
+14. LLM routing for fixed control flow — if the sequence is known, hardcode it
+15. Parallel dispatch when subtasks share state — if workers must read each other's output, use sequential chaining
+16. Delegating synthesis to a worker — the orchestrator owns synthesis
 
 ---
 

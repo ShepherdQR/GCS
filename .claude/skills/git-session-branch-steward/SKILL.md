@@ -89,3 +89,8 @@ When invoked:
   files
 - Record push decisions and cleanup actions in the task archive
 - Flag any unrelated dirty files in the session handoff
+
+## Error Handling
+
+- **Git operation failure**: Retry once with the same command. If retry fails, report the exact error and escalate — do NOT force push, do NOT skip hooks.
+- **Branch state uncertain**: If git state cannot be determined, abort the operation and flag for human review. Never proceed with destructive operations (push --force, hard reset) under uncertainty.
