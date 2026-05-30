@@ -110,5 +110,10 @@ Slug：`002-tailor-stitch-timeline`
 - 已增加 `templates/timeline-entry.md`。
 - 已增加 `evals/refuse-invented-causality.md`。
 - 已增加本地仓库缝合时间线 example。
+- 已增加仓库清理时间线 example。
+- 已增加 Git session branch 清理时间线 example。
+- 已增加 Git stitch 与 AI governance 时间线 example。
+- 已增加 solver algorithm deepening (Steps 52-55) 时间线 example — solver thread。
+- 已增加 scene generation 与 solver testing pipeline 时间线 example — testing thread。
 - 当 completed-task reports 足够多后，继续加入项目级时间线 examples。
 - 分别定义 architecture、agentic-SE operations、generated scene/fixture evolution 的时间线范围。
