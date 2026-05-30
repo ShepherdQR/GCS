@@ -18,6 +18,7 @@ affected_paths:
   - docs/agentic/
   - docs/research/20260530/cache-hit-diagnosis-experiment/
   - docs/reports/token-audit/cache-hit-diagnosis-20260530/
+  - tools/token_audit/
 required_evidence:
   - validate-task-card
   - experiment-matrix-review
@@ -53,6 +54,8 @@ pilot rows with setup overhead.
 
 - Eight paired Full/Lite tasks are defined with comparable scope and acceptance gates.
 - Each pair has a stable `task_pair`, lane order, risk level, validation command, and record command template.
+- Codex Desktop JSONL token-count telemetry can be recorded without modifying
+  historical transcripts or token-audit database rows.
 - The setup session is excluded from real pilot evidence.
 - Required evidence is produced or skipped with a reason.
 
@@ -60,6 +63,8 @@ pilot rows with setup overhead.
 
 ```bat
 python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-31-cache-hit-pilot-eight-pairs.md
+python -m py_compile tools\token_audit\cache_hit_experiment.py
+python tools\token_audit\cache_hit_experiment.py record-jsonl --help
 python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
 ```
 
@@ -69,6 +74,9 @@ python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\
 - `python -m py_compile tools\token_audit\cache_hit_experiment.py` passed.
 - `python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json` passed; no real pilot rows recorded yet.
 - Eight paired Full/Lite pilot tasks were defined in `docs/research/20260530/cache-hit-diagnosis-experiment/pilot-runbook-8-pairs.md`.
+- `python tools\token_audit\cache_hit_experiment.py record-jsonl --help` passed.
+- `docs-index-1-full` and `docs-index-1-lite` were executed as separate Codex Desktop threads and recorded from their JSONL `token_count` telemetry.
+- First completed pair result: `docs-index-1` classified `mixed-or-inconclusive`; Lite input savings was `-23.6%`, audit delta `0.0%`, BEI proxy delta `-1.8%`, rework delta `0`, defect delta `0`.
 
 ## Residual Risks
 

@@ -138,7 +138,23 @@ Final response must include suggested audit_score_0_5, validation_passed, rework
 ## Controller Recording Commands
 
 After a dedicated run finishes, the controller imports telemetry, identifies the
-finished session, records the row, and refreshes the summary:
+finished session, records the row, and refreshes the summary.
+
+For Codex Desktop runs, prefer the JSONL path because the legacy token-audit DB
+importer reads Claude project transcripts and may not include current Codex
+Desktop sessions:
+
+```bat
+python tools\token_audit\cache_hit_experiment.py record-jsonl --jsonl C:\Users\QR\.codex\sessions\YYYY\MM\DD\rollout-<timestamp>-<thread-id>.jsonl --run-id <run-id> --task-pair <task-pair> --mode <Full|Lite> --task-type <docs|audit|fixture|tool> --risk low --audit-score <0-5> --validation-passed <true|false> --rework-turns <n> --defect-or-reopen-count <n> --files-touched <n> --notes "<short note>"
+python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
+```
+
+The `record-jsonl` command reads cumulative `token_count` events and uses
+`cached_input_tokens` as the cache-read token count. When no DB BEI value is
+available, it writes an experiment-only BEI proxy and marks this in `notes`.
+
+For legacy Claude transcript imports that are already present in
+`tools/token_audit/audit.db`, use the DB-backed command:
 
 ```bat
 python -m tools.token_audit db import --all

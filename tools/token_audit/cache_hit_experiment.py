@@ -87,6 +87,19 @@ class SessionMetrics:
     files_touched: int
 
 
+@dataclass(frozen=True)
+class CodexJsonlMetrics:
+    session_id: str
+    started_at: str
+    ended_at: str
+    project_name: str
+    model_id: str
+    input_tokens: int
+    output_tokens: int
+    cache_read_tokens: int
+    cache_creation_tokens: int
+
+
 def safe_div(numerator: float, denominator: float) -> float:
     return numerator / denominator if denominator else 0.0
 
@@ -145,6 +158,113 @@ def session_metrics(conn: sqlite3.Connection, session_id: str) -> SessionMetrics
         skills_invoked=str(row["skills_invoked"] or "[]"),
         files_touched=int(row["files_touched"] or 0),
     )
+
+
+def codex_jsonl_metrics(path: Path) -> CodexJsonlMetrics:
+    if not path.exists():
+        raise SystemExit(f"jsonl not found: {path}")
+
+    session_id = ""
+    started_at = ""
+    ended_at = ""
+    project_name = ""
+    model_id = ""
+    input_tokens = 0
+    output_tokens = 0
+    cache_read_tokens = 0
+    cache_creation_tokens = 0
+
+    with path.open(encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            timestamp = str(record.get("timestamp") or "")
+            if timestamp:
+                ended_at = timestamp
+
+            record_type = record.get("type")
+            payload = record.get("payload") or {}
+
+            if record_type == "session_meta":
+                meta = payload
+                session_id = str(meta.get("id") or session_id)
+                started_at = str(meta.get("timestamp") or started_at or timestamp)
+                cwd = str(meta.get("cwd") or "")
+                if cwd:
+                    project_name = Path(cwd).name or project_name
+                continue
+
+            if record_type == "turn_context":
+                model_id = str(payload.get("model") or model_id)
+                continue
+
+            if record_type != "event_msg":
+                continue
+
+            if payload.get("type") != "token_count":
+                continue
+
+            info = payload.get("info") or {}
+            total_usage = info.get("total_token_usage") or {}
+            input_tokens = int(total_usage.get("input_tokens") or 0)
+            output_tokens = int(total_usage.get("output_tokens") or 0)
+            cache_read_tokens = int(total_usage.get("cached_input_tokens") or 0)
+            cache_creation_tokens = int(
+                total_usage.get("cache_creation_input_tokens") or 0
+            )
+
+    if not session_id:
+        session_id = path.stem
+    if not started_at:
+        started_at = ended_at
+    if not model_id:
+        model_id = "codex"
+    if not project_name:
+        project_name = "GCS-A"
+
+    return CodexJsonlMetrics(
+        session_id=session_id,
+        started_at=started_at,
+        ended_at=ended_at,
+        project_name=project_name,
+        model_id=model_id,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        cache_read_tokens=cache_read_tokens,
+        cache_creation_tokens=cache_creation_tokens,
+    )
+
+
+def estimated_bei_proxy(
+    *,
+    input_tokens: int,
+    output_tokens: int,
+    cache_read_tokens: int,
+    audit_score: float,
+    validation_passed: bool,
+    rework_turns: int,
+    defect_or_reopen_count: int,
+) -> float:
+    """Experiment-only BEI proxy for Codex JSONL rows without DB enrichment."""
+    audit_component = min(max(audit_score / 5.0, 0.0), 1.0)
+    validation_component = 1.0 if validation_passed else 0.0
+    leverage_component = min(safe_div(output_tokens, input_tokens) / 0.10, 1.0)
+    cache_component = safe_div(cache_read_tokens, cache_read_tokens + input_tokens)
+    penalty = min(0.40, 0.05 * rework_turns + 0.10 * defect_or_reopen_count)
+    score = (
+        0.45 * audit_component
+        + 0.25 * validation_component
+        + 0.20 * leverage_component
+        + 0.10 * cache_component
+        - penalty
+    )
+    return min(max(score, 0.0), 1.0)
 
 
 def inspect_db(args: argparse.Namespace) -> int:
@@ -271,15 +391,92 @@ def record_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def record_jsonl_run(args: argparse.Namespace) -> int:
+    mode = normalize_mode(args.mode)
+    validation_passed = normalize_bool(args.validation_passed)
+    metrics = codex_jsonl_metrics(args.jsonl)
+    estimated_write = (
+        metrics.cache_creation_tokens
+        if metrics.cache_creation_tokens > 0
+        else CACHEABLE_PREFIX_ESTIMATE
+    )
+    bei = (
+        float(args.bei_composite)
+        if args.bei_composite is not None
+        else estimated_bei_proxy(
+            input_tokens=metrics.input_tokens,
+            output_tokens=metrics.output_tokens,
+            cache_read_tokens=metrics.cache_read_tokens,
+            audit_score=args.audit_score,
+            validation_passed=validation_passed,
+            rework_turns=args.rework_turns,
+            defect_or_reopen_count=args.defect_or_reopen_count,
+        )
+    )
+    notes = args.notes or f"codex_jsonl={args.jsonl.name}"
+    if args.bei_composite is None:
+        notes = f"{notes}; bei=experimental_proxy"
+
+    row = {
+        "run_id": args.run_id,
+        "date": args.date or date.today().isoformat(),
+        "task_pair": args.task_pair,
+        "mode": mode,
+        "task_type": args.task_type,
+        "risk": args.risk,
+        "input_tokens": metrics.input_tokens,
+        "output_tokens": metrics.output_tokens,
+        "cache_read_tokens": metrics.cache_read_tokens,
+        "estimated_cache_write_tokens": estimated_write,
+        "legacy_cache_hit_rate": fmt_float(
+            safe_div(metrics.cache_read_tokens, metrics.cache_read_tokens + metrics.input_tokens)
+        ),
+        "estimated_raw_cache_hit_rate": fmt_float(
+            safe_div(metrics.cache_read_tokens, metrics.cache_read_tokens + estimated_write)
+        ),
+        "token_leverage_ratio": fmt_float(
+            safe_div(metrics.output_tokens, metrics.input_tokens)
+        ),
+        "estimated_cold_load_overhead_ratio": fmt_float(
+            safe_div(CACHEABLE_PREFIX_ESTIMATE, metrics.input_tokens)
+        ),
+        "bei_composite": fmt_float(bei),
+        "audit_score_0_5": fmt_float(args.audit_score),
+        "validation_passed": "true" if validation_passed else "false",
+        "rework_turns": args.rework_turns,
+        "defect_or_reopen_count": args.defect_or_reopen_count,
+        "skills_invoked": args.skills_invoked,
+        "files_touched": args.files_touched,
+        "notes": notes,
+    }
+    append_csv(args.runs, row)
+    write_payload(
+        {
+            "recorded": row,
+            "source": {
+                "jsonl": str(args.jsonl),
+                "session_id": metrics.session_id,
+                "started_at": metrics.started_at,
+                "ended_at": metrics.ended_at,
+                "project_name": metrics.project_name,
+                "model_id": metrics.model_id,
+            },
+        },
+        args.format,
+    )
+    return 0
+
+
 def summarize(args: argparse.Namespace) -> int:
     rows = read_run_rows(args.runs)
     pairs = summarize_pairs(rows)
     aggregate = summarize_aggregate(pairs)
+    complete_pairs_count = sum(1 for pair in pairs if pair.get("status") == "complete")
     payload = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "runs_file": str(args.runs),
         "runs_count": len(rows),
-        "complete_pairs_count": len(pairs),
+        "complete_pairs_count": complete_pairs_count,
         "pairs": pairs,
         "aggregate": aggregate,
     }
@@ -581,6 +778,28 @@ def build_parser() -> argparse.ArgumentParser:
     record_cmd.add_argument("--notes", default="")
     record_cmd.add_argument("--format", choices=["text", "json"], default="text")
     record_cmd.set_defaults(func=record_run)
+
+    record_jsonl_cmd = sub.add_parser(
+        "record-jsonl", help="Append one run row from Codex Desktop JSONL telemetry"
+    )
+    record_jsonl_cmd.add_argument("--runs", type=Path, default=DEFAULT_RUNS)
+    record_jsonl_cmd.add_argument("--jsonl", type=Path, required=True)
+    record_jsonl_cmd.add_argument("--run-id", required=True)
+    record_jsonl_cmd.add_argument("--task-pair", required=True)
+    record_jsonl_cmd.add_argument("--mode", required=True)
+    record_jsonl_cmd.add_argument("--date")
+    record_jsonl_cmd.add_argument("--task-type", required=True)
+    record_jsonl_cmd.add_argument("--risk", default="low")
+    record_jsonl_cmd.add_argument("--audit-score", type=float, required=True)
+    record_jsonl_cmd.add_argument("--validation-passed", required=True)
+    record_jsonl_cmd.add_argument("--rework-turns", type=int, default=0)
+    record_jsonl_cmd.add_argument("--defect-or-reopen-count", type=int, default=0)
+    record_jsonl_cmd.add_argument("--skills-invoked", default="")
+    record_jsonl_cmd.add_argument("--files-touched", type=int, default=0)
+    record_jsonl_cmd.add_argument("--bei-composite", type=float)
+    record_jsonl_cmd.add_argument("--notes", default="")
+    record_jsonl_cmd.add_argument("--format", choices=["text", "json"], default="text")
+    record_jsonl_cmd.set_defaults(func=record_jsonl_run)
 
     summary_cmd = sub.add_parser("summarize", help="Summarize experiment runs")
     summary_cmd.add_argument("--runs", type=Path, default=DEFAULT_RUNS)
