@@ -142,6 +142,9 @@ Non-trivial changes require a task card. See
 
 All contributors must follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
+Recognized contributors are listed in [`CONTRIBUTORS.md`](CONTRIBUTORS.md).
+GitHub also tracks merged-PR contributors automatically.
+
 ## License
 
 GCS is licensed under the Apache License 2.0. See [`LICENSE`](LICENSE) for
