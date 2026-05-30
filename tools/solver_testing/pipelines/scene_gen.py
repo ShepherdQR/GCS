@@ -118,6 +118,9 @@ class SceneGenReport:
     def all_gaps_satisfied(self) -> bool:
         return all(g.missing <= 0 for g in self.gaps)
 
+    def summary(self) -> str:
+        return self.gap_summary()
+
     def gap_summary(self) -> str:
         lines = ["COVERAGE GAPS"]
         if not self.gaps:

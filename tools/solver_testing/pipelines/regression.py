@@ -167,6 +167,8 @@ class RegressionPipeline:
             if not os.path.isfile(full):
                 continue
             if entry.endswith((".txt", ".json")):
+                if entry == "baseline.json":
+                    continue
                 scene_id = os.path.splitext(entry)[0]
                 scenes.append((full, scene_id))
         return scenes

@@ -158,3 +158,28 @@ No code changes made during this experiment. Findings N1–N4 are documented
 for future work. The 4 remaining issues from R1 (residual issues 3–6) are
 partially addressed: performance-benchmark now runs, contract-compliance
 improved further.
+
+## Post-Experiment Fixes (applied after analysis)
+
+### Fix N1 — baseline.json pollution
+
+**Files**: `regression.py`, `benchmark.py`
+
+Added a `baseline.json` exclusion in both pipeline corpus scanners:
+
+- `regression.py:load_fixture_corpus` — skips `baseline.json` in `os.listdir()` scan
+- `benchmark.py:benchmark_corpus` — skips `baseline.json` in `glob.glob()` scan
+
+**Verification**: regression now finds 2 scenes (was 3), 0 regressions (was 1);
+benchmark now finds 2 scenes (was 3), no false failure from baseline.json.
+
+### Fix N2 — Add summary() to StabilityResult and SceneGenReport
+
+**Files**: `stability.py`, `scene_gen.py`
+
+- `StabilityResult.summary()` — prints scene path, constraint info, points tested,
+  failures, condition trend, failure boundary, duration.
+- `SceneGenReport.summary()` — delegates to existing `gap_summary()`.
+
+**Verification**: numeric-stability now prints 5-line stability report;
+scene-generation prints coverage gap summary.

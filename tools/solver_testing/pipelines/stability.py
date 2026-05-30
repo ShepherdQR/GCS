@@ -93,6 +93,25 @@ class StabilityResult:
     solver_command: List[str]
     duration_ms: int = 0
 
+    def summary(self) -> str:
+        lines = []
+        lines.append("=" * 60)
+        lines.append("NUMERIC STABILITY REPORT")
+        lines.append("=" * 60)
+        lines.append(f"  scene:           {self.scene_path}")
+        lines.append(f"  constraint:      index={self.constraint_index}, type={self.constraint_type}")
+        lines.append(f"  points tested:   {len(self.points)}")
+        lines.append(f"  failures:        {self.analysis.failure_count}/{self.analysis.points_count}")
+        lines.append(f"  condition trend: {self.analysis.condition_trend}")
+        if self.analysis.failure_boundary_value is not None:
+            lines.append(f"  failure boundary: value={self.analysis.failure_boundary_value}")
+        if self.analysis.min_condition is not None:
+            lines.append(f"  condition range: [{self.analysis.min_condition}, {self.analysis.max_condition}]")
+        if self.analysis.rank_drops:
+            lines.append(f"  rank drops at:   {self.analysis.rank_drops}")
+        lines.append(f"  duration:        {self.duration_ms}ms")
+        return "\n".join(lines)
+
 
 # ---------------------------------------------------------------------------
 # Value sweep generation

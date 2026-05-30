@@ -396,6 +396,8 @@ class BenchmarkPipeline:
         scene_files: set[str] = set()
         for pat in patterns:
             for path in glob.glob(pat, recursive=True):
+                if os.path.basename(path) == "baseline.json":
+                    continue
                 scene_files.add(os.path.abspath(path))
 
         if not scene_files:
