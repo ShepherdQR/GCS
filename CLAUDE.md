@@ -106,4 +106,24 @@ Claude Code auto-invokes skills based on description matching. Key skills:
 - Archive completed work at `docs/completed-tasks/<date-slug>/`
 - Stage only scoped files; commit with concise messages
 - Preserve unrelated dirty worktree changes
-- Do not archive raw chat logs; archive refined decisions and evidence
+## Autonomous Operation Rules
+
+When this session starts, check these conditions in order:
+
+1. **Resume check**: If `.claude/current-task` exists and points to a task card with
+   `status: in_progress` and `.checkpoint.workers_pending` is non-empty:
+   → Invoke `Skill({skill: "orchestrator", args: "resume task <task-id> from checkpoint"})`
+
+2. **New task detection**: If the user describes non-trivial work (more than a typo/status check):
+   → Invoke `Skill({skill: "task-intake", args: "<user's request>"})`
+
+3. **Closeout check**: If the user says "close session", "wrap up", "finish up", "总结",
+   "关闭", "归档", or "push":
+   → Invoke `Skill({skill: "session-close-orchestrator", args: "close current session"})`
+
+4. **Night-watch patrol**: If 3 or more sessions have elapsed since the last night-watch
+   patrol (check `docs/reports/night-watch/` for latest report date):
+   → Invoke `Agent({subagent_type: "night-watch", ...})`
+
+These rules run at session start. They do NOT block the user — if the user has an
+explicit request, that takes precedence over auto-invocation.

@@ -39,4 +39,4 @@ It also could not read the governing docs during the run, so any finding taxonom
 - `tests.tools.test_scene_generation_explorer`: not executed
 - `run-quality-gates --skip-build --skip-ctest --skip-cli --continue-on-failure`: not executed
 
-See [commands.md](/C:/Users/QR/.codex/worktrees/216a/GCS/docs/agentic/nightly-runs/2026-05-27/commands.md) for the attempted commands and exact evidence, [findings.json](/C:/Users/QR/.codex/worktrees/216a/GCS/docs/agentic/nightly-runs/2026-05-27/findings.json) for the structured finding, and [repair-plan.md](/C:/Users/QR/.codex/worktrees/216a/GCS/docs/agentic/nightly-runs/2026-05-27/repair-plan.md) for the minimal rerun plan.
+See [commands.md](commands.md) for the attempted commands and exact evidence, [findings.json](findings.json) for the structured finding, and [repair-plan.md](repair-plan.md) for the minimal rerun plan.

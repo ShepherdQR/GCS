@@ -47,51 +47,51 @@ reached Seed. No agent has reached Institutional.
 
 | Skill | Domain | `.codex` counterpart |
 | --- | --- | :---: |
-| [gcs-architecture-steward](.claude/skills/gcs-architecture-steward/SKILL.md) | Cross-module architecture, dependency direction, vocabulary | yes |
-| [gcs-kernel-contract-steward](.claude/skills/gcs-kernel-contract-steward/SKILL.md) | Stable IDs, ModelSnapshot, StateDelta, report codes | yes |
-| [gcs-constraint-semantics-steward](.claude/skills/gcs-constraint-semantics-steward/SKILL.md) | Constraint definitions, evaluators, Jacobians, degeneracy | yes |
-| [gcs-incidence-structure-steward](.claude/skills/gcs-incidence-structure-steward/SKILL.md) | Hypergraphs, connectivity, articulation, structural projections | yes |
-| [gcs-decomposition-planning-steward](.claude/skills/gcs-decomposition-planning-steward/SKILL.md) | Cover plans, boundary projections, solve DAGs | yes |
-| [gcs-numeric-engine-steward](.claude/skills/gcs-numeric-engine-steward/SKILL.md) | Local solves, residuals, Jacobians, numeric traces | yes |
-| [gcs-diagnostics-certification-steward](.claude/skills/gcs-diagnostics-certification-steward/SKILL.md) | DOF, rank, residual, gluing, obstruction evidence | yes |
-| [gcs-session-runtime-steward](.claude/skills/gcs-session-runtime-steward/SKILL.md) | Commands, transactions, history, undo/redo | yes |
+| [gcs-architecture-steward](../../.claude/skills/gcs-architecture-steward/SKILL.md) | Cross-module architecture, dependency direction, vocabulary | yes |
+| [gcs-kernel-contract-steward](../../.claude/skills/gcs-kernel-contract-steward/SKILL.md) | Stable IDs, ModelSnapshot, StateDelta, report codes | yes |
+| [gcs-constraint-semantics-steward](../../.claude/skills/gcs-constraint-semantics-steward/SKILL.md) | Constraint definitions, evaluators, Jacobians, degeneracy | yes |
+| [gcs-incidence-structure-steward](../../.claude/skills/gcs-incidence-structure-steward/SKILL.md) | Hypergraphs, connectivity, articulation, structural projections | yes |
+| [gcs-decomposition-planning-steward](../../.claude/skills/gcs-decomposition-planning-steward/SKILL.md) | Cover plans, boundary projections, solve DAGs | yes |
+| [gcs-numeric-engine-steward](../../.claude/skills/gcs-numeric-engine-steward/SKILL.md) | Local solves, residuals, Jacobians, numeric traces | yes |
+| [gcs-diagnostics-certification-steward](../../.claude/skills/gcs-diagnostics-certification-steward/SKILL.md) | DOF, rank, residual, gluing, obstruction evidence | yes |
+| [gcs-session-runtime-steward](../../.claude/skills/gcs-session-runtime-steward/SKILL.md) | Commands, transactions, history, undo/redo | yes |
 
 #### Boundary and Integration (6)
 
 | Skill | Domain | `.codex` counterpart |
 | --- | --- | :---: |
-| [gcs-io-adapter-steward](.claude/skills/gcs-io-adapter-steward/SKILL.md) | Scene schemas, serialization, migrations, round-trips | yes |
-| [gcs-viewer-bridge-steward](.claude/skills/gcs-viewer-bridge-steward/SKILL.md) | Scene projection, diagnostic overlays, interaction commands | yes |
-| [gcs-scene-behavior-steward](.claude/skills/gcs-scene-behavior-steward/SKILL.md) | Scene formats, JSON, history replay, IO compatibility | yes |
-| [gcs-cpp-solver-maintainer](.claude/skills/gcs-cpp-solver-maintainer/SKILL.md) | src/gcs, CMake, CLI, C++23 module boundaries | yes |
-| [gcs-python-gui-builder](.claude/skills/gcs-python-gui-builder/SKILL.md) | tkinter, matplotlib, viewer bridge, GUI behavior | yes |
-| [gcs-scene-generation-engineer](.claude/skills/gcs-scene-generation-engineer/SKILL.md) | Synthetic graphs, validation, repair, fixture promotion | yes |
+| [gcs-io-adapter-steward](../../.claude/skills/gcs-io-adapter-steward/SKILL.md) | Scene schemas, serialization, migrations, round-trips | yes |
+| [gcs-viewer-bridge-steward](../../.claude/skills/gcs-viewer-bridge-steward/SKILL.md) | Scene projection, diagnostic overlays, interaction commands | yes |
+| [gcs-scene-behavior-steward](../../.claude/skills/gcs-scene-behavior-steward/SKILL.md) | Scene formats, JSON, history replay, IO compatibility | yes |
+| [gcs-cpp-solver-maintainer](../../.claude/skills/gcs-cpp-solver-maintainer/SKILL.md) | src/gcs, CMake, CLI, C++23 module boundaries | yes |
+| [gcs-python-gui-builder](../../.claude/skills/gcs-python-gui-builder/SKILL.md) | tkinter, matplotlib, viewer bridge, GUI behavior | yes |
+| [gcs-scene-generation-engineer](../../.claude/skills/gcs-scene-generation-engineer/SKILL.md) | Synthetic graphs, validation, repair, fixture promotion | yes |
 
 #### Quality and Governance (6)
 
 | Skill | Domain | `.codex` counterpart |
 | --- | --- | :---: |
-| [gcs-quality-steward](.claude/skills/gcs-quality-steward/SKILL.md) | Contract tests, CTest, negative fixtures, CI matrix | yes |
-| [gcs-contract-tools-steward](.claude/skills/gcs-contract-tools-steward/SKILL.md) | Fixture builders, invariant checkers, golden reports | yes |
-| [gcs-third-party-governance-steward](.claude/skills/gcs-third-party-governance-steward/SKILL.md) | Dependencies, licensing, CMake adapters, SBOM | yes |
-| [gcs-ui-design-steward](.claude/skills/gcs-ui-design-steward/SKILL.md) | Visual tokens, design-system conventions, visual QA | yes |
-| [gcs-ui-qa-steward](.claude/skills/gcs-ui-qa-steward/SKILL.md) | Theme tokens, contrast ratios, GUI static analysis, headless render | **no** — Claude-only |
-| [gcs-scientific-figure-producer](.claude/skills/gcs-scientific-figure-producer/SKILL.md) | Figure specs, semantic composition, visual QA | yes |
+| [gcs-quality-steward](../../.claude/skills/gcs-quality-steward/SKILL.md) | Contract tests, CTest, negative fixtures, CI matrix | yes |
+| [gcs-contract-tools-steward](../../.claude/skills/gcs-contract-tools-steward/SKILL.md) | Fixture builders, invariant checkers, golden reports | yes |
+| [gcs-third-party-governance-steward](../../.claude/skills/gcs-third-party-governance-steward/SKILL.md) | Dependencies, licensing, CMake adapters, SBOM | yes |
+| [gcs-ui-design-steward](../../.claude/skills/gcs-ui-design-steward/SKILL.md) | Visual tokens, design-system conventions, visual QA | yes |
+| [gcs-ui-qa-steward](../../.claude/skills/gcs-ui-qa-steward/SKILL.md) | Theme tokens, contrast ratios, GUI static analysis, headless render | **no** — Claude-only |
+| [gcs-scientific-figure-producer](../../.claude/skills/gcs-scientific-figure-producer/SKILL.md) | Figure specs, semantic composition, visual QA | yes |
 
 #### Audit and Demo (3)
 
 | Skill | Domain | `.codex` counterpart |
 | --- | --- | :---: |
-| [gcs-repository-audit-steward](.claude/skills/gcs-repository-audit-steward/SKILL.md) | File classification, snapshots, diffs, trend reports | **no** — Claude-only |
-| [gcs-token-audit-steward](.claude/skills/gcs-token-audit-steward/SKILL.md) | Session token/cost tracking, BEI scoring, trend reports | **no** — Claude-only |
-| [gcs-product-demo-steward](.claude/skills/gcs-product-demo-steward/SKILL.md) | Smoke tests, diagnostic classification, replay evidence | **no** — Claude-only |
+| [gcs-repository-audit-steward](../../.claude/skills/gcs-repository-audit-steward/SKILL.md) | File classification, snapshots, diffs, trend reports | **no** — Claude-only |
+| [gcs-token-audit-steward](../../.claude/skills/gcs-token-audit-steward/SKILL.md) | Session token/cost tracking, BEI scoring, trend reports | **no** — Claude-only |
+| [gcs-product-demo-steward](../../.claude/skills/gcs-product-demo-steward/SKILL.md) | Smoke tests, diagnostic classification, replay evidence | **no** — Claude-only |
 
 #### Process (2)
 
 | Skill | Domain | `.codex` counterpart |
 | --- | --- | :---: |
-| [session-close-orchestrator](.claude/skills/session-close-orchestrator/SKILL.md) | Unified session close pipeline — sequences all close steps | **no** — Claude-only |
-| [task-scoped-session-closer](.claude/skills/task-scoped-session-closer/SKILL.md) | Task archives, evidence bundles, commit/push handoff | yes |
+| [session-close-orchestrator](../../.claude/skills/session-close-orchestrator/SKILL.md) | Unified session close pipeline — sequences all close steps | **no** — Claude-only |
+| [task-scoped-session-closer](../../.claude/skills/task-scoped-session-closer/SKILL.md) | Task archives, evidence bundles, commit/push handoff | yes |
 
 ---
 

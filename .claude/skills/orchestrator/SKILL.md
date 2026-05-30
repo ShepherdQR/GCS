@@ -80,6 +80,23 @@ than the cost of analysis (a few hundred tokens to think about task structure).
 
 **Session start resume**: At session start, if `.claude/current-task` points to a task card with `status: in_progress` and a `.checkpoint` field containing `workers_pending`, read the checkpoint and resume from the last completed phase. This enables cross-session continuity (Phase 7.2).
 
+### Headless Mode
+
+The orchestrator can run without human intervention when ALL of:
+- Task risk is `low` or `medium` (not `high`)
+- `human_gate_required: false` in task card
+- Acceptance Officer verification is available (Practiced maturity or higher)
+
+When headless:
+- Skip confirmation prompts ("Proceed?" → auto-yes for low/medium risk)
+- Auto-commit on successful synthesis (Step 5.2)
+- Auto-invoke closeout on completion (Step 5.4, condition 1)
+
+When NOT headless (high-risk or human_gate_required: true):
+- Stop before Phase 2 (Architecture Execution) and present the plan
+- Require explicit human approval before dispatching workers
+- Stop before Step 5.2 (Commit) and present the diff
+
 ---
 
 ## Phase 1: Task Structure Analysis

@@ -422,6 +422,8 @@ risk: <low|medium|high>
 owning_agent: <best-fit steward skill>
 specialist_agents:
   - none
+narrative_lines:
+  - "00:primary"
 affected_contracts:
   - none
 affected_paths:

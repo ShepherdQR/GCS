@@ -1,6 +1,7 @@
 ---
 name: gcs-cpp-solver-maintainer
 description: C++ solver module maintenance for GCS. Invoke when editing src/gcs, apps/gcs_cli, CMakeLists.txt, CMakePresets.json, scripts/build_clang_ninja.cmd, C++23 module boundaries, numeric/diagnostic behavior, solver fixtures, or GCS.exe execution behavior.
+model: sonnet
 priority: 70
 exclusive: false
 ---

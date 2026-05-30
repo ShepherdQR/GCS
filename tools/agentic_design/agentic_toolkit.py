@@ -819,6 +819,10 @@ def task_card_template(args: argparse.Namespace) -> str:
         specialist_lines = "  - none"
     narrative_lines = getattr(args, "narrative_line", None) or ["00:primary"]
     narrative_lines_entries = "\n".join(f'  - "{entry}"' for entry in narrative_lines)
+    token_budget_max = str(getattr(args, "token_budget", "") or "")
+    if not token_budget_max:
+        risk_budgets = {"low": "200000", "medium": "500000", "high": "1000000"}
+        token_budget_max = risk_budgets.get(args.risk, "500000")
 
     return f"""---
 task_id: {task_id}
@@ -831,6 +835,9 @@ specialist_agents:
 {specialist_lines}
 narrative_lines:
 {narrative_lines_entries}
+token_budget:
+  max_total: {token_budget_max}
+  budget_consumed: 0
 affected_contracts:
   - none
 affected_paths:
@@ -945,6 +952,10 @@ def worktree_task_card_template(args: argparse.Namespace, values: dict[str, Any]
     worktree_arg = quote_for_powershell(values["worktree_path"])
     narrative_lines = getattr(args, "narrative_line", None) or ["00:primary"]
     narrative_lines_entries = "\n".join(f'  - "{entry}"' for entry in narrative_lines)
+    token_budget_max = str(getattr(args, "token_budget", "") or "")
+    if not token_budget_max:
+        risk_budgets = {"low": "200000", "medium": "500000", "high": "1000000"}
+        token_budget_max = risk_budgets.get(args.risk, "500000")
 
     return f"""---
 task_id: {values["task_id"]}
@@ -957,6 +968,9 @@ specialist_agents:
 {yaml_lines(specialists)}
 narrative_lines:
 {narrative_lines_entries}
+token_budget:
+  max_total: {token_budget_max}
+  budget_consumed: 0
 affected_contracts:
   - none
 affected_paths:
@@ -2786,6 +2800,7 @@ def build_parser() -> argparse.ArgumentParser:
     new_task.add_argument("--specialist", action="append", default=[])
     new_task.add_argument("--evidence", action="append", default=[])
     new_task.add_argument("--narrative-line", dest="narrative_line", action="append", default=[])
+    new_task.add_argument("--token-budget", dest="token_budget", default="")
     new_task.add_argument("--human-gate", action="store_true")
     new_task.add_argument("--human-gate-reason", default="")
     new_task.add_argument("--date", default="")
@@ -2806,6 +2821,7 @@ def build_parser() -> argparse.ArgumentParser:
     new_worktree.add_argument("--affected-path", action="append", default=[])
     new_worktree.add_argument("--evidence", action="append", default=[])
     new_worktree.add_argument("--narrative-line", dest="narrative_line", action="append", default=[])
+    new_worktree.add_argument("--token-budget", dest="token_budget", default="")
     new_worktree.add_argument("--human-gate", action="store_true")
     new_worktree.add_argument("--human-gate-reason", default="")
     new_worktree.add_argument("--date", default="")

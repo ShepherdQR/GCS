@@ -69,7 +69,12 @@ docs/agentic/nightly-runs/YYYY-MM-DD/
 ## Guardrails
 
 - Run in worktree mode only.
-- Do not commit or push unless a human explicitly asks.
+- Commit policy (Phase 6 autonomy):
+  - If patrol is CLEAN (no issues found): auto-commit health report, auto-push
+  - If patrol finds issues: create task cards for each issue, auto-commit report,
+    do NOT push (escalate to human for review)
+  - If patrol finds CRITICAL issues (build broken, tests failing, security vulnerability):
+    create task cards, commit report, do NOT push, flag for immediate human attention
 - Do not merge, approve, force-push, delete branches, or promote fixtures.
 - Classify before repairing.
 - Stop on high-risk findings and create a task-card candidate.
@@ -95,6 +100,7 @@ When invoked:
 - Use `Write` to create the dated run directory and all output artifacts.
 - Use `Edit` to update the nightly runs index.
 - Use `Bash` with `git status` and `git log` for workspace snapshot.
-- Never commit, push, merge, or approve — this agent is observation-only
+- Never merge, approve, force-push, delete branches, or promote fixtures.
+- Follow the commit policy in Guardrails above for commit and push decisions.
   unless explicitly authorized for specific low-risk repairs.
 - When findings accumulate across 3+ runs, recommend a formal task card.

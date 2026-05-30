@@ -140,6 +140,10 @@ python -m tools.token_audit db import --project GCS-A --force
 
 # Generate benefit report with baseline comparison (default: on)
 python -m tools.token_audit report --format markdown
+
+# Update narrative line coverage matrix
+python tools/agentic_design/agentic_toolkit.py validate-narrative-coverage \
+  --output docs/reports/narrative-coverage-<date>.md
 ```
 
 **The report automatically includes**:
@@ -486,9 +490,11 @@ At close, the following must exist on disk and be pushed:
    token benefit summary (Step 2, dispatched to task-scoped-session-closer)
 5. `docs/reports/token-audit/session-<date>.md` — full token benefit report
    (Step 1)
-6. If experience extracted: `docs/agentic/experience/<slug>/README.md` (Step 3,
+6. `docs/reports/narrative-coverage-<date>.md` — narrative line task coverage
+   matrix (Step 1)
+7. If experience extracted: `docs/agentic/experience/<slug>/README.md` (Step 3,
    dispatched to bladesmith-quench-forge)
-7. Commit on `master` containing all of the above (Step 5, with git-session-branch-steward pre-check)
+8. Commit on `master` containing all of the above (Step 5, with git-session-branch-steward pre-check)
 
 ## Guardrails
 

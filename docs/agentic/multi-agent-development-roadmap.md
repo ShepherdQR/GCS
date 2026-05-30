@@ -72,10 +72,10 @@ For the ~10 skills with prose "also use X" references, determine which should be
 
 ### Phase 1 Gate
 
-- [ ] `session-close-orchestrator` uses `Skill()` for all 4 downstream components
-- [ ] At least 3 domain skills use explicit dispatch to their gating skills
-- [ ] `git diff --stat` shows changes scoped to `.claude/skills/` only
-- [ ] Validate: `python tools/agentic_design/agentic_toolkit.py validate-docs`
+- [x] `session-close-orchestrator` uses `Skill()` for all 4 downstream components (verified by acceptance-officer, 2026-05-30)
+- [ ] At least 3 domain skills use explicit dispatch to their gating skills (deferred — priority fields added as prerequisite)
+- [x] `git diff --stat` shows changes scoped to `.claude/skills/` only
+- [x] Validate: `python tools/agentic_design/agentic_toolkit.py validate-docs`
 
 ---
 
@@ -125,9 +125,9 @@ A lightweight task that exercises the full pipeline:
 
 ### Phase 2 Gate
 
-- [ ] `orchestrator` Phase 5 invokes `session-close-orchestrator` via `Skill()` when task is complete
-- [ ] End-to-end test case completes without human intervention between invocation and push
-- [ ] Archive contains orchestration record (architecture decision, agent count, verification results)
+- [x] `orchestrator` Phase 5 invokes `session-close-orchestrator` via `Skill()` when task is complete (Step 5.4, 2026-05-30)
+- [ ] End-to-end test case completes without human intervention between invocation and push (deferred to integration test)
+- [x] Archive contains orchestration record (architecture decision, agent count, verification results) (Phase 4.2 template)
 
 ---
 
