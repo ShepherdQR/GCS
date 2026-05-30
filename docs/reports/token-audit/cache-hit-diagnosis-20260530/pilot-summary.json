@@ -1,9 +1,50 @@
 {
-  "generated_at_utc": "2026-05-30T17:15:16.283585+00:00",
+  "generated_at_utc": "2026-05-30T17:22:33.865662+00:00",
   "runs_file": "docs\\research\\20260530\\cache-hit-diagnosis-experiment\\experiment-runs.csv",
-  "runs_count": 6,
-  "complete_pairs_count": 3,
+  "runs_count": 10,
+  "complete_pairs_count": 5,
   "pairs": [
+    {
+      "task_pair": "completed-archive-audit-1",
+      "status": "complete",
+      "full_runs": 1,
+      "lite_runs": 1,
+      "full": {
+        "input_tokens": 694192.0,
+        "output_tokens": 5667.0,
+        "token_leverage_ratio": 0.008163,
+        "legacy_cache_hit_rate": 0.475261,
+        "estimated_raw_cache_hit_rate": 0.941594,
+        "estimated_cold_load_overhead_ratio": 0.05618,
+        "bei_composite": 0.718853,
+        "audit_score_0_5": 4.5,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "lite": {
+        "input_tokens": 200038.0,
+        "output_tokens": 2234.0,
+        "token_leverage_ratio": 0.011168,
+        "legacy_cache_hit_rate": 0.448125,
+        "estimated_raw_cache_hit_rate": 0.806386,
+        "estimated_cold_load_overhead_ratio": 0.194963,
+        "bei_composite": 0.677148,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "delta": {
+        "lite_input_savings_pct": 0.7118405282688363,
+        "lite_audit_delta_pct": -0.1111111111111111,
+        "lite_bei_delta_pct": -0.058016033876188866,
+        "lite_rework_delta": 0.0,
+        "lite_defect_delta": 0.0,
+        "lite_validation_delta": 0.0
+      },
+      "classification": "mixed-or-inconclusive"
+    },
     {
       "task_pair": "docs-index-1",
       "status": "complete",
@@ -87,6 +128,47 @@
       "classification": "mixed-or-inconclusive"
     },
     {
+      "task_pair": "task-card-audit-1",
+      "status": "complete",
+      "full_runs": 1,
+      "lite_runs": 1,
+      "full": {
+        "input_tokens": 361359.0,
+        "output_tokens": 3314.0,
+        "token_leverage_ratio": 0.009171,
+        "legacy_cache_hit_rate": 0.468451,
+        "estimated_raw_cache_hit_rate": 0.890898,
+        "estimated_cold_load_overhead_ratio": 0.107926,
+        "bei_composite": 0.675187,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "lite": {
+        "input_tokens": 184398.0,
+        "output_tokens": 2195.0,
+        "token_leverage_ratio": 0.011904,
+        "legacy_cache_hit_rate": 0.466956,
+        "estimated_raw_cache_hit_rate": 0.805521,
+        "estimated_cold_load_overhead_ratio": 0.211499,
+        "bei_composite": 0.680503,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "delta": {
+        "lite_input_savings_pct": 0.4897096792939985,
+        "lite_audit_delta_pct": 0.0,
+        "lite_bei_delta_pct": 0.007873374339257106,
+        "lite_rework_delta": 0.0,
+        "lite_defect_delta": 0.0,
+        "lite_validation_delta": 0.0
+      },
+      "classification": "redundant-overhead"
+    },
+    {
       "task_pair": "token-diagnostic-1",
       "status": "complete",
       "full_runs": 1,
@@ -130,12 +212,12 @@
   ],
   "aggregate": {
     "classification_counts": {
-      "redundant-overhead": 0,
+      "redundant-overhead": 1,
       "healthy-institutionalization": 0,
-      "mixed-or-inconclusive": 3,
+      "mixed-or-inconclusive": 4,
       "needs paired data": 0
     },
-    "overall_classification": "mixed-or-inconclusive",
+    "overall_classification": "redundant-overhead",
     "recommendation": "Do not promote policy until 6 to 8 paired runs are complete."
   }
 }
