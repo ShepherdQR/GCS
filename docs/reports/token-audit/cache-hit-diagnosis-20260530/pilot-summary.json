@@ -1,8 +1,8 @@
 {
-  "generated_at_utc": "2026-05-30T16:31:37.840012+00:00",
+  "generated_at_utc": "2026-05-30T17:15:16.283585+00:00",
   "runs_file": "docs\\research\\20260530\\cache-hit-diagnosis-experiment\\experiment-runs.csv",
-  "runs_count": 2,
-  "complete_pairs_count": 1,
+  "runs_count": 6,
+  "complete_pairs_count": 3,
   "pairs": [
     {
       "task_pair": "docs-index-1",
@@ -44,13 +44,95 @@
         "lite_validation_delta": 0.0
       },
       "classification": "mixed-or-inconclusive"
+    },
+    {
+      "task_pair": "repo-audit-1",
+      "status": "complete",
+      "full_runs": 1,
+      "lite_runs": 1,
+      "full": {
+        "input_tokens": 510029.0,
+        "output_tokens": 4852.0,
+        "token_leverage_ratio": 0.009513,
+        "legacy_cache_hit_rate": 0.476647,
+        "estimated_raw_cache_hit_rate": 0.922544,
+        "estimated_cold_load_overhead_ratio": 0.076466,
+        "bei_composite": 0.721691,
+        "audit_score_0_5": 4.5,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "lite": {
+        "input_tokens": 167292.0,
+        "output_tokens": 2251.0,
+        "token_leverage_ratio": 0.013456,
+        "legacy_cache_hit_rate": 0.468056,
+        "estimated_raw_cache_hit_rate": 0.790548,
+        "estimated_cold_load_overhead_ratio": 0.233125,
+        "bei_composite": 0.683717,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "delta": {
+        "lite_input_savings_pct": 0.6719951218460127,
+        "lite_audit_delta_pct": -0.1111111111111111,
+        "lite_bei_delta_pct": -0.05261808724232387,
+        "lite_rework_delta": 0.0,
+        "lite_defect_delta": 0.0,
+        "lite_validation_delta": 0.0
+      },
+      "classification": "mixed-or-inconclusive"
+    },
+    {
+      "task_pair": "token-diagnostic-1",
+      "status": "complete",
+      "full_runs": 1,
+      "lite_runs": 1,
+      "full": {
+        "input_tokens": 564735.0,
+        "output_tokens": 6260.0,
+        "token_leverage_ratio": 0.011085,
+        "legacy_cache_hit_rate": 0.474074,
+        "estimated_raw_cache_hit_rate": 0.928839,
+        "estimated_cold_load_overhead_ratio": 0.069059,
+        "bei_composite": 0.679577,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "lite": {
+        "input_tokens": 532061.0,
+        "output_tokens": 4612.0,
+        "token_leverage_ratio": 0.008668,
+        "legacy_cache_hit_rate": 0.482655,
+        "estimated_raw_cache_hit_rate": 0.927155,
+        "estimated_cold_load_overhead_ratio": 0.0733,
+        "bei_composite": 0.675602,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "delta": {
+        "lite_input_savings_pct": 0.057857225070165656,
+        "lite_audit_delta_pct": 0.0,
+        "lite_bei_delta_pct": -0.005849226798434836,
+        "lite_rework_delta": 0.0,
+        "lite_defect_delta": 0.0,
+        "lite_validation_delta": 0.0
+      },
+      "classification": "mixed-or-inconclusive"
     }
   ],
   "aggregate": {
     "classification_counts": {
       "redundant-overhead": 0,
       "healthy-institutionalization": 0,
-      "mixed-or-inconclusive": 1,
+      "mixed-or-inconclusive": 3,
       "needs paired data": 0
     },
     "overall_classification": "mixed-or-inconclusive",
