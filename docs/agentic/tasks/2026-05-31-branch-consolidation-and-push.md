@@ -1,6 +1,6 @@
 ---
 task_id: 2026-05-31-branch-consolidation-and-push
-status: draft
+status: complete
 request: "Commit all local files, merge child branches into the main branch, and push."
 scope: maintenance
 risk: medium
@@ -67,10 +67,31 @@ python tools\agentic_design\agentic_toolkit.py check-dependencies
 
 ## Evidence Bundle
 
-- Pending.
+- Created/committed local root artifacts on
+  `codex-cache-hit-pilot-eight-pairs-20260531`:
+  - `7cd9f39 chore: stage local consolidation artifacts`
+- Protected detached worktree commits with named branches:
+  - `codex/lite-docs-index-artifact-20260531` at `2e1a41c`
+  - `codex/full-docs-index-artifact-20260531` at `083308c`
+- Merged local child branches into `master`:
+  - `971542b merge: consolidate cache-hit pilot branch`
+  - `c747bf5 merge: consolidate lite docs index artifact`
+  - `59eb5d9 merge: consolidate full docs index artifact`
+  - `ef13734 merge: consolidate cache-hit diagnosis run2`
+- Resolved run2 conflicts in:
+  - `docs/completed-tasks/README.md`
+  - `docs/research/20260530/cache-hit-diagnosis-experiment/README.md`
+  - `docs/research/20260530/cache-hit-diagnosis-experiment/experiment-runs.csv`
+- `python tools\agentic_design\agentic_toolkit.py validate-task-card docs\agentic\tasks\2026-05-31-branch-consolidation-and-push.md` - passed.
+- `python tools\agentic_design\agentic_toolkit.py validate-docs` - passed.
+- `python tools\agentic_design\agentic_toolkit.py validate-inventory` - passed.
+- `python tools\agentic_design\agentic_toolkit.py check-dependencies` - passed.
+- `git branch --no-merged master` - no unmerged local branches reported.
 
 ## Residual Risks
 
 - Merge conflicts may require manual resolution if child branches changed the
   same files differently.
 - Local worktrees are not deleted as part of this task.
+- `.fuse_hidden*` runtime scratch files were intentionally ignored rather than
+  committed to public history.
