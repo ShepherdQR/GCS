@@ -369,6 +369,68 @@ Update this inventory when:
 
 ---
 
+## 8. Agent Trigger Registry and Exercise Log
+
+Purpose: Track when each agent was last exercised, what condition triggers its
+invocation, and how many times the trigger fired without the agent being
+invoked. This closes the loop between agent definitions and operating behavior.
+
+### 8.1 Registry
+
+| Agent ID | Agent Name | Current Maturity | Last Exercised | Next Expected Trigger | Missed Invocations |
+|----------|------------|-----------------|----------------|-----------------------|-------------------:|
+| I001 | bladesmith-quench-forge | Promoted | 2026-05-30 (active) | Post-session or post-task closure | 0 |
+| I002 | tailor-stitch-timeline | Practiced | 2026-05-30 (stitched solver Steps 52-55 and scene generation timelines) | Every 3-5 related sessions | 0 |
+| I003 | atelier-steward-calibrate-review | Seed | 2026-05-25 (Figure 72 review) | UI or figure change with design-system implications | 0 |
+| I004 | art-director-frame-judge | Seed | 2026-05-26 (Figure 72 P7 review) | Visual artifact needs independent hierarchy/taste review | 0 |
+| I005 | acceptance-officer | Candidate | Never | Non-trivial task claims completion | 0 |
+| I006 | bookkeeper | Candidate | Never | Cost-benefit question or session efficiency analysis | 0 |
+| I007 | collation-officer | Candidate | Never | Doc-code-test divergence suspected | 0 |
+| I008 | gardener | Candidate | Never | Small frictions accumulate; stale references found | 0 |
+| -- | night-watch | Candidate | 2026-05-30 (calibration in progress) | Nightly or milestone-based patrol | 0 |
+| -- | governance-sentinel | Candidate | Never | Permission/PR audit/automation claims changing | 0 |
+| -- | demo-producer | Candidate | Never | Demo package created or refreshed | 0 |
+| -- | benchmark-scout | Candidate | Never | External solver comparison or benchmark candidate proposed | 0 |
+| -- | release-shepherd | Candidate | Never | Release readiness or packaging docs become active | 0 |
+| -- | git-session-steward | Seed (promoted to skill 2026-05-28) | 2026-05-28 (promoted to skill) | Before mutating git operations | 0 |
+
+### 8.2 Missed Invocation Accounting
+
+After each non-trivial task closure, scan the **Next Expected Trigger** column.
+Any agent whose trigger condition was met but was NOT invoked during that task
+counts as one **Missed Invocation**. Reset the counter to zero after the agent
+is exercised.
+
+A missed invocation is not a failure -- it is a signal. Repeated missed
+invocations (3+) for an agent suggest one of:
+
+- The trigger description is too broad or ambiguous and needs refinement.
+- The agent is not trusted yet (low maturity, no evidence) and the trigger
+  fires are being ignored intentionally.
+- The agent's scope overlaps with a more active agent and the division of labor
+  needs clarification.
+
+The **Missed Invocations** column should be updated at each quarterly inventory
+review (see Section 7), or sooner when an agent is exercised and its counter
+resets.
+
+### 8.3 Notes
+
+- I001 (bladesmith) and I002 (tailor) are the most exercised agents and form
+  the core experience-extraction pipeline. Their triggers fire on every session.
+- I003, I004, and git-session-steward are the only Seed+ agents exercised in
+  the past week. All three have concrete trigger conditions tied to specific
+  artifact types (UI figures, git operations).
+- Five candidates (I005-I008, governance-sentinel, demo-producer, benchmark-scout,
+  release-shepherd) have never been exercised. Their trigger conditions are
+  well-defined but have not yet occurred, or they occurred before the agent
+  definition existed. The first exercise for each should produce an initial
+  evidence example and an updated last-exercised date.
+- Night-watch is being calibrated in the current session (2026-05-30). Its
+  counter will start at zero after first calibration run completes.
+
+---
+
 ## Appendix A: File Index
 
 | What | Where |
