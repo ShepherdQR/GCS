@@ -89,3 +89,4 @@ tools/token_audit/audit.db
 
 # Session-local task declaration (prevents parallel-session contamination)
 .claude/current-task
+tools/solver_testing/.defects/
