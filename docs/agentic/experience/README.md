@@ -45,3 +45,4 @@ templates, and agent-facing instructions.
 | E003 | [Git session branch governance](003-git-session-branch-governance/README.md) | candidate agent/skill |
 | E004 | [AI governance queue control](004-ai-governance-queue-control/README.md) | candidate experience |
 | E005 | [Repository audit value loop](005-repository-audit-value-loop/README.md) | candidate experience |
+| E006 | [Parallel agent pipeline implementation](006-parallel-agent-pipeline-implementation/README.md) | candidate experience |
