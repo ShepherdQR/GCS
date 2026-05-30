@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+title: GCS — Geometric Constraint Solver
+message: "If you use GCS in your research, please cite it as follows."
+type: software
+authors:
+  - given-names: ShepherdQR
+repository-code: "https://github.com/ShepherdQR/GCS"
+abstract: "GCS is an evidence-rich geometric constraint solving research workbench. It emphasizes explainable solver evidence — rank, residual, nullity, gluing, and obstruction reports — so that researchers can inspect not only whether a scene solved, but why."
+keywords:
+  - geometric-constraint-solving
+  - solver-diagnostics
+  - local-to-global
+  - CAD
+  - computational-geometry
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-05-26

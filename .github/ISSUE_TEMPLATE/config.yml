@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GCS Documentation
+    url: https://github.com/ShepherdQR/GCS
+    about: Read the architecture docs and narrative map before filing an issue.
+  - name: Researcher Contribution Boundary
+    url: https://github.com/ShepherdQR/GCS/blob/main/docs/product/researcher-contribution-boundary.md
+    about: Check what kinds of contributions fit the current GCS maturity level.

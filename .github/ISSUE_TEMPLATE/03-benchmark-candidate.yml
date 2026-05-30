@@ -1,0 +1,46 @@
+name: Benchmark Candidate
+description: Propose a benchmark candidate for B1, B2, or external comparison
+labels: [benchmark]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Propose a benchmark candidate. See `docs/architecture/98-benchmark-candidate-selection-criteria.md` for criteria.
+  - type: dropdown
+    id: level
+    attributes:
+      label: Benchmark level
+      options:
+        - B1 (diagnostic classification smoke)
+        - B2 (research microbenchmark)
+        - External comparison
+    validations:
+      required: true
+  - type: input
+    id: claim
+    attributes:
+      label: Research claim
+      description: What specific solver-semantics claim does this benchmark test?
+    validations:
+      required: true
+  - type: textarea
+    id: expected_output
+    attributes:
+      label: Expected output
+      description: What report codes, statuses, or fields should appear?
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: limitations
+    attributes:
+      label: Known limitations and caveats
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: The research claim is specific and falsifiable
+        - label: Expected report codes are listed
+        - label: The benchmark does not claim superiority over other solvers
+        - label: Limitations are explicitly stated

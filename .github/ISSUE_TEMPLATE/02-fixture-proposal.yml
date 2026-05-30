@@ -1,0 +1,57 @@
+name: Fixture Proposal
+description: Propose a new fixture, counterexample, or benchmark scene
+labels: [fixture]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Propose a new fixture for the GCS corpus. Good fixtures have a clear research question and expected status.
+  - type: input
+    id: research_question
+    attributes:
+      label: Research question
+      description: What does this fixture test or demonstrate?
+    validations:
+      required: true
+  - type: dropdown
+    id: classification
+    attributes:
+      label: Classification
+      options:
+        - Well-constrained
+        - Under-constrained
+        - Over-constrained
+        - Singular
+        - Inconsistent
+        - Malformed input
+        - Not yet supported
+        - Counterexample
+    validations:
+      required: true
+  - type: input
+    id: expected_status
+    attributes:
+      label: Expected solver status
+      placeholder: AcceptedWithWarnings, NumericallySingular, Rejected
+    validations:
+      required: true
+  - type: textarea
+    id: scene_description
+    attributes:
+      label: Scene description
+      description: Describe the entities, constraints, and geometry. Include the scene file contents if small, or a link if large.
+      render: text
+  - type: textarea
+    id: limitation_note
+    attributes:
+      label: Known limitations
+      description: What should a reviewer know about this fixture's limitations?
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Contribution checklist
+      options:
+        - label: This fixture answers a specific research question
+        - label: Expected status and report codes are documented
+        - label: Limitations are explicitly stated
+        - label: The fixture is minimal for the claim it tests

@@ -1,0 +1,56 @@
+name: Bug Report
+description: Report incorrect solver behavior, crash, or diagnostic misclassification
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. GCS is a research workbench — your evidence helps improve solver diagnostics.
+  - type: input
+    id: fixture
+    attributes:
+      label: Fixture path
+      description: Which fixture or scene file reproduces the issue?
+      placeholder: fixtures/scene/verification/lgs/well_constrained.txt
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Command
+      description: The exact command that reproduces the issue.
+      placeholder: out/build/clang-ninja/GCS.exe fixtures/scene/verification/lgs/well_constrained.txt
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: input
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: report_fields
+    attributes:
+      label: Relevant report fields
+      description: Paste any relevant solver output, report codes, or diagnostic fields.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: GCS version
+      description: Git commit hash or release tag.
+      placeholder: git rev-parse HEAD
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, compiler, and any relevant toolchain information.
+      placeholder: Windows 11, Clang 20.1.7

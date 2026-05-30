@@ -1,7 +1,13 @@
-# GCS
+# GCS — Geometric Constraint Solver
 
-GCS is a geometric constraint solving workspace. The repository is now arranged
-around the target architecture vocabulary and a C++23 modules build.
+GCS is an evidence-rich geometric constraint solving research workbench.
+It emphasizes explainable solver evidence — rank, residual, nullity, gluing,
+and obstruction reports — so that researchers can inspect not only whether a
+scene solved, but why.
+
+GCS is not a production CAD system. Its current value is inspectable solver
+evidence: fixtures, diagnostics, replay reports, expected outputs, and task
+archives.
 
 ## Researcher Route
 
@@ -117,3 +123,66 @@ representative CLI smoke run.
 New tests should be designed around the target contracts in
 `docs/architecture/30-contracts` and the verification scenes in
 `fixtures/scene/verification`.
+
+## Contributing
+
+GCS welcomes contributions that fit its current maturity level. Start with
+the 20-minute contributor path:
+
+[`docs/product/20-minute-contributor-path.md`](docs/product/20-minute-contributor-path.md)
+
+Before proposing a change, read the contribution boundary to understand what
+fits and what is deferred:
+
+[`docs/product/researcher-contribution-boundary.md`](docs/product/researcher-contribution-boundary.md)
+
+Non-trivial changes require a task card. See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for the full workflow, and
+[`GOVERNANCE.md`](GOVERNANCE.md) for project roles and decision processes.
+
+All contributors must follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+GCS is licensed under the Apache License 2.0. See [`LICENSE`](LICENSE) for
+the full text.
+
+## Citation
+
+If you use GCS in your research, please cite it:
+
+```bibtex
+@software{gcs,
+  title = {GCS — Geometric Constraint Solver},
+  author = {ShepherdQR},
+  year = {2026},
+  url = {https://github.com/ShepherdQR/GCS},
+  note = {Evidence-rich geometric constraint solving research workbench},
+}
+```
+
+A [`CITATION.cff`](CITATION.cff) file is also available for automated citation
+tools.
+
+## Security
+
+See [`SECURITY.md`](SECURITY.md) for how to report vulnerabilities privately.
+
+## Project Status
+
+GCS is currently an R1 researcher preview. It is suitable for:
+- Inspecting solver evidence (rank, residual, nullity, gluing, obstruction)
+- Running command-line demos (D1, D2, D3)
+- Studying the architecture and narrative map
+- Proposing fixtures and benchmark candidates
+
+It is not yet:
+- A production CAD system
+- A packaged public tool release
+- Benchmarked against external solvers
+- Validated by external researchers (this is the next step — see
+  [`docs/product/reviews/`](docs/product/reviews/))
+
+Release modes: R0 (internal checkpoint) → R1 (researcher preview, current) →
+R2 (reproducible research snapshot) → R3 (public tool release). See
+[`docs/product/release-readiness-checklist.md`](docs/product/release-readiness-checklist.md).

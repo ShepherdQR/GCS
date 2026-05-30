@@ -1,0 +1,29 @@
+{
+  "schema": "gcs.benchmark_expected_output.v1",
+  "benchmark_level": "B2",
+  "case_id": "b2-02-under-constrained",
+  "fixture": "fixtures/scene/verification/lgs/under_constrained.txt",
+  "classification": "under_constrained_preserves_explicit_rank_nullity_evidence",
+  "expected_exit_code": 0,
+  "expected_status": "AcceptedWithWarnings",
+  "expected_accepted": true,
+  "expected_report_codes": [
+    "runtime.post_local_diagnostics.rank_report",
+    "runtime.post_local_diagnostics.residual_report",
+    "gluing.accepted",
+    "runtime.commit"
+  ],
+  "minimum_rank_reports": 2,
+  "expected_contains": [
+    "rank 1",
+    "nullity 5",
+    "rank 0",
+    "nullity 3"
+  ],
+  "research_claim": "An under-constrained accepted scene preserves explicit rank and nullity evidence per local section.",
+  "known_limitations": [
+    "Under-constrained status is currently inferred from rank and nullity evidence rather than a distinct top-level status.",
+    "The spanning forest plan is contract-only evidence; the reduced numeric task path is not yet implemented."
+  ],
+  "migration_policy": "This B2 expected-output file is versioned with the solver version that produced it. If the solver report format changes, update this file and record the version bump in the B2 README."
+}

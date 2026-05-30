@@ -1,0 +1,42 @@
+name: Documentation Improvement
+description: Suggest a clarification, fix, or addition to documentation
+labels: [documentation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest a documentation improvement. Good docs are evidence-first and cite specific artifacts.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Documentation area
+      options:
+        - Architecture docs (docs/architecture)
+        - Product docs (docs/product)
+        - Agentic docs (docs/agentic)
+        - Demo packages (docs/product/demos)
+        - Benchmark docs (docs/architecture/benchmarks)
+        - README or top-level docs
+        - Task archives (docs/completed-tasks)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: file
+    attributes:
+      label: File or section
+      description: Which file or section needs improvement?
+      placeholder: docs/architecture/95-gcs-narrative-map.md
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What needs to change
+      description: Is something incorrect, unclear, missing, or stale?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
