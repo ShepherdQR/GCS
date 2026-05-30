@@ -359,6 +359,13 @@ PlannerOutput plan_decomposition(const PlannerInput& input) {
         }
     }
 
+    // Compute spanning forest plan for pattern-based DOF absorption evidence
+    auto forest_result = plan_spanning_forest(input.model, input.incidence, input.solve_intent);
+    output.spanning_forest_plan = std::move(forest_result.payload);
+    for (auto message : forest_result.report.messages) {
+        kernel::append_report_message(output.structural_report, std::move(message));
+    }
+
     auto cover_validation = validate_cover(input.model, output.cover_plan);
     auto order_validation = validate_solve_order(output);
     auto dag_validation = validate_solve_dag(output);
