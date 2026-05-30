@@ -337,3 +337,16 @@ TEST(DecompositionPlannerContract, SpanningForestPerpendicularPatternMatchesLine
     EXPECT_EQ(result.payload.selected_edges.front().pattern_match.removed_rotational_dof, 1);
     EXPECT_EQ(result.payload.absorbed_constraint_ids.size(), 1U);
 }
+
+TEST(DecompositionPlannerContract, PlannerOutputPopulatesSpanningForestPlan) {
+    auto model = gcs::tools::make_two_component_distance_model();
+    auto plan = plan_for(model);
+
+    EXPECT_EQ(plan.spanning_forest_plan.selected_edges.size(), 2U);
+    EXPECT_EQ(plan.spanning_forest_plan.absorbed_constraint_ids.size(), 2U);
+    EXPECT_TRUE(plan.spanning_forest_plan.closure_constraint_ids.empty());
+    EXPECT_TRUE(plan.spanning_forest_plan.unsupported_constraint_ids.empty());
+    EXPECT_TRUE(plan.spanning_forest_plan.selected_edges[0].pattern_match.supported);
+    EXPECT_EQ(plan.spanning_forest_plan.selected_edges[0].pattern_match.pattern_id.value,
+              "point_to_point_distance");
+}
