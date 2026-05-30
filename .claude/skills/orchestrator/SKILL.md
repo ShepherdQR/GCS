@@ -306,6 +306,33 @@ Output a one-paragraph summary of:
 - What verification found (contradictions, failures, gaps)
 - What the final deliverable is
 
+### Step 5.4: Closeout Decision
+
+**What**: Determine whether to invoke session closeout or defer.
+
+**Decision logic:**
+
+1. Assess task and session state:
+   - **Task complete AND session is ending** → invoke `session-close-orchestrator`
+   - **Task complete BUT session continues** → create/update task card with `status: complete`, skip closeout
+   - **Task incomplete** → update task card with remaining subtasks, skip closeout
+
+2. When invoking closeout:
+   ```
+   Skill({
+     skill: "session-close-orchestrator",
+     args: "close session for task <task-id>. Task card at <path>. Evidence at <paths>."
+   })
+   ```
+
+3. When skipping closeout:
+   - Write current state to task card (including pending workers if incomplete)
+   - Report: "Task <complete/incomplete>. Closeout <invoked/skipped — reason>."
+
+4. If closeout is invoked but session-close-orchestrator is unavailable:
+   - Write minimal archive directly (task card + changed files + one-paragraph summary)
+   - Flag: "Orchestrated closeout failed — minimal archive created. Full closeout deferred."
+
 ---
 
 ## Guardrails
@@ -355,7 +382,7 @@ This skill uses only standard Claude Code tools. No platform-specific MCP tools 
 - Phase 2 (Dispatch): Agent, Skill — worker spawning
 - Phase 3 (Verify): Read — cross-read worker outputs
 - Phase 4 (Synthesis): Write — orchestrator writes synthesis
-- Phase 5 (Handoff): Write, Bash — task card, commit
+- Phase 5 (Handoff): Write, Bash, Skill — task card, commit, closeout dispatch
 
 ---
 
@@ -387,7 +414,14 @@ Task received
        ├─ Step 4: Synthesize verified outputs
        │     └─ Record architecture decision
        │
-       └─ Step 5: Handoff (task card, commit, report)
+       └─ Step 5: Handoff
+             ├─ Task card (5.1)
+             ├─ Commit (5.2)
+             ├─ Report (5.3)
+             └─ Closeout decision (5.4)
+                   ├─ Complete + session ending → Skill("session-close-orchestrator")
+                   ├─ Complete + session continues → card updated, closeout skipped
+                   └─ Incomplete → flag remaining, closeout skipped
 ```
 
 ## Version
