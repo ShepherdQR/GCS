@@ -1,8 +1,8 @@
 {
-  "generated_at_utc": "2026-05-30T17:22:33.865662+00:00",
+  "generated_at_utc": "2026-05-30T17:57:10.541149+00:00",
   "runs_file": "docs\\research\\20260530\\cache-hit-diagnosis-experiment\\experiment-runs.csv",
-  "runs_count": 10,
-  "complete_pairs_count": 5,
+  "runs_count": 16,
+  "complete_pairs_count": 8,
   "pairs": [
     {
       "task_pair": "completed-archive-audit-1",
@@ -46,6 +46,47 @@
       "classification": "mixed-or-inconclusive"
     },
     {
+      "task_pair": "cpp-module-map-1",
+      "status": "complete",
+      "full_runs": 1,
+      "lite_runs": 1,
+      "full": {
+        "input_tokens": 583540.0,
+        "output_tokens": 6707.0,
+        "token_leverage_ratio": 0.011494,
+        "legacy_cache_hit_rate": 0.46118,
+        "estimated_raw_cache_hit_rate": 0.927571,
+        "estimated_cold_load_overhead_ratio": 0.066833,
+        "bei_composite": 0.679105,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "lite": {
+        "input_tokens": 275897.0,
+        "output_tokens": 3663.0,
+        "token_leverage_ratio": 0.013277,
+        "legacy_cache_hit_rate": 0.460119,
+        "estimated_raw_cache_hit_rate": 0.857735,
+        "estimated_cold_load_overhead_ratio": 0.141357,
+        "bei_composite": 0.682565,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "delta": {
+        "lite_input_savings_pct": 0.5272012201391507,
+        "lite_audit_delta_pct": 0.0,
+        "lite_bei_delta_pct": 0.005094941135759593,
+        "lite_rework_delta": 0.0,
+        "lite_defect_delta": 0.0,
+        "lite_validation_delta": 0.0
+      },
+      "classification": "redundant-overhead"
+    },
+    {
       "task_pair": "docs-index-1",
       "status": "complete",
       "full_runs": 1,
@@ -85,6 +126,88 @@
         "lite_validation_delta": 0.0
       },
       "classification": "mixed-or-inconclusive"
+    },
+    {
+      "task_pair": "fixture-inventory-1",
+      "status": "complete",
+      "full_runs": 1,
+      "lite_runs": 1,
+      "full": {
+        "input_tokens": 1177419.0,
+        "output_tokens": 8146.0,
+        "token_leverage_ratio": 0.006919,
+        "legacy_cache_hit_rate": 0.484719,
+        "estimated_raw_cache_hit_rate": 0.965986,
+        "estimated_cold_load_overhead_ratio": 0.033123,
+        "bei_composite": 0.672309,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "lite": {
+        "input_tokens": 235321.0,
+        "output_tokens": 2914.0,
+        "token_leverage_ratio": 0.012383,
+        "legacy_cache_hit_rate": 0.475695,
+        "estimated_raw_cache_hit_rate": 0.845547,
+        "estimated_cold_load_overhead_ratio": 0.165731,
+        "bei_composite": 0.727336,
+        "audit_score_0_5": 4.5,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "delta": {
+        "lite_input_savings_pct": 0.8001382685348206,
+        "lite_audit_delta_pct": 0.125,
+        "lite_bei_delta_pct": 0.08184778130294244,
+        "lite_rework_delta": 0.0,
+        "lite_defect_delta": 0.0,
+        "lite_validation_delta": 0.0
+      },
+      "classification": "redundant-overhead"
+    },
+    {
+      "task_pair": "python-gui-smoke-1",
+      "status": "complete",
+      "full_runs": 1,
+      "lite_runs": 1,
+      "full": {
+        "input_tokens": 515939.0,
+        "output_tokens": 6077.0,
+        "token_leverage_ratio": 0.011779,
+        "legacy_cache_hit_rate": 0.466531,
+        "estimated_raw_cache_hit_rate": 0.920441,
+        "estimated_cold_load_overhead_ratio": 0.07559,
+        "bei_composite": 0.77021,
+        "audit_score_0_5": 5.0,
+        "validation_passed_rate": 1.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 0.0
+      },
+      "lite": {
+        "input_tokens": 255570.0,
+        "output_tokens": 3734.0,
+        "token_leverage_ratio": 0.01461,
+        "legacy_cache_hit_rate": 0.447318,
+        "estimated_raw_cache_hit_rate": 0.841365,
+        "estimated_cold_load_overhead_ratio": 0.1526,
+        "bei_composite": 0.333953,
+        "audit_score_0_5": 4.0,
+        "validation_passed_rate": 0.0,
+        "rework_turns": 0.0,
+        "defect_or_reopen_count": 1.0
+      },
+      "delta": {
+        "lite_input_savings_pct": 0.5046507435956576,
+        "lite_audit_delta_pct": -0.2,
+        "lite_bei_delta_pct": -0.5664130561794835,
+        "lite_rework_delta": 0.0,
+        "lite_defect_delta": 1.0,
+        "lite_validation_delta": -1.0
+      },
+      "classification": "healthy-institutionalization"
     },
     {
       "task_pair": "repo-audit-1",
@@ -212,12 +335,12 @@
   ],
   "aggregate": {
     "classification_counts": {
-      "redundant-overhead": 1,
-      "healthy-institutionalization": 0,
+      "redundant-overhead": 3,
+      "healthy-institutionalization": 1,
       "mixed-or-inconclusive": 4,
       "needs paired data": 0
     },
     "overall_classification": "redundant-overhead",
-    "recommendation": "Do not promote policy until 6 to 8 paired runs are complete."
+    "recommendation": "Review task-class split and promote only the classes that meet thresholds."
   }
 }
