@@ -678,8 +678,33 @@ criteria in the forward plan.
 
 ## Next Candidate
 
-Choose the next implementation candidate after Step 52 completes.
-This current-status document intentionally does not claim that work.
+Choose the next implementation candidate after Step 53.
+
+## Completed Step 53
+
+Step 53 implemented the first real spanning tree pattern in the decomposition
+planner. The spanning forest infrastructure has existed since the initial
+planner implementation but marked all cross-rigid-set constraint patterns as
+unsupported. This step adds a point-to-point distance pattern so that
+distance constraints between two rigid sets are classified as absorbed by a
+tree pattern with 1 translational DOF removed.
+
+Delivered:
+
+- Add `match_forest_pattern()` to `gcs.decomposition_planner` that inspects
+  cross-rigid-set constraint groups for known patterns.
+- First pattern: point-to-point distance — all constraints in the group must
+  be distance constraints between two point entities. Matching groups get
+  `supported = true`, `absorbed_constraint_ids` populated, 1 translational
+  DOF removed, and weight 1 (preferred in Kruskal spanning forest).
+- Non-matching groups remain unsupported with zero weight and all constraints
+  classified as closure/unsupported.
+- Update candidate edge creation, tree edge construction, and constraint
+  partitioning to use `match_forest_pattern()`.
+- Add 5 spanning forest contract tests: distance pattern matching,
+  deterministic output, absorbed/closure partition counts, same-rigid-set
+  edge validation, and active constraint partitioning.
+- Contract test baseline increased from 120 to 125.
 
 ## Completed Step 52
 

@@ -734,6 +734,65 @@ bool tree_edge_less(const RigidSetTreeEdge& a, const RigidSetTreeEdge& b) {
 
 }  // namespace
 
+// --- Spanning forest pattern matching ---
+
+namespace {
+
+SpanningTreePatternMatch match_forest_pattern(
+    const ModelSnapshot& model,
+    kernel::RigidSetId first_rs,
+    kernel::RigidSetId second_rs,
+    const std::vector<kernel::ConstraintId>& constraint_ids) {
+
+    SpanningTreePatternMatch match;
+    match.parent_rigid_set_id = first_rs;
+    match.child_rigid_set_id = second_rs;
+
+    // Pattern: point-to-point distance between two rigid sets.
+    // A constraint group matches this pattern when every constraint
+    // is a distance constraint between two point entities.
+    bool all_distance_points = true;
+    for (kernel::ConstraintId cid : constraint_ids) {
+        const auto* constraint = kernel::find_constraint(model, cid);
+        if (!constraint || constraint->kind != kernel::ConstraintKind::distance) {
+            all_distance_points = false;
+            break;
+        }
+        if (constraint->entity_ids.size() != 2) {
+            all_distance_points = false;
+            break;
+        }
+        for (kernel::EntityId eid : constraint->entity_ids) {
+            const auto* entity = kernel::find_entity(model, eid);
+            if (!entity || entity->kind != kernel::GeometryKind::point) {
+                all_distance_points = false;
+                break;
+            }
+        }
+        if (!all_distance_points) break;
+    }
+
+    if (all_distance_points && !constraint_ids.empty()) {
+        match.pattern_id = SpanningTreePatternId{"point_to_point_distance"};
+        match.absorbed_constraint_ids = constraint_ids;
+        match.removed_translational_dof = 1;
+        match.removed_rotational_dof = 0;
+        match.weight = 1;
+        match.supported = true;
+    } else {
+        match.pattern_id = SpanningTreePatternId{"unsupported"};
+        match.closure_constraint_ids = constraint_ids;
+        match.unsupported_constraint_ids = constraint_ids;
+        match.weight = 0;
+        match.supported = false;
+        match.unsupported_code = "planner.spanning_tree.pattern_unsupported";
+    }
+
+    return match;
+}
+
+}  // namespace
+
 gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
     const ModelSnapshot& model,
     const graph::IncidenceIndices& /*incidence*/,
@@ -749,19 +808,24 @@ gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
         model, hypergraph_result.payload);
 
     // Step 2: Build candidate edges from rigid body graph edges.
-    // In M1, all patterns are unsupported — no real pattern catalog exists yet.
-    // Every cross-rigid-set constraint becomes a closure constraint.
+    // Match patterns against constraint groups — supported patterns
+    // get weight > 0 and are preferred in Kruskal spanning forest.
     std::vector<CandidateEdge> candidates;
     for (std::size_t i = 0; i < rigid_body_result.payload.edges.size(); ++i) {
         const auto& edge = rigid_body_result.payload.edges[i];
+        auto pattern = match_forest_pattern(
+            model,
+            edge.first_rigid_set_id,
+            edge.second_rigid_set_id,
+            edge.constraint_ids);
         CandidateEdge candidate;
         candidate.first = edge.first_rigid_set_id;
         candidate.second = edge.second_rigid_set_id;
-        candidate.weight = 0;  // M1: no pattern support => zero weight
+        candidate.weight = pattern.weight;
         candidate.original_index = static_cast<int>(i);
         candidate.constraint_ids = edge.constraint_ids;
-        candidate.supported = false;
-        candidate.unsupported_code = "planner.spanning_tree.pattern_unsupported";
+        candidate.supported = pattern.supported;
+        candidate.unsupported_code = pattern.unsupported_code;
         candidates.push_back(std::move(candidate));
     }
 
@@ -858,19 +922,13 @@ gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
             tree_edge.parent_rigid_set_id = parent;
             tree_edge.child_rigid_set_id = child;
 
-            // Find the matching candidate edge
+            // Find the matching candidate edge and use its pattern
             for (const auto& cand : selected) {
                 if ((cand.first == parent && cand.second == child) ||
                     (cand.first == child && cand.second == parent)) {
-                    SpanningTreePatternMatch match;
-                    match.pattern_id = SpanningTreePatternId{"unsupported"};
-                    match.parent_rigid_set_id = parent;
-                    match.child_rigid_set_id = child;
-                    match.closure_constraint_ids = cand.constraint_ids;
-                    match.unsupported_constraint_ids = cand.constraint_ids;
-                    match.weight = cand.weight;
-                    match.supported = false;
-                    match.unsupported_code = cand.unsupported_code;
+                    // Re-run pattern matching for the correct parent/child orientation
+                    auto match = match_forest_pattern(
+                        model, parent, child, cand.constraint_ids);
                     tree_edge.pattern_match = std::move(match);
                     break;
                 }
@@ -887,8 +945,11 @@ gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
     std::vector<kernel::ConstraintId> closure_ids;
     std::vector<kernel::ConstraintId> unsupported_ids;
 
-    // In M1, all tree-edge constraints are unsupported → closure
+    // Collect partitioned constraints from tree edges
     for (const auto& te : tree_edges) {
+        for (auto cid : te.pattern_match.absorbed_constraint_ids) {
+            absorbed_ids.push_back(cid);
+        }
         for (auto cid : te.pattern_match.closure_constraint_ids) {
             closure_ids.push_back(cid);
         }
@@ -897,7 +958,7 @@ gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
         }
     }
 
-    // Also collect closure constraints from rejected (cycle) edges
+    // Rejected (cycle) edges become closure constraints
     for (const auto& rej : rejected) {
         for (auto cid : rej.constraint_ids) {
             closure_ids.push_back(cid);
@@ -928,7 +989,8 @@ gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
         make_message(
             kernel::ReportSeverity::info,
             "planner.spanning_tree.plan_complete",
-            "Spanning forest plan built. Not yet used for numeric solving.",
+            "Spanning forest plan built. Pattern catalog: point-to-point distance "
+            "supported; other constraints remain unsupported.",
             {}));
 
     kernel::append_report_message(
@@ -936,7 +998,7 @@ gcs::kernel::ContractResult<RigidSetSpanningForestPlan> plan_spanning_forest(
         make_message(
             kernel::ReportSeverity::info,
             "planner.spanning_tree.not_used_for_numeric_task_yet",
-            "M1 contract-only: spanning forest plan evidence is generated but "
+            "Contract-only: spanning forest plan evidence is generated but "
             "the reduced numeric task path is not yet implemented.",
             {}));
 

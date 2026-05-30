@@ -233,11 +233,14 @@ Status legend: `done`, `in_progress`, `pending`.
     `gcs.incidence_graph` and wire it into `gcs.decomposition_planner` so
     that connected components with articulation entities are split into
     finer-grained biconnected subproblems with overlap contexts.
+53. `done` - implement the first spanning tree pattern
+    (point-to-point distance) in `gcs.decomposition_planner` so that
+    cross-rigid-set distance constraints are classified as absorbed by
+    a tree pattern instead of all unsupported.
 
 Next registered candidate:
 
-- Choose the next implementation candidate after Step 52 lands and the
-  full quality gate passes with biconnected decomposition evidence.
+- Choose the next implementation candidate after Step 53.
 
 Forward plan: `docs/architecture/68-forward-execution-plan-2026-05-24.md`.
 

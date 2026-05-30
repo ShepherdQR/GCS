@@ -186,3 +186,90 @@ TEST(DecompositionPlannerContract, PlannerOutputIsDeterministic) {
               second.solve_dag.edges[0].projection_id.value);
     EXPECT_FALSE(first.unsupported_report.unsupported);
 }
+
+// --- Spanning forest pattern contract tests ---
+
+TEST(DecompositionPlannerContract, SpanningForestDistancePatternMatchesPointToPointDistance) {
+    // Two rigid sets each containing a point, connected by a distance constraint
+    auto model = gcs::tools::make_two_point_distance_model();
+    auto incidence = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto result = planning::plan_spanning_forest(model, incidence, model.solve_intent);
+
+    EXPECT_EQ(result.report.status, kernel::StageStatus::ok);
+    // One rigid body edge with one distance constraint between two points
+    ASSERT_EQ(result.payload.selected_edges.size(), 1U);
+    EXPECT_TRUE(result.payload.selected_edges.front().pattern_match.supported);
+    EXPECT_EQ(result.payload.selected_edges.front().pattern_match.pattern_id.value,
+              "point_to_point_distance");
+    EXPECT_EQ(result.payload.selected_edges.front().pattern_match.removed_translational_dof, 1);
+    EXPECT_EQ(result.payload.selected_edges.front().pattern_match.removed_rotational_dof, 0);
+    EXPECT_EQ(result.payload.selected_edges.front().pattern_match.weight, 1);
+    // Constraint should be absorbed
+    EXPECT_EQ(result.payload.absorbed_constraint_ids.size(), 1U);
+    EXPECT_TRUE(result.payload.closure_constraint_ids.empty());
+    EXPECT_TRUE(result.payload.unsupported_constraint_ids.empty());
+}
+
+TEST(DecompositionPlannerContract, SpanningForestDistancePatternIsDeterministic) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    auto incidence = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto first = planning::plan_spanning_forest(model, incidence, model.solve_intent);
+    auto second = planning::plan_spanning_forest(model, incidence, model.solve_intent);
+
+    EXPECT_EQ(first.payload.selected_edges.size(), second.payload.selected_edges.size());
+    EXPECT_EQ(first.payload.absorbed_constraint_ids.size(),
+              second.payload.absorbed_constraint_ids.size());
+    EXPECT_EQ(first.payload.closure_constraint_ids.size(),
+              second.payload.closure_constraint_ids.size());
+    EXPECT_EQ(first.payload.selected_edges.front().pattern_match.pattern_id.value,
+              second.payload.selected_edges.front().pattern_match.pattern_id.value);
+    EXPECT_EQ(first.payload.selected_edges.front().pattern_match.supported,
+              second.payload.selected_edges.front().pattern_match.supported);
+}
+
+TEST(DecompositionPlannerContract, SpanningForestRejectedCycleConstraintsBecomeClosure) {
+    // Two-component model: each component has 2 rigid sets with distance constraints
+    // No cycles, so all constraints should be absorbed (tree edges)
+    auto model = gcs::tools::make_two_component_distance_model();
+    auto incidence = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto result = planning::plan_spanning_forest(model, incidence, model.solve_intent);
+
+    EXPECT_EQ(result.report.status, kernel::StageStatus::ok);
+    // Two separate components, each should have one tree edge
+    ASSERT_EQ(result.payload.selected_edges.size(), 2U);
+    // Both distance constraints should match the pattern
+    EXPECT_TRUE(result.payload.selected_edges[0].pattern_match.supported);
+    EXPECT_TRUE(result.payload.selected_edges[1].pattern_match.supported);
+    EXPECT_EQ(result.payload.absorbed_constraint_ids.size(), 2U);
+    EXPECT_TRUE(result.payload.closure_constraint_ids.empty());
+    EXPECT_TRUE(result.payload.unsupported_constraint_ids.empty());
+}
+
+TEST(DecompositionPlannerContract, SpanningForestValidatesNoSameRigidSetTreeEdges) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    auto incidence = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto result = planning::plan_spanning_forest(model, incidence, model.solve_intent);
+    auto validation = planning::validate_spanning_forest(model, result.payload);
+
+    EXPECT_TRUE(validation.payload.no_same_rigid_set_tree_edges);
+    EXPECT_EQ(validation.payload.absorbed_count, 1);
+    EXPECT_EQ(validation.payload.closure_count, 0);
+    EXPECT_EQ(validation.payload.unsupported_count, 0);
+    // Since we now have a supported pattern, selected_edges_have_supported_pattern should be true
+    EXPECT_TRUE(validation.payload.selected_edges_have_supported_pattern);
+}
+
+TEST(DecompositionPlannerContract, SpanningForestAllActiveConstraintsArePartitioned) {
+    auto model = gcs::tools::make_two_point_distance_model();
+    auto incidence = graph::build_incidence_indices(graph::IncidenceInput{model});
+
+    auto result = planning::plan_spanning_forest(model, incidence, model.solve_intent);
+    auto validation = planning::validate_spanning_forest(model, result.payload);
+
+    EXPECT_TRUE(validation.payload.every_active_constraint_partitioned_once);
+    EXPECT_EQ(validation.payload.total_active_constraints, 1);
+}
