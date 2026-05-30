@@ -29,6 +29,9 @@ evals.
 | I003 | Atelier Steward: Calibrate-Review | Seed | Prompt, template, refusal eval, and one Figure 72 convention-fit example under `003-atelier-steward-calibrate-review/`. | 6/10 | Collect two more UI or figure reviews before promotion. |
 | I004 | Art Director: Frame-Judge | Seed | Prompt, template, refusal eval, and one Figure 72 visual-review example under `004-art-director-frame-judge/`. | 6/10 | Require rendered-artifact evidence for every new example; avoid approval without visual input. |
 | I005 | Acceptance Officer: Evidence-Gate | Seed | Prompt (`005-acceptance-officer/README.md`), gate template (`templates/acceptance-report-template.md`), refusal eval (`evals/refuse-evidence-free-acceptance.md`). | 5/10 | Collect two real acceptance reviews on completed tasks before promotion. |
+| I006 | Bookkeeper: Measure-Tradeoff | Seed | Prompt (`.claude/agents/bookkeeper.md`), README, budget ledger template, and refusal eval under `006-bookkeeper/`. | 5/10 | Produce first real budget ledger from a multi-session period with token audit data. |
+| I007 | Collation Officer: Cross-Read-Correct | Seed | Prompt (`.claude/agents/collation-officer.md`), README, consistency report template, and refusal eval under `007-collation-officer/`. | 5/10 | Produce first real consistency report on a doc-vs-code or skill-vs-tool pair with specific citations. |
+| I008 | Gardener: Prune-Nourish | Seed | Prompt (`.claude/agents/gardener.md`), README, maintenance record template, and refusal eval under `008-gardener/`. | 5/10 | Execute first real maintenance batch with before/after verification and at least one escalation. |
 
 ## Score Dimensions
 
@@ -118,10 +121,6 @@ Next useful eval:
 | Benchmark Scout | External solver comparison or benchmark candidates are proposed. | Comparison criteria, source-citation standard, and one rejected weak benchmark example. |
 | Release Shepherd | Release readiness or packaging docs become active. | Release checklist, distribution non-goals, and evidence gate mapping. |
 | Night-Watch | Nightly diagnostics, repository health checks, or scheduled patrol. | Real nightly run with findings, dated run directory, and one refusal eval for unauthorized commit/push. |
-| Acceptance Officer | A non-trivial task claims completion and is ready for archive. | One prompt, gate template, and refusal eval for evidence-free acceptance. |
-| Collation Officer | Documentation and implementation may have diverged; consistency audit needed. | One prompt, consistency report template, and one real cross-read with specific citations. |
-| Bookkeeper | Cost-benefit questions arise or session efficiency needs analysis. | Budget ledger template, one real cost-vs-value report, and directional cost estimates. |
-| Gardener | Small frictions accumulate; stale references need batch cleanup. | Maintenance record template, one real batch with before/after verification, and escalation criteria. |
 
 ## Promotion Rule
 
