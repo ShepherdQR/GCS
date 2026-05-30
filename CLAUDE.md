@@ -3,6 +3,15 @@
 A C++23 geometric constraint solver with Python visualization, governed by
 an agentic software engineering operating layer.
 
+## Highlights
+
+- **10 automated quality pipelines** — defect discovery, solver regression,
+  numeric stability, diagnostic certification, contract compliance, IO
+  round-trip, scene generation, performance benchmark, cross-solver compare,
+  and repository audit. Unified runner at `tools/solver_testing/pipelines/run.py`.
+  See [Pipeline Architecture](docs/agentic/pipelines/README.md) and
+  [Operations Guide](docs/agentic/pipelines/operations-guide.md).
+
 ## Project Organization
 
 ```
