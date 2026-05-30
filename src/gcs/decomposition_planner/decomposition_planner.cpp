@@ -748,9 +748,15 @@ SpanningTreePatternMatch match_forest_pattern(
     match.parent_rigid_set_id = first_rs;
     match.child_rigid_set_id = second_rs;
 
-    // Pattern: point-to-point distance between two rigid sets.
-    // A constraint group matches this pattern when every constraint
-    // is a distance constraint between two point entities.
+    if (constraint_ids.empty()) {
+        match.pattern_id = SpanningTreePatternId{"unsupported"};
+        match.weight = 0;
+        match.supported = false;
+        match.unsupported_code = "planner.spanning_tree.empty_group";
+        return match;
+    }
+
+    // Pattern 1: point-to-point distance
     bool all_distance_points = true;
     for (kernel::ConstraintId cid : constraint_ids) {
         const auto* constraint = kernel::find_constraint(model, cid);
@@ -771,23 +777,88 @@ SpanningTreePatternMatch match_forest_pattern(
         }
         if (!all_distance_points) break;
     }
-
-    if (all_distance_points && !constraint_ids.empty()) {
+    if (all_distance_points) {
         match.pattern_id = SpanningTreePatternId{"point_to_point_distance"};
         match.absorbed_constraint_ids = constraint_ids;
         match.removed_translational_dof = 1;
-        match.removed_rotational_dof = 0;
         match.weight = 1;
         match.supported = true;
-    } else {
-        match.pattern_id = SpanningTreePatternId{"unsupported"};
-        match.closure_constraint_ids = constraint_ids;
-        match.unsupported_constraint_ids = constraint_ids;
-        match.weight = 0;
-        match.supported = false;
-        match.unsupported_code = "planner.spanning_tree.pattern_unsupported";
+        return match;
     }
 
+    // Pattern 2: parallel (line-line or plane-plane)
+    bool all_parallel = true;
+    for (kernel::ConstraintId cid : constraint_ids) {
+        const auto* constraint = kernel::find_constraint(model, cid);
+        if (!constraint || constraint->kind != kernel::ConstraintKind::parallel) {
+            all_parallel = false;
+            break;
+        }
+        if (constraint->entity_ids.size() != 2) {
+            all_parallel = false;
+            break;
+        }
+        const auto* e0 = kernel::find_entity(model, constraint->entity_ids[0]);
+        const auto* e1 = kernel::find_entity(model, constraint->entity_ids[1]);
+        if (!e0 || !e1) { all_parallel = false; break; }
+        bool e0_oriented = e0->kind == kernel::GeometryKind::line ||
+                          e0->kind == kernel::GeometryKind::plane;
+        bool e1_oriented = e1->kind == kernel::GeometryKind::line ||
+                          e1->kind == kernel::GeometryKind::plane;
+        if (!e0_oriented || !e1_oriented) {
+            all_parallel = false;
+            break;
+        }
+    }
+    if (all_parallel) {
+        match.pattern_id = SpanningTreePatternId{"parallel"};
+        match.absorbed_constraint_ids = constraint_ids;
+        match.removed_rotational_dof = 1;
+        match.weight = 1;
+        match.supported = true;
+        return match;
+    }
+
+    // Pattern 3: perpendicular (line-plane)
+    bool all_perpendicular = true;
+    for (kernel::ConstraintId cid : constraint_ids) {
+        const auto* constraint = kernel::find_constraint(model, cid);
+        if (!constraint || constraint->kind != kernel::ConstraintKind::perpendicular) {
+            all_perpendicular = false;
+            break;
+        }
+        if (constraint->entity_ids.size() != 2) {
+            all_perpendicular = false;
+            break;
+        }
+        const auto* e0 = kernel::find_entity(model, constraint->entity_ids[0]);
+        const auto* e1 = kernel::find_entity(model, constraint->entity_ids[1]);
+        if (!e0 || !e1) { all_perpendicular = false; break; }
+        bool e0_oriented = e0->kind == kernel::GeometryKind::line ||
+                          e0->kind == kernel::GeometryKind::plane;
+        bool e1_oriented = e1->kind == kernel::GeometryKind::line ||
+                          e1->kind == kernel::GeometryKind::plane;
+        if (!e0_oriented || !e1_oriented) {
+            all_perpendicular = false;
+            break;
+        }
+    }
+    if (all_perpendicular) {
+        match.pattern_id = SpanningTreePatternId{"perpendicular"};
+        match.absorbed_constraint_ids = constraint_ids;
+        match.removed_rotational_dof = 1;
+        match.weight = 1;
+        match.supported = true;
+        return match;
+    }
+
+    // No pattern matched
+    match.pattern_id = SpanningTreePatternId{"unsupported"};
+    match.closure_constraint_ids = constraint_ids;
+    match.unsupported_constraint_ids = constraint_ids;
+    match.weight = 0;
+    match.supported = false;
+    match.unsupported_code = "planner.spanning_tree.pattern_unsupported";
     return match;
 }
 

@@ -273,3 +273,67 @@ TEST(DecompositionPlannerContract, SpanningForestAllActiveConstraintsArePartitio
     EXPECT_TRUE(validation.payload.every_active_constraint_partitioned_once);
     EXPECT_EQ(validation.payload.total_active_constraints, 1);
 }
+
+TEST(DecompositionPlannerContract, SpanningForestParallelPatternMatchesLineLineConstraint) {
+    // Two rigid sets each with a line, connected by a parallel constraint
+    kernel::ModelSnapshot model;
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{0}, {kernel::EntityId{0}}});
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{1}, {kernel::EntityId{1}}});
+    model.entities.push_back(
+        kernel::EntityDraft{kernel::EntityId{0}, kernel::GeometryKind::line,
+                           kernel::RigidSetId{0},
+                           kernel::ParameterVector{6, {0.0, 0.0, 0.0, 1.0, 0.0, 0.0}}});
+    model.entities.push_back(
+        kernel::EntityDraft{kernel::EntityId{1}, kernel::GeometryKind::line,
+                           kernel::RigidSetId{1},
+                           kernel::ParameterVector{6, {0.0, 1.0, 0.0, 1.0, 0.0, 0.0}}});
+    model.constraints.push_back(
+        kernel::ConstraintDraft{kernel::ConstraintId{0},
+                                kernel::ConstraintKind::parallel,
+                                {kernel::EntityId{0}, kernel::EntityId{1}},
+                                {}});
+
+    auto incidence = graph::build_incidence_indices(graph::IncidenceInput{model});
+    auto result = planning::plan_spanning_forest(model, incidence, model.solve_intent);
+
+    EXPECT_EQ(result.report.status, kernel::StageStatus::ok);
+    ASSERT_EQ(result.payload.selected_edges.size(), 1U);
+    EXPECT_TRUE(result.payload.selected_edges.front().pattern_match.supported);
+    EXPECT_EQ(result.payload.selected_edges.front().pattern_match.pattern_id.value,
+              "parallel");
+    EXPECT_EQ(result.payload.selected_edges.front().pattern_match.removed_rotational_dof, 1);
+    EXPECT_EQ(result.payload.absorbed_constraint_ids.size(), 1U);
+}
+
+TEST(DecompositionPlannerContract, SpanningForestPerpendicularPatternMatchesLinePlaneConstraint) {
+    // Two rigid sets, one with a line and one with a plane, perpendicular constraint
+    kernel::ModelSnapshot model;
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{0}, {kernel::EntityId{0}}});
+    model.rigid_sets.push_back(
+        kernel::RigidSetDraft{kernel::RigidSetId{1}, {kernel::EntityId{1}}});
+    model.entities.push_back(
+        kernel::EntityDraft{kernel::EntityId{0}, kernel::GeometryKind::line,
+                           kernel::RigidSetId{0}, kernel::ParameterVector{6, {0.0, 0.0, 0.0, 1.0, 0.0, 0.0}}});
+    model.entities.push_back(
+        kernel::EntityDraft{kernel::EntityId{1}, kernel::GeometryKind::plane,
+                           kernel::RigidSetId{1}, kernel::ParameterVector{6, {0.0, 0.0, 0.0, 0.0, 0.0, 1.0}}});
+    model.constraints.push_back(
+        kernel::ConstraintDraft{kernel::ConstraintId{0},
+                                kernel::ConstraintKind::perpendicular,
+                                {kernel::EntityId{0}, kernel::EntityId{1}},
+                                {}});
+
+    auto incidence = graph::build_incidence_indices(graph::IncidenceInput{model});
+    auto result = planning::plan_spanning_forest(model, incidence, model.solve_intent);
+
+    EXPECT_EQ(result.report.status, kernel::StageStatus::ok);
+    ASSERT_EQ(result.payload.selected_edges.size(), 1U);
+    EXPECT_TRUE(result.payload.selected_edges.front().pattern_match.supported);
+    EXPECT_EQ(result.payload.selected_edges.front().pattern_match.pattern_id.value,
+              "perpendicular");
+    EXPECT_EQ(result.payload.selected_edges.front().pattern_match.removed_rotational_dof, 1);
+    EXPECT_EQ(result.payload.absorbed_constraint_ids.size(), 1U);
+}
