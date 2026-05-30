@@ -183,6 +183,21 @@ and prepares the pilot:
 4. Write the first-pass diagnostic summary.
 5. Validate task card and repository-audit health.
 
+## Implementation Tool
+
+Use the stdlib-only helper when the richer token-audit CLI is unavailable:
+
+```bat
+python tools\token_audit\cache_hit_experiment.py inspect-db --format json
+python tools\token_audit\cache_hit_experiment.py list-sessions --limit 12 --format json
+python tools\token_audit\cache_hit_experiment.py record --session-id <session-id> --run-id <run-id> --task-pair docs-1 --mode Full --task-type docs --risk low --audit-score 4 --validation-passed true --rework-turns 0 --defect-or-reopen-count 0
+python tools\token_audit\cache_hit_experiment.py summarize --runs docs\research\20260530\cache-hit-diagnosis-experiment\experiment-runs.csv --output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.md --json-output docs\reports\token-audit\cache-hit-diagnosis-20260530\pilot-summary.json
+```
+
+The helper reads `tools/token_audit/audit.db` but does not write to the database
+or historical JSONL transcripts. It appends only to `experiment-runs.csv` when
+`record` is explicitly invoked.
+
 ## Guardrails
 
 - Do not modify historical JSONL transcripts.

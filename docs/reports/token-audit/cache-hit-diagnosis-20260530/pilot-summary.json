@@ -1,0 +1,17 @@
+{
+  "generated_at_utc": "2026-05-30T14:18:21.228926+00:00",
+  "runs_file": "docs\\research\\20260530\\cache-hit-diagnosis-experiment\\experiment-runs.csv",
+  "runs_count": 0,
+  "complete_pairs_count": 0,
+  "pairs": [],
+  "aggregate": {
+    "classification_counts": {
+      "redundant-overhead": 0,
+      "healthy-institutionalization": 0,
+      "mixed-or-inconclusive": 0,
+      "needs paired data": 0
+    },
+    "overall_classification": "needs paired data",
+    "recommendation": "Record at least one Full and one Lite run for a task_pair."
+  }
+}

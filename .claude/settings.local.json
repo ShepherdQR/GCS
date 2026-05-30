@@ -124,7 +124,9 @@
       "Bash(git merge *)",
       "Bash(rm -f .claude/current-task)",
       "Bash(python -m unittest tests.tools.test_agentic_toolkit)",
-      "WebFetch(domain:claude.com)"
+      "WebFetch(domain:claude.com)",
+      "Bash(python tools/agentic_design/agentic_toolkit.py validate-inventory)",
+      "Bash(python tools/agentic_design/agentic_toolkit.py check-dependencies)"
     ],
     "defaultMode": "bypassPermissions"
   },

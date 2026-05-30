@@ -50,6 +50,7 @@ institutional-agent promotion, or quality-gate decision depends on that record.
 
 | Date | Task | Status |
 | --- | --- | --- |
+| 2026-05-30 | [Cache-hit experiment implementation](2026-05-30-cache-hit-experiment-implementation/README.md) | done |
 | 2026-05-30 | [Cache-hit diagnosis experiment baseline](2026-05-30-cache-hit-diagnosis-experiment/README.md) | done |
 | 2026-05-30 | [10-pipeline quality infrastructure](2026-05-30-10-pipeline-quality-infrastructure/README.md) | done |
 | 2026-05-26 | [Narrative map third-stage execution](2026-05-26-narrative-map-third-stage-execution/README.md) | done |
