@@ -1,6 +1,9 @@
 ---
 name: session-close-orchestrator
 description: Unified session-closing orchestrator for GCS. Invoke at the end of every non-trivial session to run the full close pipeline: archive session history, extract reusable experience, evaluate skill/agent promotion candidates, generate token benefit report, and push. This is the single entry point — it sequences task-scoped-session-closer, bladesmith-quench-forge, bookkeeper, and gcs-token-audit-steward in order.
+model: opus
+priority: 90
+exclusive: false
 ---
 
 # Session Close Orchestrator
@@ -34,7 +37,12 @@ Skip only when:
 ## Pipeline
 
 Run these steps in order. Do not skip steps unless the user explicitly says so.
-If a step fails, report the failure and continue to the next step.
+Each step uses explicit tool dispatch — no prose-only handoffs.
+
+**Error handling per step:**
+- If a step fails: capture the error, write it to the step output, continue to next step
+- If a dispatched skill/agent fails: record failure reason, do NOT retry (orchestrator handles retry)
+- All step outputs are written to disk before proceeding to the next step
 
 ---
 
@@ -43,10 +51,12 @@ If a step fails, report the failure and continue to the next step.
 **What**: Verify that a task card exists for the current session's work before
 proceeding with closeout. If no task card exists, auto-create one.
 
+**Dispatch**: Direct operations (Read, Write, Bash) — no sub-skill needed.
+
 **Check**:
 
-1. Read `.claude/current-task` if it exists. If it points to a valid file, go
-   to step 2.
+1. `Read` `.claude/current-task` if it exists. If it points to a valid file, go
+   to Step 1.
 2. If `.claude/current-task` is missing or the file it points to does not exist,
    auto-create a task card:
 
@@ -55,7 +65,7 @@ proceeding with closeout. If no task card exists, auto-create one.
       - `risk`: `low` (docs/config only) | `medium` (tooling/quality gates) | `high` (solver/runtime/IO/viewer)
       - `owner`: the best-fit steward skill from CLAUDE.md's skill table
 
-   b. Create the file at `docs/agentic/tasks/<today>-<slug>.md`:
+   b. `Write` the file at `docs/agentic/tasks/<today>-<slug>.md`:
 
       ```markdown
       ---
@@ -75,6 +85,9 @@ proceeding with closeout. If no task card exists, auto-create one.
         - validate-docs
       human_gate_required: false
       human_gate_reason: ""
+      token_budget:
+        max_total: 500000
+        budget_consumed: 0
       ---
 
       # <today>-<slug>
@@ -92,7 +105,7 @@ proceeding with closeout. If no task card exists, auto-create one.
       <remaining uncertainty>
       ```
 
-   c. Write `.claude/current-task`:
+   c. `Write` `.claude/current-task`:
       ```
       task_card: docs/agentic/tasks/<today>-<slug>.md
       created: <today>
@@ -100,6 +113,8 @@ proceeding with closeout. If no task card exists, auto-create one.
 
 3. If the task card exists with `status: draft`, update it to `status: complete`
    and fill the evidence bundle if it was still a planning skeleton.
+
+**Error capture**: If classification fails, use defaults (`scope: maintenance`, `risk: low`, `owner: general-purpose`) and flag in task card.
 
 **Output**: A confirmed task card at `docs/agentic/tasks/<date>-<slug>.md` and
 an up-to-date `.claude/current-task`.
@@ -116,6 +131,8 @@ happened.
 **What**: Import the current session's JSONL transcript into the audit database,
 then generate the token benefit report with baseline comparison.
 
+**Dispatch**: Direct `Bash` operations.
+
 ```bash
 # Import current session data
 python -m tools.token_audit db import --project GCS-A --force
@@ -130,6 +147,8 @@ python -m tools.token_audit report --format markdown
 - Baseline comparison column in the Efficiency Metrics table
 - Token usage, cost, cache efficiency, BEI scores
 - Chapter breakdown (if CCD chapter markers were used)
+
+**Error capture**: If `db import` fails, skip to `report` (may use cached data). If `report` fails, create a minimal manual report with token counts from the session transcript.
 
 **Output**: Token usage, cost, cache efficiency, BEI scores, baseline comparison.
 
@@ -150,9 +169,9 @@ under a `## Token Economic Diagnostic` section.
 ### Step 1.5: Session Output Summary
 
 **What**: Create a top-level session output summary document that captures the
-closing summary shown to the user as a persistent, scannable artifact. This is
-the "总括性" (overview) document — a single-page digest of everything the
-session produced.
+closing summary shown to the user as a persistent, scannable artifact.
+
+**Dispatch**: Direct `Write` operation.
 
 **Output**: `docs/reports/session-output-summary-<date>.md`
 
@@ -196,28 +215,54 @@ Status: closed
 `<hash> <message>`
 ```
 
+**Error capture**: If summary creation fails, record the failure and continue — the archive README (Step 2) serves as the fallback summary.
+
 ---
 
 ### Step 2: Task Archive
 
-**What**: Create the completed-task archive.
+**What**: Create the completed-task archive with full evidence bundle.
 
-- Classify the task: scope, risk, affected paths, non-goals.
-- Create `docs/completed-tasks/<date-slug>/README.md`.
-- Link task card, changed files, evidence, decisions, risks, follow-up.
+**Dispatch**: Explicit `Skill()` call to task-scoped-session-closer.
 
-Use the `task-scoped-session-closer` conventions:
+```
+Skill({
+  skill: "task-scoped-session-closer",
+  args: "archive task from card docs/agentic/tasks/<today>-<slug>.md
+         Session scope: <scope>, risk: <risk>
+         Changed files: <paths from git diff --stat>
+         Evidence: token report at docs/reports/token-audit/session-<date>.md,
+                   session summary at docs/reports/session-output-summary-<date>.md
+         Output: docs/completed-tasks/<date-slug>/README.md"
+})
+```
+
+**What the dispatched skill produces:**
+- `docs/completed-tasks/<date-slug>/README.md` — task archive with evidence, decisions, risks, follow-up
+- Classification: scope, risk, affected paths, non-goals
+- Links to task card, changed files, evidence artifacts
+
+**The dispatched skill enforces:**
 - Do not archive raw chat logs.
 - Record skipped checks as risk, not as passes.
 - Stage only scoped files for commit.
+
+**Verification**: After the skill completes, `Read` the archive README to verify it exists and has all required sections (Scope, Evidence Bundle, Decisions, Residual Risks, Follow-up).
+
+**Error capture**: If the skill fails, create a minimal archive README with the session output summary embedded and a note: "Minimal archive — task-scoped-session-closer dispatch failed: <reason>".
 
 ---
 
 ### Step 3: Experience & Promotion Evaluation
 
-**What**: Determine whether the session produced reusable material.
+**What**: Determine whether the session produced reusable material, and forge
+it into durable artifacts when found.
 
-Answer each of these explicitly in the archive:
+**Dispatch**: Two-stage — direct evaluation table + conditional Agent dispatch.
+
+**Stage 3a: Evaluate (direct operation)**
+
+Answer each of these explicitly and write to the archive:
 
 | Material | Decision | Reason / Evidence |
 |----------|----------|-------------------|
@@ -233,9 +278,43 @@ When a candidate is identified:
 
 If the answer is "no" for all three, write one sentence explaining why.
 
-When experience material IS identified (yes or candidate), invoke
-`bladesmith-quench-forge` to forge it into a durable artifact under
-`docs/agentic/experience/`.
+**Stage 3b: Forge experience (conditional Agent dispatch)**
+
+When experience material IS identified (yes or candidate):
+
+```
+Agent({
+  subagent_type: "bladesmith-quench-forge",
+  description: "Forge session experience",
+  prompt: "Forge experience from session <session-id>.
+           Task card: docs/agentic/tasks/<today>-<slug>.md
+           Archive: docs/completed-tasks/<date-slug>/README.md
+           Experience type: <experience/skill/agent>
+           Candidate name: <name>
+           Target: docs/agentic/experience/<slug>/
+           Evidence: <specific evidence from this session>
+           Forge a durable artifact with README, prompt, template, and eval scaffold."
+})
+```
+
+**Stage 3c: Token economics review (conditional Agent dispatch)**
+
+When the session had significant token cost (>200K tokens) or the BEI score is notable:
+
+```
+Agent({
+  subagent_type: "bookkeeper",
+  description: "Review session cost efficiency",
+  prompt: "Review token economics for session <session-id>.
+           Token report: docs/reports/token-audit/session-<date>.md
+           BEI score: <score>
+           Cost: $<cost>
+           Compare against project baselines (P50/P75).
+           Produce a one-paragraph efficiency verdict for the archive."
+})
+```
+
+**Error capture**: If bladesmith-quench-forge fails, record the candidate in the archive with a note: "Forge dispatch failed: <reason>. Candidate preserved for next session." If bookkeeper fails, embed the raw token report without commentary.
 
 ---
 
@@ -243,7 +322,9 @@ When experience material IS identified (yes or candidate), invoke
 
 **What**: Include the token benefit summary as a section in the archive README.
 
-Embed the key table from Step 1's report:
+**Dispatch**: Direct `Read` (from Step 1 output) + `Edit` (embed in archive).
+
+Embed the key table from Step 1's report into the archive README:
 
 ```markdown
 ## Token Benefit Summary
@@ -283,24 +364,62 @@ Also run the full trend report to update the project-level view:
 python -m tools.token_audit trend --days 7
 ```
 
+**Error capture**: If the trend report fails, skip it — it is informational, not blocking.
+
 ---
 
 ### Step 5: Commit & Push
 
 **What**: Stage only scoped files, commit with a concise message, push.
 
-Before commit:
+**Dispatch**: Direct `Bash` operations with pre-commit safety check.
+
+**Step 5a: Pre-commit safety check**
+
+Before staging, invoke git-session-branch-steward for branch safety:
+
+```
+Agent({
+  subagent_type: "git-session-branch-steward",
+  description: "Pre-commit branch safety check",
+  prompt: "Verify branch safety before committing session close artifacts.
+           Check: branch is master, no unrelated dirty files, push payload is scoped.
+           Changed files: <list from git status>
+           If safe: respond 'CLEAR'. If issues: respond 'BLOCKED: <reason>'."
+})
+```
+
+If the steward responds BLOCKED, stop and report the reason. Do NOT proceed to commit.
+
+**Step 5b: Stage and commit**
+
 ```bash
 git status
 git diff --stat
 ```
 
+Stage only the files created/modified in this pipeline:
+- `docs/agentic/tasks/<today>-<slug>.md`
+- `docs/reports/session-output-summary-<date>.md`
+- `docs/completed-tasks/<date-slug>/README.md`
+- `docs/reports/token-audit/session-<date>.md`
+- `docs/agentic/experience/<slug>/` (if created)
+- `.claude/current-task`
+
+```bash
+git add <scoped file list>
+git commit -m "<action>: <what changed>"
+```
+
 Commit message format: `<action>: <what changed>` (imperative, lowercase).
 
-Then:
+**Step 5c: Push**
+
 ```bash
 git push
 ```
+
+**Error capture**: If pre-commit check blocks, record block reason in archive. If commit fails, check for merge conflicts. If push fails, report: "Push failed — commits saved locally. Retry with `git push`."
 
 ---
 
@@ -315,11 +434,12 @@ At close, the following must exist on disk and be pushed:
    with deliverables, verification gates, narrative impact, and token summary
    (Step 1.5)
 4. `docs/completed-tasks/<date-slug>/README.md` — task archive with embedded
-   token benefit summary (Step 2)
+   token benefit summary (Step 2, dispatched to task-scoped-session-closer)
 5. `docs/reports/token-audit/session-<date>.md` — full token benefit report
    (Step 1)
-6. If experience extracted: `docs/agentic/experience/<slug>/README.md` (Step 3)
-7. Commit on `master` containing all of the above (Step 5)
+6. If experience extracted: `docs/agentic/experience/<slug>/README.md` (Step 3,
+   dispatched to bladesmith-quench-forge)
+7. Commit on `master` containing all of the above (Step 5, with git-session-branch-steward pre-check)
 
 ## Guardrails
 
@@ -333,21 +453,26 @@ At close, the following must exist on disk and be pushed:
 - Do not skip the push step if the user has authorized direct push.
 - Do not skip the experience/skill/agent evaluation table — "no" still needs a
   one-sentence reason.
+- Do not proceed to commit if git-session-branch-steward returns BLOCKED.
+- Do not retry a failed skill dispatch — record failure and continue (orchestrator handles retry).
 
 ## Claude Code Integration
 
-When invoked:
-- Use `Read` to check `.claude/current-task` and any existing task card.
-- Use `Write` to create or update the task card and `.claude/current-task`.
-- Use `Bash` to run `python -m tools.token_audit` commands for token data.
-- Use `Bash` to run `git status`, `git diff`, `git log` for commit prep.
-- Use `Write` to create the archive README, token report, and experience docs.
-- Use `Read` to inspect session JSONL transcripts for metadata.
-- Use `mcp__ccd_session__mark_chapter` to mark pipeline phase transitions.
-- Use `TaskCreate` / `TaskUpdate` to track pipeline steps if the session is
-  complex enough.
-- For the experience/skill/agent evaluation, check Claude memory at
-  `C:\Users\QR\.claude\projects\C--Codes-AI-GCS-A\memory\` for relevant
-  patterns before deciding.
-- At commit: stage only scoped files, use a concise imperative message, push
-  when authorized.
+### Direct operations (this skill performs itself)
+- `Read` — check `.claude/current-task`, existing task cards, session transcripts
+- `Write` — create/update task card, session output summary, `.claude/current-task`
+- `Edit` — embed token benefit report into archive README
+- `Bash` — run `python -m tools.token_audit`, `git status/diff/add/commit/push`
+
+### Explicit skill dispatch (this skill invokes other skills)
+- `Skill({skill: "task-scoped-session-closer", ...})` — Step 2 (task archive)
+- `Agent({subagent_type: "bladesmith-quench-forge", ...})` — Step 3b (experience forging)
+- `Agent({subagent_type: "bookkeeper", ...})` — Step 3c (token economics review)
+- `Agent({subagent_type: "git-session-branch-steward", ...})` — Step 5a (pre-commit safety)
+
+### Tracking
+- `TaskCreate` / `TaskUpdate` — track pipeline steps and dispatched sub-tasks
+- `mcp__ccd_session__mark_chapter` — mark pipeline phase transitions (CCD only)
+
+### Memory
+- Check Claude memory at `C:\Users\QR\.claude\projects\C--Codes-AI-GCS-A\memory\` for relevant patterns before experience/skill/agent evaluation

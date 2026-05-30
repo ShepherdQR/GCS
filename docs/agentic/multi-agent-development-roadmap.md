@@ -1,9 +1,10 @@
 # GCS Multi-Agent System — Development Roadmap
 
-**Date:** 2026-05-29
+**Date:** 2026-05-30 (v2 — supplemented)
 **Status:** Development Plan (post-baseline)
 **Baseline:** `docs/research/gcs-multi-agent-system-baseline-2026-05-29.md`
 **Principle Source:** `docs/research/orchestrator-design-principles.md` (13 principles)
+**v2 Supplement:** 6 resilience & governance gaps identified in baseline audit (2026-05-30)
 
 ---
 
@@ -370,7 +371,234 @@ A battery of end-to-end tests:
 
 ---
 
-## Dependency Graph
+## Phase 7: Resilience & Governance (v2 Supplement)
+
+**Goal:** Close the 6 gaps identified in the baseline audit that Phases 1-6 do not cover.
+**Duration:** 2-3 sessions
+**Prerequisite:** Phase 2 complete (needs wired dispatch); can run parallel with Phases 3-6
+
+### 7.1 Multi-Skill Conflict Resolution
+
+**Gap:** Claude Code auto-invocation matches multiple skills to one task with no arbitration.
+
+**Solution:**
+
+```yaml
+# Per-skill priority declaration (add to SKILL.md frontmatter)
+priority: 10       # 1 (lowest) to 100 (highest); default 50
+exclusive: false   # if true, blocks co-invocation of lower-priority skills
+
+# Conflict resolution rules (in orchestrator Phase 1)
+resolution_rules:
+  - if multiple skills match AND one has exclusive: true → use exclusive skill
+  - if multiple skills match AND none exclusive → invoke highest-priority, reference others as "consult"
+  - if priority tie → invoke the skill with narrower description scope (fewer trigger keywords)
+  - if still tie → ask orchestrator to choose based on task structure analysis
+```
+
+**Files to change:**
+- All 28 SKILL.md frontmatters — add `priority` and `exclusive` fields
+- `orchestrator` Phase 1 — add conflict resolution step before architecture selection
+
+**Success criteria:**
+- Every skill has a declared priority
+- Orchestrator logs which skills matched and why one was chosen
+- Tie-breaking produces deterministic results (same task → same skill each time)
+
+### 7.2 Cross-Session State Persistence (Checkpoint/Resume)
+
+**Gap:** Orchestrator state lost on session end; no resume from checkpoint.
+
+**Solution:**
+
+```
+Orchestrator state serialized to task card after EACH phase:
+
+task card .checkpoint field:
+  phase: 3              # last completed phase
+  workers_dispatched:    # what was sent
+    - {agent: "gcs-cpp-solver-maintainer", status: "complete", output: "src/gcs/foo.cpp"}
+    - {agent: "gcs-scene-behavior-steward", status: "pending"}
+  workers_pending:       # what still needs to run
+    - {agent: "gcs-scene-behavior-steward", brief: "update scene schema for foo"}
+  evidence_verified:     # what passed verification
+    - "src/gcs/foo.cpp passes tests"
+  architecture_decision: # what architecture was chosen
+    topology: "parallel"
+    reasoning: "independent subtasks with clean interfaces"
+```
+
+On next session start, if `.claude/current-task` points to a task card with `.checkpoint`:
+1. Read checkpoint
+2. Skip completed phases
+3. Re-dispatch pending workers
+4. Continue from last completed phase
+
+**Files to change:**
+- `orchestrator` — add checkpoint serialization after each phase
+- `task-intake` (Phase 3) — add checkpoint detection on session start
+- Task card schema — add `.checkpoint` field
+
+**Success criteria:**
+- Session interrupted after Phase 2 → next session resumes at Phase 3
+- Workers already completed are not re-dispatched
+- Worker outputs from previous session are re-verified (not assumed valid)
+
+### 7.3 Orchestrator Decision Quality Monitoring
+
+**Gap:** No feedback loop to detect and correct architecture misclassification.
+
+**Solution:**
+
+```
+After task completion, orchestrator records a self-assessment:
+
+.audit field in task card:
+  architecture_chosen: "parallel"
+  architecture_actual: "parallel"     # determined post-hoc from execution evidence
+  classification_correct: true        # false → misclassification detected
+  misclassification_indicators: []    # signals that suggest misclassification
+    # Example indicators:
+    # - cross-worker consistency check found contradictions requiring sequential resolution
+    # - worker outputs had hidden dependencies on each other
+    # - synthesis phase discovered subtasks were not truly independent
+
+Quality dashboard (updated by session-close-orchestrator Step 3):
+  - Classification accuracy over last 20 tasks
+  - Most common misclassification pattern (e.g., "tree judged as independent")
+  - Per-domain classification accuracy (solver vs. GUI vs. docs)
+```
+
+**Files to change:**
+- `orchestrator` Phase 4 — add self-assessment audit
+- `session-close-orchestrator` Step 3 — aggregate audit data into quality dashboard
+- `docs/agentic/quality/orchestrator-decision-audit.md` — running quality log
+
+**Success criteria:**
+- Every task card has `.audit` field after completion
+- Misclassification rate tracked over time
+- If misclassification rate >20%, orchestrator defaults to single-agent (safe fallback)
+
+### 7.4 Model Degradation Strategy
+
+**Gap:** Orchestrator hard-requires Opus; Opus unavailable → entire pipeline stalls.
+
+**Solution:**
+
+```
+Degradation tiers in orchestrator:
+
+Tier 1 (Opus available):
+  - orchestrator: Opus
+  - workers: as selected (Opus/Sonnet/Haiku per task)
+  - max parallel workers: 5
+
+Tier 2 (Opus unavailable — e.g., API failure, rate limit):
+  - orchestrator: Sonnet (strongest available ≥ workers)
+  - workers: Sonnet/Haiku only (Opus workers redirected to Sonnet)
+  - max parallel workers: 3 (Principle 5: weaker orchestrator → fewer workers)
+  - additional verification: all worker outputs get extra Acceptance Officer review
+  - warning emitted: "Degraded mode — Opus unavailable. Quality may be reduced."
+
+Tier 3 (Only Haiku available):
+  - abort multi-agent; fall back to single Haiku agent
+  - warning emitted: "Severely degraded — falling back to single-agent mode."
+```
+
+**Files to change:**
+- `orchestrator` — add model availability check before dispatch; degradation logic
+- `task-intake` — add degradation tier to task card metadata
+
+**Success criteria:**
+- Opus unavailable → system degrades to Tier 2 automatically, not crash
+- Tier 2 tasks flagged in archive for human review
+- Tier 3 tasks never attempt multi-agent dispatch
+
+### 7.5 Autonomous Cost Governance
+
+**Gap:** Headless mode has no token budget cap or circuit breaker.
+
+**Solution:**
+
+```
+Per-task token budget (in task card frontmatter):
+
+token_budget:
+  max_total: 500000        # hard cap — exceed → abort and escalate
+  warn_at: 350000          # soft cap — exceed → warn but continue
+  per_worker_max: 150000   # individual worker cap
+  budget_consumed: 0       # updated after each phase
+
+Cost governance rules:
+  - Before each worker dispatch: check remaining budget. If worker_max > remaining → skip worker, flag as "budget-excluded"
+  - Before Phase 4 (Synthesis): if >80% budget consumed → produce minimal synthesis (1 paragraph, no detailed merge)
+  - Budget exceeded → orchestrator writes partial results to task card, sets status: "budget-exceeded", STOPS
+
+Budget estimation at intake:
+  - Low-risk: 200K default
+  - Medium-risk: 500K default
+  - High-risk: 1M default
+  - Override: task card can specify custom budget
+```
+
+**Files to change:**
+- Task card schema — add `token_budget` field
+- `task-intake` — set budget based on risk classification
+- `orchestrator` — check budget before each dispatch; abort on exceed
+
+**Success criteria:**
+- No headless task exceeds its token budget
+- Budget-exceeded tasks produce partial results (not total loss)
+- Budget tracking visible in session output summary
+
+### 7.6 Architecture Rollback
+
+**Gap:** Wrong architecture choice → no detection or recovery path.
+
+**Solution:**
+
+```
+Architecture rollback triggers (in orchestrator Phase 3):
+
+Rollback trigger 1: Cross-worker consistency check reveals hidden dependencies
+  → Evidence: contradictions that required sequential resolution
+  → Action: abort remaining parallel workers; re-dispatch as sequential chain
+
+Rollback trigger 2: Multiple workers fail with related errors
+  → Evidence: ≥2 workers fail with errors suggesting shared-state dependency
+  → Action: abort all workers; re-dispatch as single agent with full context
+
+Rollback trigger 3: Synthesis phase discovers missing coverage
+  → Evidence: worker outputs don't cover all subtasks (coverage gap >20%)
+  → Action: spawn gap-filling worker; if gap >50%, re-plan and re-dispatch
+
+Rollback cost tracking:
+  - Record: original architecture, rollback reason, tokens wasted
+  - Feed into decision quality audit (7.3)
+  - If same task type triggers rollback 3× → blacklist that architecture for that task type
+```
+
+**Files to change:**
+- `orchestrator` Phase 3 — add rollback triggers
+- `orchestrator` Phase 4 — add rollback cost to audit
+
+**Success criteria:**
+- Hidden dependencies detected during verification trigger rollback
+- Rollback preserves completed worker outputs where possible (don't redo valid work)
+- Rollback events logged with root cause for quality improvement
+
+### Phase 7 Gate
+
+- [ ] All 28 skills have priority declarations in frontmatter
+- [ ] Orchestrator serializes checkpoint after each phase
+- [ ] Decision quality audit running with ≥5 completed tasks
+- [ ] Model degradation tested (simulate Opus unavailable)
+- [ ] Token budget enforced on ≥1 headless task
+- [ ] Architecture rollback triggered and logged on ≥1 test case
+
+---
+
+## Dependency Graph (v2)
 
 ```
 Phase 1 (Dispatch Wiring)
@@ -385,46 +613,58 @@ Phase 1 (Dispatch Wiring)
   │      │      │
   │      │      └──→ Phase 6 (Autonomous Operation)
   │      │
-  │      └──→ Phase 5 (Agent Maturity)  ← can run parallel with Phase 3+4
+  │      ├──→ Phase 5 (Agent Maturity)  ← can run parallel with Phase 3+4
+  │      │      │
+  │      │      └──→ Phase 6 (Autonomous Operation)
+  │      │
+  │      └──→ Phase 7 (Resilience & Governance)  ← can run parallel with Phase 3-6
   │             │
-  │             └──→ Phase 6 (Autonomous Operation)
+  │             └──→ Phase 6 (Autonomous Operation) — gates headless safety
   │
-  └── All phases converge on Phase 6
+  └── All phases converge on Phase 6; Phase 7 is the safety net
 ```
 
-**Parallelism opportunities:**
-- Phase 3 + Phase 4 can run in parallel (different files, different concerns)
-- Phase 5 can start as soon as Phase 2 delivers (agents need real usage on wired pipelines)
+**Parallelism opportunities (v2):**
+- Phase 3 + Phase 4 + Phase 7 can run in parallel (different files, different concerns)
+- Phase 7 items 7.1-7.6 are independent of each other — can be executed in any order
+- Phase 7.4 (model degradation) can run as early as Phase 1 (needs only orchestrator)
+- Phase 7.2 (checkpoint/resume) needs Phase 2 (connected orchestrators) for full benefit
 
 ---
 
-## Resource Estimates
+## Resource Estimates (v2)
 
 | Phase | Sessions | Tokens (est.) | Risk |
 |---|---|---|---|
-| 1: Dispatch Wiring | 1-2 | 200K-400K | Low — editing existing skill files |
-| 2: Connect Orchestrators | 1 | 150K-300K | Low — extending orchestrator Phase 5 |
-| 3: Intake Automation | 1-2 | 200K-500K | Medium — new skill, classification accuracy |
-| 4: Error Recovery | 1-2 | 200K-400K | Low — applying template to existing skills |
-| 5: Agent Maturity | 3-5 | 500K-1M | Medium — requires real-task evidence accumulation |
-| 6: Autonomous Operation | 2-3 | 300K-600K | High — changes fundamental operating model |
-| **Total** | **9-15 sessions** | **1.5M-3.2M tokens** | |
+| 1: Dispatch Wiring | 1-2 | 200K-400K | Low |
+| 2: Connect Orchestrators | 1 | 150K-300K | Low |
+| 3: Intake Automation | 1-2 | 200K-500K | Medium |
+| 4: Error Recovery | 1-2 | 200K-400K | Low |
+| 5: Agent Maturity | 3-5 | 500K-1M | Medium |
+| 6: Autonomous Operation | 2-3 | 300K-600K | High |
+| 7: Resilience & Governance | 2-3 | 300K-500K | Medium |
+| **Total (v2)** | **11-18 sessions** | **1.85M-3.7M tokens** | |
 
 ---
 
-## Success Metrics
+## Success Metrics (v2)
 
-| Metric | Baseline (2026-05-29) | Phase 6 Target |
-|---|---|---|
-| Skills with explicit dispatch | 1/28 (3.6%) | ≥6/28 (all process stewards + key gates) |
-| Orchestrator connection | None | Single invocation covers Steps 3–9 |
-| Autonomous triggering | None | Condition-based at session start |
-| Error recovery coverage | 1/28 skills | All 5 process stewards |
-| Agent maturity (Institutional) | 0/14 | ≥3/14 promoted (Acceptance Officer must be Practiced+) |
-| Acceptance Officer usage | 0 real tasks | Gates all closures |
-| Human gate mechanism | Documentation field | Active enforcement for high-risk |
-| End-to-end autonomy | 0% | Low/medium-risk tasks complete without human intervention |
-| Night-watch autonomy | Read-only (no commit/push) | Auto-commit clean reports |
+| Metric | Baseline (2026-05-29) | Phase 6 Target | Phase 7 Target |
+|---|---|---|---|
+| Skills with explicit dispatch | 1/28 (3.6%) | ≥6/28 | ≥6/28 |
+| Skills with priority declarations | 0/28 | — | 28/28 |
+| Orchestrator connection | None | Single invocation Steps 3–9 | + checkpoint/resume |
+| Autonomous triggering | None | Condition-based at session start | + degradation-aware |
+| Error recovery coverage | 1/28 skills | All 5 process stewards | + rollback triggers |
+| Agent maturity (Institutional) | 0/14 | ≥3/14 promoted | + decision quality audit |
+| Acceptance Officer usage | 0 real tasks | Gates all closures | + degradation mode review |
+| Human gate mechanism | Documentation field | Active enforcement | + budget governance |
+| End-to-end autonomy | 0% | Low/medium-risk tasks | + safe degradation |
+| Night-watch autonomy | Read-only | Auto-commit clean reports | + budget-capped |
+| Decision quality tracking | None | — | Running audit, ≥5 tasks |
+| Model degradation handling | None | — | Tier 1→2→3 automatic |
+| Token budget enforcement | None | — | Per-task caps with circuit breaker |
+| Architecture rollback | None | — | Detection + recovery logged |
 
 ---
 

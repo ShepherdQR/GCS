@@ -2,6 +2,8 @@
 name: orchestrator
 description: Evidence-based multi-agent task orchestrator. Invoke for complex, multi-step work where the optimal agent architecture is not obvious. This skill analyzes task structure, selects the right architecture (single agent, prompt chain, or parallel workers), dispatches to specialist agents/skills, verifies their outputs, and synthesizes results. NEVER invoke for single-file edits, typos, or trivial lookups — those are single-agent tasks.
 model: opus
+priority: 100
+exclusive: false
 ---
 
 # Orchestrator — Cross-Project Multi-Agent Coordination
